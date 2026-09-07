@@ -1133,7 +1133,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 		</plugins>
 	</build>
 
-
+<!--
 	<repositories>
 		<repository>
 			<id>internal</id>
@@ -1160,11 +1160,11 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 			<url>http://san-ds-dev.wiley.com:8080/archiva/repository/internal/</url>
 		</repository>
 	</repositories>
-	
+	-->
 	
 	<!--  **************************** Plugin Repositories  **************************  -->
 	
-	<pluginRepositories>
+<!--	<pluginRepositories>
 		<pluginRepository>
 			<id>snapshots</id>
 			<name>Internal Wiley Managed Repo</name>
@@ -1186,10 +1186,10 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 			</releases>
 			<url>http://san-ds-dev.wiley.com:8080/archiva/repository/internal/</url>
 		</pluginRepository>
-	</pluginRepositories>
+	</pluginRepositories> -->
 
 	<!--  ******************** Distribution Management *************************** -->
-	<distributionManagement>
+	<!--<distributionManagement>
 		<snapshotRepository>
 			<id>internal</id>
 			<layout>default</layout>
@@ -1204,7 +1204,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 			<uniqueVersion>false</uniqueVersion>
 			<name>Wiley Internal Repository</name>
 		</repository>
-	</distributionManagement>
+	</distributionManagement> -->
 	
 	<!-- ****************************  Profiles  ******************************** -->
 
