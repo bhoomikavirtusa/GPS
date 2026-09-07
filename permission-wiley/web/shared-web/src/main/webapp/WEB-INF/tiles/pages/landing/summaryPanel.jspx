@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+
+<c:url var="notesSaveUrl" value="/sapp/landing/saveNotes" />
+<c:url var="longSummaryUrl" value="/sapp/landing/longSummary?cwId=${cwId}" />
+<c:url var="landingMainUrl" value="/sapp/cwlanding/main?cwId=${cwId}" />
+<c:url var="toggleWatchedUrl" value="/sapp/landing/cw/toggleWatched" />
+<c:url var="toggleCWStatusUrl" value="/sapp/landing/cw/toggleCWStatus" />
+<c:url var="cwConditionViewEditUrl" value="/sapp/landing/cwConditions/viewEdit?cwId=${cwId}" />
+<c:url var="titleDocDownloadUrl" value="/sapp/panels/download_start?cwId=${cwId}" />
+
+
+<script type="text/javascript">
+//<![CDATA[
+$(function() {
+
+	$('#cwConditionViewEdit').click(function() {
+		if(${hasExportInProgress})
+		{
+		fnDisplaycount();
+		event.preventDefault();	
+		event.stopPropagation();
+		return false;
+		}
+	else
+		{
+		$("#modalDiv").load($(this).attr("href"), function() {
+			openModalDialog ('Minimum conditions');
+        });
+		// prevent the default action, e.g., following a link
+		return false;
+		}
+	});
+
+	$('#coverCWStatusSelect,#interiorCWStatusSelect').click(function() {
+	if(${hasExportInProgress})
+	{
+		fnDisplaycount();
+		event.preventDefault();	
+		event.stopPropagation();
+		return false;
+	}
+	});
+	
+	$('#titleDocuments_${cwId}').click(function(){
+		$.ajax({
+        	async: false,
+       		type: 'get',
+        	url: '${titleDocDownloadUrl}',
+        	success: function (response){
+        		// will return the download page if multiple files, else just download the file
+        		if (/html/i.test(response)) {
+        			openModalDialog ('Download');
+        			$('#modalDiv').empty().html(response);
+        		} else {
+			   		window.open(response);
+            	}
+        	}
+		});
+	});
+	
+	$('#notesEditLink_${cwId}').click(function() {
+		if(${hasExportInProgress})
+		{
+			fnDisplaycount();
+			event.preventDefault();	
+			event.stopPropagation();
+			return false;
+		}
+		else{
+			$("#notesView_${cwId}").hide();
+			$("#notesEdit_${cwId}").show();
+			return false;
+		}
+	});
+	
+	$('#notesCancelLink_${cwId}').click(function() {
+		$("#notesEdit_${cwId}").hide();
+		$("#notesView_${cwId}").show();
+		// might be better to reload so any changes made are undone
+		//$("#summaryPanel_${cwId}").load("${summaryPanelUrl}");
+		return false;
+	});
+	
+	$('#notesSaveLink_${cwId}').click(function() {
+		$.ajax({
+            type: 'post',
+            url: '${notesSaveUrl}',
+            data: $('#notesForm_${cwId}').serialize(),
+            success: function (response) {
+                $('#summaryPanel_${cwId}').html(response);
+            }
+        });
+	});
+
+	$('#coverCWStatusSelect').change(function() {
+		var prevStatus = $("#prevCoverStausCode").val();
+		var flag = true;
+		if(prevStatus == 'complete' || prevStatus == 'complete_no_3rd_prty') {
+			$("#selectbox-onchange-confirm").dialog({
+		    	resizable: false,
+		    	height: 150,
+		    	width: 400,
+		    	modal: true,
+		        buttons: {
+		            'Yes': function () {
+		            	flag = false;
+		                $(this).dialog('close');
+		                $("#coverCWStatusSelect").hide();
+		    	    	$("#coverCWStatusSavingMsg").show();
+
+		    			$.ajax({
+		    	            type: 'post',
+		    	            url: '${toggleCWStatusUrl}',
+		    	            data: $('#coverCWStatusForm').serialize(),
+		    	            success: function (response) {
+		    	            	if (response != "ok") {
+		    	            		alert(response);
+		    	            	}
+		    	            	// reload whole page since need to prevent adding more assets
+		    	                document.location.href = "${landingMainUrl}";
+		    	            }
+		    	        });
+		            },
+		            'No': function () {
+		                $(this).dialog('close');//On clicking on No button, closes dialog and calls close function.
+		            }
+		        },
+		        open: function() {
+		            $(this).closest('.ui-dialog').find('.ui-dialog-buttonpane button:eq(1)').focus();
+		        },
+		        close: function() {
+		        	if(flag) {
+		        		$($("#coverCWStatusSelect").val($("#prevCoverStausCode").val()));//set the cover select box to previous status.
+		        	}		        	
+		        }
+		    });
+		} else {
+			$("#coverCWStatusSelect").hide();
+	    	$("#coverCWStatusSavingMsg").show();
+
+			$.ajax({
+	            type: 'post',
+	            url: '${toggleCWStatusUrl}',
+	            data: $('#coverCWStatusForm').serialize(),
+	            success: function (response) {
+	            	if (response != "ok") {
+	            		alert(response);
+	            	}
+	            	// reload whole page since need to prevent adding more assets
+	                document.location.href = "${landingMainUrl}";
+	            }
+	        });
+		}
+	});
+	
+	$('#interiorCWStatusSelect').change(function() {
+		$("#interiorCWStatusSelect").hide();
+    	$("#interiorCWStatusSavingMsg").show();
+
+		$.ajax({
+            type: 'post',
+            url: '${toggleCWStatusUrl}',
+            data: $('#interiorCWStatusForm').serialize(),
+            success: function (response) {
+            	if (response != "ok") {
+            		alert(response);
+            	}
+            	// reload whole page since need to prevent adding more assets
+                //$('#summaryPanel_${cwId}').html(response);
+            	document.location.href = "${landingMainUrl}";
+            }
+        });
+	});
+	
+	$('#longSummaryLink').click(function() {
+		$("#modalDiv").load('${longSummaryUrl}', function() {
+			openModalDialog ('Product Details');
+        });
+		// prevent the default action, e.g., following a link
+		return false;
+	});
+	
+	$('#watchedCheckbox').click(function() {
+		$("#watchedSavingMsg").show();
+		$.ajax({
+            type: 'post',
+            url: '${toggleWatchedUrl}',
+            data: $('#watchedCheckboxForm').serialize(),
+            success: function (response) {
+                $('#summaryPanel_${cwId}').html(response);
+            }
+        });
+	});    
+
+});
+//]]>
+</script>
+
+<table class="box">
+	<c:if test="${permissionComplete}">
+		<tr>
+			<td colspan="2" class="error">Sorry, you cannot edit the page because you have the permission complete flag set on true</td>
+		</tr>
+	</c:if>
+	<tr>
+		<td colspan="2">
+			<b>${view.title}</b>
+			<a style="margin-left: 2em" id="longSummaryLink" href="${longSummaryUrl}">Details</a>
+		</td>
+	</tr>
+	
+	<tr>
+		<td class="label">Authors:</td>
+		<td class="value"><span title="${view.authorNames}">${wileyfn:truncate(view.authorNames, 50, false)}</span></td>
+	</tr>
+	<tr>
+		<td class="label">ISBN:</td>
+		<td class="value">${view.isbn}</td>
+	</tr>
+	<tr>
+		<td class="label">Manuscript to production date:</td>
+		<td class="value"><fmt:formatDate type="date" value="${view.manuscriptProductionDate}" /></td>
+	</tr>
+	<tr>
+		<td class="label">BBD:</td>
+		<td class="value"><fmt:formatDate type="date" value="${view.boundBookDate}" /></td>
+	</tr>
+	<tr>
+		<td class="label">Photo illustration total count:</td>
+		<td class="value">
+			${photoIllusTotalCount}
+			<form id="watchedCheckboxForm" style="display: inline; margin-left:40px;">
+				Bookmarked:
+				<input type="hidden" name="cwId" value="${cwId}" />
+				<c:if test="${watched}">
+					<input type="checkbox" name="watched" id="watchedCheckbox" checked="checked" />
+				</c:if>
+				<c:if test="${not watched}">
+					<input type="checkbox" name="watched" id="watchedCheckbox" />
+				</c:if>
+				<span id="watchedSavingMsg" style="display: none"> saving...</span>
+			</form>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<form id="coverCWStatusForm">
+				<input type="hidden" name="cwId" value="${cwId}" />
+				<input type="hidden" name="interior" value="false" />
+				<input type="hidden" id="prevCoverStausCode" name="prevCoverStausCode" value="${coverCWStatus.code}" />
+				Cover
+				<select name="cwStatusCode" id="coverCWStatusSelect" style="font-size: 11px">
+					<c:forEach items="${cwStatusArray}" var="cwStatus">
+						<c:if test="${cwStatus.code ne 'no_perm_req'}">
+							<c:choose>
+								<c:when test="${cwStatus.code == coverCWStatus.code}">
+									<option value="${cwStatus.code}" selected="selected">${cwStatus.description}</option>
+								</c:when>
+								<c:otherwise>
+									<!-- <c:choose>
+										<c:when test="${(not coverCompleteCapable and cwStatus.code == 'complete') or (cwStatus.code == 'complete_no_3rd_prty')}">
+											<option value="${cwStatus.code}" style="color: gray">${cwStatus.description}</option>
+										</c:when>
+										<c:otherwise> -->
+											<option value="${cwStatus.code}" style="color: gray">${cwStatus.description}</option>
+										<!-- </c:otherwise>
+									</c:choose> -->
+								</c:otherwise>
+							</c:choose>
+						</c:if>
+					</c:forEach>
+				</select>
+				<span id="coverCWStatusSavingMsg" style="display: none"> saving...</span>
+			</form>
+			<div id="selectbox-onchange-confirm" style="display: none" title="Warning: Permission Status">
+				<p>This Cover was marked Complete. Are you SURE you want to <br/>change it to another status?</p>
+			</div>
+		</td>
+		<td>
+			<form id="interiorCWStatusForm">
+				<input type="hidden" name="cwId" value="${cwId}" />
+				<input type="hidden" name="interior" value="true" />
+				Interior
+				<select name="cwStatusCode" id="interiorCWStatusSelect" style="font-size: 11px">
+					<c:forEach items="${cwStatusArray}" var="cwStatus">
+						<c:if test="${cwStatus.code ne 'complete_no_3rd_prty'}">
+							<c:choose>
+								<c:when test="${cwStatus.code == interiorCWStatus.code}">
+									<option value="${cwStatus.code}" selected="selected">${cwStatus.description}</option>
+								</c:when>
+								<c:otherwise>
+									<c:choose>
+										<c:when test="${(not interiorCompleteCapable and cwStatus.code == 'complete') or (not interiorNoPermRequiredCapable and cwStatus.code == 'no_perm_req')}">
+											<option value="${cwStatus.code}" style="color: gray">${cwStatus.description}</option>
+										</c:when>
+										<c:otherwise>
+											<option value="${cwStatus.code}">${cwStatus.description}</option>
+										</c:otherwise>
+									</c:choose>
+								</c:otherwise>
+							</c:choose>
+						</c:if>
+					</c:forEach>
+				</select>
+				<span id="interiorCWStatusSavingMsg" style="display: none"> saving...</span>
+			</form>
+		</td>
+	</tr>
+	
+	<tr>
+		<td colspan="2">
+			<table>
+				<tr>
+					<td class="label">Notes: </td>
+					<td class="label">
+						<c:if test="${fn:length(files) > 0}">
+							<jsp:element name="input">
+								<jsp:attribute name="type">image</jsp:attribute>
+								<jsp:attribute name="alt">Title Level Documents</jsp:attribute>
+								<jsp:attribute name="title">Title Level Documents</jsp:attribute>
+								<jsp:attribute name="src">
+									<c:url value="/images/invoice_icon_tiny.png" />
+								</jsp:attribute>
+								<jsp:attribute name="id">titleDocuments_${cwId}</jsp:attribute>
+							</jsp:element>
+							
+						</c:if>
+						</td><td class="label">
+						<jsp:element name="input">
+							<jsp:attribute name="type">image</jsp:attribute>
+							<jsp:attribute name="alt">Edit</jsp:attribute>
+							<jsp:attribute name="title">Edit</jsp:attribute>
+							<jsp:attribute name="src">
+								<c:url value="/images/buttons/edit-icon.png" />
+							</jsp:attribute>
+							<jsp:attribute name="id">notesEditLink_${cwId}</jsp:attribute>
+						</jsp:element> 
+					</td>
+					<td class="value">
+						<span id="notesView_${cwId}" title="${view.notesEscaped}">${view.notesTruncated}</span>
+						<span id="notesEdit_${cwId}" style="display: none">
+							<form id="notesForm_${cwId}">
+							<input type="hidden" name="cwId" value="${cwId}" />
+							<textarea name="notes" rows="4" cols="60">
+								<c:out value="${view.notes}" />
+							</textarea>
+							</form>
+							<div class="buttonset">	
+								<button id="notesSaveLink_${cwId}">Save</button>
+								<button id="notesCancelLink_${cwId}">Cancel</button>
+							</div>
+						</span>
+					</td>
+					 <td>
+					<form id="productPriorityForm" style="display: inline; margin-left:336px;">
+							Tier :
+							${view.productPriority}
+						</form>
+					</td>
+ 					
+				</tr>
+			</table>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2">
+		<b><a href="${cwConditionViewEditUrl}" id="cwConditionViewEdit">Minimum permissions required for this product: </a></b>${permissionInfo}
+		</td>
+	</tr>
+</table>
+
+</jsp:root>

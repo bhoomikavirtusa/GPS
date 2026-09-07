@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:security="http://www.springframework.org/security/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+
+<c:url var="sourceListUrl" value="${wileyfn:getRestUrl(pageContext.request)}/service/asset/source/list/" />
+<c:url var="assetLandingUrl" value="/sapp/cwlanding/main" />
+<c:url var="permissionsPage1Url" value="/sapp/permissions/po/source_start" />
+<c:url var="editPoUrl" value="/sapp/permissions/po/edit_start" />
+<c:url var="contractPage1Url" value="/sapp/permissions/contract/source_start" />
+<c:url var="editContractUrl" value="/sapp/permissions/contract/edit_start" />
+<c:url var="payUrl" value="/sapp/permissions/paymentrequest/source_start" />
+
+
+<c:if test="${not param.isReadOnly}">
+	<security:authorize access="hasAnyRole('edit_chapters', 'EMPLOYEE_DEFAULT')">
+		<c:url var="sourceTableRowTemplateUrl" value="/jtemplates/sourceTableRow.html" />
+	</security:authorize>
+	<security:authorize access="!hasAnyRole('edit_chapters', 'EMPLOYEE_DEFAULT')">
+		<c:url var="sourceTableRowTemplateUrl" value="/jtemplates/readOnlySourceTableRow.html" />
+	</security:authorize>	
+</c:if>
+<c:if test="${param.isReadOnly}">
+	<c:url var="sourceTableRowTemplateUrl" value="/jtemplates/readOnlySourceTableRow.html" />
+</c:if>
+
+	<c:set var="includeCovers" value="false" />
+	<security:authorize access="hasAnyRole('EMPLOYEE_DEFAULT', 'cover_assets')">
+		<c:set var="includeCovers" value="true" />
+	</security:authorize>
+
+	<jsp:directive.include file="js/checkbox.selector.js.jspx" />
+	<script type="text/javascript">
+//<![CDATA[
+
+	var oSSelector = new Selector();
+	oSSelector.checkBox = 'sList';
+	
+	var sourceTable;
+
+	/*
+	 * creates the main dataTable
+	 */
+	function createSourceTable (id, placeHolder) {
+		sourceTable = $(placeHolder).dataTable( {
+			"aoColumnDefs" : [
+				{"mDataProp" : "sourceId", 		  "sTitle" : "Select <input type='checkbox' id='check_all' onclick='oSSelector.fnCheckAll(this, sourceTable.fnGetAllValues(0))' style='padding: 0px; margin: 0px' />", 			"aTargets": [ 0 ], "sWidth" : "5%", "bSortable": false},
+				{"mDataProp" : "name", 			  "sTitle" : "Source", 			"aTargets": [ 1 ], "sWidth" : "20%", "bSortable": true},
+				{"mDataProp" : "contactName", 	  "sTitle" : "Contact Name", 	"aTargets": [ 2 ], "sWidth" : "10%", "bSortable": false},
+				{"mDataProp" : "contactEmail", 	  "sTitle" : "Contact Email", 	"aTargets": [ 3 ], "sWidth" : "10%", "bSortable": false},
+				{"mDataProp" : "totalCount", 	  "sTitle" : "Number of Assets","aTargets": [ 4 ], "sWidth" : "10%", "bSortable": false},
+				{"mDataProp" : "requestedCount",  "sTitle" : "Requested", 		"aTargets": [ 5 ], "sWidth" : "5%", "bSortable": false},
+				{"mDataProp" : "enteredCount", 	  "sTitle" : "Entered", 		"aTargets": [ 6 ], "sWidth" : "5%", "bSortable": false},
+				{"mDataProp" : "unrequestedCount","sTitle" : "Unrequested", 	"aTargets": [ 7 ], "sWidth" : "10%", "bSortable": false},
+				{"mDataProp" : "disabled", 		  "sTitle" : "Disabled", 		"aTargets": [ 8 ], "bVisible" : false},
+				{"mDataProp" : "needPaymentCount","sTitle" : "Pay", 			"aTargets": [ 9 ], "bVisible" : false}
+			],
+			"fnRowCallback": function( nRow, aData, iDisplayIndex ) {
+				$(nRow).setTemplateURL('${sourceTableRowTemplateUrl}');
+		        $(nRow).setParam ('aData', aData);
+		        $(nRow).setParam ('cwId', ${param.cwId});
+		        $(nRow).processTemplate();
+		        		        
+				// bind events
+				$('a.permissions', nRow).unbind('click').bind ('click', fnClickGetPermissionsHandler);	
+				$('a.viewPermissions', nRow).unbind('click').bind ('click', fnClickViewPermissionsHandler);	
+				$('a.contractDetails', nRow).unbind('click').bind ('click', fnClickAddContractDetailsHandler);
+				$('a.editContractDetails', nRow).unbind('click').bind ('click', fnClickEditContractDetailsHandler);				
+				$('a.pay', nRow).unbind('click').bind ('click', fnClickPayHandler);
+				$('#sList', nRow).unbind('click').bind ('click', fnClickCheckboxHandler);
+				
+				// allow row to be disabled 
+				$(nRow).addClass('disable');
+				$('td', nRow).addClass('disable');
+				return nRow;
+			},			
+			"sAjaxSource": '${sourceListUrl}' + id + '/${includeCovers}?callback=?',
+			"sScrollY": "500px",
+			"sDom": "rti",
+			"bPaginate": false,
+			"bDeferRender": true,
+			"bStateSave": true,
+			"fnInitComplete": function () {
+				fnDisablePage();
+			}			
+		});
+
+		return sourceTable;
+	}
+
+//]]>		
+	</script>
+
+	<script type="text/javascript">
+//<![CDATA[
+		function fnClickCheckboxHandler ( event ) {
+	  		// alert('isChecked: ' + $(this).is(':checked'));
+	  		var nVal = parseInt ($(this).val());
+			if ($(this).is(':checked')) {
+				oSSelector.fnAdd (nVal);
+			} else {
+				// remove from array
+				oSSelector.fnRemove (nVal);
+			}
+		}
+
+		function fnClickPayHandler (event) {
+			var sourceId = this.id;
+			$("#modalDiv").load('${payUrl}?sourceId=' + sourceId + "&cwId=" + ${param.cwId}, function() {
+				openModalDialog ('Pay');
+	        });		
+		}
+ 
+		function fnClickGetPermissionsHandler (event) {
+			var sourceId = this.id;
+			$("#modalDiv").load('${permissionsPage1Url}?sourceId=' + sourceId + "&cwId=" + ${param.cwId}, function() {
+				openModalDialog ('Get permissions');
+	        });		
+		}
+		
+		function fnClickViewPermissionsHandler (event) {
+			var sourceId = this.id;
+			$("#modalDiv").load('${editPoUrl}?sourceId=' + sourceId + "&cwId=" + ${param.cwId}, function() {
+				openModalDialog ('View permissions');
+	        });		
+		}
+		
+		function fnClickEditContractDetailsHandler (event) {
+			var sourceId = this.id;
+			$("#modalDiv").load('${editContractUrl}?sourceId=' + sourceId + "&cwId=" + ${param.cwId}, function() {
+				openModalDialog ('View contracts');
+	        });		
+		}
+				
+		function fnClickAddContractDetailsHandler (event) {
+			var sourceId = this.id;		
+			$("#modalDiv").load('${contractPage1Url}?sourceId=' + sourceId + "&cwId=" + ${param.cwId}, function() {
+				openModalDialog ('Enter grant details');
+	        });	
+		}
+		
+		$(document).ready(function() {
+			createSourceTable (${param.cwId}, '#sourceTable');
+		} );
+//]]>
+	</script>
+
+	<br/><br/>
+
+	<table class="display" id="sourceTable" style="width: 100%; font-size: 9pt">
+		<thead>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+</jsp:root>

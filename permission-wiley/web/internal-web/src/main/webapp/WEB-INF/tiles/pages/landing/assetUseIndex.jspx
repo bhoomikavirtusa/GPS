@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root 
+	version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page pageEncoding="UTF-8"/>
+
+	
+	<c:url var="buildUrl" value="/sapp/assetUseIndex/build" />
+	
+	<jsp:directive.include file="/WEB-INF/tiles/pages/include/generalMessage.jspx" />
+    
+    <div style="margin-top: 1em">	
+	<form method="post" action="${buildUrl}">
+		CW id(s) <input type="text" name="cwIds" id="cwIds" size="35" />
+    	<!-- <input type="submit" value="Build Index (partly async)" />
+    	(blank means rebuild the entire index, or you can enter CW ids separated by spaces) <br />
+    	<input type="checkbox" name="overridePrimeTime" /> Run regardless of "Prime Time" (M-F 8am-7pm)-->
+   	  <c:if test="${not empty cwId}">
+   	     <input type="submit" id="buildCurrProd" value="Build Index for current product" /> 
+   	  </c:if>
+    </form>
+    </div>
+    
+    
+	<script type="text/javascript">
+ 
+		$('#buildCurrProd').click (function() {
+			$("#cwIds").val("${cwId}");
+			return true;
+		});
+		
+	</script>
+    
+</jsp:root>

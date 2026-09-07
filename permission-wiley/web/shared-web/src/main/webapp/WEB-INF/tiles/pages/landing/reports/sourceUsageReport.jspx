@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page pageEncoding="UTF-8" />
+	
+	<c:url var="nextUrl" value="/sapp/commonwork/report/sourceUsageReport" />
+	<c:url var="prevUrl" value="/sapp/product/userLanding/main" />
+	
+	<c:url var="sourceSearchUrl" value="${wileyfn:getRestUrl(pageContext.request)}/service/source/search" />
+	<c:url var="deleteIconUrl" value="/images/buttons/delete-icon.png" />
+	
+	<jsp:element name="script">
+			<jsp:attribute name="type">text/javascript</jsp:attribute>
+			<jsp:attribute name="src">
+			<c:url value="/js/jquery.ui.datepicker.min.js"/>
+			</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+
+	<jsp:body>
+		<c:url var="photocopyrightReportUrl" value="/sapp/commonwork/report/sourceUsageReport" />
+		
+		<h3>Permission System Source Usage Report </h3>
+		
+		<form:form modelAttribute="SourceUsageReportForm">		
+   			<table border="1">
+   				<tr>
+   					<td>
+   						<c:if test="${empty Sources}">
+   							No Sources Selected
+   						</c:if>
+   						<c:if test="${not empty Sources}">
+							<!-- Use smaller font size than normal since so many columns. -->
+							<table>
+								<thead>
+									<tr>
+										<th>Source Name</th>
+										<th> / </th>
+										<th> Remove</th>
+									</tr>
+								</thead>
+							</table>
+							
+							<div style="height: 260px; width: 100%; overflow: auto">
+								<table class="display fullWidth" style="font-size: 9pt" id="selectedSourcesTable">
+									<tbody>
+										<c:forEach items="${Sources}" var="source">
+											<tr>
+												<td><c:out value="${source.name}" /></td>
+												<td>
+													<a href="#" onClick="removeSource (${source.id})"><img src="${deleteIconUrl}" /></a>
+												</td>
+											</tr>
+										</c:forEach>
+									</tbody>
+								</table>
+							</div>
+						</c:if>
+   					</td>
+  
+					<td>
+						<table>
+							<tr>
+								<td>
+									<table>
+										<tr>
+											<td>
+												<input type="button" id="AddSource" value="&lt;-Add" />
+											</td>
+											<td colspan="7">
+												Search: <form:input path="searchSourceName" size="60" class="required" />
+												<form:hidden path="selectedSourceId" />
+												<form:hidden path="processingType" />
+											</td>
+										</tr>
+										<tr><td><input type="button" id="AddNoFly" value="&lt;-Add All No-fly Sources" /></td></tr>
+										<tr><td><input type="button" id="AddPreferred" value="&lt;-Add All Preferred Vendors" /></td></tr>
+										<tr><td><input type="button" id="AddMASources" value="&lt;-Add All Master Agreement Sources" /></td></tr>
+										<tr><td><input type="button" id="AddSourceGroup" value="&lt;-Add Selected Source Group Sources" /></td>
+											<td>
+												<form:select path="selectedSourceGroup"> 
+													<form:option value="0">Select Source Group</form:option>
+													<form:options items="${sourceGroups}" itemValue="id" itemLabel="name" />
+												</form:select>
+											</td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<table border="1">
+										<tr>
+											<td>
+												<table>
+													<tr><td colspan="6">Date Range Filter</td></tr>
+													<tr>
+														<td>Date Type</td>
+														<td>
+															<form:select path="dateType" class="required">
+				    											<form:option label="CRD" value="1"/>
+				    											<form:option label="Invoice Date" value="2"/>
+															</form:select>
+														</td>
+														<td>From Date</td>
+														<td>
+						 									<input type="text" class="datepicker" id="d_fromDate" name="d_fromDate" size="12" maxlength="12"/> (${dateFormat})
+			   			 									<form:hidden class="datepicker" path="fromDate"/>
+														</td>
+														<td>To Date</td>
+														<td>
+						 									<input type="text" class="datepicker" id="d_toDate" name="d_toDate" size="12" maxlength="12"/> (${dateFormat})
+			   			 									<form:hidden class="datepicker" path="toDate"/>
+														</td>
+													</tr>
+												</table>
+											</td>
+										</tr>
+									</table>	
+								</td>
+							</tr>
+
+							<tr>
+								<td>
+									<table border="1">
+										<tr>
+											<td>
+												<table>
+													<tr><td></td></tr>
+													<tr><td colspan="6">Product filter</td></tr>
+													<tr>
+														<td>Division:</td>
+														<td>
+															<form:select path="division">
+																<form:option label="All Divisions" value="all"/>
+																<c:forEach items="${bu}" var="bu">
+																	<form:option label= "${bu.name}" value="${bu.code}" /> 
+																</c:forEach> 
+															</form:select>
+														</td>
+						
+														<td>Product Line(s) </td>
+														<td><form:input path="productLines" size="20" /></td>
+						
+														<td>Product status</td>
+														<td>
+						  									<form:select path="productStatus" class="required">
+				    											<form:option label="Active" value="active"/>
+				    											<form:option label="Inactive" value="inactive"/>
+															</form:select>
+														</td>
+													</tr>	
+												</table>
+											</td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+
+							<tr>
+								<td>
+									<table>
+										<tr>
+											<td>
+												<table>
+													<tr><td>
+														<form:radiobutton path="reportType" value="1" cssStyle="margin-left: 1em"/>Report by Asset
+													</td></tr>
+													<tr><td>
+														<form:radiobutton path="ReportType" value="2" cssStyle="margin-left: 1em"/>Report by Invoice
+													</td></tr>
+												</table>
+											</td>
+						
+											<td>Show assets</td>
+											<td>
+							 					<form:select path="assetsToShow" class="required">
+				    								<form:option label="All" value="1"/>
+				    								<form:option label="Cover only" value="2"/>
+				    								<form:option label="Interior only" value="3"/>
+							 					</form:select>
+											</td>
+											<td></td>
+											<td colspan="2">
+												<div class="buttonset">					
+													<input type="submit" id="generateB" value="Generate Spreadsheet" />
+													<a href="#" id="cancel" class="button">Cancel</a> 	 															
+												</div>
+											</td>
+										</tr>
+										<c:forEach items="${SourceUsageReportForm.sources}" var="source" varStatus="status">
+											<form:hidden path="sources[${status.index}].name" />
+											<form:hidden path="sources[${status.index}].id" />
+										</c:forEach>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			</table>
+		</form:form>
+		
+		<br/>
+		
+	</jsp:body>
+	
+	<script type="text/javascript">
+	$(document).ready(function() {
+		$('#selectedSourcesTable').dataTable( {
+			"aoColumns": [
+							{ "sWidth" : "45%" }, // Author name
+							{ "sWidth" : "10%", "sClass" : "center", "bSearchable" : false, "bSortable": true } // Remove
+						],
+						"aaSorting": [[1, "asc" ]],
+
+						"bAutoWidth": false,
+						"bProcessing": true,
+						"bStateSave": true,
+						"bPaginate" : true,
+						"sPaginationType": "full_numbers",
+						"aLengthMenu": [10, 15, 25, 50, 100],  // override default of [10, 25, 50, 100]
+						"iDisplayLength": 15,
+						"sDom" : "rt"
+		} );
+	} );
+	</script>
+	
+	<script type="text/javascript">
+	//<![CDATA[
+    $(document).ready(function() {
+  		$('#generateB').click (function() {
+			$( "#processingType" ).val ("report");
+			$('#SourceUsageReportForm').submit();		
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+
+  		$('#cancel').click (function() {
+  			document.location.href = "${prevUrl}";
+		});
+        
+		$('#AddSource').click (function() {
+			$( "#processingType" ).val("add");
+			$('#SourceUsageReportForm').submit();
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+
+		$('#AddNoFly').click (function() {
+			$( "#processingType" ).val("AddNoFly");
+			$('#SourceUsageReportForm').submit();
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+
+		$('#AddPreferred').click (function() {
+			$( "#processingType" ).val("addPreferred");
+			$('#SourceUsageReportForm').submit();
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+
+		$('#AddMASources').click (function() {
+			$( "#processingType" ).val("AddMASources");
+			$('#SourceUsageReportForm').submit();
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+
+		$('#AddSourceGroup').click (function() {
+			$( "#processingType" ).val("AddSourceGroup");
+			$('#SourceUsageReportForm').submit();
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+
+		$.datepicker.setDefaults({
+		     dateFormat: '${dateFormat}'
+		});
+		
+		$(function() {
+			$("#fromDate").datepicker();
+			$("#d_fromDate").datepicker();
+			var d1 = $.datepicker.parseDate('mm/dd/yy', $("#fromDate").val());
+			var d2 = $.datepicker.formatDate('${dateFormat}', d1);
+	    	$("#d_fromDate").val(d2);
+			
+			$("#toDate").datepicker();
+			$("#d_toDate").datepicker();
+			var d1 = $.datepicker.parseDate('mm/dd/yy', $("#toDate").val());
+			var d2 = $.datepicker.formatDate('${dateFormat}', d1);
+	    	$("#d_toDate").val(d2);
+		});
+
+		$("#d_fromDate").change(function() {
+			var d1 = $.datepicker.parseDate('${dateFormat}', $("#d_fromDate").val());
+			var d2 = $.datepicker.formatDate('mm/dd/yy', d1);
+	    	$("#fromDate").val(d2);
+		});
+
+		$("#d_toDate").change(function() {
+			var d1 = $.datepicker.parseDate('${dateFormat}', $("#d_toDate").val());
+			var d2 = $.datepicker.formatDate('mm/dd/yy', d1);
+	    	$("#toDate").val(d2);
+		});
+	});
+
+		$( "#searchSourceName" ).autocomplete({
+			source: function( request, response ) {
+				$.jsonp({
+					"url": '${sourceSearchUrl}/' + request.term + '?callback=?', 
+					"success": function(json) {
+						response( $.map( json, function( item ) {
+							return {
+								value: item.name,
+								id: item.id,
+								disabled: item.disabled
+							}
+						}));
+					},
+					"error": function() {
+			        	alert ("Error: failed to search sources");
+			        }
+		        });				
+			},
+			minLength: 3,
+			select: function( event, ui ) {
+				if (ui.item.disabled) {
+					alert ("This source may not be used. Please select a different source.");
+					$( "#searchSourceName" ).val ("");
+					return false;
+				} else {
+					$( "#searchSourceName" ).val (ui.item.name);
+					$( "#selectedSourceId" ).val (ui.item.id);
+					// changeSource(ui.item.id);
+				}
+			},
+			open: function() {
+				$(this).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+			},
+			close: function() {
+				$(this).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+			}
+		});
+
+		function removeSource(id) {
+			var r = confirm("Are you sure you want to remove this source?");
+			if (r == true) {
+				$( "#selectedSourceId" ).val(id);
+				$( "#processingType" ).val("remove");
+				$('#SourceUsageReportForm').submit();
+				return false;
+			} else {
+			    return false;
+			}
+		}
+	//]]>		
+	</script>
+</jsp:root>

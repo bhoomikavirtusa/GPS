@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<parent>
+		<artifactId>services-parent</artifactId>
+		<groupId>com.wiley.permissions.services</groupId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+
+	<!-- When groupId and version tags omitted here, same as parent -->
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>permission-validator</artifactId>
+	<name>Permissions Validator</name>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-aspects</artifactId>
+		</dependency>
+	
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-tx</artifactId>
+		</dependency>
+	
+		<dependency>
+			<groupId>commons-dbcp</groupId>
+			<artifactId>commons-dbcp</artifactId>
+		</dependency>
+	
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+		</dependency>
+			
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.jmx</groupId>
+			<artifactId>jmxri</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+		</dependency>
+	
+		<dependency>
+			<groupId>com.sun.jdmk</groupId>
+			<artifactId>jmxtools</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.thoughtworks.xstream</groupId>
+			<artifactId>xstream</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.drools</groupId>
+			<artifactId>drools-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.drools</groupId>
+			<artifactId>drools-compiler</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.drools</groupId>
+			<artifactId>drools-decisiontables</artifactId>
+		</dependency>
+	
+		<dependency>
+			<groupId>org.drools</groupId>
+			<artifactId>drools-jsr94</artifactId>
+		</dependency>
+		
+		<dependency><!-- Needed by drools, version matches the super pom -->
+			<groupId>org.mvel</groupId>
+			<artifactId>mvel</artifactId>
+			<version>1.3.1-java1.4</version>
+		</dependency>
+		
+		<dependency><!-- needed by drools, version matches the super pom -->
+			<groupId>org.eclipse.jdt</groupId>
+			<artifactId>core</artifactId>
+			<version>3.2.3.v_686_R32x</version>
+		</dependency>
+
+		<dependency><!-- needed by drools, version matches the super pom -->
+			<groupId>org.antlr</groupId>
+			<artifactId>antlr-runtime</artifactId>
+			<version>3.0.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.wiley.permissions.common</groupId>
+			<artifactId>permission-persistence</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+	
+		<dependency>
+			<groupId>com.wiley.permissions.common</groupId>
+			<artifactId>permission-common-utils</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+			
+		<dependency>
+			<groupId>com.wiley.permissions.services</groupId>
+			<artifactId>permission-services</artifactId>
+			<version>1.0-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>geronimo-j2ee-management_1.0_spec.osgi</artifactId>
+					<groupId>org.apache.geronimo.specs</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+			
+	</dependencies>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<!-- 
+					<excludes>
+					<exclude>log4j.xml</exclude>
+					</excludes>
+				-->
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>${maven.jar.version}</version>
+				<configuration>
+					<outputDirectory>${perm.mule.dir}</outputDirectory>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

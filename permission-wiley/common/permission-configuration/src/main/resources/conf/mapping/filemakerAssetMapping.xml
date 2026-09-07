@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- NOT USED ANYMORE - the mapping is done in FilemakerDataImportUtility.class -->
+<workbook>
+	<worksheet name="assets">
+		<section startRow="0" endRow="0" />		
+		<loop startRow="2" endRow="2" items="assets" var="assetUse"
+			varType="com.wiley.permissions.domain.persistence.permissions.ExtendedAssetUse">
+			<section startRow="2" endRow="2">
+				<mapping row="2" col="0">assetUse.component.name</mapping>
+				<mapping row="2" col="1">assetUse.typeSection</mapping>
+				<mapping row="2" col="2">assetUse.typeFigure</mapping>
+				<mapping row="2" col="3">assetUse.position</mapping>
+				<mapping row="2" col="4">assetUse.finalPage</mapping>
+				<mapping row="2" col="5">assetUse.pagePosition.code</mapping>
+				<mapping row="2" col="6">assetUse.pickupComment</mapping>
+				<mapping row="2" col="7">assetUse.extSortOrder</mapping>
+				<mapping row="2" col="8">assetUse.asset.description</mapping>
+				<mapping row="2" col="9">assetUse.canceled</mapping>
+				<mapping row="2" col="10">assetUse.inColor</mapping>
+				<mapping row="2" col="11">assetUse.blackAndWhite</mapping>
+				<mapping row="2" col="12">assetUse.asset.vendorId</mapping>
+				<!-- DO NOT IMPORT <mapping row="2" col="13">assetUse.designSize</mapping>  -->
+				<mapping row="2" col="14">assetUse.photoSize</mapping>
+				<mapping row="2" col="15">assetUse.asset.artist</mapping>
+				<mapping row="2" col="16">assetUse.asset.creditLine</mapping>
+				<mapping row="2" col="17">assetUse.cameraCopy</mapping>
+				<mapping row="2" col="18">assetUse.free</mapping>
+				<mapping row="2" col="19">assetUse.royaltyFree</mapping>
+				<mapping row="2" col="20">assetUse.obtainedByAuthor</mapping>
+				<mapping row="2" col="21">assetUse.chapterOpener</mapping>
+				<mapping row="2" col="22">assetUse.workForHire</mapping>
+				<mapping row="2" col="23">assetUse.modelRelease</mapping>
+				<mapping row="2" col="24">assetUse.isExtNew</mapping>
+				<!-- DO NOT IMPORT <mapping row="2" col="25">assetUse.retain</mapping>  -->
+				<mapping row="2" col="26">assetUse.reuse</mapping>
+				<mapping row="2" col="27">assetUse.isExtArchive</mapping>
+				<mapping row="2" col="28">assetUse.permissionComment</mapping>
+				<mapping row="2" col="29">assetUse.productionComment</mapping>
+				<mapping row="2" col="30">assetUse.asset.source[0].name</mapping>
+				<mapping row="2" col="31">assetUse.asset.source[0].externalId</mapping>
+				<mapping row="2" col="32">assetUse.commonWork.primaryProduct.isbn10</mapping>
+			</section>
+			<loopbreakcondition>
+ 				<rowcheck offset="0">
+ 					<cellcheck offset="0"></cellcheck>
+ 					<cellcheck offset="1"></cellcheck>
+ 					<cellcheck offset="2"></cellcheck>
+ 					<cellcheck offset="3"></cellcheck>
+ 					<cellcheck offset="4"></cellcheck>
+ 					<cellcheck offset="5"></cellcheck>
+ 					<cellcheck offset="6"></cellcheck>
+ 					<cellcheck offset="7"></cellcheck>
+ 					<cellcheck offset="8"></cellcheck>
+ 				</rowcheck>
+ 			</loopbreakcondition>			
+		</loop>
+	</worksheet>
+</workbook>

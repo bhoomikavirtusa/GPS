@@ -1,0 +1,236 @@
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+>
+	<c:url var="nextUrl" value="/sapp/landing/authorAccess/userDetails" />
+	<c:url var="prevUrl" value="/sapp/landing/authorAccess/viewEdit?cwId=${param.cwId}" />
+	<c:url var="regenPasswordUrl" value="/sapp/landing/authorAccess/regenPassword" />
+	<c:url var="checkEmailUrl" value="/sapp/landing/authorAccess/checkEmail" />
+	<c:url var="selectByEmailUrl" value="/sapp/landing/authorAccess/userDetailsByEmail?cwId=${param.cwId}&amp;email=" />
+
+	<script type="text/javascript">
+		$('#regenLink').click (function() {
+			var ok = confirm("Are you sure you want to reset the password for this author?");
+			if (!ok)  return false;
+			
+			$.ajax({
+	            async: false,
+	            type: 'post',
+	            url:  $(this).attr('href'),
+	            success: function (response) {
+				 	$('#regenDiv').empty().html("Save the user information and the new password will be sent.");
+	            }
+	        });
+
+	        return false;
+		});	
+		
+    	$('#user\\.email').change(function() { 
+        	var test = 0
+        	$.ajax({
+            	type: 'post',
+            	url: '${checkEmailUrl}' + '?email=' + $('#user\\.email').val(),
+            	data: $('#manageUserForm').serialize(),
+            	 success: function (response) {
+               	 	if (response.indexOf("OK") > -1) {
+						return false;
+               	 	}
+
+               	 	var r = confirm (response + "\n if Yes click OK otherwise click cancel");
+               		if (r == true) {
+    					$.ajax({
+    			            type: 'get',
+    			            url: '${selectByEmailUrl}' + $('#user\\.email').val(),
+    			             success: function (response) {
+    			            	$('#modalDiv').empty().html(response);
+    			        	}
+    			        })
+                	}
+                	else {
+                    	alert("You must provide a different email address");
+                		$('#user\\.email').val('');
+                		$('#user\\.email').focus();
+                		return false;
+                	}
+        		}
+        	})
+            
+		return false;
+	});	
+	</script>
+					
+	<form:form method="post" modelAttribute="manageUserForm">
+		<table class="width100">
+			<c:if test="${empty manageUserForm.user.id}">
+				<tr>
+					<td colspan="4">
+						<span class="error">Sorry, there are no details about this user in the system.<br/>
+						Please enter details bellow.</span>
+					</td>
+				</tr>
+			</c:if>			
+			<tr>
+				<th colspan="4">Contact Details</th>
+			</tr>
+			<tr>
+				<td>
+					<form:label path="user.firstName" cssClass="required" cssErrorClass="error">First Name:</form:label>
+				</td>
+				<td>
+					<input type="hidden" name="cwId" value="${param.cwId}" />
+					<form:input path="user.firstName" size="20" maxlength="50" class="required"/>
+				</td>
+				<td>
+					<form:label path="user.lastName" cssClass="required" cssErrorClass="error">Last Name:</form:label>
+				</td>
+				<td>
+					<form:input path="user.lastName" size="25" maxlength="50" class="required"/>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<form:label path="user.email" cssClass="required" cssErrorClass="error">Email:</form:label>
+				</td>
+				<td colspan="2"><form:input path="user.email" size="50" maxlength="200" class="required"/></td>
+				<td>
+					<c:if test="${not empty manageUserForm.user.email}">
+						<span id="regenDiv"><a href="${regenPasswordUrl}" id="regenLink">Send new password</a></span>
+					</c:if>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<form:label path="user.phone" cssClass="optional" cssErrorClass="error">Phone:</form:label>
+				</td>
+				<td colspan="3"><form:input path="user.phone" size="15" maxlength="15" /></td>
+			</tr>
+			<tr>
+				<td>
+					<form:label path="user.type" cssClass="required" cssErrorClass="error">User Type:</form:label>
+				</td>
+				<td colspan="3">
+				    <form:select path="user.type" class="required">
+				        <form:option label="--Select--" value=""/>
+				        <form:option label="Author" value="AUTHOR"/>
+				        <form:option label="Freelancer" value="FREELANCER"/>
+				    </form:select>
+				</td>
+			</tr>
+			<tr>
+				<th colspan="4">Contact Mailing Address</th>
+			</tr>
+			<tr>
+				<td>
+					<form:label path="user.street" cssClass="optional" cssErrorClass="error">Street Address:</form:label>
+				</td>
+				<td colspan="3">
+					<form:input path="user.street" size="45" maxlength="100"/>
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+					<form:label path="user.city" cssClass="optional" cssErrorClass="error">City/Town:</form:label>
+				</td>
+				<td colspan="3">
+					<form:input path="user.city" size="35" maxlength="100"/>
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+					<form:label path="user.state" cssClass="optional" cssErrorClass="error">State/Province:</form:label>
+				</td>
+				<td colspan="3">
+					<form:input path="user.state" size="30" maxlength="50"/>
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+					<form:label path="user.zip" cssClass="optional" cssErrorClass="error">Zip/Postal:</form:label>
+				</td>
+				<td colspan="3">
+					<form:input path="user.zip" size="10" maxlength="10" />
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+					<form:label path="user.country" cssClass="optional" cssErrorClass="error">Country:</form:label>
+				</td>
+				<td>
+					<spring:bind path="user.country">
+						<select name="${status.expression}">
+							<c:forEach items="${countries}" var="country">
+								<c:choose>
+									<c:when test="${country.code == manageUserForm.user.countryCode}">
+										<option value="${country.code}" selected="selected">${country.description}</option>
+									</c:when>
+									<c:otherwise>
+										<option value="${country.code}">${country.description}</option>
+									</c:otherwise>
+								</c:choose>
+							</c:forEach>
+						</select>
+					</spring:bind>
+				</td>
+			</tr>
+		</table>
+	</form:form>
+	
+	<!-- shown in javascript below when next button clicked -->
+	<!-- because need extra time when author being created in ldap -->
+	<div id="waitDiv" style="display: none; text-align: right; color: red">
+	Processing, please wait...
+	</div>
+	
+	<div class="buttonset">
+		<input type="submit" id="prevB" value="Previous" />
+		<input type="submit" id="nextB" value="Next" />
+		<a href="#" id="cancelLink" class="button">Cancel</a>
+	</div>
+	
+	<script type="text/javascript">
+	//<![CDATA[
+	$(document).ready(function() {
+		$modalDialog.dialog('option', 'height', 'auto');
+		
+		$('#nextB').click (function() {
+			if ($("#manageUserForm").validate().form() == true) {
+				$("#waitDiv").show();
+				$.ajax({
+		            async: true,
+		            type: 'post',
+		            url: '${nextUrl}',
+		            data: $('#manageUserForm').serialize(),
+		            success: function (response){
+		            	if (response.indexOf("Error") > -1) {
+		            		$("#waitDiv").text(response);
+							return false;
+               	 		} else {
+			                $('#modalDiv').empty().html(response);
+			                repositionDialog();
+			            }
+		            }
+		        });
+			}
+		});
+		
+		$('#prevB').click (function() {
+			$.ajax({
+	        	async: true,
+	        	type: 'get',
+	        	url: '${prevUrl}',
+	        	success: function (response) {
+	            	$('#modalDiv').empty().html(response);
+	            	repositionDialog();
+	        	}
+	    	});
+		});
+	});
+	//]]>		
+	</script>
+</jsp:root>

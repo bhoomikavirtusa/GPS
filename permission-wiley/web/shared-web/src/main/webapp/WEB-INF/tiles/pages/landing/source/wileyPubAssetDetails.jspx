@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="nextUrl" value="/sapp/landing/source/pub_assets_details" />
+	<c:url var="prevUrl" value="${sourceWizardForm.prevUrl}" />
+
+	<h3>Original Publication Assets (select the corresponding asset in new publication)</h3>
+
+	<form:form modelAttribute="sourceWizardForm">
+		<table>		
+		<tr>
+			<td>Select</td>
+			<td>Previous Publication Asset Description</td>
+		</tr>
+		
+		<c:forEach items="${sourceWizardForm.previousPubAssets}" var="asset" varStatus="vs">
+			<tr>
+				<td>	
+						<form:radiobutton  path="selectedPreviousAssetUseId" value="${asset.assetUseId}"/>
+				</td>
+				<td>
+					${asset.description }
+				</td>
+			</tr>
+		</c:forEach>
+		</table>
+	
+		<div class="buttonset">
+			<input type="submit" id="notFound" value="Asset not in the list" /> 
+	
+			<c:if test="${not empty sourceWizardForm.prevUrl}">
+				<input type="button" id="prevB" value="Previous" /> 
+			</c:if>
+			<input type="submit" value="Next" /> 
+			<a href="#" id="cancelLink" class="button">Cancel</a>
+		</div>
+	
+	</form:form>
+
+	<script type="text/javascript">
+	//<![CDATA[	
+		$('#cancelLink').click (function() {
+			$modalDialog.dialog("close");
+		});
+
+		$('#prevB').click (function() {
+			$.ajax({
+	            async: true,
+	            type: 'get',
+	            url: '${prevUrl}',
+	            success: function (response){
+	            	$('#modalDiv').empty().html(response);
+	            	repositionDialog();
+	            }
+	        });
+		});
+
+		$('#notFound').click (function() {
+			$( "#selectedPreviousAssetUseId" ).val(0);
+			$.ajax({
+	            type: 'post',
+	            url: '${nextUrl}',
+	            data: $('#sourceWizardForm').serialize(),
+	            success: function (response) {
+	                 $('#modalDiv').html(response);
+	            }
+	        });
+			return false;
+		});
+
+		$('#sourceWizardForm').submit(function() {
+			$.ajax({
+	            type: 'post',
+	            url: '${nextUrl}',
+	            data: $('#sourceWizardForm').serialize(),
+	            success: function (response) {
+	                 $('#modalDiv').html(response);
+	            }
+	        });
+			return false;
+		});
+
+	//]]>		
+	</script>
+
+</jsp:root>

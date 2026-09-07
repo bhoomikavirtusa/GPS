@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root 
+	version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('#userGroupsTable').dataTable( {
+				"aoColumns": [
+					{ "sWidth" : "10%", "sClass" : "center", "bSearchable" : false, "bSortable": false }, // Edit
+					{ "sWidth" : "10%", "sClass" : "center", "bSearchable" : false, "bSortable": false }, // Delete
+					{ "sWidth" : "30%" }, // Name
+					{ "sWidth" : "50%" } // Description
+				],
+				"aaSorting": [[2, "asc" ]],
+				"oLanguage": { "sEmptyTable": "No User Groups Found" },
+				"bAutoWidth": false,
+				"bProcessing": true,
+				"sPaginationType": "full_numbers",
+				"aLengthMenu": [10, 15, 25, 50, 100],  // override default of [10, 25, 50, 100]
+				"iDisplayLength": 25,
+				"bStateSave": true
+			} );
+		} );
+	</script>
+
+	<form:form modelAttribute="groupMainForm">
+		<jsp:attribute name="action">
+			<c:url value="/sapp/admin/userGroups"/>
+		</jsp:attribute>
+
+		<div style="display: none">
+			<form:hidden path="mode"/>
+			<form:hidden path="groupId"/>
+		</div>
+
+		<table class="width100">
+			<tr>
+				<th>
+					Manage User Groups
+					<div class="right top11">
+					<jsp:element name="input">
+						<jsp:attribute name="type">submit</jsp:attribute>
+						<jsp:attribute name="value">Add Group</jsp:attribute>
+						<jsp:attribute name="onclick">this.form.elements['mode'].value='ADD_CHILD';</jsp:attribute>
+					</jsp:element>
+					</div>								
+				</th>
+			</tr>
+			<tr>
+				<td>
+		<table>
+			<tr>
+				<td>
+					<table class="display" id="userGroupsTable">
+						<thead>
+							<tr>
+								<th>Edit</th>
+								<th>Delete</th>
+								<th>Name</th>
+								<th>Description</th>
+							</tr>
+						</thead>
+						<tbody>
+							<c:forEach items="${groups}" var="group">
+								<tr>
+									<td>
+										<jsp:element name="input">
+											<jsp:attribute name="type">image</jsp:attribute>
+											<jsp:attribute name="alt">Edit Group</jsp:attribute>
+											<jsp:attribute name="onclick">
+												this.form.elements['mode'].value='MODIFY_CHILD';
+												this.form.elements['groupId'].value='${group.id}';
+											</jsp:attribute>
+											<jsp:attribute name="src">
+												<c:url value="/images/buttons/edit-icon.png" />
+											</jsp:attribute>
+										</jsp:element>
+									</td>
+
+									<td>
+										<jsp:element name="input">
+											<jsp:attribute name="type">image</jsp:attribute>
+											<jsp:attribute name="alt">Delete Group</jsp:attribute>
+											<jsp:attribute name="onclick">
+												this.form.elements['mode'].value='REMOVE_CHILD';
+												this.form.elements['groupId'].value='${group.id}';
+											</jsp:attribute>
+											<jsp:attribute name="src">
+												<c:url value="/images/buttons/delete-icon.png" />
+											</jsp:attribute>
+										</jsp:element>
+									</td>
+
+									<td><c:out value="${group.name}" /></td>
+									<td><c:out value="${group.description}" /></td>
+								</tr>
+							</c:forEach>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+		</table>
+				</td>
+			</tr>
+		</table>
+	</form:form>
+</jsp:root>

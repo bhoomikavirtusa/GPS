@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="prevUrl" value="/sapp/landing/source/main" />
+	
+	<jsp:directive.include file="js/wizard.buttons.js.jspx" />
+	
+	<h3>Rightslink/Copyright Clearance Center </h3>
+
+	<table>
+		<tr><td></td></tr>
+		<tr><td></td></tr>
+		<tr><td>Please cancel this asset and use the Imports/Request Rightslink License option to import the grant</td></tr>
+		<tr><td>details for an existing Rightslink grant. Go to Rightslink (rightslink.com) to acquire a grant if you do</td></tr>
+		<tr><td>not already have one. Then copy the grant number and paste it into the Imports/Request Rightslink </td></tr>
+		<tr><td>License option to import the details and create the asset(s). </td></tr>
+		<tr><td></td></tr>
+		<tr><td></td></tr>
+		<tr>
+			<td></td>
+			<td><a href="#" id="cancelLink" class="button">Done</a></td>
+		</tr>
+	</table>
+
+</jsp:root>

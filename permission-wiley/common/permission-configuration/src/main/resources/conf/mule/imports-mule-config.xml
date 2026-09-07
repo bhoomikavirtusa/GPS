@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
+	xmlns:stdio="http://www.mulesoft.org/schema/mule/stdio"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file"
+    xmlns:spring="http://www.springframework.org/schema/beans"
+    xmlns:xls="http://www.mulesoft.org/schema/mule/excel"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+		http://www.mulesoft.org/schema/mule/stdio http://www.mulesoft.org/schema/mule/stdio/current/mule-stdio.xsd
+		http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+		http://www.mulesoft.org/schema/mule/excel http://www.mulesoft.org/schema/mule/excel/current/mule-excel.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	">
+
+	<file:connector name="wintouchFileConnector" readFromDirectory="/tmp/wintouch" autoDelete="true"/>
+	<file:connector name="productIndexFileConnector" readFromDirectory="/tmp/productIndex" autoDelete="true"/>
+	<file:connector name="filemakerFileConnector" readFromDirectory="/tmp/filemaker" autoDelete="true" streaming="false"/>
+	<file:connector name="ausFileConnector" readFromDirectory="/tmp/aus" autoDelete="true" streaming="false"/>
+	
+	<model name="imports">
+		<service name="sourcesImportService">
+			<inbound>
+				<file:inbound-endpoint path="/tmp/wintouch" connector-ref="wintouchFileConnector">
+					<property key="method" value="importFromExcel"/>
+				</file:inbound-endpoint>
+			</inbound>
+			<component>
+				<spring-object bean="services.SourceImportUtility"/>
+			</component>
+		</service>
+				
+		<service name="productIndexImportService">
+			<inbound>
+				<file:inbound-endpoint path="/tmp/productIndex" connector-ref="productIndexFileConnector">
+					<property key="method" value="indexProductData"/>
+				</file:inbound-endpoint>
+			</inbound>
+			<component>
+				<spring-object bean="services.ProductIndexService"/>
+			</component>
+		</service>
+
+		<service name="testXlsToBean">
+			<inbound>
+				<vm:inbound-endpoint path="testXlsToBean" /> 
+			</inbound>
+			<component>
+				<spring-object bean="services.ImportAssetsUtility"/>
+			</component>
+		</service>
+
+		<service name="importFileMakerAssets">
+			<inbound>
+				<file:inbound-endpoint path="/tmp/filemaker" connector-ref="filemakerFileConnector" >
+					<file:filename-wildcard-filter pattern="filemaker-AssetQuery*"/>			
+					<property key="method" value="importFileMakerAssets"/>
+				</file:inbound-endpoint>
+			</inbound>
+			<component>
+				<spring-object bean="services.FilemakerImportUtility"/>
+			</component>
+		</service>
+		
+		<service name="importAusAssets">
+			<inbound>
+				<file:inbound-endpoint path="/tmp/aus" connector-ref="ausFileConnector" >
+					<file:filename-wildcard-filter pattern="aus-AssetQuery*"/>			
+					<property key="method" value="importAusAssets"/>
+				</file:inbound-endpoint>
+			</inbound>
+			<component>
+				<spring-object bean="services.AusImportUtility"/>
+			</component>
+		</service>
+		
+		<service name="importAusInvoices">
+			<inbound>
+				<file:inbound-endpoint path="/tmp/aus" connector-ref="ausFileConnector" >
+					<file:filename-wildcard-filter pattern="aus-InvoiceQuery*"/>			
+					<property key="method" value="importAusInvoices"/>
+				</file:inbound-endpoint>
+			</inbound>
+			<component>
+				<spring-object bean="services.AusImportInvoicesUtility"/>
+			</component>
+		</service>
+		
+		<service name="importFileMakerProducts">
+			<inbound>
+				<file:inbound-endpoint path="/tmp/filemaker" connector-ref="filemakerFileConnector" >
+					<file:filename-wildcard-filter pattern="filemaker-products.xls"/>			
+					<property key="method" value="importFileMakerProducts"/>
+				</file:inbound-endpoint>
+			</inbound>
+			<component>
+				<spring-object bean="services.ImportProductsUtility"/>
+			</component>
+		</service>
+		
+		<service name="importCSFileMakerAssets">
+			<inbound>
+				<file:inbound-endpoint path="/tmp/filemaker" connector-ref="filemakerFileConnector" >
+					<file:filename-wildcard-filter pattern="filemaker-cs.xls"/>			
+					<property key="method" value="importFileMakerAssets"/>
+				</file:inbound-endpoint>
+			</inbound>
+			<component>
+				<spring-object bean="services.CSFilemakerDataImportUtility"/>
+			</component>
+		</service>
+				
+	</model>
+</mule>

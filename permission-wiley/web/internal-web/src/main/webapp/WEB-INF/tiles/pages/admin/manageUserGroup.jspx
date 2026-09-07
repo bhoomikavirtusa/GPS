@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root 
+	version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+
+	<c:set var="group" value="${manageUserGroupForm.group}"/>
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('#usersInGroupTable').dataTable( {
+				"aoColumns": [
+					{ "sWidth" : "10%", "sClass" : "center", "bSearchable" : false, "bSortable": false }, // Remove
+					{ "sWidth" : "20%" }, // First Name
+					{ "sWidth" : "30%" }, // Last Name
+					{ "sWidth" : "40%" } // Email
+				],
+				"aaSorting": [[2, "asc" ]],
+				"bAutoWidth": false,
+				"sPaginationType": "full_numbers",
+				"aLengthMenu": [10, 15, 25, 50, 100],  // override default of [10, 25, 50, 100]
+				"iDisplayLength": 25,
+			} );
+		} );
+	</script>
+
+	<c:url var="formUrl" value="/sapp/admin/manageUserGroup/form" />
+	<c:url var="manageUrl" value="/sapp/admin/manageUserGroup/manage" />
+	<c:url var="findUserUrl" value="/sapp/admin/manageUserGroup/findUser" />
+	<c:url var="finishUrl" value="/sapp/admin/manageUserGroup/finish" />
+
+	<form:form modelAttribute="manageUserGroupForm" action="${finishUrl}">
+		<div style="display: none">
+			<form:hidden path="mode"/>
+			<form:hidden path="selectedChild"/>
+		</div>
+
+		<spring:hasBindErrors name="manageUserGroupForm">
+			<jsp:directive.include file="/WEB-INF/tiles/pages/include/formErrors.jspx" />
+		</spring:hasBindErrors>
+					
+		<table class="width100">
+
+			<c:choose>
+				<c:when test="${manageUserGroupForm.mode == 'REMOVE'}">
+					<tr>
+						<th>User Group ${group.name}</th>
+						<th></th>
+					</tr>						
+					<tr>
+						<td>
+							Are you sure you want to remove this group?
+						</td>
+					</tr>
+
+					<tr>
+						<td>
+							<tiles:insertDefinition name="tiles.admin.userGroup">
+								<tiles:putAttribute name="group" value="${group}" type="object"/>
+							</tiles:insertDefinition>
+						</td>
+					</tr>
+				</c:when>
+
+				<c:otherwise>
+
+					<spring:nestedPath path="group">
+						<tr>
+							<th>General Information</th>
+							<th></th>
+						</tr>		
+						<tr>
+							<td class="label">
+								<form:label path="name" cssClass="required" cssErrorClass="error">Name:</form:label>
+							</td>
+							<td class="value">
+								<form:input path="name" class="required"/>
+							</td>
+						</tr>
+
+						<tr>
+							<td class="label">
+								<form:label path="description" cssClass="required" cssErrorClass="error">Description:</form:label>
+							</td>
+							<td class="value">
+								<form:input path="description" class="required"/>
+							</td>
+						</tr>
+					</spring:nestedPath>
+
+					<tr>
+						<th>
+							Users
+						</th>
+						<th></th>
+					</tr>
+
+					<spring:nestedPath path="group">
+						<tr>
+							<td class="label">Add New User</td>
+							<td class="button">
+								<jsp:element name="input">
+									<jsp:attribute name="type">submit</jsp:attribute>
+									<jsp:attribute name="value">Add</jsp:attribute>
+									<jsp:attribute name="onclick">
+										this.form.elements['mode'].value='ADD_CHILD';
+										this.form.action = '${findUserUrl}';
+									</jsp:attribute>
+								</jsp:element>																
+							</td>
+						</tr>
+
+						<c:if test="${not empty group.users}">
+							<tr>
+								<td colspan="2">
+									<table class="display" id="usersInGroupTable">
+										<thead>
+											<tr>
+												<th>Remove</th>
+												<th>First Name</th>
+												<th>Last Name</th>
+												<th>Email</th>
+											</tr>
+										</thead>
+										<tbody>
+											<c:forEach items="${group.users}" var="user">
+												<tr>
+													<td>
+														<jsp:element name="input">
+															<jsp:attribute name="type">image</jsp:attribute>
+															<jsp:attribute name="alt">Remove Association</jsp:attribute>
+															<jsp:attribute name="onclick">
+																this.form.elements['mode'].value='REMOVE_CHILD';
+																this.form.elements['selectedChild'].value='${user.id}';
+																this.form.action = '${manageUrl}';
+															</jsp:attribute>
+															<jsp:attribute name="src">
+																<c:url value="/images/buttons/delete-icon.png" />
+															</jsp:attribute>
+														</jsp:element>
+													</td>
+
+													<td><c:out value="${user.firstName}" /></td>
+													<td><c:out value="${user.lastName}" /></td>
+													<td><c:out value="${user.email}" /></td>
+												</tr>
+											</c:forEach>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</c:if>
+					</spring:nestedPath>
+				</c:otherwise>
+			</c:choose>
+			</table>
+			
+			<div class="buttonset">				
+				<c:choose>
+					<c:when test="${manageUserGroupForm.originalMode == 'ADD'}">
+						<jsp:element name="input">
+							<jsp:attribute name="type">submit</jsp:attribute>
+							<jsp:attribute name="value">Add</jsp:attribute>
+							<jsp:attribute name="onclick">
+								if ($('#manageUserGroupForm').validate().form() == true){
+									this.form.elements['mode'].value='ADD';
+								} else {
+									return false;
+								}
+							</jsp:attribute>
+						</jsp:element>
+					</c:when>
+
+					<c:when test="${manageUserGroupForm.originalMode == 'MODIFY'}">
+						<jsp:element name="input">
+							<jsp:attribute name="type">submit</jsp:attribute>
+							<jsp:attribute name="value">Modify</jsp:attribute>
+							<jsp:attribute name="onclick">
+								if ($('#manageUserGroupForm').validate().form() == true){
+									this.form.elements['mode'].value='MODIFY';
+								} else {
+									return false;
+								}
+							</jsp:attribute>
+						</jsp:element>							
+					</c:when>
+
+					<c:when test="${manageUserGroupForm.originalMode == 'REMOVE'}">
+						<jsp:element name="input">
+							<jsp:attribute name="type">submit</jsp:attribute>
+							<jsp:attribute name="value">Delete</jsp:attribute>
+							<jsp:attribute name="onclick">this.form.elements['mode'].value='REMOVE';</jsp:attribute>
+						</jsp:element>
+					</c:when>
+				</c:choose>
+
+				<jsp:element name="input">
+					<jsp:attribute name="type">submit</jsp:attribute>
+					<jsp:attribute name="value">Cancel</jsp:attribute>
+					<jsp:attribute name="class">button</jsp:attribute>
+					<jsp:attribute name="onclick">
+						this.form.elements['mode'].value='CANCEL';
+					</jsp:attribute>
+				</jsp:element>
+			</div>																
+	</form:form>
+</jsp:root>

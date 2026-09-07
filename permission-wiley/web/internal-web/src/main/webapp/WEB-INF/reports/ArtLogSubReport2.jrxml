@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ArtLogSubReport2" pageWidth="842" pageHeight="200" orientation="Landscape" columnWidth="100" leftMargin="1" rightMargin="1" topMargin="1" bottomMargin="1">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="table" fill="Solid" lineSpacing="Single" isUnderline="true">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TH" mode="Opaque" forecolor="#333333" backcolor="#CCCCCC" lineSpacing="Single">
+		<box topPadding="0" leftPadding="0" bottomPadding="0" rightPadding="0">
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_CH" mode="Opaque" backcolor="#BFE1FF" lineSpacing="Single">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TD" mode="Opaque" backcolor="#FFFFFF" lineSpacing="Single">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="AssetsDataset">
+		<parameter name="CW_ID" class="java.lang.Integer">
+			<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+		</parameter>
+		<parameter name="COMPONENT_IDS" class="java.lang.String"/>
+		<parameter name="USER_GROUP_FILTER" class="java.lang.String"/>
+		<queryString>
+			<![CDATA[SELECT UT.ABBREVIATION AS AU_USAGE,
+     COALESCE ((select name from component where id = AU.COMPONENT_ID), 'N/A')
+     AS AU_COMPONENT,
+     AU.POSITION AS AU_POSITION,
+     AU.FINAL_PAGE AS AU_FINAL_PAGE,
+     AU.SIZE AS AU_SIZE,
+     AU.MANUSCRIPT_PAGE AS AU_MANUSCRIPT_PAG,
+     AU.PERMISSION_STATUS AS AU_PERMISSION_STATUS,
+     AU.PRODUCTION_COMMENT AS AU_PRODUCTION_COMMENT,
+     AU.REUSED_FROM_PREV_ED AS AU_REUSED_FROM_PR,
+     AU.IS_PICKUP AS AU_IS_PICKUP,
+     AU.CAMERA_COPY_TO_COME AS AU_CAMERA_COPY_TO,
+     AU.IS_CANCELED AS AU_IS_CANCELED,
+     AU.MEDIA_RETURN_REQ AS AU_MEDIA_RETURN_R,
+     AU.IS_COLOR AS AU_IS_COLOR,
+     A.ARTIST AS ASSET_ARTIST,
+     A.CREDIT_LINE AS ASSET_CREDIT_LINE,
+     A.IS_FEE_REQUIRED AS ASSET_IS_FEE_REQUIRED,
+     A.IS_RESTRICTED_USE AS ASSET_IS_RESTRICTED_USE,
+     A.IS_MANAGED AS ASSET_IS_MANAGED,
+     A.DESCRIPTION AS ASSET_DESCRIPTION,
+     A.ORIGINAL_PUBLICATION_TITLE AS ASSET_PUBLICATION_TITLE,
+     A.ORIGINAL_PUBLICATION_AUTHOR AS ASSET_PUBLICATION_AUTHOR,
+     A.ORIGINAL_PUBLICATION_ISBN AS ASSET_PUBLICATION_ISBN,
+     A.ORIGINAL_FIGURE_NUMBER AS ASSET_FIGURE_NUMBER,
+     A.ORIGINAL_PAGE_NUMBER AS ASSET_PAGE_NUMBER,
+     A.VENDOR_ID AS ASSET_VENDOR_ID,
+     A.MEDIA_TYPE AS ASSET_MEDIA_TYPE,
+     AU.ASSET_ID AS AU_ASSET_ID,
+         CASE WHEN(AU.PICKUP_ISBN is not null) THEN AU.PICKUP_ISBN
+     ELSE
+        CASE WHEN(AU.REUSED_ISBN is not null) THEN AU.REUSED_ISBN
+      ELSE ' ' END END AS AU_PICKUP_ISBN,
+     CASE WHEN( AU.PICKUP_POSITION is not null) THEN  AU.PICKUP_POSITION
+     ELSE
+        CASE WHEN(AU.REUSED_POSITION is not null) THEN AU.REUSED_POSITION
+      ELSE ' ' END END AS AU_PICKUP_POSITION,
+     CASE WHEN( AU.PICKUP_PAGE is not null) THEN  'P' || AU.PICKUP_PAGE
+     ELSE
+        CASE WHEN(AU.REUSED_PAGE is not null) THEN 'P' || AU.REUSED_PAGE
+      ELSE ' ' END END AS AU_PICKUP_PAGE,
+     AU.DATE_TO_PROD AS AU_DATE_TO_PROD,
+     AF.OBJECT_NAME,
+     AF.DATA AS ASSET_IMAGE
+	 FROM ASSET_USE AU
+	    JOIN USAGE_TYPE UT ON UT.CODE = AU.USAGE_TYPE
+     	RIGHT JOIN ASSET A ON A.ID = AU.ASSET_ID 
+		LEFT JOIN ASSET_FILE AF ON AF.ASSET_ID = AU.ASSET_ID AND
+			AF.ID = (SELECT MIN(ID) FROM ASSET_FILE WHERE ASSET_FILE.ASSET_ID = AU.ASSET_ID and asset_file.rendition_type = 'original')
+WHERE AU.CW_ID = $P{CW_ID} $P!{COMPONENT_IDS} $P!{USER_GROUP_FILTER} AND (AU.IS_CANCELED <> 1 OR AU.IS_CANCELED is null)
+ORDER BY (au.sort_order+0),au.sort_order,AU_COMPONENT]]>
+		</queryString>
+		<field name="AU_USAGE" class="java.lang.String"/>
+		<field name="AU_COMPONENT" class="java.lang.String"/>
+		<field name="AU_POSITION" class="java.lang.String"/>
+		<field name="AU_FINAL_PAGE" class="java.lang.String"/>
+		<field name="AU_SIZE" class="java.lang.String"/>
+		<field name="AU_MANUSCRIPT_PAG" class="java.lang.String"/>
+		<field name="AU_PERMISSION_STATUS" class="java.lang.String"/>
+		<field name="AU_PRODUCTION_COMMENT" class="java.lang.String"/>
+		<field name="AU_REUSED_FROM_PR" class="java.lang.Boolean"/>
+		<field name="AU_IS_PICKUP" class="java.lang.Boolean"/>
+		<field name="AU_CAMERA_COPY_TO" class="java.lang.Boolean"/>
+		<field name="AU_IS_CANCELED" class="java.lang.Boolean"/>
+		<field name="AU_MEDIA_RETURN_R" class="java.lang.Boolean"/>
+		<field name="AU_IS_COLOR" class="java.lang.Boolean"/>
+		<field name="ASSET_ARTIST" class="java.lang.String"/>
+		<field name="ASSET_CREDIT_LINE" class="java.lang.String"/>
+		<field name="ASSET_IS_FEE_REQUIRED" class="java.lang.Boolean"/>
+		<field name="ASSET_IS_RESTRICTED_USE" class="java.lang.Boolean"/>
+		<field name="ASSET_IS_MANAGED" class="java.lang.Boolean"/>
+		<field name="ASSET_DESCRIPTION" class="java.lang.String"/>
+		<field name="ASSET_PUBLICATION_TITLE" class="java.lang.String"/>
+		<field name="ASSET_PUBLICATION_AUTHOR" class="java.lang.String"/>
+		<field name="ASSET_PUBLICATION_ISBN" class="java.lang.String"/>
+		<field name="ASSET_FIGURE_NUMBER" class="java.lang.String"/>
+		<field name="ASSET_PAGE_NUMBER" class="java.lang.String"/>
+		<field name="ASSET_VENDOR_ID" class="java.lang.String"/>
+		<field name="ASSET_MEDIA_TYPE" class="java.lang.String"/>
+		<field name="AU_ASSET_ID" class="java.lang.Integer"/>
+		<field name="AU_PICKUP_ISBN" class="java.lang.String"/>
+		<field name="AU_PICKUP_POSITION" class="java.lang.String"/>
+		<field name="AU_PICKUP_PAGE" class="java.lang.String"/>
+		<field name="AU_DATE_TO_PROD" class="java.sql.Timestamp"/>
+		<field name="OBJECT_NAME" class="java.lang.String">
+			<fieldDescription><![CDATA[]]></fieldDescription>
+		</field>
+		<field name="ASSET_IMAGE" class="java.io.InputStream"/>
+	</subDataset>
+	<parameter name="CW_ID" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="COMPONENT_IDS" class="java.lang.String"/>
+	<parameter name="USER_GROUP_FILTER" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT UT.ABBREVIATION AS AU_USAGE,
+     COALESCE ((select name from component where id = AU.COMPONENT_ID), 'N/A')
+     AS AU_COMPONENT,
+     AU.POSITION AS AU_POSITION,
+     AU.FINAL_PAGE AS AU_FINAL_PAGE,
+     AU.SIZE AS AU_SIZE,
+     AU.MANUSCRIPT_PAGE AS AU_MANUSCRIPT_PAG,
+     AU.PERMISSION_STATUS AS AU_PERMISSION_STATUS,
+     AU.PRODUCTION_COMMENT AS AU_PRODUCTION_COMMENT,
+     AU.REUSED_FROM_PREV_ED AS AU_REUSED_FROM_PR,
+     AU.IS_PICKUP AS AU_IS_PICKUP,
+     AU.CAMERA_COPY_TO_COME AS AU_CAMERA_COPY_TO,
+     AU.IS_CANCELED AS AU_IS_CANCELED,
+     AU.MEDIA_RETURN_REQ AS AU_MEDIA_RETURN_R,
+     AU.IS_COLOR AS AU_IS_COLOR,
+     A.ARTIST AS ASSET_ARTIST,
+     A.CREDIT_LINE AS ASSET_CREDIT_LINE,
+     A.IS_FEE_REQUIRED AS ASSET_IS_FEE_REQUIRED,
+     A.IS_RESTRICTED_USE AS ASSET_IS_RESTRICTED_USE,
+     A.IS_MANAGED AS ASSET_IS_MANAGED,
+     A.DESCRIPTION AS ASSET_DESCRIPTION,
+     A.ORIGINAL_PUBLICATION_TITLE AS ASSET_PUBLICATION_TITLE,
+     A.ORIGINAL_PUBLICATION_AUTHOR AS ASSET_PUBLICATION_AUTHOR,
+     A.ORIGINAL_PUBLICATION_ISBN AS ASSET_PUBLICATION_ISBN,
+     A.ORIGINAL_FIGURE_NUMBER AS ASSET_FIGURE_NUMBER,
+     A.ORIGINAL_PAGE_NUMBER AS ASSET_PAGE_NUMBER,
+     A.VENDOR_ID AS ASSET_VENDOR_ID,
+     A.MEDIA_TYPE AS ASSET_MEDIA_TYPE,
+     AU.ASSET_ID AS AU_ASSET_ID,
+         CASE WHEN(AU.PICKUP_ISBN is not null) THEN AU.PICKUP_ISBN
+     ELSE
+        CASE WHEN(AU.REUSED_ISBN is not null) THEN AU.REUSED_ISBN
+      ELSE ' ' END END AS AU_PICKUP_ISBN,
+     CASE WHEN( AU.PICKUP_POSITION is not null) THEN  AU.PICKUP_POSITION
+     ELSE
+        CASE WHEN(AU.REUSED_POSITION is not null) THEN AU.REUSED_POSITION
+      ELSE ' ' END END AS AU_PICKUP_POSITION,
+     CASE WHEN( AU.PICKUP_PAGE is not null) THEN  'P' || AU.PICKUP_PAGE
+     ELSE
+        CASE WHEN(AU.REUSED_PAGE is not null) THEN 'P' || AU.REUSED_PAGE
+      ELSE ' ' END END AS AU_PICKUP_PAGE,
+     AU.DATE_TO_PROD AS AU_DATE_TO_PROD,
+     AF.OBJECT_NAME,
+     AF.DATA AS ASSET_IMAGE
+	 FROM ASSET_USE AU
+	    JOIN USAGE_TYPE UT ON UT.CODE = AU.USAGE_TYPE
+     	RIGHT JOIN ASSET A ON A.ID = AU.ASSET_ID 
+		LEFT JOIN ASSET_FILE AF ON AF.ASSET_ID = AU.ASSET_ID AND
+			AF.ID = (SELECT MIN(ID) FROM ASSET_FILE WHERE ASSET_FILE.ASSET_ID = AU.ASSET_ID and asset_file.rendition_type = 'original')
+WHERE AU.CW_ID = $P{CW_ID}  $P!{COMPONENT_IDS}  $P!{USER_GROUP_FILTER} AND (AU.IS_CANCELED <> 1 OR AU.IS_CANCELED is null)
+ORDER BY AU_COMPONENT ASC, AU_POSITION ASC]]>
+	</queryString>
+	<field name="AU_USAGE" class="java.lang.String"/>
+	<field name="AU_COMPONENT" class="java.lang.String"/>
+	<field name="AU_POSITION" class="java.lang.String"/>
+	<field name="AU_FINAL_PAGE" class="java.lang.String"/>
+	<field name="AU_SIZE" class="java.lang.String"/>
+	<field name="AU_MANUSCRIPT_PAG" class="java.lang.String"/>
+	<field name="AU_PERMISSION_STATUS" class="java.lang.String"/>
+	<field name="AU_PRODUCTION_COMMENT" class="java.lang.String"/>
+	<field name="AU_REUSED_FROM_PR" class="java.lang.Boolean"/>
+	<field name="AU_IS_PICKUP" class="java.lang.Boolean"/>
+	<field name="AU_CAMERA_COPY_TO" class="java.lang.Boolean"/>
+	<field name="AU_IS_CANCELED" class="java.lang.Boolean"/>
+	<field name="AU_MEDIA_RETURN_R" class="java.lang.Boolean"/>
+	<field name="AU_IS_COLOR" class="java.lang.Boolean"/>
+	<field name="ASSET_ARTIST" class="java.lang.String"/>
+	<field name="ASSET_CREDIT_LINE" class="java.lang.String"/>
+	<field name="ASSET_IS_FEE_REQUIRED" class="java.lang.Boolean"/>
+	<field name="ASSET_IS_RESTRICTED_USE" class="java.lang.Boolean"/>
+	<field name="ASSET_IS_MANAGED" class="java.lang.Boolean"/>
+	<field name="ASSET_DESCRIPTION" class="java.lang.String"/>
+	<field name="ASSET_PUBLICATION_TITLE" class="java.lang.String"/>
+	<field name="ASSET_PUBLICATION_AUTHOR" class="java.lang.String"/>
+	<field name="ASSET_PUBLICATION_ISBN" class="java.lang.String"/>
+	<field name="ASSET_FIGURE_NUMBER" class="java.lang.String"/>
+	<field name="ASSET_PAGE_NUMBER" class="java.lang.String"/>
+	<field name="ASSET_VENDOR_ID" class="java.lang.String"/>
+	<field name="ASSET_MEDIA_TYPE" class="java.lang.String"/>
+	<field name="AU_ASSET_ID" class="java.lang.Integer"/>
+	<field name="AU_PICKUP_ISBN" class="java.lang.String"/>
+	<field name="AU_PICKUP_POSITION" class="java.lang.String"/>
+	<field name="AU_PICKUP_PAGE" class="java.lang.String"/>
+	<field name="AU_DATE_TO_PROD" class="java.sql.Timestamp"/>
+	<field name="OBJECT_NAME" class="java.lang.String"/>
+	<field name="ASSET_IMAGE" class="java.io.InputStream"/>
+	<variable name="COMPONENT_IDS_FILTER" class="java.lang.String"/>
+	<summary>
+		<band height="79">
+			<componentElement>
+				<reportElement key="table 1" style="table" x="7" y="4" width="822" height="70" isRemoveLineWhenBlank="true"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="AssetsDataset">
+						<datasetParameter name="CW_ID">
+							<datasetParameterExpression><![CDATA[$P{CW_ID}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="COMPONENT_IDS">
+							<datasetParameterExpression><![CDATA[$P{COMPONENT_IDS}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="USER_GROUP_FILTER">
+							<datasetParameterExpression><![CDATA[$P{USER_GROUP_FILTER}]]></datasetParameterExpression>
+						</datasetParameter>
+					</datasetRun>
+					<jr:column width="63">
+						<jr:tableHeader style="table_TH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="table_TH" x="0" y="0" width="63" height="30"/>
+								<textElement verticalAlignment="Top" lineSpacing="Single"/>
+								<text><![CDATA[Figure#]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="78" rowSpan="1">
+							<textField isBlankWhenNull="true" isStretchWithOverflow="true">
+								<reportElement x="0" y="0" width="60" height="20"/>
+								<textElement lineSpacing="Single" markup="styled">
+									<font isBold="true"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[((null == $F{AU_USAGE}) ? "" : $F{AU_USAGE})  + " " + ((null == $F{AU_POSITION}) ? "" : $F{AU_POSITION})]]></textFieldExpression>
+							</textField>
+							<textField isBlankWhenNull="true" isStretchWithOverflow="true">
+								<reportElement x="0" y="17" width="60" height="20"/>
+								<textElement lineSpacing="Single" markup="styled">
+									<font isBold="true"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{AU_COMPONENT}]]></textFieldExpression>
+							</textField>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="0" y="51" width="60" height="20" isRemoveLineWhenBlank="true"/>
+								<textElement lineSpacing="Single" markup="styled">
+									<font isBold="true"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{OBJECT_NAME}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="171">
+						<jr:tableHeader style="table_TH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="table_TH" x="0" y="0" width="171" height="30"/>
+								<textElement lineSpacing="Single" markup="styled"/>
+								<text><![CDATA[Description]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="78" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="171" height="34"/>
+								<textElement lineSpacing="Single" markup="styled">
+									<font isBold="false"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{ASSET_DESCRIPTION}]]></textFieldExpression>
+							</textField>
+							<textField isBlankWhenNull="true" isStretchWithOverflow="true">
+								<reportElement x="13" y="0" width="138" height="24" forecolor="#FF3333"/>
+								<textElement lineSpacing="Single"/>
+								<textFieldExpression class="java.lang.String"><![CDATA[($F{AU_IS_CANCELED} == true ? "CANCELLED" : "")]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="160">
+						<jr:tableHeader style="table_TH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="table_TH" x="0" y="0" width="160" height="30"/>
+								<textElement lineSpacing="Single"/>
+								<text><![CDATA[Credit]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="78" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="157" height="34"/>
+								<textElement lineSpacing="Single" markup="styled">
+									<font isBold="false"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{ASSET_CREDIT_LINE}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="67">
+						<jr:tableHeader style="table_TH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="table_TH" x="0" y="0" width="67" height="30"/>
+								<textElement lineSpacing="Single"/>
+								<text><![CDATA[Pict_No
+Pickup Info]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="78" rowSpan="1">
+							<textField isBlankWhenNull="true" isStretchWithOverflow="true">
+								<reportElement x="0" y="0" width="66" height="67"/>
+								<textElement lineSpacing="Single">
+									<font isBold="true"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{ASSET_VENDOR_ID}]]></textFieldExpression>
+							</textField>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="0" y="37" width="66" height="34"/>
+								<textElement lineSpacing="Single" markup="styled">
+									<font isBold="true"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[((null == $F{AU_PICKUP_ISBN}) ? "" : $F{AU_PICKUP_ISBN})
+ + "/" +
+ ((null == $F{AU_PICKUP_PAGE}) ? "" : $F{AU_PICKUP_PAGE})
+ + "/" +
+ ((null == $F{AU_PICKUP_POSITION}) ? "" : $F{AU_PICKUP_POSITION})]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="119">
+						<jr:tableHeader style="table_TH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="table_TH" x="0" y="0" width="119" height="30"/>
+								<textElement lineSpacing="Single"/>
+								<text><![CDATA[Prod Notes]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="78" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="119" height="17"/>
+								<textElement lineSpacing="Single" markup="styled">
+									<font isBold="false"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{AU_PRODUCTION_COMMENT}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="24">
+						<jr:tableHeader style="table_TH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="table_TH" x="0" y="0" width="24" height="30"/>
+								<textElement rotation="Left" lineSpacing="Single" markup="styled"/>
+								<text><![CDATA[Reuse]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="78" rowSpan="1">
+							<textField pattern="" isBlankWhenNull="true" isStretchWithOverflow="true">
+								<reportElement x="0" y="0" width="24" height="17"/>
+								<textElement lineSpacing="Single" markup="styled">
+									<font isBold="true"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[(true == $F{AU_REUSED_FROM_PR}) ? "Y" : "N"]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="25">
+						<jr:tableHeader style="table_TH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="table_TH" x="0" y="0" width="25" height="30"/>
+								<textElement rotation="Left" lineSpacing="Single"/>
+								<text><![CDATA[Pickup]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="78" rowSpan="1">
+							<textField pattern="" isBlankWhenNull="true" isStretchWithOverflow="true">
+								<reportElement x="0" y="0" width="25" height="17"/>
+								<textElement lineSpacing="Single">
+									<font isBold="true"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[(true == $F{AU_IS_PICKUP}) ? "Y" : "N"]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="32">
+						<jr:tableHeader style="table_TH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="table_TH" x="0" y="0" width="32" height="30"/>
+								<textElement rotation="Left" lineSpacing="Single"/>
+								<text><![CDATA[cc to come]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="78" rowSpan="1">
+							<textField pattern="" isBlankWhenNull="true" isStretchWithOverflow="true">
+								<reportElement x="0" y="0" width="32" height="17"/>
+								<textElement lineSpacing="Single">
+									<font isBold="true"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[(true == $F{AU_CAMERA_COPY_TO}) ? "Y" : "N"]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="70">
+						<jr:tableHeader style="table_TH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="table_TH" x="0" y="0" width="70" height="30"/>
+								<textElement lineSpacing="Single"/>
+								<text><![CDATA[DateToProd]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="78" rowSpan="1">
+							<textField pattern="MM/dd/yyyy" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="70" height="17"/>
+								<textElement lineSpacing="Single"/>
+								<textFieldExpression class="java.sql.Timestamp"><![CDATA[$F{AU_DATE_TO_PROD}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="80">
+						<jr:tableHeader style="table_TH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="table_TH" x="0" y="0" width="80" height="30"/>
+								<textElement lineSpacing="Single"/>
+								<text><![CDATA[Final Pg
+Num]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="78" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="80" height="17"/>
+								<textElement lineSpacing="Single" markup="styled">
+									<font isBold="false"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{AU_FINAL_PAGE}]]></textFieldExpression>
+							</textField>
+							<image scaleImage="RetainShape" isLazy="true" onErrorType="Blank">
+								<reportElement x="0" y="17" width="80" height="61"/>
+								<imageExpression class="java.io.InputStream"><![CDATA[$F{ASSET_IMAGE}]]></imageExpression>
+							</image>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+		</band>
+	</summary>
+</jasperReport>

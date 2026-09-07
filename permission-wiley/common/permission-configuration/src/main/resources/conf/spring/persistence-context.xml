@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+		http://www.springframework.org/schema/util
+		http://www.springframework.org/schema/util/spring-util-4.3.xsd
+	">
+	
+	<context:annotation-config/>
+
+	<import resource="classpath:conf/spring/permissions-pool.xml" />
+	<import resource="classpath:conf/spring/wintouch-pool.xml" />
+
+	<bean id="jpaDialect" class="org.springframework.orm.jpa.vendor.HibernateJpaDialect" />
+
+	<bean id="jpaVendorAdapter" class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+		<property name="showSql" value="false" /> <!--  do not check into CVS true or will create excess logs in production -->
+		<property name="generateDdl" value="false" />
+		<property name="databasePlatform" value="${perm.db.dialect}" />
+	</bean>
+
+<!-- ================= Atomikos ================ -->
+	<bean id="transactionManager" class="com.atomikos.icatch.jta.UserTransactionManager" init-method="init" destroy-method="close">
+	    <property name="forceShutdown" value="true" />
+	</bean>
+
+	<bean id="userTransaction" class="com.atomikos.icatch.jta.J2eeUserTransaction">
+		<property name="transactionTimeout" value="${transaction.timeout}" />
+	</bean>
+
+	<bean id="jtaTransactionManager" class="org.springframework.transaction.jta.JtaTransactionManager">
+		<property name="transactionManager" ref="transactionManager" />
+		<property name="userTransaction" ref="userTransaction" />
+		<property name="allowCustomIsolationLevels" value="true" />
+		<property name="defaultTimeout" value="${transaction.timeout}"/>
+	</bean>
+<!-- ================================ -->
+
+<!-- ================ Bitronix ==================
+	<bean id="BitronixConfig" factory-method="getConfiguration" class="bitronix.tm.TransactionManagerServices">
+		<property name="serverId" value="spring-btm" />
+		<property name="defaultTransactionTimeout" value="${transaction.timeout}"/>
+	</bean>
+	
+	<bean id="transactionManager"
+		factory-method="getTransactionManager"
+		class="bitronix.tm.TransactionManagerServices"
+		depends-on="BitronixConfig,PermissionsDS,WintouchDS"
+		destroy-method="shutdown" />
+		
+	<bean id="jtaTransactionManager" class="org.springframework.transaction.jta.JtaTransactionManager">
+		<property name="userTransaction" ref="transactionManager"/>
+		<property name="transactionManager" ref="transactionManager"/>
+		<property name="allowCustomIsolationLevels" value="true"/>
+		<property name="defaultTimeout" value="${transaction.timeout}"/>
+	</bean>
+================================= -->
+	
+	<!-- settings previously specified in the persistence.xml JPA configuration file are now defined with the  
+		LocalContainerEntityManagerFactoryBean configuration -->    
+	<bean id="permissions" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">      
+		<!-- reference to the XA datasource -->  
+		<property name="dataSource" ref="PermissionsDS" />  
+		<property name="persistenceUnitName" value="perm" />
+		<property name="jpaVendorAdapter" ref="jpaVendorAdapter" />
+
+		<!-- configure Hibernate to participate in JTA transactions using the JOTM transaction manager and  
+			specify further Hibernate specific configuration properties -->  
+		<property name="jpaPropertyMap">
+			<map>
+        		<entry key="hibernate.transaction.manager_lookup_class"  value="com.atomikos.icatch.jta.hibernate3.TransactionManagerLookup" />
+        		<entry key="hibernate.current_session_context_class" value="org.hibernate.context.JTASessionContext" />
+      			<entry key="hibernate.connection.release_mode" value="after_statement" />
+				<entry key="hibernate.max_fetch_depth" value="0" />
+				<entry key="hibernate.jdbc.use_get_generated_keys" value="true" />
+				<!-- batching size -->
+	            <entry key="hibernate.jdbc.batch_size" value="30"/>
+	            <entry key="hibernate.order_inserts" value="true"/>
+	            <entry key="hibernate.order_updates" value="true"/>
+	            <entry key="hibernate.jdbc.batch_versioned_data" value="true"/>
+		
+				<entry key="hibernate.cache.use_second_level_cache" value="true" />
+	    		<entry key="hibernate.cache.use_query_cache" value="true" />
+	    		<!-- For Hibernate 3.6.x -->
+	    		<entry key="hibernate.cache.region.factory_class" value="net.sf.ehcache.hibernate.SingletonEhCacheRegionFactory" />
+	    		<!-- For Hibernate 4.2.x -->
+	    		<!--
+	    		<entry key="hibernate.cache.region.factory_class" value="org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory" />
+	    		-->
+	    		<!-- For testing only - seems to have no effect (smarkoff) -->
+	    		<!-- <entry key="hibernate.connection.autocommit" value="true" /> -->
+	    		<!-- hibernate.connection.isolation - don't need - have on datasource -->
+
+        		<!--
+        		<entry key="hibernate.transaction.flush_before_completion" value="true" />
+        		<entry key="hibernate.transaction.auto_close_session" value="true" />
+        		<entry key="hibernate.current_session_context_class" value="jta" />
+      			<entry key="hibernate.format_sql" value="true" />
+      			-->
+			</map>
+		</property>
+		<!-- specify that the Hibernate JPA dialect should be used, probably not necessary since   
+			HibernateJpaVendorAdapter will most likely set this property -->  
+		<property name="jpaDialect" ref="jpaDialect"/>
+
+		<!-- custom implementation to enrich the PersistenceUnitInfo read from the persistence.xml  
+        	JPA configuration file with the JTA datasource. specifying the JTA datasource directly in  
+        	the Spring configuration file has the advantage that we can use a direct reference to the  
+        	datasource instead of using a JNDI name as required by the jta-data-source setting in the  
+        	persistence.xml file -->  
+		<property name="persistenceUnitPostProcessors">  
+			<bean class="com.wiley.permissions.common.persistence.util.JTAPersistenceUnitPostProcessor" />  
+		</property>  
+	</bean>
+
+	<!-- enables interpretation of the @Transactional annotation for declarative transaction management  
+       using the specified JtaTransactionManager -->  
+	<tx:annotation-driven transaction-manager="jtaTransactionManager" proxy-target-class="true" />
+	
+	<!-- (smarkoff) Doesn't seem to do anything
+	<tx:advice id="txAdvice" transaction-manager="jtaTransactionManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="REQUIRED" rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+	-->
+  
+	<!-- Publishing session factory -->
+	<bean id="sessionFactory" factory-bean="permissions" factory-method="getSessionFactory" />
+	
+	<!-- enables interpretation of the @Required annotation to ensure that dependency injection actually occurs -->
+	<bean class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor"/>
+
+	<!-- enables interpretation of the @PersistenceUnit/@PersistenceContext annotations providing convenient  
+       access to EntityManagerFactory/EntityManager -->
+	<bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/>
+	
+	<!--
+		The following are the managers that are used by the services and other objects
+		that access the persistence layer.
+	-->
+</beans>

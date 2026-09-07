@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+
+	<jsp:directive.page pageEncoding="UTF-8" />
+	
+	<script type="text/javascript">
+	//<![CDATA[
+
+	//]]>
+	</script>
+	
+	<c:url var="excelUrl" value="/sapp/report/compliance/excel" />
+	
+	<div>
+		<a href="${excelUrl}?${queryString}&amp;complianceStatus=notStarted" >Perm Not Started: <fmt:formatNumber value="${count.notStartedCount}" /></a><br />
+		<a href="${excelUrl}?${queryString}&amp;complianceStatus=inProcess">Perm In Process: <fmt:formatNumber value="${count.inProcessCount}" /></a><br />
+		<a href="${excelUrl}?${queryString}&amp;complianceStatus=complete">Perm Completed:	<fmt:formatNumber value="${count.completeCount}" /></a><br />
+		<a href="${excelUrl}?${queryString}&amp;complianceStatus=completeNo3rdParty">Complete: No Third-Party Assets:	<fmt:formatNumber value="${count.completeNo3rdPartyCount}" /></a><br />
+		<a href="${excelUrl}?${queryString}&amp;complianceStatus=problem">Perm Problem:	<fmt:formatNumber value="${count.problemCount}" /></a>
+	</div>
+</jsp:root>

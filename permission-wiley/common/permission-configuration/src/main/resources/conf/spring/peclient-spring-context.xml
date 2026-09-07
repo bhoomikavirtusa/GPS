@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+		http://www.springframework.org/schema/util
+		http://www.springframework.org/schema/util/spring-util-4.3.xsd
+	">
+		
+	<bean name="connector.inbound.PEJMSConnector" class="com.ibm.mq.jms.MQQueueConnectionFactory">
+		<property name="hostName" value="${messaging.jms.pe.inbound.host}" />
+		<property name="port" value="${messaging.jms.pe.inbound.port}" />
+		<property name="queueManager" value="${messaging.jms.pe.inbound.queueManager}" />
+		<property name="channel" value="${messaging.jms.pe.inbound.channel}" />
+		<property name="transportType" value="${messaging.jms.pe.inbound.transportType}" />
+	</bean>
+
+	<bean name="connector.outbound.PEJMSConnector" class="com.ibm.mq.jms.MQQueueConnectionFactory">
+		<property name="hostName" value="${messaging.jms.pe.outbound.host}" />
+		<property name="port" value="${messaging.jms.pe.outbound.port}" />
+		<property name="queueManager" value="${messaging.jms.pe.outbound.queueManager}" />
+		<property name="channel" value="${messaging.jms.pe.outbound.channel}" />
+		<property name="transportType" value="${messaging.jms.pe.outbound.transportType}" />
+	</bean>
+	
+	<!-- Another instance (with different id) is defined in services-spring-context.xml -->
+	<bean id="inbound.message.PEMessageService" class="com.wiley.permissions.services.message.PEMessageService" 
+		parent="genericMessageService">
+		<property name="source" value="${messaging.jms.pe.source}" />
+		<property name="productRepository" ref="repository.ProductRepository" />
+		<property name="productIndexService" ref="services.ProductIndexService" />
+		<property name="commonWorkRepository" ref="repository.CommonWorkRepository" />
+		<property name="commonWorkService" ref="services.CommonWorkService" />
+		<property name="userRepository" ref="repository.UserRepository" />
+		<property name="defaultBunchLimit" value="${messaging.pe.outgoing.default.bunchlimit}" />
+	</bean>
+	
+	<bean id="inbound.message.DebugMessageRouter" class="com.wiley.permissions.message.routing.DebugMessageRouter" />
+	
+    <bean name="resources.productResource"
+		class="com.wiley.permissions.peclient.ProductResource">
+        <property name="peMessageService" ref="services.message.PEMessageService"/>
+    </bean>
+	
+</beans>

@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="InternalPermissionRequestReport2" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="Crosstab Data Text" hAlign="Center"/>
+	<parameter name="PRODUCT_ID" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="PO_ID" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SOURCE_CONNECTION" class="java.sql.Connection" isForPrompting="false"/>
+	<parameter name="sourceSubReport" class="net.sf.jasperreports.engine.JasperReport" isForPrompting="false"/>
+	<parameter name="assetsSubReport" class="net.sf.jasperreports.engine.JasperReport" isForPrompting="false"/>
+	<parameter name="CW_ID" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+     P.ID AS PRODUCT_ID,
+     P.EXTERNAL_ID AS PRODUCT_EXTERNAL_ID,
+     P.ISBN10 AS PRODUCT_ISBN10,
+     P.ISBN13 AS PRODUCT_ISBN13,
+     P.PNUMBER AS PRODUCT_PNUMBER,
+     P.TITLE AS PRODUCT_TITLE,
+     P.SHORT_TITLE AS PRODUCT_SHORT_TITLE,
+     P.VOLUME AS PRODUCT_VOLUME,
+     PO.ID AS PURCHASE_ORDER_ID,
+     PO.ID AS PURCHASE_ORDER_NUMBER,
+     PO.DATE AS PURCHASE_ORDER_DATE,
+     PO.SOURCE_ID AS PURCHASE_ORDER_SOURCE_ID,
+     PO.NOTE AS PURCHASE_ORDER_NOTE,
+     PO.RETURN_ADDRESS AS PURCHASE_ORDER_RETURN_ADDRESS,
+     PO.USER_SIGNATURE AS PURCHASE_ORDER_USER_SIGNATURE,
+     S.EXTERNAL_ID AS SOURCE_EXTERNAL_ID,
+     CONCAT (CONCAT (UP.FIRST_NAME, ' '), UP.LAST_NAME) AS AUTHOR
+     FROM
+     SOURCE S INNER JOIN PURCHASE_ORDER PO ON S.ID = PO.SOURCE_ID,
+     PRODUCT P
+     left JOIN (select UR.PRODUCT_ID, U.* FROM USER_2_ROLE UR
+     JOIN USER_TABLE U ON UR.USER_ID = U.ID
+     AND UR.ROLE_ID = (select id from role where code = 'A' and role_type = 'AUTHOR')
+     AND UR.PRODUCT_ID = $P{PRODUCT_ID} LIMIT 1) UP ON UP.PRODUCT_ID = P.ID
+WHERE
+     P.ID = $P{PRODUCT_ID}
+ AND PO.ID = $P{PO_ID}]]>
+	</queryString>
+	<field name="PRODUCT_ID" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="PRODUCT_EXTERNAL_ID" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="PRODUCT_ISBN10" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="PRODUCT_ISBN13" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="PRODUCT_PNUMBER" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="PRODUCT_TITLE" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="PRODUCT_SHORT_TITLE" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="PRODUCT_VOLUME" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="PURCHASE_ORDER_ID" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="PURCHASE_ORDER_NUMBER" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="PURCHASE_ORDER_DATE" class="java.sql.Timestamp">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="PURCHASE_ORDER_SOURCE_ID" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="PURCHASE_ORDER_NOTE" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="PURCHASE_ORDER_RETURN_ADDRESS" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="PURCHASE_ORDER_USER_SIGNATURE" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="SOURCE_EXTERNAL_ID" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="AUTHOR" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<group name="PurchaseOrder">
+		<groupHeader>
+			<band height="233" splitType="Stretch">
+				<textField>
+					<reportElement positionType="Float" x="102" y="108" width="453" height="20"/>
+					<textElement verticalAlignment="Middle">
+						<font size="10"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{PRODUCT_TITLE}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement positionType="Float" x="0" y="59" width="552" height="20"/>
+					<textElement>
+						<font size="12"/>
+					</textElement>
+					<text><![CDATA[I am preparing a manuscript to be published by John Wiley & Sons, Inc..]]></text>
+				</staticText>
+				<textField>
+					<reportElement positionType="Float" x="180" y="129" width="375" height="20"/>
+					<textElement>
+						<font size="12"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA["N/A"]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement positionType="Float" x="1" y="129" width="179" height="20"/>
+					<textElement>
+						<font size="12"/>
+					</textElement>
+					<text><![CDATA[Estimated publication date :]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="353" y="1" width="125" height="20"/>
+					<textElement>
+						<font size="12"/>
+					</textElement>
+					<text><![CDATA[Wiley Permission #:]]></text>
+				</staticText>
+				<textField pattern="MMMMM dd, yyyy" isBlankWhenNull="false">
+					<reportElement key="textField" x="60" y="1" width="139" height="19" forecolor="#000000" backcolor="#FFFFFF"/>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement>
+						<font size="10"/>
+					</textElement>
+					<textFieldExpression class="java.util.Date"><![CDATA[$F{PURCHASE_ORDER_DATE}]]></textFieldExpression>
+				</textField>
+				<subreport>
+					<reportElement x="61" y="20" width="208" height="25" isRemoveLineWhenBlank="true"/>
+					<subreportParameter name="SOURCE_EXTERNAL_ID">
+						<subreportParameterExpression><![CDATA[$F{SOURCE_EXTERNAL_ID}.trim()]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{SOURCE_CONNECTION}]]></connectionExpression>
+					<subreportExpression class="net.sf.jasperreports.engine.JasperReport"><![CDATA[$P{sourceSubReport}]]></subreportExpression>
+				</subreport>
+				<staticText>
+					<reportElement positionType="Float" x="1" y="87" width="79" height="20"/>
+					<textElement>
+						<font size="12"/>
+					</textElement>
+					<text><![CDATA[Author:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="Float" x="0" y="0" width="60" height="20"/>
+					<textElement>
+						<font size="12"/>
+					</textElement>
+					<text><![CDATA[Date:]]></text>
+				</staticText>
+				<textField>
+					<reportElement x="478" y="1" width="74" height="20"/>
+					<textElement>
+						<font size="12"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{PURCHASE_ORDER_NUMBER}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement positionType="Float" x="1" y="20" width="60" height="20"/>
+					<textElement>
+						<font size="12"/>
+					</textElement>
+					<text><![CDATA[To:]]></text>
+				</staticText>
+				<textField isBlankWhenNull="true">
+					<reportElement positionType="Float" x="80" y="87" width="166" height="20"/>
+					<textElement>
+						<font size="12"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{AUTHOR}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement positionType="Float" x="2" y="150" width="550" height="81"/>
+					<textElement>
+						<font size="12"/>
+					</textElement>
+					<text><![CDATA[I request your permission to include the following material in this and all subsequent editions of the above-referenced book, in all media of expression now known or later developed and in all foreign language translations and other derivative works published or prepared by John Wiley & Sons, Inc. or its licensees, for distribution throughout the world, and also in versions made by nonprofit organizations for use by blind or physically handicapped persons.  Appropriate credit will be given as provided below.]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="Float" x="1" y="108" width="101" height="20"/>
+					<textElement>
+						<font size="12"/>
+					</textElement>
+					<text><![CDATA[Tentative Title:]]></text>
+				</staticText>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="298" splitType="Stretch">
+				<textField>
+					<reportElement positionType="Float" x="14" y="117" width="206" height="52"/>
+					<textElement/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{PURCHASE_ORDER_USER_SIGNATURE}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement positionType="Float" x="366" y="97" width="169" height="144"/>
+					<textElement/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{PURCHASE_ORDER_RETURN_ADDRESS}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="1" y="2" width="547" height="67"/>
+					<textElement>
+						<font size="12"/>
+					</textElement>
+					<text><![CDATA[Please indicate your agreement by signing and returning the enclosed copy of this letter to me.  In signing, you warrant that you are the sole owner of the rights granted and that your material does not infringe upon the copyright or other rights of anyone.  If you do not control these rights, I would appreciate your letting me know to whom I should apply.]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="Float" x="14" y="97" width="100" height="20"/>
+					<textElement>
+						<font size="12"/>
+					</textElement>
+					<text><![CDATA[Thank you,]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="Float" x="4" y="179" width="551" height="18"/>
+					<textElement>
+						<font size="14"/>
+					</textElement>
+					<text><![CDATA[AGREED TO AND ACCEPTED:
+]]></text>
+				</staticText>
+				<line>
+					<reportElement positionType="Float" x="5" y="219" width="546" height="1"/>
+				</line>
+				<staticText>
+					<reportElement positionType="Float" x="5" y="220" width="100" height="20"/>
+					<textElement/>
+					<text><![CDATA[Signature]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="Float" x="208" y="220" width="100" height="20"/>
+					<textElement/>
+					<text><![CDATA[Title]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="Float" x="451" y="219" width="100" height="20"/>
+					<textElement/>
+					<text><![CDATA[Date]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="Float" x="5" y="242" width="155" height="20"/>
+					<textElement markup="styled"/>
+					<text><![CDATA[Credit and/or copyright notice:]]></text>
+				</staticText>
+				<line>
+					<reportElement positionType="Float" x="5" y="261" width="546" height="1"/>
+				</line>
+				<line>
+					<reportElement positionType="Float" x="5" y="276" width="546" height="1"/>
+				</line>
+				<line>
+					<reportElement positionType="Float" x="5" y="292" width="546" height="1"/>
+				</line>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="1" y="71" width="547" height="20"/>
+					<textElement/>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{PURCHASE_ORDER_NOTE}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<pageHeader>
+		<band height="96" splitType="Stretch">
+			<staticText>
+				<reportElement x="114" y="10" width="418" height="65"/>
+				<textElement textAlignment="Center">
+					<font size="18" isBold="false"/>
+				</textElement>
+				<text><![CDATA[INTERNAL PERMISSION REQUEST FORM]]></text>
+			</staticText>
+			<image scaleImage="RetainShape" isLazy="true" onErrorType="Icon">
+				<reportElement x="5" y="0" width="97" height="55"/>
+				<imageExpression class="java.lang.String"><![CDATA["images/wiley-logo.gif"]]></imageExpression>
+			</image>
+		</band>
+	</pageHeader>
+	<detail>
+		<band height="32" splitType="Stretch">
+			<subreport isUsingCache="false">
+				<reportElement x="4" y="4" width="548" height="28" backcolor="#FFFFFF"/>
+				<subreportParameter name="PRODUCT_ID">
+					<subreportParameterExpression><![CDATA[$P{PRODUCT_ID}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="CW_ID">
+					<subreportParameterExpression><![CDATA[$P{CW_ID}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="PO_ID">
+					<subreportParameterExpression><![CDATA[$P{PO_ID}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression class="net.sf.jasperreports.engine.JasperReport"><![CDATA[$P{assetsSubReport}]]></subreportExpression>
+			</subreport>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="21" splitType="Stretch">
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement key="textField" x="340" y="0" width="170" height="19" forecolor="#000000" backcolor="#FFFFFF"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["Page " + $V{PAGE_NUMBER} + " of "]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement key="textField" x="-1" y="0" width="209" height="19" forecolor="#000000" backcolor="#FFFFFF"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.util.Date"><![CDATA[$F{PURCHASE_ORDER_DATE}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement key="textField" x="514" y="0" width="36" height="19" forecolor="#000000" backcolor="#FFFFFF"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["" + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+</jasperReport>

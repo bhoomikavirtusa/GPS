@@ -1,0 +1,98 @@
+	<script type="text/javascript">
+	//<![CDATA[
+
+	// ------------------ BUTTONS ----------------
+	$(document).ready(function() {	
+		$('#nextB').click (function() {
+			next('post');
+		});
+		
+		$('#selectB').click (function() {
+			next ('get');
+		});
+			
+		$('#finishB').click (function() {
+			finish('post', false);
+		});
+		
+		$('#finishC').click (function() {
+			finish('post', true);
+		});	
+		
+		$('#prevB').click (function() {
+			prev('get');
+		});	
+		
+		// set focus on first input
+		$('#sourceWizardForm *:input[type!=hidden]:first').focus();
+		
+	});
+
+	function next (rtype) {
+		var $vendorID = $( 'input[id$="vendorId"]');
+		if ($vendorID.length) {
+			vendorIdBlur($vendorID);
+		}
+		
+		 <!-- SR_239173 - No Fly photographer match warning on click of 'NEXT' button changes start-->
+		var $artistID = $( 'input[id$="artist"]');
+		if ($artistID.length) {
+			artistAndCreditLineBlur($artistID);
+			$('#noFlyMatchApproved').attr('value', true);
+			
+		}
+		
+		 <!-- SR_239173 - No Fly photographer match warning on click of 'NEXT' button changes end-->
+		if ($("#sourceWizardForm").validate().form() == true) {	
+			$.ajax({
+            	async: true,
+            	type: rtype,
+            	url: '${nextUrl}',
+            	data: $('#sourceWizardForm').serialize(),
+            	success: function (response){
+                	$('#modalDiv').empty().html(response);
+                	repositionDialog();
+            	}
+        	});
+		}
+	}
+	
+	function finish (rtype, next) {
+		if ($("#sourceWizardForm").validate().form() == true) {
+			$.ajax({
+            	async: true,
+           		type: rtype,
+            	url: '${nextUrl}',
+            	data: $('#sourceWizardForm').serialize(),
+            	success: function (response){
+                	fnRefreshRows (${sourceWizardForm.assetUse.id});
+                	refreshPanels (${sourceWizardForm.assetUse.commonWork.id});
+            		if (next) {
+            			$('#modalDiv').empty().html(response);
+            			// load will do POST again - not good
+            			// $('#modalDiv').load("${multiNextUrl}");
+            		} else {
+                		$modalDialog.dialog("close");
+                	}
+            	},
+            	error: function(response,error) {
+            		 $('#modalDiv').html(response);
+            		 repositionDialog();
+            	}
+        	});
+		}
+	}
+
+	function prev (rtype) {
+		$.ajax({
+        	async: true,
+        	type: 'get',
+        	url: '${prevUrl}',
+        	success: function (response){
+            	$('#modalDiv').empty().html(response);
+            	repositionDialog();
+        	}
+    	});
+	}
+	//]]>		
+	</script>

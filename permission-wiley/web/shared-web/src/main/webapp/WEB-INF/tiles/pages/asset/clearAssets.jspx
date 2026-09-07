@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="submitUrl" value="/sapp/asset/manageAsset/assetsClear" />
+	<c:url var="progressBarUrl" value="/images/animated_progress_bar.gif" />
+
+	<form:form modelAttribute="clearAssetsForm" action="${submitUrl}">
+	
+	<c:if test="${empty toClear}">	
+		<div>You must select assets to clear.</div>
+	</c:if>
+	
+	<c:if test="${not empty toClear}">
+		<div style="text-align: center">WARNING!!!</div>
+		<div>You are about to permanently delete the selected assets form this product INCLUDING ALL PAPERWORK.  This action CANNOT BE UNDONE!</div>
+
+		<table class="display" id="cancelMultiTable">
+			<thead>
+				<tr>
+					<th>Select</th>
+					<th>Component</th>
+					<th>Position</th>
+					<th>Description</th>
+					<th>Media Type</th>
+					<th>Source(s)</th>
+				</tr>
+			</thead>
+			<tbody>
+				<c:forEach items="${toClear}" var="assetUse">
+					<tr>
+					  <c:if test="${null == assetUse.importSource or assetUse.importSource.code == 4 or assetUse.importSource.code == 6 }">
+						<td><input type="checkbox" name="auIds" checked="checked" value="${assetUse.id}" /></td>
+					 </c:if>
+					 <c:if test="${null != assetUse.importSource and assetUse.importSource.code != 4 and assetUse.importSource.code != 6}">
+							<td>Not Removable, from: ${assetUse.importSource.description }</td>
+				     </c:if>
+						<td><c:out value="${assetUse.component.name}" /></td>
+						<td><c:out value="${assetUse.position}" /></td>
+						<td><c:out value="${assetUse.asset.description}" /></td>
+						<td><c:out value="${assetUse.asset.mediaType.description}" /></td>
+						<td><c:out value="${assetUse.asset.sourcesAsString}" /></td>
+					</tr>
+				</c:forEach>
+			</tbody>
+		</table>
+	</c:if>
+					
+	</form:form>
+
+	<div id="buttonDiv" class="buttonset">
+		<a href="#" id="cancelLink" class="button">Abort Clear</a>
+		<c:if test="${not empty toClear}">	
+			<input type="button" id="finishB" value="CLEAR ALL SELECTED"/>
+		</c:if>
+	</div>
+	
+	<div id="progressDiv" class="buttonset" style="display: none">
+		<img src="${progressBarUrl}" alt="Please wait..." />
+	</div>
+	
+	<div><b>Make Sure you know what you are doing!</b></div>
+
+	<script type="text/javascript">
+	//<![CDATA[	
+	$(document).ready(function() {
+
+		$('#cancelMultiTable').dataTable( {
+			"aoColumns" : [
+				{ "sWidth" : "5%", "sClass" : "center", "bSortable" : false, "bSearchable" : false }, // Select
+				{ "sWidth" : "15%" }, // Component
+				{ "sWidth" : "10%" }, // Position
+				{ "sWidth" : "40%" },  // Description
+				{ "sWidth" : "10%" },  // Media Type
+				{ "sWidth" : "20%" }  // Source(s)
+			],
+			"aaSorting": [[1, "asc" ], [2, "asc"]],
+			"bAutoWidth": false,
+			"bProcessing": true,
+			"bStateSave": false,
+			//"sPaginationType": "full_numbers",
+			//"aLengthMenu": [10, 15, 25, 50, 100],  // override default of [10, 25, 50, 100]
+			"iDisplayLength": 5000, // make large because we will scroll this table - probably this param is ignored with bPaginate false
+			"sScrollY": "300px",
+			"bPaginate": false,
+			"bScrollCollapse": true,
+			"sDom" : "rt"
+		});
+		
+		$('#finishB').click (function() {
+			$("#buttonDiv").hide();
+			$("#progressDiv").show();
+			
+			$.ajax({
+	            async: true,
+	            type: 'post',
+	            url: '${submitUrl}',
+	            data: $('#clearAssetsForm').serialize(),
+	            success: function (response) {
+	            	alert(response);
+	            	$modalDialog.dialog('close'); 	
+	            	window.location.reload();
+		        }
+	        });
+		});	
+
+	});	
+	//]]>		
+	</script>
+	
+</jsp:root>

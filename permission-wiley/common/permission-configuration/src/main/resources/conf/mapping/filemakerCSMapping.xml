@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<workbook>
+	<worksheet name="assets">
+		<section startRow="0" endRow="0" />		
+		<loop startRow="2" endRow="2" items="assets" var="assetUse"
+			varType="com.wiley.permissions.domain.persistence.permissions.ExtendedAssetUse">
+			<section startRow="2" endRow="2">
+				<mapping row="2" col="1">assetUse.contract.printRun</mapping>
+				<mapping row="2" col="1">assetUse.printRunCondition</mapping>
+				<mapping row="2" col="2">assetUse.asset.mediaType.code</mapping>
+				<mapping row="2" col="4">assetUse.canceled</mapping>
+				<mapping row="2" col="7">assetUse.printRunIncludeEbooks</mapping>
+				<mapping row="2" col="8">assetUse.ebookPrintRunCondition</mapping>
+				<mapping row="2" col="9">assetUse.contract.endDate</mapping>
+				<mapping row="2" col="10">assetUse.productionComment</mapping>
+				<mapping row="2" col="11">assetUse.asset.description</mapping>
+				<mapping row="2" col="13">assetUse.contract.number</mapping>
+				<mapping row="2" col="14">assetUse.contract.date</mapping>
+				<mapping row="2" col="15">assetUse.commonWork.primaryProduct.isbn10</mapping>
+				<mapping row="2" col="16">assetUse.commonWork.primaryProduct.isbn13</mapping>
+				<mapping row="2" col="15">assetUse.isb10</mapping>
+				<mapping row="2" col="16">assetUse.isb13</mapping>
+				<mapping row="2" col="17">assetUse.languageCondition</mapping>
+				<mapping row="2" col="18">assetUse.territoryComments</mapping>
+				<mapping row="2" col="19">assetUse.contract.limitationOfLiability</mapping>
+				<mapping row="2" col="23">assetUse.permissionType</mapping>
+				<mapping row="2" col="24">assetUse.status.description</mapping>
+				<mapping row="2" col="25">assetUse.permissionComment</mapping>
+				<mapping row="2" col="25">assetUse.statusExplanation</mapping>
+				<mapping row="2" col="26">assetUse.asset.creditLine</mapping>
+				<mapping row="2" col="27">assetUse.price</mapping>
+				<mapping row="2" col="33">assetUse.createdDate</mapping>
+				<mapping row="2" col="35">assetUse.salesTerritoryCondition</mapping>
+				<mapping row="2" col="36">assetUse.photoSize</mapping>
+				<mapping row="2" col="38">assetUse.contract.startDate</mapping>
+				<mapping row="2" col="42">assetUse.usage.code</mapping>
+				<mapping row="2" col="41">assetUse.unlimitedPrintRunCondition</mapping>
+				<mapping row="2" col="43">assetUse.asset.source[0].name</mapping>
+				<mapping row="2" col="44">assetUse.asset.vendorId</mapping>			
+			</section>
+		<loopbreakcondition>
+ 				<rowcheck offset="0">
+ 					<cellcheck offset="0"></cellcheck>
+ 					<cellcheck offset="1"></cellcheck>
+ 					<cellcheck offset="2"></cellcheck>
+ 					<cellcheck offset="3"></cellcheck>
+ 					<cellcheck offset="4"></cellcheck>
+ 					<cellcheck offset="5"></cellcheck>
+ 					<cellcheck offset="6"></cellcheck>
+ 					<cellcheck offset="7"></cellcheck>
+ 					<cellcheck offset="8"></cellcheck>
+ 				</rowcheck>
+ 		</loopbreakcondition>			
+		</loop>
+	</worksheet>
+</workbook>

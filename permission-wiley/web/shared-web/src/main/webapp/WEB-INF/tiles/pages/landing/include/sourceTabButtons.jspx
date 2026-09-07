@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+	xmlns:form="http://www.springframework.org/tags/form">
+
+	<jsp:directive.page pageEncoding="UTF-8" />
+
+	<jsp:element name="link">
+		<jsp:attribute name="rel">stylesheet</jsp:attribute>
+		<jsp:attribute name="type">text/css</jsp:attribute>
+		<jsp:attribute name="href">
+			<c:url value="/css/menu.css" />
+		</jsp:attribute>
+	</jsp:element>
+
+	<jsp:element name="script">
+		<jsp:attribute name="type">text/javascript</jsp:attribute>
+		<jsp:attribute name="src">
+			<c:url value="/js/jquery.cookie.js" />
+		</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+
+	<jsp:element name="script">
+		<jsp:attribute name="type">text/javascript</jsp:attribute>
+		<jsp:attribute name="src">
+			<c:url value="/js/superfish.js" />
+		</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+
+	<c:url var="poMultiPage1Url" value="/sapp/permissions/po/source_start_multi" />
+
+	<jsp:body>
+		
+		<div id="menu" class="ActionBar disable">
+			<ul id="action-menu-2">
+				<li>
+					<a href="#" class="left right disable">Actions &#x25BC;</a>					
+					<ul id="subMenuAction" style="display: none; visibility: hidden;">
+					  	<!-- These are buttons instead of anchors so we can disable them but still show them -->
+						<li>
+    					  	<a href="${poMultiPage1Url}" id="createFormsLink">Create forms</a> 
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+
+		<script type="text/javascript">
+		//<![CDATA[		
+		$('#action-menu-2').superfish({ 
+            delay:       100,                             // one second delay on mouseout 
+            animation:   {opacity:'show',height:'show'},  // fade-in and slide-down animation 
+            speed:       'fast',                          // faster animation speed 
+            autoArrows:  false,                           // disable generation of arrow mark-up 
+            dropShadows: false                            // disable drop shadows 
+        }); 
+		
+	$(document).ready(function() {
+		$('#createFormsLink').click(function() {
+		 	var sValues = oSSelector.fnGetCheckedValues ();
+		 	// alert (sValues);
+			if ('' == sValues) {
+				alert ("Please make your selection");
+				// prevent the default action, e.g., following a link
+				return false;
+			}		
+			$("#modalDiv").load($(this).attr("href") + "?sIds=" + sValues + "&cwId=" + ${param.cwId}, function() {			
+				openModalDialog ('Create forms');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+	});
+		//]]>					
+		</script>
+
+	</jsp:body>
+</jsp:root>

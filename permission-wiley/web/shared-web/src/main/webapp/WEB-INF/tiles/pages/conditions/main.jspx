@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+
+	<jsp:directive.include file="js/dynatree.custom.js" />
+
+	<style type="text/css">
+		/* hide icon */
+		span.dynatree-icon {
+			display: none;
+		}
+		.custom1 {
+			background-color: #BAD0EF;
+			color: black;
+		}
+		ul.dynatree-container {
+			font-family: Arial,Helvetica,sans-serif;
+		}
+	</style>
+
+	<c:choose>
+		<c:when test="${readOnly}">
+			<table>
+				<c:forEach items="${conditions}" var="top">
+					<c:if test="${not empty top.rollupValue}">
+					<tr>
+						<td>
+							<b>${top.description}: </b>
+						</td>
+						<td>
+							<!-- displayValues include "All Except:" if appropriate -->
+							${top.rollupValue}
+						</td>
+					</tr>
+					</c:if>
+				</c:forEach>
+			</table>
+		</c:when>
+		<c:otherwise>
+			<p>${helpMessage}</p>
+
+			<script type="text/javascript">
+			//<![CDATA[	
+   			$(document).ready(function() {
+        			$("#conditionTree").dynatree({
+						checkbox: true,
+						generateIds: true,
+						autoCollapse: true,
+						minExpandLevel: 2,
+						keyboard: false,
+						clickFolderMode: 1,
+						// Override class name for checkbox icon, so radio buttons are displayed:
+						//classNames: {checkbox: "dynatree-radio"},
+						// Select mode 3: multi-tier
+						selectMode: 3,
+						initAjax: { url: "${loadUrl}",
+							data: { key: "root", mode: "all" }
+						},
+						onCustomRender: function(node) {
+							return fnDisplayNode (node);
+						},
+						onCreate: function (node, nodeSpan) {
+							// if cannot be seen
+							if (!node.data.canSee)
+								$(node.li).hide();
+						},
+						onPostInit: function(isReloading, isError) {
+		       				var node = $("#conditionTree").dynatree("getTree").selectKey("_1");
+		       				var start = new Date().getTime();
+		        			fnInitialHighlights(node);
+		        			var end = new Date().getTime();
+							var time = end - start;
+							// alert('Execution time: ' + time);
+		    			}
+					});
+
+        			$("#conditionForm").submit(function() {
+						if (typeof fnPreSubmit == 'function') {
+				 			// there is this case after editing contract conditions we edit the CW conditions, 
+				 			// when the typeof fnPreSubmit returns 'function' thou the function is not defined
+							try {
+								// added ability to exit early by returning false for manageMasterAgreementDeal.jspx
+								if (!fnPreSubmit()) {
+									return false;
+								}
+							} catch (err) {
+								alert("caught error calling fnPreSubmit()");
+							}
+						}
+
+						$.post("${postUrl}",
+							null,
+							function(response, textStatus, xhr) {
+								if (typeof fnPostSubmit == 'function') {
+									try {
+										fnPostSubmit();
+									} catch (err) {}  
+								}
+							}
+          				);
+						return false;
+					});
+				});
+			//]]>
+			</script>
+			
+    		<!-- The name attribute is used by tree.serializeArray()  -->
+    		<div id="conditionTree" name="selNodes" style="min-width: 680px">
+    		</div>
+
+		</c:otherwise>
+	</c:choose>
+
+</jsp:root>

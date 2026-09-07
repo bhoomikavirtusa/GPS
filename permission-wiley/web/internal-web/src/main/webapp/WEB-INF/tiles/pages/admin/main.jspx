@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root 
+	version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<!-- For some reason this page looks messed up without this, even
+	 though for other pages we can take this out since it's in the web.xml.
+	 It's not the UTF8 thing, I think it's the text/html.
+	 -->
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url value="/sapp/asset/details/deleteAssets" var="deleteAssetsActionURL" />
+	<c:url value="/sapp/product/product/reloadProductFromPE" var="reloadProductURL" />
+
+	<script type="text/javascript">
+		<![CDATA[
+			function submitDeleteAssets() {
+				var input = document.getElementById("cwId");
+				if (!confirm("Are you sure you want to permanently delete all assets for common work ID [" + input.value + "] ?"))
+					return false;
+				document.location.href = "${deleteAssetsActionURL}" + "?cwId=" + input.value;
+				return false;
+			}
+
+			function reloadProductFromPE() {
+				var input = document.getElementById("productIdentifier");
+				var includeCommonWork = document.getElementById("includeCommonWork");
+				var localRequest = document.getElementById("localRequest");
+				if (input.value == '') {
+					alert ("You must specify one identifier.");
+					return false;
+				}
+				var includeCommonWorkValue = 0;
+				if (includeCommonWork.checked)
+					includeCommonWorkValue = 1;
+				var localRequestValue = 0;
+				if (localRequest.checked)
+					localRequestValue = 1;
+				document.location.href = "${reloadProductURL}" + "?productIdentifier=" + input.value + "&includeCommonWork=" + includeCommonWorkValue + 
+				"&localRequest=" + localRequestValue;
+				return false;
+			}
+
+		]]>
+	</script>
+
+	<jsp:directive.include file="/WEB-INF/tiles/pages/include/generalMessage.jspx" />
+
+	<table class="width100">	
+		<tr>
+			<th>
+				Clear assets
+			</th>
+		</tr>				
+		<tr>
+			<td>
+				Clear all assets for common work ID
+				<input name="cwId" id="cwId" type="text" size="10"/>
+				<jsp:element name="input">
+					<jsp:attribute name="type">button</jsp:attribute>
+					<jsp:attribute name="value">Go</jsp:attribute>
+					<jsp:attribute name="onclick">return submitDeleteAssets ();</jsp:attribute>
+				</jsp:element>										
+			</td>
+		</tr>
+		<tr>
+			<th>Reload product</th>
+		</tr>				
+		<tr>
+			<td>
+				Reload product from PE
+				<input name="productIdentifier" id="productIdentifier" type="text" size="50"/>
+				<input type="CHECKBOX" name="includeCommonWork" id="includeCommonWork" value="1"/>Include CommonWork
+				<input type="CHECKBOX" name="localRequest" id="localRequest" value="1"/>Local Request
+				<jsp:element name="input">
+					<jsp:attribute name="type">button</jsp:attribute>
+					<jsp:attribute name="value">Go</jsp:attribute>
+					<jsp:attribute name="onclick">return reloadProductFromPE ();</jsp:attribute>
+				</jsp:element>										
+				<br/>
+				(use ISBN10, ISBN13 or externalID)
+			</td>
+		</tr>
+	</table>
+</jsp:root>

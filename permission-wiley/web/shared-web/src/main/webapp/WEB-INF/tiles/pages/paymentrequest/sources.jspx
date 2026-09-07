@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="nextUrl" value="/sapp/permissions/paymentrequest/select_source" />
+	
+	<!--include as jspx so the jsp variable are recognized-->
+	<jsp:directive.include file="js/wizard.buttons.js.jspx" />
+	
+	<p>Choose source to enter payment request for: </p>
+	
+	<form:form modelAttribute="generatePaymentRequestForm">
+		<table>
+			<c:forEach items="${sources}" var="source">
+				<tr>
+					<td>
+						<input type="radio" name="sourceId" value="${source.id}" class="required"/>${source.name}
+					</td>
+				</tr>
+			</c:forEach>
+		</table>
+	</form:form>
+	
+	<div class="buttonset">
+		<input type="button" id="selectB" value="Next" /> 
+		<a href="#" id="cancelLink" class="button">Cancel</a>
+	</div>
+</jsp:root>

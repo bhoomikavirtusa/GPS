@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+
+	<c:url var="landingUrl" value="/sapp/cwlanding/main" />
+	<c:url var="manageAssetUrl" value="/sapp/asset/details/form" />
+	<c:url var="assetSearchUrl" value="/sapp/asset/assetSearch" />
+	<c:url var="assetSearchExcelUrl" value="/sapp/commonwork/report/assetSearch.xls" />
+
+	<script type="text/javascript">
+	$(document).ready(function() {
+		$('#assetSearchResultsTable').dataTable( {
+			"aoColumns": [
+				{ "sWidth" : "5%" }, // Image
+				<c:if test="${not assetSearchForm.includeCommonWorkId}">
+				{ "sWidth" : "10px", "bSearchable" : false, "bSortable" : false }, // Add to current
+				{ "sWidth" : "20%" }, // Author(s)
+				{ "sWidth" : "30%" }, // Title
+				{ "sWidth" : "10px" }, // ISBN
+				{ "sWidth" : "10px" }, // Copyright Year
+				</c:if>
+				{ "sWidth" : "45%" }, // Description
+				{ "sWidth" : "5%" }, // Media Type
+				{ "sWidth" : "10%" }, // Source(s)
+				{ "sWidth" : "10px" }, // Source Ref#
+				{ "sWidth" : "10px" }, // Photographer //Added for Build RN Ticket 151026-002014
+				{ "sWidth" : "10px" }, // Component
+				{ "sWidth" : "10px" }, // Position
+				{ "sWidth" : "10px" }, // Usage
+				{ "sWidth" : "10px" }, // Status
+				{ "sWidth" : "10px" } // Cancelled
+			],
+			<c:if test="${not assetSearchForm.includeCommonWorkId}">
+			"aaSorting": [[2, "asc" ], [9, "asc"], [10, "asc"], [5, "asc"]],
+			</c:if>
+			<c:if test="${assetSearchForm.includeCommonWorkId}">
+			"aaSorting": [[4, "asc" ], [5, "asc"], [0, "asc"]],
+			</c:if>
+	
+			"bAutoWidth": false,
+			"bProcessing": true,
+			// Don't save state since column indexes can change - could fix if needed by altering table id
+			//"bStateSave": true,
+			"sPaginationType": "full_numbers",
+			"aLengthMenu": [10, 15, 25, 50, 100],  // override default of [10, 25, 50, 100]
+			"iDisplayLength": 15 // override default of 10
+		} );
+	} );
+	</script>
+	
+	<script type="text/javascript">
+	//<![CDATA[
+
+		$(document).ready(function() {
+			$('.selectLink').click(function() {
+				$("#modalDiv").load($(this).attr("href"), function() {
+					openModalDialog ('Asset details');
+		        });
+				alert("Asset Added to Current Product");
+				// prevent the default action, e.g., following a link
+				return false;
+			});
+		});
+	//]]>		
+	</script>
+	
+	<table class="width100">
+		<tr>
+			<th>
+				Assets Advanced Search Results
+			</th>
+		</tr>
+		<tr>
+			<td>
+				Search Criteria:
+				<c:forEach items="${results.criteria}" var="entry">
+			    	${entry.name}: <c:out value="${entry.value}" />, 
+				</c:forEach>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<h2>Search Results</h2>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<c:if test="${results.totalHits > results.documentCount}">
+				    There were <fmt:formatNumber value="${results.totalHits}" /> total hits but we limit the results to ${results.documentCount}.
+				    You may wish to be more specific in your search.
+				</c:if>
+			</td>
+		</tr>	
+		<tr>
+			<td>
+
+	<c:if test="${results.totalHits == 0}">
+		<p>No Results found.</p>
+	</c:if>
+				
+	<c:if test="${results.totalHits > 0}">
+		<!-- Use smaller font size than normal since so many columns. -->
+		<table class="display fullWidth" style="font-size: 9pt" id="assetSearchResultsTable">
+			<thead>
+				<tr>
+					<th>Image</th>
+					<c:if test="${not assetSearchForm.includeCommonWorkId}">
+						<th>Add to current</th>
+						<th>Author(s)</th>
+						<th>Title</th>
+						<th>ISBN</th>
+						<th>&amp;copy;Year</th>
+					</c:if>
+					<th>Description</th>
+					<th>Media Type</th>
+					<th>Source(s)</th>
+					<th>Source Ref#</th>
+					<th>Photographer</th>	<!-- Added for Build RN Ticket 151026-002014 -->
+					<th>Component</th>
+					<th>Position</th>
+					<th>Usage</th>
+					<th>Status</th>
+					<th>Cancelled</th>
+				</tr>
+			</thead>
+			<tbody>
+				<c:forEach items="${results.documents}" var="doc">
+					<tr>
+					   <td>
+							<c:if test="${doc.hasAssetFiles}">
+								<c:url var="thumbUrl" value="/sapp/product/assetThumbnail?assetId=${doc.assetId}&amp;size=medium" />
+								<img src="${thumbUrl}" alt="Thumbnail" />
+							</c:if>
+						</td>
+						<c:if test="${not assetSearchForm.includeCommonWorkId}">
+							<td>
+								<c:choose>
+							    	<c:when test="${doc.assetUseForCurrentCW}">
+							            <a class="selectLink" href="${manageAssetUrl}?auId=${doc.assetUseId}&amp;usage=true&amp;search=y">(Already Added)</a>
+							        </c:when>
+							        <c:otherwise>
+							            <a class="selectLink" href="${manageAssetUrl}?auId=${doc.assetUseId}&amp;search=y&amp;addTo=${assetSearchForm.commonWorkId}">Add</a>
+							        </c:otherwise>
+							    </c:choose>
+							</td>
+						
+							<td><c:out value="${doc.authorNames}" /></td>
+							<td><c:out value="${doc.title}" /></td>
+							<td><c:out value="${doc.isbn}" /></td>
+							<td><c:out value="${doc.copyrightYear}" /></td>
+						</c:if>
+		    
+						<td>
+							<jsp:element name="a">
+								<jsp:attribute name="href" >
+									<c:url value="/sapp/asset/details/form?auId=${doc.assetUseId}&amp;search=y" />
+								</jsp:attribute>
+								<jsp:attribute name="class">
+									<c:choose>
+										<!--  Don't put whitespace in when or ends up in html -->
+										<!--  Just doing restrictedUse, not also printRunWarning like on Product Landing -->
+										<!--  because doesn't make sense for multi-product search -->
+										<c:when test="${doc.restrictedUse and not doc.restrictedUseApproved}">selectLink restrictedUse</c:when>
+										<c:otherwise>selectLink</c:otherwise>
+									</c:choose>
+								</jsp:attribute>
+								${doc.description}
+							</jsp:element>
+						</td>
+						
+						<td><c:out value="${doc.mediaType}" /></td>
+						<td>${doc.sourcesAsHTML}</td>
+						<td><c:out value="${doc.sourceRef}" /></td>
+						<td><c:out value="${doc.artist}"></c:out></td>	<!-- Added for Build RN Ticket 151026-002014 -->
+						<td><c:out value="${doc.componentName}" /></td>
+						<td><c:out value="${doc.position}" /></td>
+						<td><c:out value="${doc.usage}" /></td>
+						<td><c:out value="${doc.permissionStatusDescription}" /></td>
+						${wileyfn:booleanTD(doc.canceled)}
+					</tr>
+				</c:forEach>
+			</tbody>
+		</table>
+	</c:if>
+			</td>
+		</tr>	
+	</table>	
+	
+	<div class="buttonset">	
+	    <c:if test="${results.totalHits > 0}">
+	    	<a class="button" href="${assetSearchExcelUrl}">Export to Excel</a> 
+	    </c:if>
+		<a class="button" href="${assetSearchUrl}">Do another search</a>  
+		<a class="button" href="${landingUrl}">Back to product details</a>
+	</div>
+
+</jsp:root>

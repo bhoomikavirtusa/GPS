@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+	
+	<jsp:directive.page pageEncoding="UTF-8" />
+	
+	<c:url var="nextUrl" value="/sapp/commonwork/report/EditorUsageReport.xls" />
+	<c:url var="prevUrl" value="/sapp/cwlanding/main?cwId=${cwId}" />
+
+	<fmt:setBundle basename="messages" />
+	
+	<jsp:element name="script">
+			<jsp:attribute name="type">text/javascript</jsp:attribute>
+			<jsp:attribute name="src">
+			<c:url value="/js/jquery.ui.datepicker.min.js"/>
+			</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+
+	<jsp:body>
+		<c:url var="photocopyrightReportUrl" value="/sapp/commonwork/report/editorUsageReport.xls" />
+		
+		<h3>Divestment Report Selection Criteria  (This report may take a long time to run if minimal or no selection criteria is provided)</h3>
+		
+		<form method="post" action="${photocopyrightReportUrl}">
+			<table>
+				<tr>
+					<td>Enter Copyright Year selection:</td>
+					<td>
+						From Year: <input type="text" name="yearFrom" />  To Year: <input type="text" name="yearTo" /> 
+						(Defaults to all)
+					</td>
+				</tr>
+				
+				<tr>
+					<td>Enter Consolidated Release date range for the report:</td>
+					<td>
+						<input type="text" class="datepicker" id="d_crdFrom" name="d_crdFrom" size="12" maxlength="12"/> (${dateFormat}) To Date: <input type="text" class="datepicker" id="d_crdTo" name="d_crdTo" size="12" maxlength="12"/> (${dateFormat})
+			   			 (Defaults to all)
+			   			 
+			   			 <form:hidden class="datepicker" path="crdFrom"/>
+			   			 <form:hidden class="datepicker" path="crdTo"/>
+					</td>
+				</tr>
+				
+				<tr>
+					<td>Enter worked on date range for the report:</td>
+					<td>
+						From Date: <input type="text" name="d_workedFrom" class="datepicker" />  To Date: <input type="text" name="d_workedTo" class="datepicker"  />
+						(Defaults to all)
+						
+						<form:hidden class="datepicker" path="workedFrom"/>
+			   			 <form:hidden class="datepicker" path="workedTo"/>
+					</td>
+				</tr>
+				
+				<tr>
+					<td>Desired Editor Code:</td>
+					<td>
+						<input type="text" name="editorCode" /> (Defaults to all)
+					</td>
+				</tr>
+				
+				<tr>
+					<td>Enter Division for the report:</td>
+					<td>
+						<input type="hidden" name="businessUnit" id="businessUnit"/> 
+						
+						<select id="businessUnitDD" size="1" onclick="javascript: setBu(); ">
+							<option value="">All Divisions</option> 
+							<c:forEach items="${bu}" var="bu">
+								<option value="${bu.code}"><c:out value="${bu.code} - ${bu.name}" /></option> 
+							</c:forEach> 
+						</select>
+						(Defaults to all)
+					</td>
+				</tr>
+				
+				<tr>
+					<td>Enter Product Line for the report:</td>
+					<td>
+						<input type="hidden" name="productLine" id="productLine"/>  
+							<select id="productLineDD" size="1" onclick="javascript: setPl(); ">
+							<option value="">All Product Lines</option> 
+							<c:forEach items="${pl}" var="pl">
+								<option value="${pl.id}"><c:out value="${pl.code} - ${pl.name}" /></option> 
+							</c:forEach> 
+						</select>
+						(Defaults to all)
+					</td>
+				</tr>
+			</table>
+			
+			<div class="buttonset">					
+				<input type="submit" id="generateB" value="Generate-Spreadsheet" />
+				<a href="#" id="cancelLink" class="button">Close</a> 	 															
+			</div>
+		</form>
+
+		<br />
+
+	</jsp:body>
+	
+	<script type="text/javascript">
+	//<![CDATA[
+    $(document).ready(function() {
+           
+		$('#generateB').click (function() {
+			$.ajax({
+	            async: true,
+	            type: 'get',
+	            url: '${nextUrl}',
+	            success: function (response){
+	            	$modalDialog.dialog("close");
+	            }
+	        });
+		});
+		
+		$.datepicker.setDefaults({
+		     dateFormat: '${dateFormat}'
+		});
+		
+		$(function() {
+			$("#crdFrom").datepicker();
+			$("#d_crdFrom").datepicker();
+			var d1 = $.datepicker.parseDate('mm/dd/yy', $("#crdFrom").val());
+			var d2 = $.datepicker.formatDate('${dateFormat}', d1);
+	    	$("#d_crdFrom").val(d2);
+			
+			$("#crdTo").datepicker();
+			$("#d_crdTo").datepicker();
+			var d1 = $.datepicker.parseDate('mm/dd/yy', $("#crdTo").val());
+			var d2 = $.datepicker.formatDate('${dateFormat}', d1);
+	    	$("#d_crdTo").val(d2);
+
+	    	$("#workedFrom").datepicker();
+			$("#d_workedFrom").datepicker();
+			var d1 = $.datepicker.parseDate('mm/dd/yy', $("#workedFrom").val());
+			var d2 = $.datepicker.formatDate('${dateFormat}', d1);
+	    	$("#d_workedFrom").val(d2);
+			
+	    	$("#workedTo").datepicker();
+			$("#d_workedTo").datepicker();
+			var d1 = $.datepicker.parseDate('mm/dd/yy', $("#workedTo").val());
+			var d2 = $.datepicker.formatDate('${dateTo}', d1);
+	    	$("#d_workedTo").val(d2);
+		});
+
+		$("#d_crdFrom").change(function() {
+			var d1 = $.datepicker.parseDate('${dateFormat}', $("#d_crdFrom").val());
+			var d2 = $.datepicker.formatDate('mm/dd/yy', d1);
+	    	$("#crdFrom").val(d2);
+		});
+
+		$("#d_crdTo").change(function() {
+			var d1 = $.datepicker.parseDate('${dateFormat}', $("#d_crdTo").val());
+			var d2 = $.datepicker.formatDate('mm/dd/yy', d1);
+	    	$("#crdTo").val(d2);
+		});
+
+		$("#d_workedFrom").change(function() {
+			var d1 = $.datepicker.parseDate('${dateFormat}', $("#d_workedFrom").val());
+			var d2 = $.datepicker.formatDate('mm/dd/yy', d1);
+	    	$("#workedFrom").val(d2);
+		});
+
+		$("#d_workedTo").change(function() {
+			var d1 = $.datepicker.parseDate('${dateFormat}', $("#d_workedTo").val());
+			var d2 = $.datepicker.formatDate('mm/dd/yy', d1);
+	    	$("#workedTo").val(d2);
+		});
+		
+	});
+
+    function setBu() {
+  		var selection = document.getElementById("businessUnitDD");
+  		var currentValue = selection[selection.selectedIndex].value;
+  		$("#businessUnit").val(currentValue);
+  		return false;
+  	}
+
+    function setPl() {
+    	var selection = document.getElementById("productLineDD");
+    	var currentValue = selection[selection.selectedIndex].value;
+    	$("#productLine").val(currentValue);
+    	return false;
+    }
+  	
+	//]]>		
+	</script>
+</jsp:root>

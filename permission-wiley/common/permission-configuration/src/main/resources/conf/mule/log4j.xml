@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
+
+    <appender name="mule" class="org.apache.log4j.RollingFileAppender">
+        <param name="File" value="${mule.home}/logs/mule-${mule.app.name}.log"/>
+        <param name="MaxFileSize" value="10MB"/>
+        <param name="MaxBackupIndex" value="20"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{ISO8601} %-5p %40.40c - %m%n" />
+        </layout>
+    </appender>
+
+    <appender name="pelog" class="org.apache.log4j.RollingFileAppender">
+        <param name="File" value="${mule.home}/logs/pe-mule-${mule.app.name}.log"/>
+        <param name="MaxFileSize" value="10MB"/>
+        <param name="MaxBackupIndex" value="10"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{ISO8601} %-5p %40.40c - %m%n" />
+        </layout>
+    </appender>
+
+	<appender name="assetslog" class="org.apache.log4j.RollingFileAppender">
+		<param name="File" value="${mule.home}/logs/assets-mule.log" />
+        <param name="MaxFileSize" value="10MB"/>
+        <param name="MaxBackupIndex" value="10"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{ISO8601} %-5p %40.40c - %m%n" />
+		</layout>
+	</appender>
+	
+	<appender name="csassetslog" class="org.apache.log4j.RollingFileAppender">
+		<param name="File" value="${mule.home}/logs/cs-assets-mule.log" />
+        <param name="MaxFileSize" value="10MB"/>
+        <param name="MaxBackupIndex" value="10"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{ISO8601} %-5p %40.40c - %m%n" />
+		</layout>
+	</appender>
+
+
+    <category name="org.mule">
+        <priority value="info"/>
+    </category>
+    
+    <category name="org.mule.module.client.MuleClient">
+        <priority value="warn"/>
+    </category>
+    
+    <category name="org.apache">
+        <priority value="warn"/>
+    </category>
+
+    <category name="org.hibernate">
+        <priority value="info"/>
+    </category>
+
+    <category name="org.hibernate.engine.StatefulPersistenceContect.ProxyWarnLog">
+        <priority value="error"/>
+    </category>
+    
+<!-- Enable SQL to see statements, enable type to see param values
+	<category name="org.hibernate.SQL">
+    	<priority value="TRACE"/>
+	</category>
+    
+	<category name="org.hibernate.type">
+		<priority value="TRACE"/>
+	</category>
+-->
+
+    <category name="org.springframework">
+        <priority value="warn"/>
+    </category>
+<!--
+    <category name="org.springframework.transaction">
+        <priority value="debug"/>
+    </category>
+-->
+
+	<category name="com.atomikos">
+		<priority value="warn" />
+	</category>
+	
+	<!-- Temporarily suppress Atomikos warnings: do want to figure out why getting warnings in the future -->
+	<category name="com.atomikos.icatch">
+		<priority value="error" />
+	</category>
+	<category name="com.atomikos.datasource">
+		<priority value="error" />
+	</category>
+    
+    <category name="com.wiley">
+        <priority value="debug"/>
+    </category>
+    <category name="com.wiley.permissions.persistence.repository.JPARepository">
+    	<priority value="info"/>
+    </category>
+    <!--
+    <category name="com.wiley.permissions.message.routing.MessageReprocessor">
+        <priority value="trace"/>
+    </category>
+    -->
+    <category name="com.wiley.sf.common.xml.bind.CustomIDResolver">
+        <priority value="info"/>
+    </category>
+    
+    <category name="com.wiley.permissions.services.message.PEMessageService" additivity="false">
+        <priority value="debug"/>
+        <appender-ref ref="pelog" />
+    </category>
+    
+    <category name="com.wiley.permissions.services.imports.CSFilemakerDataImportUtility" additivity="false">
+        <priority value="debug"/>
+        <appender-ref ref="csassetslog" />
+    </category>
+    
+	<category name="com.wiley.permissions.services.imports.ImportAssetsUtility" additivity="false">
+		<level value="debug" />
+		<appender-ref ref="assetslog" />
+	</category>
+
+
+    <root>
+        <priority value="info" />
+        <appender-ref ref="mule" />
+    </root>
+
+</log4j:configuration>

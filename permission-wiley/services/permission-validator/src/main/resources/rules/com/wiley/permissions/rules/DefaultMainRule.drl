@@ -1,0 +1,34 @@
+/*
+	created on: May 21, 2008
+	
+	This is the Rule file which decides which Agenda Group needs to be activated.
+	It find outs the Agenda Group which needs to be activated based on the provided  
+	Operation. Operation contains the name of the Agenda Group needs to be activated.
+	we need to set the operation name in the rule service. It's mandatory.
+	Other wise it will not activate any rules. Operation is on of the fact we need to insert
+	when we call the  rule service.
+	
+	This rule is added under MAIN Agenda Group. The Default Agenda Group used (Focused) by the 
+	Rule Engine is "MAIN".
+*/
+
+# Specify the rule package
+package com.wiley.permissions.rules.main
+
+#list any import classes here.
+import com.wiley.permissions.validator.rules.base.Operation;
+
+
+#declare any global variables here
+global org.apache.commons.logging.Log ruleLog;
+
+rule "Set focus on agendaGroup based on Operation Name"
+    agenda-group "MAIN"
+
+    when
+        Operation( name : name  )        
+    then
+	    #ruleLog.debug("about to call the agenda  " + name);
+	    drools.setFocus( name );
+end
+

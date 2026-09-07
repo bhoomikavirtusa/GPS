@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="sysmsg_20090427.xsd"
+         id="PE001.598349" type="notification" sent="1272911257346" source="PE001" protocolVersion="1.0">
+   <notification>
+      <masterListUpdate>
+         <masterList name="ProductLine" dataSource="CA" updateTime="1265249554072"></masterList>
+         <masterList name="Author" dataSource="US" updateTime="1272908583564"></masterList>
+      </masterListUpdate>
+   </notification>
+</message>

@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+>
+	<jsp:directive.page pageEncoding="UTF-8" />
+	
+	<c:url var="submitUrl" value="/sapp/admin/sourcegroup/madeal/submit" />
+	
+	<!-- These vars used by conditions include -->
+	<c:url var="loadUrl" value="/sapp/admin/sourcegroup/madeal/loadConditions?maDealId=${maDeal.id}" />
+	<c:url var="postUrl" value="/sapp/admin/sourcegroup/madeal/submit" />
+	<c:url var="postNodeUrl" value="/sapp/admin/sourcegroup/madeal/postConditionNode" />
+	<c:url var="cancelUrl" value="/sapp/admin/sourceGroups?mode=MODIFY_CHILD&amp;groupId=${maDeal.sourceGroupId}" />
+	
+	<script type="text/javascript">
+	//<![CDATA[
+	                      
+	      
+	  		$(document).ready(function() {
+			$.initDatePicker('#startDate' ,'#d_startDate' , '${userSession.currentUser.dateFormat}');
+		
+			$.initDatePicker('#endDate' ,'#d_endDate' , '${userSession.currentUser.dateFormat}');		
+
+			  // Added this above endDate code for default endDate issue for MasterAgreement deals    
+		$("#d_endDate").change(function() {
+				
+					var d1 = $.datepicker.parseDate('${userSession.currentUser.dateFormat}', $("#d_endDate").val());
+					var d2 = $.datepicker.formatDate('mm/dd/yy', d1);
+					
+				$("#endDate").val(d2);
+				
+		          });
+
+	       	 	});
+	
+	// Added this above endDate code for default endDate issue for MasterAgreement deals 
+		
+		// now using blankOrGreaterThan below
+		jQuery.validator.addMethod("greaterThan", function(value, element, params) {
+			if (!/Invalid|NaN/.test(new Date(value))) {
+				return new Date(value) > new Date($(params).val());
+			}
+
+			return isNaN(value) && isNaN($(params).val()) 
+				|| (Number(value) > Number($(params).val())); 
+		}, 'Must be greater than {0}.');
+		
+		jQuery.validator.addMethod("blankOrGreaterThan", function(value, element, params) {
+			if ($.trim(value) == "") return true;
+			
+			if (!/Invalid|NaN/.test(new Date(value))) {
+				return new Date(value) > new Date($(params).val());
+			}
+
+			return isNaN(value) && isNaN($(params).val()) 
+				|| (Number(value) > Number($(params).val())); 
+		}, 'Must be greater than {0}.');
+		
+		function validate() {
+			
+					var valid = ($("#maDeal").validate({ 
+				rules: {
+                    pricingInfo: { maxlength: 2000 },
+                    grantInfo: { maxlength: 2000 },
+                    endDate: { blankOrGreaterThan: "#startDate" }
+				}
+			}).form());
+			if (!valid) {
+				return false;
+			}
+			if (!fnValidateTree ($("#conditionTree").dynatree("getTree").selectKey("_1"))) {
+				return false;
+			}
+			return true;
+		}
+
+		function fnPreSubmit() {
+			if (validate()) {
+				$.blockUI({ message: '<table><tr><td><img src="${waitUrl}" /></td><td><b>Please wait.</b></td></tr></table>' });
+				return true;
+			}
+
+			return false;
+		}
+
+		function fnPostSubmit() {
+			document.getElementById("maDeal").submit();			
+		}
+	//]]>
+	</script>
+
+	<jsp:body>
+	<form:form modelAttribute="maDeal" method="post" action="${submitUrl}" enctype="multipart/form-data">
+		<spring:hasBindErrors name="maDeal">
+			<jsp:directive.include file="/WEB-INF/tiles/pages/include/formErrors.jspx" />
+		</spring:hasBindErrors>
+	
+		<div style="display: none">
+			<form:input type="hidden" path="sourceGroupId" />
+			<form:input type="hidden" path="id" />
+		</div>
+		<table class="width100">
+			<tr>
+				<th colspan="2">Master Agreement</th>
+			</tr>
+			<tr>
+				<td><form:label path="name" cssClass="required" cssErrorClass="error">Name</form:label></td>
+				<td><form:input path="name" size="50" maxlength="100" class="required" /></td>
+			</tr>
+			<tr>
+				<td><label for="file" class="required">File</label></td>
+				<td>
+					<input type="file" name="file" size="40" />
+					<c:if test="${not empty maDeal.fileName}">
+						<c:url var="downloadURL" value="/sapp/admin/sourcegroup/madeal/download?agreementId=${maDeal.id}"/>
+						<a href="${downloadURL}" title="${maDeal.name}"> ${maDeal.fileName}</a> (${wileyfn:filesize(maDeal.fileData)})
+					</c:if> 
+				</td>
+			</tr>
+			<tr>
+				<td>Applies to</td>
+				<td>
+					<table>
+						<tr>
+							<td valign="top">
+								<table>
+									<c:forEach items="${allBusinessUnits}" var="current">
+										<tr>
+											<td><form:checkbox value="${current.code}" path="selectedBusinessUnits" /></td>
+											<td><c:out value="${current.shortName}" /></td>
+										</tr>
+									</c:forEach>
+								</table>
+							</td>
+							<td valign="top">
+								<table>
+									<c:forEach items="${allUserLocations}" var="current">
+										<tr>
+											<td><form:checkbox value="${current.code}" path="selectedUserLocations" /></td>
+											<td><c:out value="${current.name}" /></td>
+										</tr>
+									</c:forEach>
+								</table>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td><form:label path="pricingInfo" cssClass="optional" cssErrorClass="error">Pricing text</form:label></td>
+				<td>
+					<form:textarea path="pricingInfo" rows="5" cols="60" />
+				</td>
+			</tr>
+			<tr>
+				<td><form:label path="grantInfo" cssClass="optional" cssErrorClass="error">Grant text</form:label></td>
+				<td>
+					<form:textarea path="grantInfo" rows="5" cols="60" />
+				</td>
+			</tr>
+			<tr>
+				<td><form:label path="notes" cssClass="optional" cssErrorClass="error">Notes</form:label></td>
+				<td>
+					<form:textarea path="notes" rows="5" cols="60" />
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<form:label path="startDate" cssClass="required" cssErrorClass="error">Agreement effective start date</form:label>
+		
+				<input type="text" id="d_startDate" name="d_startDate" size="10" maxlength="10" class="required" style="margin-left: 2em" />(${userSession.currentUser.dateFormat})
+				<form:hidden path="startDate" class="required" />	    
+		    	
+			    
+			   	</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<form:label path="endDate" cssClass="optional" cssErrorClass="error">Agreement effective end date </form:label>
+					<input type="text" id="d_endDate" name="d_endDate" size="10" maxlength="10" class="optional" style="margin-left: 2em" />(${userSession.currentUser.dateFormat})	
+		  	 	 
+	 				<form:hidden path="endDate" class="optional" /> 
+						
+				</td>
+			</tr>
+			<tr>
+				<td><form:label path="grantDurationYears" cssClass="required" cssErrorClass="error">Grant duration years</form:label></td>
+				<td>
+					<form:input path="grantDurationYears" size="5" maxlength="5" class="required" />
+					(0 means life of edition)
+				</td>
+			</tr>
+		</table>
+	</form:form>
+
+	<!-- Initially had this outside table but had very hard time getting Save/Cancel
+	buttons to show for some weird reason (CSS related I expect). -->
+	<form id="conditionForm">
+	<table class="width100">
+		<tr>
+			<td>Grant Details</td>
+		</tr>
+		<tr>
+			<td>
+				<jsp:directive.include file="/WEB-INF/tiles/pages/conditions/main.jspx" />
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<input type="submit" value="Save" />
+				<a href="${cancelUrl}" class="button" id="cancelLink">Cancel</a>
+			</td>
+		</tr>
+	</table>
+	</form>
+
+	</jsp:body>
+</jsp:root>

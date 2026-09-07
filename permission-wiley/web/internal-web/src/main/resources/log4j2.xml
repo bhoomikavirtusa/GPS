@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Appenders>
+		<RollingFile name="TomcatRollingFile" fileName="${sys:catalina.base}/logs/internal.log"
+					 filePattern="${sys:catalina.base}/logs/internal-%d{MM-dd-yyyy}-%i.log.gz">
+		<PatternLayout pattern="%-5p %d [%t] %c: %m%n"/>
+		  <Policies>
+			<TimeBasedTriggeringPolicy />
+			<SizeBasedTriggeringPolicy size="250 MB"/>
+		  </Policies>
+		  <DefaultRolloverStrategy max="20"/>
+		</RollingFile>		
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%-5p %d [%t] %c: %m%n"/>
+        </Console>
+    </Appenders>
+
+    <Loggers>
+
+        <!-- CXF is used heavily by Mule for web services -->
+        <AsyncLogger name="org.apache.cxf" level="WARN"/>
+
+        <!-- Apache Commons tend to make a lot of noise which can clutter the log-->
+        <AsyncLogger name="org.apache" level="WARN"/>
+
+        <!-- Reduce startup noise -->
+        <AsyncLogger name="org.springframework.beans.factory" level="WARN"/>
+        <AsyncLogger name="org.springframework" level="DEBUG"/>
+
+        <!-- Mule classes -->
+        <AsyncLogger name="org.mule" level="INFO"/>
+        <AsyncLogger name="com.mulesoft" level="INFO"/>
+        <AsyncLogger name="com.atomikos" level="ERROR"/>
+        <AsyncLogger name="com.wiley.permissions" level="DEBUG"/>
+        <AsyncLogger name="com.wiley.sf.common" level="DEBUG"/>
+        <!--
+		<AsyncLogger name="com.atomikos" level="INFO"/>
+        <AsyncLogger name="com.atomikos" level="INFO"/>
+        <AsyncLogger name="com.atomikos" level="INFO"/>
+		-->
+		
+
+        <AsyncRoot level="INFO">
+            <AppenderRef ref="TomcatRollingFile"/>
+        </AsyncRoot>
+    </Loggers>
+
+</Configuration>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root 
+	version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8" isErrorPage="true"/>
+
+	<span class="error">There was an error handing your request.</span>
+
+	<br/><br/>
+	
+	<tiles:insertDefinition name="tiles.errors.exception">
+		<c:if test="${pageContext != null and pageContext.exception != null}">
+			<tiles:putAttribute name="exception" type="object" value="${pageContext.exception}"/>
+		</c:if>
+	</tiles:insertDefinition>
+</jsp:root>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+
+	<jsp:directive.page pageEncoding="UTF-8" />
+	
+	<c:url var="continueUrl" value="${nextUrl}" />
+	<c:url var="downloadUrl" value="/sapp/commonwork/report/noflyList.xls" />
+	
+	<script type="text/javascript">
+		<![CDATA[
+		$(document).ready(function() {
+			
+			$('#sourceNoflyTable').dataTable({
+				"aoColumns" : [
+					{ "sWidth" : "50%", "sClass" : "center", "bSortable" : true, "bSearchable" : false }, // External Name
+					{ "sWidth" : "5%" }, // Photographer Last name
+					{ "sWidth" : "5%" }, // sued wiley
+					{ "sWidth" : "40%" }  // nofly comment
+				],
+				"aaSorting": [[1, "asc" ]],
+				"bAutoWidth": false,
+				"bProcessing": true,
+				"bStateSave": true,
+				"sScrollY": "200px",
+        		"bPaginate": false,
+        		"bScrollCollapse": true,
+				"sDom" : "rt"
+			});
+			
+			$('#download').click (function() {
+				document.location.href = "${downloadUrl}";
+			});
+			
+			$('#finish').click (function() {
+				document.location.href = "${continueUrl}";
+			});
+		});
+		]]>
+	</script>
+
+	<jsp:body>
+		<h3>No Fly Sources</h3>
+		
+		<c:if test="${not empty sources}">
+			<table>
+				<tr>
+					<td style="padding: 10px">
+					
+						<table class="display fullWidth" style="font-size: 9pt" id="sourceNoflyTable">
+							<thead>
+								<tr>
+									<th>Source</th>
+									<th>Photographer Last Name</th>
+									<th>Sued Wiley</th>
+									<th>No Fly Comments</th>
+								</tr>
+							</thead>
+							<tbody>
+								<c:forEach items="${sources}" var="nofly">
+									<tr>
+										<td>
+											${nofly.externalName }
+										</td>
+
+										<td>
+											${nofly.noFlyPhotographerLastName}         
+										</td>
+										<td>
+											${nofly.suedWiley ? 'Yes' : 'No'}
+										</td>
+										<td>
+											${nofly.comment}
+										</td>
+									</tr>
+								</c:forEach>
+							</tbody>
+						</table>
+
+					</td>
+				</tr>
+			</table>
+		</c:if>
+
+		<div class="buttonset">	
+			<input type="button" id="download" value="Download"/>
+			<input type="button" id="finish" value="Finish"/>
+		</div>
+	</jsp:body>
+</jsp:root>

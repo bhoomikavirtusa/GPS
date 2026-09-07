@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="nextUrl" value="/sapp/landing/source/3rdparty_addsource" />
+	<c:url var="prevUrl" value="/sapp/landing/source/3rdparty_search" />
+	<c:url var="publicDomainUrl" value="/static/publicDomain.html" />
+	<c:url var="fairUseUrl" value="/static/fairUse.html" />
+	<c:url var="stmUrl" value="/static/stm.html" />
+	<c:url var="workForHireUrl" value="/static/workForHire.html" />
+
+	<!--include as jspx so the jsp variable are recognized-->
+	<jsp:directive.include file="js/wizard.buttons.js.jspx" />
+
+	<script type="text/javascript">
+	//<![CDATA[
+		var sourceId = '${source.id}';
+		var assetId = '${sourceWizardForm.assetUse.asset.id}';
+
+	//]]>
+	</script>	
+
+	<jsp:directive.include file="../../asset/js/validate.js.jspx" />	
+	<script type="text/javascript">
+	//<![CDATA[
+		$( 'input[id$="vendorId"]').unbind( "blur" );
+	//]]>		
+	</script>
+
+	<h3>${sourceWizardForm.assetUse.asset.description} 
+	| ${sourceWizardForm.assetUse.asset.mediaType.description}
+	| Page ${sourceWizardForm.assetUse.manuscriptPage}
+	| ${sourceWizardForm.assetUse.usage.description} ${sourceWizardForm.assetUse.position} 	 
+	</h3>
+	<!-- Added for implementing SR_170992 - Start -->
+	<jsp:element name="script">
+			<jsp:attribute name="type">text/javascript</jsp:attribute>
+			<jsp:attribute name="src">
+			<c:url value="/js/jquery.ui.datetimepicker.min.js"/>
+			</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+
+   	<script type="text/javascript">
+		$(function() {
+			$('input').filter('.datetimepicker').datetimepicker({dateFormat: 'mm/dd/yyyy'});
+			
+		});
+		</script>
+	<!-- Added for implementing SR_170992 - End -->	
+	<form:form modelAttribute="sourceWizardForm">
+		<table>
+			<tr>
+				<td>
+					Source name:
+				</td>
+				<td>
+					${source.name} 
+					<input type="button" id="searchB" value="Search" />
+				</td>
+				<td colspan="2">
+				<c:if test="${isfavorite}">
+					<input type="checkbox" name="isfavorite" id="isfavorite" checked="checked" value="1"/>Favorite source
+				</c:if>
+				<c:if test="${not isfavorite}">
+					<input type="checkbox" name="isfavorite" id="isfavorite" value="1"/>Favorite source
+				</c:if>				
+				</td>				
+			</tr>	
+			<c:if test="${masterAgreement != null}">
+			<tr>
+				<td>
+				</td>
+				<td>
+					<c:url var="downloadUrl" value="/sapp/landing/source/download_file?agreementId=${masterAgreement.id}" />
+					Click <a href="${downloadUrl}">here</a> to download the Master Agreement active until active until 
+					<fmt:formatDate type="date" value="${masterAgreement.endDate}" />			
+				</td>				
+			</tr>
+			</c:if>		
+			<tr>
+				<td>
+					Core account #:
+				</td>
+				<td colspan="3">
+					${source.jdeVendorNumber}
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Name &amp; address:
+				</td>
+				<td colspan="3">
+					<b>${source.name}</b>
+				</td>
+			</tr>
+			<tr>
+				<td>
+				</td>
+				<td colspan="3">
+					<c:if test="${address != null}">
+						${address.oneLineDisplay}
+					</c:if>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Source ref #: 
+				</td>
+				<td colspan="3">
+					<form:input path="assetUse.asset.vendorId" size="20" maxlength="200"/>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Source credit line: 
+				</td>
+				<td colspan="3">
+					${source.creditLine}
+				</td>
+			</tr>
+			<tr>
+				<td>					
+				</td>
+				<td colspan="3">
+					<span class="explanation">This is the default credit line for this source. Edit the text to make changes</span>
+				</td>
+			</tr>
+						<tr>
+				<td>
+					Media Manager:
+				</td>
+				<td colspan="2">
+					<form:checkbox path="assetUse.mediaManager"/>
+				</td>
+			</tr>
+			
+		  <c:if test="${sourceWizardForm.assetUse.needToIncludePhotographer}">	
+			<tr>
+				<td>
+					Original artist or photographer:
+				</td>
+				<td cospan="3">
+					<form:input path="assetUse.asset.artist" size="20" maxlength="200" onchange="onChangeArtist()"/>
+				</td>
+			</tr>
+	
+			<tr>
+				<td>
+				</td>
+				<td cospan="3">
+					<span class="explanation">If you know the name of the artist or photographer, enter it here</span>				
+				</td>
+			</tr>
+	     </c:if>			
+			<tr>
+				<td>
+					Credit line: 
+				</td>
+				<td colspan="3">
+					<form:textarea path="assetUse.asset.creditLine" rows="2" cols="60" />
+				</td>
+			</tr>
+			<tr>
+				<td>					
+				</td>
+				<td colspan="3">
+					<span class="explanation">Asset credit line. Will overwrite source credit line</span>
+				</td>
+			</tr>
+			<!--// show the next input fields only first time (for the first source) // -->
+			<c:if test="${not sourceWizardForm.multiSource}">			
+			<tr>
+				<td>		
+					Source publication title:
+				</td>
+				<td colspan="3">
+					<form:input path="assetUse.asset.originalPublicationTitle" size="50" maxlength="300"/>
+				</td>
+			</tr>			
+			<tr>
+				<td>		
+					Source publication author:
+				</td>
+				<td colspan="3">
+					<form:input path="assetUse.asset.originalPublicationAuthor" size="50" maxlength="100"/>
+				</td>
+			</tr>
+			<tr>
+				<td>		
+					Original Source publication date:
+				</td>
+				<td>
+				<form:input class="datetimepicker" path="assetUse.asset.originalPublicationDate"/>
+				</td>
+			</tr>			
+			<tr>
+				<td>		
+					Source publication ISBN:
+				</td>
+				<td colspan="3">
+					<form:input path="assetUse.asset.originalPublicationIsbn" size="50" maxlength="13"/>
+				</td>
+			</tr>			
+			<tr>
+				<td>		
+					Source article title:
+				</td>
+				<td colspan="3">
+					<form:input path="assetUse.asset.originalArticleTitle" size="50" maxlength="300"/>
+				</td>
+			</tr>			
+			<tr>
+				<td>		
+					Source article author:
+				</td>
+				<td colspan="3">
+					<form:input path="assetUse.asset.originalArticleAuthor" size="50" maxlength="50"/>
+				</td>
+			</tr>			
+			<tr>
+				<td>		
+					Source publication page#:
+				</td>
+				<td>
+					<form:input path="assetUse.asset.originalPageNumber" size="20" maxlength="25"/>
+				</td>
+				<td>		
+					Asset identified as:
+				</td>
+				<td>
+					<form:input path="assetUse.asset.originalFigureNumber" size="20" maxlength="50"/>
+				</td>
+			</tr>
+			<tr>
+				<td>					
+				</td>
+				<td>					
+				</td>				
+				<td>					
+				</td>				
+				<td>
+					<span class="explanation">e.g figure#, other label</span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Public domain ?
+				</td>
+				<td>
+					<form:checkbox path="publicDomain"/> This asset is in <a href="${publicDomainUrl}" target="_blank">public domain</a>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Fair Use / Fair Dealing ?			
+				</td>
+				<td>
+					<form:checkbox path="fairUse"/> This asset is considered <a href="${fairUseUrl}" target="_blank">fair use / fair dealing</a>
+					<!-- Added for implementing Build RN 151026-001937 - Start -->
+					<div id="fairusedealOTtext" style="display:none;">
+					<c:if test="${(sourceWizardForm.ownerType == '3rd_Party_Publication')}">
+					<span style="color: red">{By selecting Fair Use, you choose to use this asset in this PFE only.}</span>
+					</c:if>
+					</div>
+					<!-- Added for implementing Build RN 151026-001937 - End -->
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Will be work for hire ?
+				</td>
+				<td colspan="2">
+					<form:checkbox path="assetUse.asset.willBeWorkForHire"/>  This asset will be   <a href="${workForHireUrl}" target="_blank">Work for Hire</a>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Will be royalty free ?
+				</td>
+				<td colspan="2">
+					<form:checkbox path="assetUse.asset.willBeRoyaltyFree"/>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Content covered by the STM publisher guidelines?
+				</td>
+				<td colspan="2">
+					<form:checkbox path="assetUse.asset.stmGuidelines" />   This asset is covered by  <a href="${stmUrl}" target="_blank">STM Guidelines</a>
+					<!-- Added for implementing Build RN 151026-001937 - Start -->
+					<div id="stmguidelinesOTtext" style="display:none;">
+					<c:if test="${(sourceWizardForm.ownerType == '3rd_Party_Publication')}">
+					<span title="This option will not allow sublicensing and translation and will not allow paper work upload. It will carry to future editions."
+					 style="color: red">{This option will not allow sublicensing and translation and will not allow paper work upload. It will carry to future editions.}</span>
+					</c:if>
+					</div>
+					<!-- Added for implementing Build RN 151026-001937 - End -->
+				</td>
+			</tr>
+			</c:if>
+			<!-- Added to implement DM-364 - Start -->
+			<c:if test="${(sourceWizardForm.ownerType == '3rd_Party_Institution') || (sourceWizardForm.ownerType == '3rd_Party_Publication')}">	
+			<tr>
+				<td>
+					Author Supplied / Manager Approved
+				</td>
+				<td colspan="2">
+					<form:checkbox path="assetUse.asset.managerApproved"/>
+				</td>
+			</tr>
+			</c:if>
+			<!-- Added to implement DM-364 - End -->
+		</table>
+		<form:hidden path="noFlyMatchApproved" />
+	</form:form>
+	<br/>
+	<input type="button" id="addSourceB" value="+ Add source for this asset"/> some assets have more than one source
+	
+	<div class="buttonset">	
+		<input type="button" id="prevB" value="Previous"/>
+		<input type="submit" id="nextB" value="Next"/>
+		<a href="#" id="cancelLink" class="button">Cancel</a> 	
+	</div>
+
+	<script type="text/javascript">
+//<![CDATA[
+
+	function onChangeArtist () {
+		if ($('#assetUse\\.asset\\.creditLine').val() == '') {
+			$('#assetUse\\.asset\\.creditLine').val($('#assetUse\\.asset\\.artist').val() + ' / ' + '${source.name} ');
+		}
+		return false;
+	}
+
+	function uncheckAll (obj) {
+		$('#fairUse1').attr('checked', false);
+		$('#publicDomain1').attr('checked', false);
+		$('#assetUse\\.asset\\.willBeWorkForHire1').attr('checked', false);
+		$('#assetUse\\.asset\\.willBeRoyaltyFree1').attr('checked', false);
+		$('#assetUse\\.asset\\.stmGuidelines1').attr('checked', false);
+		$('#assetUse\\.asset\\.managerApproved1').attr('checked', false);
+		$(obj).attr('checked', true);
+	}
+	
+	$(document).ready(function() {
+
+		$('#publicDomain1').click (function() {
+			// if none checked, show the button
+			if (!$(this).is(':checked') && !$('#fairUse1').is(':checked')) {
+				$('#addSourceB').show();
+			}
+			if ($(this).is(':checked') || $('#fairUse1').is(':checked')) {
+				$('#addSourceB').hide();
+			}
+			if ($(this).is(':checked')) {
+				uncheckAll (this);
+			}
+		});
+		
+		$('#fairUse1').click (function() {
+			// if none checked, show the button
+			if (!$(this).is(':checked') && !$('#publicDomain1').is(':checked')) {
+				$('#addSourceB').show();
+			}
+			if ($(this).is(':checked') || $('#publicDomain1').is(':checked')) {
+				$('#addSourceB').hide();
+			}
+			//Added for implementing Build RN 151026-001937 -- Start
+			if ($(this).is(':checked')) {
+				$('#fairusedealOTtext').show();
+			}
+			if (!$(this).is(':checked')) {
+				$('#fairusedealOTtext').hide();
+			}
+			//Added for implementing Build RN 151026-001937 -- End
+			if ($(this).is(':checked')) {
+				uncheckAll (this);
+			}
+			if (!$('#assetUse\\.asset\\.stmGuidelines1').is(':checked')) {//Added for implementing Build RN 151026-001937
+				$('#stmguidelinesOTtext').hide();
+			}
+		});
+
+		$('#assetUse\\.asset\\.willBeWorkForHire1').click (function() {
+			if ($(this).is(':checked')) {
+				uncheckAll (this);
+			}
+		});
+
+		$('#assetUse\\.asset\\.willBeRoyaltyFree1').click (function() {
+			if ($(this).is(':checked')) {
+				uncheckAll (this);
+			}
+			if ($(this).is(':checked')) {
+				if("false" == "${sourceWizardForm.hasRoyaltyFreeDeals}") {
+					alert("WARNING: selected source has no royalty free deals");
+				}
+			}
+		});
+
+		$('#assetUse\\.asset\\.stmGuidelines1').click (function() {
+			//Added for implementing Build RN 151026-001937 -- Start
+			if ($(this).is(':checked')) {
+				$('#stmguidelinesOTtext').show();
+			}
+			if (!$(this).is(':checked')) {
+				$('#stmguidelinesOTtext').hide();
+			}
+			//Added for implementing Build RN 151026-001937 -- End
+			if ($(this).is(':checked')) {
+				uncheckAll (this);
+			}
+			if (!$('#fairUse1').is(':checked')) {//Added for implementing Build RN 151026-001937
+				$('#fairusedealOTtext').hide();
+			}
+		});
+		
+		//Added to implement Build DM-374 -- Start
+		$('#assetUse\\.asset\\.managerApproved1').click (function() {
+			if ($(this).is(':checked')) {
+				uncheckAll (this);
+			}
+			if (!$('#fairUse1').is(':checked')) {
+				$('#fairusedealOTtext').hide();
+			}
+			if (!$('#assetUse\\.asset\\.stmGuidelines1').is(':checked')) {
+				$('#stmguidelinesOTtext').hide();
+			}
+		});
+		//Added to implement Build DM-374 -- End
+		
+		$('#searchB').click (function() {
+			$.ajax({
+	            async: true,
+	            type: 'get',
+	            url: '${prevUrl}',
+	            success: function (response){
+	                $('#modalDiv').empty().html(response);
+	                repositionDialog();
+	            }
+	        });
+		});
+	
+		$('#addSourceB').click (function() {
+			$.ajax({
+	            async: true,
+	            type: 'post',
+	            url: '${nextUrl}?multi=1',
+	            data: $('#sourceWizardForm').serialize(),
+	            success: function (response){
+	                $('#modalDiv').empty().html(response);
+	                fnRefreshRows (${sourceWizardForm.assetUse.id});
+					repositionDialog();	                
+	            }
+	        });
+		});
+	});
+//]]>		
+	</script>	
+</jsp:root>

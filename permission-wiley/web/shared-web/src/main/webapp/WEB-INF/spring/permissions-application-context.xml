@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans default-lazy-init="false"
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+		http://www.springframework.org/schema/util
+		http://www.springframework.org/schema/util/spring-util-4.3.xsd
+	">
+
+	<bean id="JNDIUtility" class="com.wiley.permissions.common.spring.JNDIUtility">
+		<property name="bindings">
+			<map>
+				<entry key="/security/PermissionsLoginModule" value-ref="services.SecurityService"/>
+			</map>
+		</property>
+	</bean>
+	
+	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basename" value="messages" />
+	</bean>
+	
+	<bean id="controllers.BaseAnnotatedController"
+		class="com.wiley.permissions.web.shared.controllers.BaseAnnotatedController"
+		abstract="true">
+		<property name="repository" ref="repository.JPARepository" />
+		<property name="messageSource" ref="messageSource" />
+
+		<property name="validator" ref="beanValidator" />
+		<property name="referenceDataCache" ref="app.ReferenceDataCache"/>
+
+		<property name="customBinders">
+			<map>
+				<entry key="java.util.Date">
+					<bean class="com.wiley.permissions.web.shared.util.DatePropertyEditorSupport"/>
+				</entry>
+			</map>
+		</property>
+	</bean>
+	
+	<bean id="controllers.BaseWizardFormController"
+		class="com.wiley.permissions.web.shared.controllers.BaseWizardFormController"
+		abstract="true">
+
+		<property name="referenceDataCache" ref="app.ReferenceDataCache"/>
+
+		<property name="customBinders">
+			<map>
+				<entry key="java.util.Date">
+					<bean class="com.wiley.permissions.web.shared.util.DatePropertyEditorSupport"/>
+				</entry>
+			</map>
+		</property>
+	</bean>	
+</beans>

@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="nextUrl" value="/sapp/admin/admin/mergeSource/merge_search" />
+	<c:url var="sourceSearchUrl" value="${wileyfn:getRestUrl(pageContext.request)}/service/source/search" />
+	<c:url var="detailsUrl" value="/sapp/admin/mergeSource/merge_details" />
+	<c:url var="waitUrl" value="/images/animated_progress_bar.gif" />
+
+	<h3>Source Merge</h3>
+
+	<form:form modelAttribute="SourceMergeForm">
+		<form:hidden path="fromSourceId" />
+		<form:hidden path="toSourceId" />
+		<table>
+			<tr>
+				<td colspan="2">
+					<h1>${formMessage }</h1>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Source From (Search/Select):
+				</td>
+				<td>
+					<form:input path="sourceFrom" size="40" maxlength="40"/>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Source To (Search/Select):
+				</td>
+				<td>
+					<form:input path="sourceTo" size="40" maxlength="40"/>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="6">
+					<div id="detailsDiv">	
+	     				<b>Getting details.....</b>
+					</div>
+				</td>
+			</tr>
+		</table>
+
+		<div id="buttonDiv" class="buttonset">
+			<input type="cancel" id="cancel" value="Cancel"/> 
+			<div id="submitButtonDiv">
+				<input type="submit" id="mergeB" value="Merge"/> 
+			</div>
+		</div>
+		<div id="waitDiv" class="buttonset" style="display: none">
+			<img src="${waitUrl}" alt="Please wait..." />
+		</div>
+	</form:form>
+		
+	<script type="text/javascript">
+	//<![CDATA[
+	$(document).ready(function() {
+
+		$('#detailsDiv').hide();
+		$('#submitButtonDiv').hide();
+		
+		$('#mergeB').click (function() {
+			  if ($( "#toSourceId" ).val() == $( "#fromSourceId" ).val()) {
+					return false;
+				  }
+			  if ($( "#toSourceId" ).val() == '') {
+				return false;
+			  }
+			  if ($( "#fromSourceId" ).val() == '') {
+				return false;
+			   }
+			  
+			
+			$("#buttonDiv").hide();
+			$("#waitDiv").show();
+			
+			$.ajax({
+	            async: true,
+	            type: 'get',
+	            url: '${nextUrl}',
+	            data: $('#sourceMergeForm').serialize(),
+	            success: function (response) {
+	                $('#modalDiv').empty().html(response);
+	                repositionDialog();
+	                
+	                $("#waitDiv").hide();
+	    			$("#buttonDiv").show();
+	            }
+	        });
+		});
+					
+		$( "#sourceFrom" ).autocomplete({
+			source: function( request, response ) {
+				$.jsonp({
+					"url": '${sourceSearchUrl}/' + request.term + '?callback=?', 
+					"success": function(json) {
+						response( $.map( json, function( item ) {
+							return {
+								value: item.name,					
+								id: item.id
+							}
+						}));
+					},
+					"error": function() {
+			        	alert ("Error: failed to search sources");
+			        }
+		        });				
+			},
+			minLength: 3,
+			select: function( event, ui ) {
+				$( "#fromSourceId" ).val (ui.item.id);
+			   // make sure to and from are not the same
+			   if ($( "#toSourceId" ).val() == $( "#fromSourceId" ).val()) {
+			   		$('#detailsDiv').empty().html("<p class='error'>WARNING: You cannot select same source.</p>");
+			   		$('#detailsDiv').show();
+			   		return false;
+			   }
+				$('#detailsDiv').empty().html("..... Calculating data ......");
+				$('#detailsDiv').show();
+				$('#submitButtonDiv').hide();
+				$.ajax({
+			    	async: true,
+			        type: 'post',
+			        url: '${detailsUrl}',
+			        data: $('#SourceMergeForm').serialize(),
+			        success: function (response) {
+			            $('#detailsDiv').empty().html(response);
+			        }
+		        });
+				
+			},
+			open: function() {
+				$( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+			},
+			close: function() {
+				$( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+			}
+		});
+
+
+		$( "#sourceTo" ).autocomplete({
+			source: function( request, response ) {
+				$.jsonp({
+					"url": '${sourceSearchUrl}/' + request.term + '?callback=?', 
+					"success": function(json) {
+						response( $.map( json, function( item ) {
+							return {
+								value: item.name,					
+								id: item.id
+							}
+						}));
+					},
+					"error": function() {
+			        	alert ("Error: failed to search sources");
+			        }
+		        });				
+			},
+			minLength: 3,
+			select: function( event, ui ) {
+				   $( "#toSourceId" ).val (ui.item.id);
+				   // make sure to and from are not the same
+				   if ($( "#toSourceId" ).val() == $( "#fromSourceId" ).val()) {
+				   		$('#detailsDiv').empty().html("<p class='error'>WARNING: You cannot select same source.</p>");
+				   		$('#detailsDiv').show();
+				   		return false;
+				   }
+				   $('#detailsDiv').empty().html("..... Calculating data  please wait ......");
+				   $('#detailsDiv').show();
+				   $('#submitButtonDiv').hide();
+	 				$.ajax({
+			            	async: true,
+			            	type: 'post',
+			            	url: '${detailsUrl}',
+			            	data: $('#SourceMergeForm').serialize(),
+			            	success: function (response){
+			            	 	$('#detailsDiv').empty().html(response);
+			            }
+			        });
+
+			},
+			open: function() {
+				$( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+			},
+			close: function() {
+				$( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+			}
+		});
+
+		$('#cancel').click (function() {
+			history.go(-1) 
+		});
+		
+	});
+	//]]>		
+	</script>	 
+
+</jsp:root>

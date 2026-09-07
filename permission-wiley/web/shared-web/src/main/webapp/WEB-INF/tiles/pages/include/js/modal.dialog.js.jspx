@@ -1,0 +1,69 @@
+	<script type="text/javascript">
+	//<![CDATA[
+	
+	var modalDialog;
+	
+	/*
+	 * creates the dialog but does not display it
+	 */
+	function createModalDialog () {
+        $modalDialog = $("#modalDiv").dialog({
+			autoOpen: false,
+			modal: true,
+			title: "Enter details for:",
+			height: 'auto',
+			// maxHeight: 700 , // not working
+			width: 'auto',
+			position: 'center'
+	    });
+		$("#modalDiv").css({'max-height': '700px', 'max-width': '900px', 'overflow-y': 'auto', 'overflow-x': 'auto'});
+	}
+	
+	function openModalDialog (title, b) {
+		$modalDialog.dialog('option', 'title', title);
+		// $modalDialog.dialog('option', 'width', 'auto');
+		// $modalDialog.dialog('option', 'height', 'auto');
+		$modalDialog.dialog({buttons: b});		
+		$modalDialog.dialog("open");
+		repositionDialog();
+	}
+	
+	function repositionDialog () {
+		$modalDialog.dialog('option', 'position', $modalDialog.dialog('option','position'));
+	}
+	
+	/*
+	*  if the dialogInfo object contains URL patterns, they are checked
+	*   and if the url contains one of the patters it runs the page in the
+	*    modal dialog otherwise it just runs the page.  This only handles <a> tags 
+	*
+	*  the paterns are set like this (you can have multiple patterns but size must reflect the number of patterns):
+	*	dialogInfo.title = 'Edit Payment Request';
+	*   dialogInfo.UrlPaternSize = 1;
+	*   dialogInfo.UrlPatern1 = "/paymentrequest/viewPaymentRequest";
+	*/
+	
+	function initModalDialog (dialogInfo) {
+		$('a').click(function() {
+			var dUrl = $(this).attr("href");
+			var isDialogUrl = 0;
+			for (x=1; x <= dialogInfo.UrlPaternSize; x=x+1)
+			{
+				if (dUrl.indexOf(dialogInfo["UrlPatern" + x]) > -1 ) {
+					isDialogUrl = 1;
+				}
+			}
+		
+			if (isDialogUrl == 1) { 
+				$("#modalDiv").load($(this).attr("href"), function() {
+					openModalDialog (dialogInfo.title);
+	        	});
+				// prevent the default action, e.g., following a link
+				return false;
+			} else {
+				return true;
+			}
+		});
+	}	
+	//]]>
+	</script>

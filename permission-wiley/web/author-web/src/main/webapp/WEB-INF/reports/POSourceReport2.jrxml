@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="POSourceReport2" pageWidth="555" pageHeight="100" columnWidth="535" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="SOURCE_EXTERNAL_ID" class="java.lang.String">
+		<defaultValueExpression><![CDATA[new String()]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+     SOURCE.ID AS SOURCE_EID,
+     SOURCE.EXTERNAL_id AS PERMISSION_ID,
+     SOURCE.name AS SOURCE_ENAME,
+     ADDRESS.ID AS ADDRESS_ADID,
+     ADDRESS.country_code AS ADDRESS_ADCNTR,
+     ADDRESS.city AS ADDRESS_ADCITY,
+     ADDRESS.LINE_ONE AS ADDRESS_ADDR1,
+     ADDRESS.LINE_TWO AS ADDRESS_ADDR2,
+     ADDRESS.LINE_THREE AS ADDRESS_ADDR3,
+      ADDRESS.state_province AS ADDRESS_ADPROV,
+      ADDRESS.postal_code AS ADDRESS_ADPCDE,
+      ' ' AS ADDRESS_ADDRS,
+       SOURCE.id AS ADDRESS_RAETID,
+       JT.ADDRESS_ID AS ADDRESS_RADID
+FROM
+     SOURCE SOURCE LEFT OUTER JOIN source_2_address JT ON SOURCE.id = JT.source_id
+     LEFT OUTER JOIN ADDRESS ADDRESS on address.id = JT.ADDRESS_ID
+     AND ADDRESS.address_type_code = 'A'
+WHERE SOURCE.EXTERNAL_id =$P{SOURCE_EXTERNAL_ID}
+]]>
+	</queryString>
+	<field name="SOURCE_EID" class="java.lang.Integer"/>
+	<field name="PERMISSION_ID" class="java.lang.String"/>
+	<field name="SOURCE_ENAME" class="java.lang.String"/>
+	<field name="ADDRESS_ADID" class="java.lang.Integer"/>
+	<field name="ADDRESS_ADCNTR" class="java.lang.String"/>
+	<field name="ADDRESS_ADCITY" class="java.lang.String"/>
+	<field name="ADDRESS_ADDR1" class="java.lang.String"/>
+	<field name="ADDRESS_ADDR2" class="java.lang.String"/>
+	<field name="ADDRESS_ADDR3" class="java.lang.String"/>
+	<field name="ADDRESS_ADPROV" class="java.lang.String"/>
+	<field name="ADDRESS_ADPCDE" class="java.lang.String"/>
+	<field name="ADDRESS_ADDRS" class="java.lang.String"/>
+	<field name="ADDRESS_RAETID" class="java.lang.Integer"/>
+	<field name="ADDRESS_RADID" class="java.lang.Integer"/>
+	<variable name="SourceAddress1" class="java.lang.String">
+		<variableExpression><![CDATA[((!$F{ADDRESS_ADDR1}.isEmpty()) ?
+    $F{ADDRESS_ADDR1}.trim() : "")
++ " " +
+((!$F{ADDRESS_ADDR2}.isEmpty()) ?
+    $F{ADDRESS_ADDR2}.trim() : "")
++ " " +
+((!$F{ADDRESS_ADDR3}.isEmpty()) ?
+    $F{ADDRESS_ADDR3}.trim() : "")]]></variableExpression>
+	</variable>
+	<variable name="SourceAddress2" class="java.lang.String">
+		<variableExpression><![CDATA[((!$F{ADDRESS_ADCITY}.isEmpty()) ?
+    $F{ADDRESS_ADCITY}.trim() : "")
++ " " +
+((!$F{ADDRESS_ADPROV}.isEmpty()) ?
+    $F{ADDRESS_ADPROV}.trim() : "")
++ " " +
+((!$F{ADDRESS_ADCNTR}.isEmpty()) ?
+    $F{ADDRESS_ADCNTR}.trim() : "")
++ " " +
+((!$F{ADDRESS_ADPCDE}.isEmpty()) ?
+    $F{ADDRESS_ADPCDE}.trim() : "")]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="63" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="0" width="416" height="20"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{SOURCE_ENAME}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="0" y="21" width="416" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$V{SourceAddress1}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="0" y="42" width="416" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$V{SourceAddress2}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

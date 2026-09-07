@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+		http://www.springframework.org/schema/util
+		http://www.springframework.org/schema/util/spring-util-4.3.xsd
+	">
+
+	<bean id="com.wiley.permissions.globalPropertyConfigurer"
+	      class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" >
+		<property name="locations">
+			<list>
+			<value>file:${PERMISSIONS_HOME}/permissions.properties</value>
+			<!--
+			    <value>classpath:conf/properties/${PERM_ENV}.properties</value>
+				<value>classpath:conf/properties/permissions.properties</value>
+			-->
+			</list>
+		</property>
+	</bean>
+
+	<bean id="remoteWebDispatcher" class="com.wiley.permissions.common.dispatcher.RemoteMuleDispatcher">
+		<property name="serverURL" value="http://localhost:60504" />
+	</bean>
+
+	<!-- Currently not used because we receive and process the messages in same MuleServer instance (so we will use localDispatcher) -->
+	<bean id="remoteProcessorDispatcher" class="com.wiley.permissions.common.dispatcher.RemoteMuleDispatcher">
+		<property name="serverURL" value="http://localhost:60505" />
+	</bean>
+
+	<bean id="localDispatcher" class="com.wiley.permissions.common.dispatcher.LocalMuleDispatcher"/>
+
+	<bean id="xmlToJavaObject" class="com.wiley.permissions.common.transformer.XmlToObject" />
+
+	<bean id="javaObjectToXml" class="com.wiley.permissions.common.transformer.ObjectToXml" />
+
+	<bean
+		id="utility.ExcelTransformerUtility"
+		class="com.wiley.permissions.common.excel.ExcelTransformerUtility">
+	</bean>
+	
+    <bean id="contextApplicationContextProvider" class="com.wiley.permissions.common.spring.ApplicationContextProvider" />
+
+	<bean id="utility.messageSource" 
+		class="org.springframework.context.support.ResourceBundleMessageSource">
+        <property name="basenames">
+            <value>conf/properties/messages</value>
+        </property>
+    </bean>	
+	
+   <bean id="utility.PerformanceMonitor" class="com.wiley.sf.common.monitor.PerformanceMonitor" factory-method="getInstance" />
+
+</beans>

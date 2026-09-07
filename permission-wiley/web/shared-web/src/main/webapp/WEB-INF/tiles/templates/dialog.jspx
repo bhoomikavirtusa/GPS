@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root
+	version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8" />
+
+	<fmt:setBundle basename="messages" />
+	
+	<jsp:output
+		doctype-root-element="html"
+		doctype-public="-//W3C//DTD XHTML 1.0 Strict//EN"
+		doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" />
+	
+	<jsp:body>
+		<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+			<head>
+				<meta http-equiv="Content-type" content="text/html; charset=UTF-8" />			
+				<jsp:element name="script">
+					<jsp:attribute name="type">text/javascript</jsp:attribute>
+					<jsp:attribute name="src">
+						<c:url value="/js/jquery-1.7.2.min.js"/>
+					</jsp:attribute>
+					// Placeholder
+				</jsp:element>
+
+				<jsp:element name="script">
+					<jsp:attribute name="type">text/javascript</jsp:attribute>
+					<jsp:attribute name="src">
+						<c:url value="/js/jquery.form.js"/>
+					</jsp:attribute>
+					// Placeholder
+				</jsp:element>
+	
+				<jsp:element name="script">
+					<jsp:attribute name="type">text/javascript</jsp:attribute>
+					<jsp:attribute name="src">
+						<c:url value="/js/jquery.validate.min.js"/>
+					</jsp:attribute>
+					// Placeholder
+				</jsp:element>
+
+				<jsp:element name="link">
+					<jsp:attribute name="rel">stylesheet</jsp:attribute>
+					<jsp:attribute name="type">text/css</jsp:attribute>
+					<jsp:attribute name="href">
+						<c:url value="/css/validate.css"/>
+					</jsp:attribute>
+				</jsp:element>
+
+				<jsp:element name="script">
+					<jsp:attribute name="type">text/javascript</jsp:attribute>
+					<jsp:attribute name="src">
+						<c:url value="/js/jquery.jsonp-2.1.4.min.js"/>
+					</jsp:attribute>
+					// Placeholder
+				</jsp:element>
+
+				<jsp:element name="link">
+					<jsp:attribute name="rel">stylesheet</jsp:attribute>
+					<jsp:attribute name="type">text/css</jsp:attribute>
+					<jsp:attribute name="href">
+						<c:url value="/css/jquery-ui-1.8.13.custom.css"/>
+					</jsp:attribute>
+				</jsp:element>
+				
+				<jsp:element name="script">
+					<jsp:attribute name="type">text/javascript</jsp:attribute>
+					<jsp:attribute name="src">
+						<c:url value="/js/jquery-ui-1.8.21.min.js"/>
+					</jsp:attribute>
+					// Placeholder
+				</jsp:element>
+
+				<jsp:element name="script">
+					<jsp:attribute name="type">text/javascript</jsp:attribute>
+					<jsp:attribute name="src">
+						<c:url value="/js/jquery-jtemplates.js"/>
+					</jsp:attribute>
+					// Placeholder
+				</jsp:element>
+				
+				<!-- numberformatter below depends on jshashtable -->
+				<jsp:element name="script">
+					<jsp:attribute name="type">text/javascript</jsp:attribute>
+					<jsp:attribute name="src">
+						<c:url value="/js/jshashtable-2.1.js"/>
+					</jsp:attribute>
+					// Placeholder
+				</jsp:element>
+				
+				<jsp:element name="script">
+					<jsp:attribute name="type">text/javascript</jsp:attribute>
+					<jsp:attribute name="src">
+						<c:url value="/js/jquery.numberformatter-1.2.3.js"/>
+					</jsp:attribute>
+					// Placeholder
+				</jsp:element>
+
+				<jsp:element name="script">
+					<jsp:attribute name="type">text/javascript</jsp:attribute>
+					<jsp:attribute name="src">
+						<c:url value="/js/jquery.cookie.js"/>
+					</jsp:attribute>
+					// Placeholder
+				</jsp:element>
+				
+				<jsp:element name="script">
+					<jsp:attribute name="type">text/javascript</jsp:attribute>
+					<jsp:attribute name="src">
+						<c:url value="/dataTables/js/jquery.dataTables.js"/>
+					</jsp:attribute>
+					// Placeholder
+				</jsp:element>
+				
+				<jsp:element name="script">
+					<jsp:attribute name="type">text/javascript</jsp:attribute>
+					<jsp:attribute name="src">
+						<c:url value="/dataTables/js/Scroller-1.0.1.js"/>
+					</jsp:attribute>
+					// Placeholder
+				</jsp:element>
+				
+				<jsp:element name="script">
+					<jsp:attribute name="type">text/javascript</jsp:attribute>
+					<jsp:attribute name="src">
+						<c:url value="/dataTables/js/jquery.dataTables.custom.js"/>
+					</jsp:attribute>
+					// Placeholder
+				</jsp:element>				
+				
+				<jsp:element name="script">
+					<jsp:attribute name="type">text/javascript</jsp:attribute>
+					<jsp:attribute name="src">
+						<c:url value="/dynatree/jquery.dynatree.min.js"/>
+					</jsp:attribute>
+					// Placeholder
+				</jsp:element>
+				
+				<jsp:element name="link">
+					<jsp:attribute name="rel">stylesheet</jsp:attribute>
+					<jsp:attribute name="type">text/css</jsp:attribute>
+					<jsp:attribute name="href">
+						<c:url value="/dataTables/css/demo_page.css"/>
+					</jsp:attribute>
+				</jsp:element>
+
+				<jsp:element name="link">
+					<jsp:attribute name="rel">stylesheet</jsp:attribute>
+					<jsp:attribute name="type">text/css</jsp:attribute>
+					<jsp:attribute name="href">
+						<c:url value="/dataTables/css/demo_table.css"/>
+					</jsp:attribute>
+				</jsp:element>
+								
+				<jsp:element name="script">
+					<jsp:attribute name="type">text/javascript</jsp:attribute>
+					<jsp:attribute name="src">
+						<c:url value="/js/perm.util.js"/>
+					</jsp:attribute>
+					// Placeholder
+				</jsp:element>
+
+			    <jsp:element name="link">
+					<jsp:attribute name="rel">stylesheet</jsp:attribute>
+					<jsp:attribute name="type">text/css</jsp:attribute>
+					<jsp:attribute name="href">
+						<c:url value="/dynatree/skin/ui.dynatree.css"/>
+					</jsp:attribute>
+				</jsp:element>
+
+				<jsp:element name="link">
+					<jsp:attribute name="rel">stylesheet</jsp:attribute>
+					<jsp:attribute name="type">text/css</jsp:attribute>
+					<jsp:attribute name="href">
+						<c:url value="/css/perm.css"/>
+					</jsp:attribute>
+				</jsp:element>
+
+			</head>
+	
+			<body>
+				<div class="greybox" id="dialog">
+		       		<tiles:insertAttribute name="body"/>
+	           		<tiles:insertAttribute name="footer"/>
+	           </div>
+			</body>
+			
+	<script type="text/javascript">
+	//<![CDATA[	
+		$(document).ready(function() {	
+
+			$('#cancelLink').click (function() {
+				$modalDialog.dialog("close");
+			});
+			
+			$('#cancelButton').click (function() {
+				$modalDialog.dialog("close");
+				return false;
+			});				
+
+			//Bind this keypress function to all of the input tags
+			$("input").keypress(function (event) {
+				if ( event.which == 13 ) {
+					event.preventDefault();
+					// this code will cover most of the button but not all. 
+					// If the button id is something else, overwrite in proper jsp (see example po/assets.jsp) 
+					if ($.exists("#nextB")) {
+						//alert ("next");
+						$('#nextB').click();
+					} else if ($.exists("#selectB")) {
+						//alert ("select");
+						$('#selectB').click();
+					} else if ($.exists("#searchB")) {
+						//alert ("search");
+						$('#searchB').click();
+					} else if ($.exists("#finishB")) {
+						//alert ("finish");
+						$('#finishB').click();
+					} else if ($.exists("#submitLogin")) {
+						//alert ("finish");
+						$('#submitLogin').click();
+					}
+					//return false;
+				}
+			});
+
+			//Overwrite this keypress function to all of the textarea tags
+			$('textarea').keypress(function(event) {
+				return true;
+			});
+		});
+	//]]>
+	</script>
+			
+		</html>
+	</jsp:body>
+</jsp:root>

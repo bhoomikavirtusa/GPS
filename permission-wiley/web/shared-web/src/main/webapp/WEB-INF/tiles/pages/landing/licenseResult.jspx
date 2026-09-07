@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<table class="width100">
+		<tr>
+			<td>Result</td>
+			<td>
+				<c:out value="${licenseResult}" />
+			</td>
+		</tr>
+	</table>
+		
+	<div class="buttonset">
+		<button id="cancelButton" class="button">Close</button>
+	</div>
+	
+	<c:if test="${newAuIds != null}">
+	<script type="text/javascript">
+	//<![CDATA[
+	    var auIds = "${newAuIds}".split(",");
+	    for (var i = 0; i < auIds.length; i++) {
+			var newRow = blankRow.slice();
+			newRow[0] = auIds[i];
+			// insert one row before last empty row
+			var aNewRow = fnInsertBeforeLast (newRow, true);
+			fnRefreshRow (aNewRow);
+	    }
+	//]]>
+	</script>
+	</c:if>
+	
+	<c:if test="${refreshAuIds != null}">
+	<script type="text/javascript">
+	//<![CDATA[
+	    var auIds = "${refreshAuIds}".split(",");
+	    fnRefreshRows(auIds);
+	//]]>
+	</script>
+	</c:if>
+  
+</jsp:root>

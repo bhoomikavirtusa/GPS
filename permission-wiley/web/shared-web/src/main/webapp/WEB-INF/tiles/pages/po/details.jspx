@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="addContactUrl" value="/sapp/sources/po/manageContact/form?sourceId=${poWizardForm.source.id}" />
+	<c:url var="addAddressUrl" value="/sapp/sources/po/manageAddress/form?sourceId=${poWizardForm.source.id}" />
+	
+	<c:url var="nextUrl" value="/sapp/permissions/po/submit_details" />
+	<c:url var="prevUrl" value="/sapp/permissions/po/asset_start?auId=${poWizardForm.selectedAuId}" />
+	<c:url var="thumbURL" value="/sapp/product/assetThumbnail" />
+	
+	<jsp:element name="script">
+		<jsp:attribute name="type">text/javascript</jsp:attribute>
+		<jsp:attribute name="src">
+			<c:url value="/js/jquery.selectboxes.min.js"/>
+		</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+	
+	<script type="text/javascript">
+	//<![CDATA[
+	var estimatedCost = parseFloat("${estimatedCost}");
+	
+	function onChangePrice() {
+		$('#showEstimatedCost').attr('checked', 'checked'); 	
+		return true;		
+	}
+	// <!-- SR_235670 changes starts -->
+	var ele= document.getElementById("result");
+	var coun = 0;
+	function showNote(ele){
+		
+		if(ele.checked){
+			coun++;
+			if(coun > 0){
+				result.innerHTML = "If an asset is selected above please be sure to attach the relevant file " + "<br />"+" along with the permissions letter when sending to the customer.";
+			}
+			else{
+				result.innerHTML = "";
+			}
+		}
+		else{
+			coun--;
+			if(coun > 0){
+				result.innerHTML = "If an asset is selected above please be sure to attach the relevant file " + "<br />"+" along with the permissions letter when sending to the customer.";
+				}
+			else{
+				result.innerHTML = "";
+				}
+			}
+			
+	}
+	// <!-- SR_235670 changes ends -->
+	//Start -- Added for implementing Build DM-117
+	function showAssetImage(assetId) {
+		$('#tooltip'+assetId).html("<img src='${thumbURL}?assetId=" + assetId + "&size=medium' alt='Thumbnail' />");
+        $('#tooltip'+assetId).show();
+	}
+	
+	function hideAssetImage(assetId) {
+		//Remove the appended tooltip template
+		$('#tooltip'+assetId).html('Loading...');
+        $('#tooltip'+assetId).hide(); 
+	}
+	//End -- Added for implementing Build DM-117
+		
+	$(document).ready(function() {
+		$('#po\\.estimatedPrice').val (estimatedCost);
+
+		$('#addContactB').click (function() {
+			$.ajax({
+	            async: true,
+	            type: 'get',
+	            url: '${addContactUrl}',
+	            success: function (response){
+	                $('#modalDiv').empty().html(response);
+	                repositionDialog();
+	            }
+	        });	
+		});
+		
+		$('#addAddressB').click (function() {
+			$.ajax({
+	            async: true,
+	            type: 'get',
+	            url: '${addAddressUrl}',
+	            success: function (response){
+	                $('#modalDiv').empty().html(response);
+	                repositionDialog();
+	            }
+	        });	
+		});
+		
+		$('#po\\.sourceContactInfo').change(function(){
+			// remove contact addresses from address dropdown 
+			$('#po\\.sourceAddressInfo').removeOption(/^C\:/i); 
+			if ($(this).val() == 0) {
+				// do nothing
+			} else {
+				// add contact addresses to address dropdown
+				var $email = $('#email' + $(this).val());
+				// we don't need the address id but just leave it here for now - we dont know if we might need it
+				var $addressid = $('#addressid' + $(this).val());
+				var $address = $('#address' + $(this).val());
+				if ($.exists ($email) && !$email.val().isEmpty()) {
+					$('#po\\.sourceAddressInfo').addOption ("C:email", "Contact email: " + $email.val());
+				}
+				if ($.exists ($addressid) && !$addressid.val().isEmpty()) {
+					$('#po\\.sourceAddressInfo').addOption ("C:address", "Contact address: " + $address.val());
+				}
+			}
+		});
+
+
+		$('#pricing').change(function() {
+			$("#pricing option:selected").each(function () {
+				 $('#pricingData').html($(this).val());
+	        });
+		});
+		
+	});
+	//]]>		
+	</script>
+	
+	<!--include as jspx so the jsp variable are recognized-->
+	<jsp:directive.include file="js/wizard.buttons.js.jspx" />
+	<c:set var="message" value="this"/>
+	<form:form modelAttribute="poWizardForm">
+	<h3>Source ${poWizardForm.source.name}</h3>
+	<table>
+		<c:if test="${not empty poWizardForm.po.id}">
+			<tr>
+				<td>
+			   		PO ID
+				</td>
+				<td>
+					${poWizardForm.po.id}
+				</td>
+		    </tr>
+		</c:if>
+		<tr>
+			<td colspan="2">
+			   Select contact and address
+			</td>
+		</tr>		
+		<tr>
+			<td>
+			   Contact
+			</td>
+			<td>
+				<form:select path="po.sourceContactInfo">
+					<form:option value="0">To whom it may concern</form:option>
+					<c:forEach var="tmpContact" items="${poWizardForm.source.contacts}">
+						<form:option value="${tmpContact.id}">${tmpContact.name} 
+						<c:if test="${not empty tmpContact.note}">/ ${tmpContact.note}</c:if></form:option>
+					</c:forEach>
+				</form:select>
+				<c:forEach var="tmpContact" items="${poWizardForm.source.contacts}">
+					<input type="hidden" id="email${tmpContact.id}" value="${tmpContact.email}"/>
+					<c:if test="${not empty tmpContact.address}">
+						<input type="hidden" id="addressid${tmpContact.id}" value="${tmpContact.address.id}"/>
+						<input type="hidden" id="address${tmpContact.id}" value="${tmpContact.address.oneLineDisplay}"/>
+					</c:if>
+				</c:forEach>
+				<input type="button" id="addContactB" value="Add contact" /> 
+			</td>
+		</tr>
+		<tr>
+			<td>
+			   Address
+			</td>
+			<td>
+				<form:select path="po.sourceAddressInfo" class="required">
+					<!--<form:option value="0" selected="true">Select</form:option>-->
+					<c:forEach var="addressAsc" items="${poWizardForm.source.addresses}">
+						<form:option value="${addressAsc.address.id}">${addressAsc.address.type.description}: ${addressAsc.address.oneLineDisplay}</form:option>
+					</c:forEach>
+				</form:select>			    
+				<input type="button" id="addAddressB" value="Add address" />		    
+			</td>
+		</tr>	
+		<tr>
+			<td colspan="2">
+			   <hr/>
+			</td>
+		</tr>
+		<c:if test="${poWizardForm.permissionRequest == 1}">
+		<tr>
+			<td colspan="2">
+			   <form:checkbox path="po.showIsbn" value="1"/>Show ISBN on request letter
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+			  	<form:radiobutton path="po.showCopyrightYear" value="true" /> Show copyright year
+			  	<c:if test="${po.commonWork.primaryProduct.consolidatedReleaseDate}">
+					<form:radiobutton path="po.showCopyrightYear" value="false" />Show pub date
+				</c:if>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+			  	Select which asset(s) will be noted with "Copy attached for your reference": 
+			</td>
+		</tr>
+		<c:forEach var="asset" items="${poWizardForm.assetViewList}">
+		<tr>
+			<td colspan="2">
+				<div>
+					<c:if test="${asset.hasAssetFiles}">
+						<span class="ctooltip" id="tooltip${asset.assetId}" style="display:none;">Loading...</span>
+					</c:if>
+				</div>
+				<c:if test="${asset.selected}">
+					<form:checkbox path="attachedAssetIds" value="${asset.assetId}" cssStyle="margin-left: 1em" onchange="showNote(this);"/>
+					<c:if test="${asset.hasAssetFiles}">
+						<img onmouseover="showAssetImage(${asset.assetId})" onmouseout="hideAssetImage(${asset.assetId})" src="../../images/thumbnail_thumbnail.png" />
+					</c:if>
+					${asset.componentName}, ${asset.usageTypeCode}, ${asset.position}, ${asset.assetDescription} 
+				</c:if> 
+			</td>
+			
+		</tr>
+		
+		</c:forEach>
+		<!-- SR_235670 changes starts -->
+		<tr>
+		 <td colspan="5"> 
+				<div id="result"  style="color: #0900C4;">
+				</div>
+			</td>
+		</tr>
+		<!-- SR_235670 changes ends -->
+		<tr>
+			<td colspan="2">
+			   <hr/>
+			</td>
+		</tr>
+		
+		</c:if>
+		<tr>
+			<td>
+				Please choose the form's language
+			</td>
+			<td>
+			    <form:select path="po.languageCode">
+					<form:options items="${languages}" itemValue="code" itemLabel="description" />
+				</form:select>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+			   <hr/>
+			</td>
+		</tr>
+		<c:if test="${poWizardForm.permissionRequest != 1}">
+		<tr>
+			<td>
+			   Estimated price
+			</td>
+			<td>
+			    <form:input path="po.estimatedPrice" size="10" onchange="onChangePrice()"/>
+			    <form:select path="po.estimatedCurrency">
+					<form:options items="${currencies}" itemValue="code" itemLabel="description" />
+				</form:select>
+			</td>
+		</tr>
+		
+		<c:if test="${not empty poWizardForm.masterAgreementDeals}"> 
+			<tr>
+				<td><b>Master Agreement Details</b></td>
+				<td>
+					<c:choose>
+					<c:when test="${poWizardForm.multiDeal}">
+						<select id="pricing">
+							<option value="">--Select desired deal to see pricing--</option>
+							<c:forEach items="${poWizardForm.masterAgreementDeals}" var="deal">
+								<option value="${deal.pricingInfo}">${deal.name}</option>
+							</c:forEach>
+						</select>
+					</c:when>
+					<c:otherwise>
+						<c:forEach items="${poWizardForm.masterAgreementDeals}" var="deal">
+							${deal.name}
+						</c:forEach>
+					</c:otherwise>
+					</c:choose>
+				</td>
+			</tr>
+	
+			<tr>
+				<td>Pricing text</td>
+				<!-- Put c:out right after TD since showing white-space -->
+				<td id="pricingData" style="white-space: pre-wrap; word-wrap: break-word; word-break: break-all"><c:out value="${poWizardForm.selectedDealPricing}" />​
+				</td>
+			</tr>
+		</c:if>
+	
+		<tr>
+			<td>
+			   Display estimated price
+			</td>
+			<td class="value">
+				<form:radiobutton path="po.showEstimatedCost" id="showEstimatedCost" value="true" />
+				Yes
+				<form:radiobutton path="po.showEstimatedCost" id="showEstimatedCost" value="false" cssStyle="margin-left: 1em"/>
+				No
+			</td>
+		</tr>
+		</c:if>
+	<c:set var="message" value="these"/>
+		<tr>
+			<td>
+	        	<form:label path="po.userSignature" cssClass="required" cssErrorClass="error">User signature</form:label>
+	        </td>
+			<td>
+				<form:textarea path="po.userSignature" htmlEscape="disable" rows="4" cols="60" class="required"/>
+			</td>
+		</tr>
+		<tr>
+			<td>
+			   <form:label path="po.returnAddress" cssClass="required" cssErrorClass="error">Return address</form:label>
+			</td>
+			<td>
+			    <form:textarea path="po.returnAddress" rows="4" cols="40" class="required"/>
+			</td>
+		</tr>
+		<tr>
+			<td>
+                <form:label path="po.note" cssClass="optional" cssErrorClass="error">Note</form:label>
+            </td>
+			<td>
+			    <form:textarea path="po.note" rows="4" cols="60" />
+			</td>
+		</tr>
+
+		<tr>
+			<td>
+            </td>
+			<td>
+			    <form:checkbox path="makeItDefault" value="1"/> Make <c:out value="${message}" /> my default
+			</td>
+		</tr>		
+	</table>
+	</form:form>
+	
+	<div class="buttonset">
+		<input type="submit" id="prevB" value="Previous" /> 
+		<input type="submit" id="finishB" value="Generate" /> 
+		<a href="#" id="cancelLink" class="button">Cancel</a>
+	</div>
+
+</jsp:root>

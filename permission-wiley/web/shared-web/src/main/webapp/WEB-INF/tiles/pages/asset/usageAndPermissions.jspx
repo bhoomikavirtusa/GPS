@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+
+	<c:url var="deleteFileUrl" value="/sapp/permissions/contract/delete_file" />
+	<c:url var="saveFileNamesUrl" value="/sapp/permissions/contract/save_file_names" />
+	<c:url var="validateFileNamesUrl" value="/sapp/permissions/contract/validate_file_names" />
+
+	<script type="text/javascript">
+	//<![CDATA[
+	function fnDeleteFile(fileId, contractId) {
+		$.ajax({
+            async: true,
+            type: 'post',
+            url: '${deleteFileUrl}',
+            data: {fileId: fileId, contractId: contractId},
+            success: function (response) {
+            	$('#file' + fileId).empty().html(response);
+            }
+        });
+        return false;
+	}
+	
+	//Start -- Added for implementing Build DM-364
+	function fnDeleteFileOnID(fileId, contractId) {
+		var r = confirm("Are you sure you want to delete this file?");
+		if (r == true) {
+			fnDeleteFile(fileId, contractId);
+		} else {
+		    return false;
+		}
+	}	
+	//End -- Added for implementing Build DM-364
+	
+	//]]>		
+	</script>
+
+	<table>
+		<c:forEach items="${permissions}" var="permission">
+			<tr>
+				<td colspan="2">
+					<h2>Source: ${permission.key.name}</h2>
+				</td>
+			</tr>	
+			<tr>
+				<td>Credit Line:</td>
+				<td>
+					${permission.key.creditLine}
+				</td>
+			</tr>
+	
+			<c:if test="${null == permission.value}">
+				<tr>
+					<td>
+						<b>No Invoice or Contract</b>
+					</td>
+				</tr>
+			</c:if>
+			
+			<c:if test="${null != permission.value}">
+				<tr>
+					<td colspan="2">
+						<h2>Invoice or Contract</h2>
+					</td>
+				</tr>
+				
+				<c:forEach items="${permission.value}" var="contract">
+					<c:if test="${commonWorkId != contract.commonWork.id}">
+						<tr><td colspan="2">(from a previous edition)</td></tr>
+					</c:if>
+					<tr>
+						<td>Number:</td>
+						<td>
+							<b>${contract.number}</b>
+						</td>
+					</tr>
+					<tr>
+						<td>Date:</td>
+						<td>
+							<fmt:formatDate type="date" value="${contract.date}" />
+						</td>
+					</tr>
+					<tr>
+						<td>Price:</td>
+						<td>
+							${contract.price} Currency: ${contract.currency.description}
+						</td>
+					</tr>
+					<tr>
+						<td>Paid By Author:</td>
+						<td>
+							${contract.paymentType == 'AUTHOR' ? 'Yes' : 'No'}
+						</td>
+					</tr>
+					<tr>
+						<td>Comp Copy Required:</td>
+						<td>
+							${empty contract.compCopies ? 'No' : 'Yes'}
+						</td>
+					</tr>
+	
+					<c:if test="${not empty contract.compCopies}">
+						<tr>
+							<td>Comp Copies:</td>
+						</tr>
+						<tr>
+							<td></td>
+							<td>Recipient's:</td>
+							<td>
+								<c:forEach items="${contract.compCopies}" var="comp" varStatus="status">
+									${comp.address }; 
+								</c:forEach>
+							</td>
+						</tr>
+					</c:if> <!-- end of compCopy test -->
+	
+					<c:if test="${not empty contract.files}">
+						<tr>
+							<td>
+								Returned form/invoice:
+							</td>
+						</tr>
+						<tr>
+							<td colspan="2">
+								<table>
+									<c:forEach items="${contract.files}" var="file">
+										<tr><td>
+											<div id="file${file.id}">
+												<c:url var="downloadUrl" value="/sapp/permissions/contract/download_file?fileId=${file.id}" />
+												<c:url var="deleteIconUrl" value="/images/buttons/delete-icon.png" />
+												<a href="${downloadUrl}"> ${file.fileName}</a> (${wileyfn:filesize(file.fileData)}) uploaded on 
+												<fmt:formatDate type="date" value="${file.lastUpdatedDate}" />
+												<a href="#" onClick="fnDeleteFileOnID (${file.id}, ${contract.id})"><img src="${deleteIconUrl}" /></a>
+											</div>
+										</td></tr>
+									</c:forEach>
+								</table>
+							</td>
+						</tr>
+					</c:if>
+					
+					<tr>
+						<td colspan="2">
+							<hr/>
+							Would like to upload a returned form/invoice file ?
+							<input type="button" value="Yes" id="toogleAgreementB${contract.id}" /> 
+		
+							<div id="agreement${contract.id}" style="margin-left: 2em; display: none;">
+								<c:url var="uploadUrl" value="/sapp/permissions/contract/upload_file?contractId=${contract.id}" />
+								<form method="post" action="${uploadUrl}" enctype="multipart/form-data" id="uploadForm${contract.id}">
+									<input type="file" name="file" id="file" size="40" />
+									<!-- have javascript below triggered by file change -->
+									<!--  input type="submit" id="uploadB" value="Upload"/-->
+								</form>
+							</div>
+						</td>
+					</tr>
+					<!-- Start: Added for DM-532 -->
+					<c:if test="${not empty contract.fileNameString}">
+						<tr>
+							<td>
+								<div id="fileNamesLabelDiv">${contract.fileNameString}</div>
+								<div id="fileNamesTextDiv" style="display : none;"><input type="text" id="fileNamesText" name="fileNamesText" value="${contract.fileNameString}" /></div>
+							</td>
+							<td>
+								<div id="editFileButtonDiv"><input type="button" onclick="enableSaveFile()" value="Edit Filename" /></div>
+								<div id="saveFileButtonDiv" style="display : none;"><input type="button" onclick="doSaveFileNames(${contract.id})" value="Save Filename" /></div>
+							</td>
+						</tr>
+						<script type="text/javascript">
+						function enableSaveFile() {
+							$('#fileNamesLabelDiv').hide();
+							$('#editFileButtonDiv').hide();
+							$('#fileNamesTextDiv').show();
+							$('#saveFileButtonDiv').show();
+						}
+						function doSaveFileNames(contractId) {
+							var contractFileNames = $('#fileNamesText').val();
+							$.ajax({
+					            async: false,
+					            type: 'post',
+					            url: '${validateFileNamesUrl}',
+					            data: {fileText: contractFileNames},
+					            success: function (response) {
+					            	if(response == 'true') {
+					            		alert("All values must be valid filenames with file extensions and separated by semicolon.");
+					            	} else {
+					            		var r = confirm("Are you sure you want to save the changes?");
+										if (r == true) {
+											fnSaveFileNames(contractId);
+										} else {
+											//$('#fileNamesText').val('${contract.fileNameString}');
+											$('#fileNamesTextDiv').hide();
+											$('#saveFileButtonDiv').hide();
+							            	$('#fileNamesLabelDiv').show();
+											$('#editFileButtonDiv').show();
+										    return false;
+										}
+					            	}
+					            }
+					        });
+						}
+						function fnSaveFileNames(contractId) {
+							var fileText = $('#fileNamesText').val();
+							$.ajax({
+					            async: true,
+					            type: 'post',
+					            url: '${saveFileNamesUrl}',
+					            data: {fileText: fileText, contractId: contractId},
+					            success: function (response) {
+					            	$('#fileNamesTextDiv').hide();
+									$('#saveFileButtonDiv').hide();
+					            	$('#fileNamesLabelDiv').show();
+									$('#editFileButtonDiv').show();
+									
+					            	$('#fileNamesLabelDiv').empty().html(response);
+					            	if(response == '') {
+					            		$('#fileNamesLabelDiv').hide();
+										$('#editFileButtonDiv').hide();
+					            	}
+					            }
+					        });
+					        return false;
+						}
+						</script>
+					</c:if>
+					<!-- End: Added for DM-532 -->
+<script type="text/javascript">
+//<![CDATA[
+	$(document).ready(function() {
+	    $('#uploadForm${contract.id}').ajaxForm({
+	    	dataType: 'json',
+	        success: function(response) {
+	            var $out = $('#agreement${contract.id}');
+	            // show uploaded file message
+	            $out.html(response.message);
+	            // refresh rows
+	            for (var i = 0, iLen = response.auids.length; i < iLen; i++) {
+	            	// console is undefined in IE8 unless Dev tools open
+	            	if (window.console) console.log (response.auids[i]);
+		  			fnRefreshRows (response.auids[i]);
+		    	}
+	        }
+	    });
+
+		$('#toogleAgreementB${contract.id}').click (function() {
+			$('#agreement${contract.id}').toggle();
+			if ($("#toogleAgreementB${contract.id}").attr('value') == 'Yes')
+				$("#toogleAgreementB${contract.id}").hide();
+
+		});
+
+		$('#file').change(function() {
+			 $('#uploadForm${contract.id}').submit();
+		});
+	});
+//]]>
+</script>					
+				</c:forEach>
+			</c:if>  <!-- end of contracts test -->
+		</c:forEach>
+
+		<c:if test="${null != projects}">
+			<tr>
+				<td colspan="2">
+					<h2>Other products using this asset:</h2>
+				</td>
+			</tr>
+	
+			<c:forEach items="${projects}" var="project" varStatus="status">
+				<tr>
+					<td colspan="2">
+						${project.name}
+					</td>
+				</tr>
+			</c:forEach>
+		</c:if>
+	</table>
+</jsp:root>

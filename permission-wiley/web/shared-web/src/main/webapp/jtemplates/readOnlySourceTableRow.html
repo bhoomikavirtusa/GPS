@@ -1,0 +1,30 @@
+<td>
+	
+</td>
+<td>
+	{#if $P.aData.disabled }
+		<span class="disabled">{ $P.aData.name }</span>
+	{#else}
+		{ $P.aData.name }
+	{#/if}	
+</td>
+<td>{ $P.aData.contactName }</td>
+<td>{ $P.aData.contactEmail }</td>
+<td>{ $P.aData.totalCount }</td>
+<td>
+	{#if $P.aData.requestedCount > 0 }
+		{ $P.aData.requestedCount }
+	{#/if} 
+	{#if $P.aData.requestedCount == 0 }
+	0
+	{#/if} 
+	
+</td>
+<td>
+	{ $P.aData.enteredCount }
+	
+</td>
+<td>
+	{ $P.aData.unrequestedCount }
+ 	
+</td>

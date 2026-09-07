@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+
+	<c:url var="requestUrl" value="/sapp/landing/license/request" />
+	<c:url var="waitUrl" value="/images/animated_progress_bar.gif" />
+	
+	<p class="error"><c:out value="${licenseRequestError}" /></p>
+	
+	<form name="LicenseForm" id="LicenseForm" action="${requestUrl}" method="POST">
+		<table class="width100">
+			<tr>
+				<td>License number:</td>
+				<td>
+					<!-- from experimentation, RightsLink sends back 500 (Internal Server Error) for more than 19 digits -->
+					<input type="text" name="licenseNumber" id="licenseNumber" size="19" maxlength="19" />
+					<input type="hidden" name="cwId" value="${cwId}" />
+				</td>
+			</tr>
+		</table>
+		
+		<div id="buttonDiv" class="buttonset">
+			<input type="submit" class="button" value="Request" />	
+			<button id="cancelButton" class="button">Cancel</button>
+		</div>
+		<div id="waitDiv" class="buttonset" style="display: none">
+			<img src="${waitUrl}" alt="Please wait..." />
+		</div>
+	</form>
+	
+	<script type="text/javascript">
+	//<![CDATA[
+	$('#LicenseForm').submit(function() {
+		if ($.trim($("#licenseNumber").val()).length == 0) {
+			alert("Please enter a License Number");
+			return false;
+		}
+		
+		$("#buttonDiv").hide();
+		$("#waitDiv").show();
+		
+		$.ajax({
+	    	async: true,
+	        type: "get",
+	        url: '${requestUrl}',
+	        data: $('#LicenseForm').serialize(),
+	        success: function (response) {
+	          	$('#modalDiv').empty().html(response);
+	        	repositionDialog();
+	        }
+	    });
+	    
+	    return false;  // prevent normal form submission
+	});
+	//]]>		
+	</script>
+
+</jsp:root>

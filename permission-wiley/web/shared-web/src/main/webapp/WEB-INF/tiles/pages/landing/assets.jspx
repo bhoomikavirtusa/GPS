@@ -1,0 +1,528 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:security="http://www.springframework.org/security/tags"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+
+<jsp:element name="script">
+	<jsp:attribute name="type">text/javascript</jsp:attribute>
+	<jsp:attribute name="src">
+		<c:url value="/js/base64.js"/>
+	</jsp:attribute>
+	// Placeholder
+</jsp:element>
+
+<jsp:element name="script">
+	<jsp:attribute name="type">text/javascript</jsp:attribute>
+	<jsp:attribute name="src">
+		<c:url value="/js/jquery.tmpl.js"/>
+	</jsp:attribute>
+	// Placeholder
+</jsp:element>
+
+<c:set var="cwId" value="${param.cwId}" scope="page" />
+<c:set var="useFilter" value="${param.useFilter}" scope="page" />
+<c:set var="hasExportInProgress" value="${param.hasExportInProgress}" scope="page" />
+
+<c:url var="assetListFromIndexUrl" value="/sapp/landing/table?cwId=${cwId}" />
+<c:url var="userProfileUrl" value="${wileyfn:getRestUrl(pageContext.request)}/service/user/profile/" />
+
+<!--table row actions - URLs used in table.row.js file -->
+
+<c:set var="includeCovers" value="false" />
+<security:authorize access="hasAnyRole('EMPLOYEE_DEFAULT', 'cover_assets')">
+	<c:set var="includeCovers" value="true" />
+</security:authorize>
+
+<security:authorize access="hasAnyRole('edit_chapters', 'EMPLOYEE_DEFAULT')">
+	<c:url var="assetEditUrl" value="${wileyfn:getRestUrl(pageContext.request)}/service/asset/edit/${cwId}/0/${includeCovers}" />
+</security:authorize>
+<security:authorize access="!hasAnyRole('edit_chapters', 'EMPLOYEE_DEFAULT')">
+	<c:url var="assetEditUrl" value="${wileyfn:getRestUrl(pageContext.request)}/service/asset/edit/${cwId}/${userSession.currentUser.id}/${includeCovers}" />
+</security:authorize>
+<c:url var="assetSaveUrl" value="${wileyfn:getRestUrl(pageContext.request)}/service/asset/save/${cwId}" />
+<c:url var="assetLoadUrl" value="${wileyfn:getRestUrl(pageContext.request)}/service/asset/load/${cwId}" />
+<c:url var="statusDetailUrl" value="${wileyfn:getRestUrl(pageContext.request)}/service/asset/status/" />
+<c:url var="commentsUrl" value="${wileyfn:getRestUrl(pageContext.request)}/service/asset/comments/" />
+<c:url var="thumbnailUrl" value="/sapp/product/assetThumbnail" />
+<c:url var="conditionMessageUrl" value="${wileyfn:getRestUrl(pageContext.request)}/service/condition/status/" />
+<c:url var="filterToggleUrl" value="/sapp/landing/filter/toggle?cwId=${cwId}" />
+<c:url var="sourcePage1Url" value="/sapp/landing/source/start" />
+<c:url var="sourcePageMultiUrl" value="/sapp/landing/source/multi" />
+<c:url var="poPage1Url" value="/sapp/permissions/po/asset_start" />
+<c:url var="rePage1Url" value="/sapp/permissions/po/rerequest_start" />
+<c:url var="reinvoicePage1Url" value="/sapp/permissions/contract/reinvoice_start" />
+<c:url var="poDownloadUrl" value="/sapp/permissions/po/download_start" />
+<c:url var="contractDownloadUrl" value="/sapp/permissions/contract/download_start" />
+<c:url var="contractDownloadFileUrl" value="/sapp/permissions/contract/download_file" />
+<c:url var="contractPage1Url" value="/sapp/permissions/contract/asset_start" />
+
+<!-- Upload asset button -->
+<c:url var="uploadAssetMainUrl" value="/sapp/asset/main/upload" />
+
+<c:if test="${current_common_work.permissionComplete}">
+	<c:url var="editContractUrl" value="/sapp/permissions/contract/view_asset_start" />
+</c:if>
+<c:if test="${not current_common_work.permissionComplete}">
+	<c:url var="editContractUrl" value="/sapp/permissions/contract/edit_asset_start" />
+</c:if>
+<c:if test="${current_common_work.permissionComplete}">
+	<c:url var="assetMainUrl" value="/sapp/asset/main/view/first" />
+</c:if>
+<c:if test="${not current_common_work.permissionComplete}">
+	<c:url var="assetMainUrl" value="/sapp/asset/main/first" />
+</c:if>
+<c:url var="generateAmendmentUrl" value="/sapp/permissions/amendment/asset_start" />
+<c:url var="downloadAmendmentUrl" value="/sapp/permissions/amendment/preview" />
+<c:url var="uploadAmendmentUrl" value="/sapp/permissions/amendment/upload_start" />
+<c:url var="descriptionValidationUrl" value="/sapp/landing/descriptionValidation" />
+<c:url var="payUrl" value="/sapp/permissions/paymentrequest/asset_start" />
+<c:url var="paidUrl" value="/sapp/permissions/paymentrequest/paid_view" />
+<!-- Added for SS Task 12 - Start -->
+<c:url var="approveDetailsUrl" value="/sapp/permissions/contract/approve_asset_detail" /> 
+<!-- Added for SS Task 12 - End -->
+
+<!--template URLs - used in table.row.js -->
+
+<!-- c:url var="assetTableRowTemplateUrl" value="/jtemplates/assetTableRow.html" / This is now built by a JSP-->
+<c:url var="assetTableRowTemplateUrl" value="/sapp/landing/viewRowTemplate?uid=${userSession.currentUser.id}&amp;cwId=${cwId}"/>
+
+<!-- c:url var="assetTableRowEditTemplateUrl" value="/jtemplates/assetTableRowEdit.html" / This is now build by a JSP-->
+<c:url var="assetTableRowEditTemplateUrl" value="/sapp/landing/editRowTemplate?uid=${userSession.currentUser.id}" />
+<jsp:directive.include file="js/checkbox.selector.js.jspx" />
+<jsp:directive.include file="js/table.row.js.jspx" />
+ 
+	<script type="text/javascript">
+		var disableByChapters = false;
+		<security:authorize access="!hasAnyAuthority('edit_chapters', 'EMPLOYEE_DEFAULT')">
+			disableByChapters = true;
+		</security:authorize>
+		var disableByGroup = true;
+		<security:authorize access="hasAnyAuthority('ADMIN', 'SUPER')">
+			disableByGroup = false;
+		</security:authorize>		
+		var isEmployee = false;
+		<security:authorize access="hasAuthority('EMPLOYEE_DEFAULT')">
+			isEmployee = true;
+		</security:authorize>
+	</script>
+	
+	<script type="text/javascript">
+	//<![CDATA[
+	
+	var rowTemplate = "";
+	$.get("${assetTableRowTemplateUrl}", function (tmpl) {
+		rowTemplate = tmpl;
+	}, "text");
+	
+	/* 
+	 * if no userId specified that means we load the default profile 
+	 * (should not be the case, we should always have access to the logged in user id)
+	 */
+	var uid = "${userSession.currentUser.id}";
+	var groupId = ${userSession.currentUser.groupId};
+	if (uid == "") uid = "1";
+
+	var bScroll = "${param.scroll}";
+
+	var oSelector = new Selector();
+	oSelector.checkBox = 'auList';
+	
+	var dataTable;
+
+	/*
+	 * creates the main dataTable
+	 */
+	function createAssetTable ( id, profile, placeHolder ) {
+
+		dataTable = $(placeHolder).dataTable( {
+			"aoColumns" : profile,
+			"fnRowCallback": function( nRow, aData, iDisplayIndex ) {
+				var dTable = null;
+				if (typeof dataTable != 'undefined')
+					dTable = dataTable;
+
+				var aCustomRow = new CustomTableRow (aData, $(nRow), dTable, profile);
+				// do not redraw the selected row (in edit mode)
+				if (!(oSelector.oSelectedRow != null && oSelector.oSelectedRow.fnGetPos () == aCustomRow.fnGetPos())) {
+					aCustomRow.fnDisplayRow ();
+				}
+				// -------------------------------------
+				// if row needs to be disabled, add class 'rowdisabled'
+				// to find if it is disabled, compare componentID (length - 6 identifies the componentID) 
+				// with values loaded from author_2_component 
+				// "chapters"  is defined in main.jspx and loaded in LandingController
+				if (disableByChapters && aData[aData.length - 6] != 0 && $.inArray(aData[aData.length - 6], chapters) == -1) {
+					$(nRow).addClass('rowdisabled');
+					$('td', nRow).addClass('rowdisabled');
+				}
+
+				// -------------------------------------
+				var g = aData[aData.length - 10];
+				// if the user is an employee, and the asset was created by an external user, we allow editing
+				if (isEmployee && $.inArray(g, externalGroupIds) != -1)	 {
+					// allow editing
+				} else {
+					// if row needs to be disabled, add class 'rowdisabled'
+					// to find if it is disabled, compare current user group id with asset use creator id 
+					if (disableByGroup && g != groupId) {
+					//Ram commented below lines for usergroups editing
+					//	$(nRow).addClass('rowdisabled');
+					//	$('td', nRow).addClass('rowdisabled');
+					}
+				}
+				
+				// -------------------------------------
+				// allow row to be disabled 
+				$(nRow).addClass('disable');
+				$('td', nRow).addClass('disable');
+				$('td:first-child', nRow).removeClass('disable');
+
+				// -------------------------------------
+				// add watermark		
+				if (aData[0] == 0) {
+					$(nRow).addClass ('row_new');
+				}				
+				return nRow;
+			},
+			"sAjaxSource": '${assetListFromIndexUrl}',
+			"fnServerData": function (sSource, aoData, fnCallback) {
+				$.getJSON(sSource, aoData, 
+					function(json) {
+						var outer = [];
+						for (var i=0, iLen=json.aaData.length ; i<iLen ; i++) {
+							var inner = [];
+							for (var j=0, jLen=profile.length ; j<jLen ; j++) {
+								inner.push( json.aaData[i][profile[j]["sName"]] );
+							}
+							outer.push (inner);
+						}
+						var njson = {'aaData' : outer};
+						fnCallback(njson);
+					}
+				);			
+			},
+			"sScrollX": "100%",
+			"sScrollY": "500px",
+			"bAutoWidth": false,
+			"sDom": "rtiS",
+			"bDeferRender": true,
+			"bStateSave": true,
+			// if it needs to wrap, it does, even with the Height set (so I added no wrap on TD style)
+			"oScroller": {
+	 			"rowHeight": 30
+			},
+			"fnDrawCallback": function( oSettings ) {
+		    	fnDisablePage();
+		    },
+			"fnInitComplete": function (o) {
+				fnInsertLast (blankRow, true);
+				if (bScroll == "true") {
+					o.oScroller.fnScrollToRow( dataTable.fnGetData().length, false );
+				}
+				//fnDisablePage();
+
+				// close the menu when hover the table
+				// lnagy - because some menu items are disabled, they do not trigger hover event.
+				// we have to close the menu on mouseover the table
+				$('#assetTable_wrapper').mouseover (function(){
+		    		$('#subMenuAction').hide();
+				});
+			}
+		});
+
+		dataTable.fnSetupWileySearch("assetTable", dataTable);
+		
+		// capture the scroll event 
+		$('.dataTables_scrollBody').scroll(function() {		
+			if (oSelector.oSelectedRow != null && oSelector.oSelectedRow.fnValid ($('#form'))) {
+				oSelector.oSelectedRow.fnSaveForm ($('#form'));
+				oSelector.fnSetSelectedRow (null);
+			}
+			fnDisablePage();		
+		});
+
+		return dataTable;
+	}
+
+
+	$("#assetTable_searchText").keyup(function() {
+		// handle bolean field search where user is entering yes or no instead of true false
+		 var search = this.value.toLowerCase();
+		 var booleanValues = " Disabled Canceled Needs Payment Request Camera Copy To Come Royalty Free Pickup ";
+		 var sel = $("#assetTable_searchColumn option:selected").text();
+		 if (booleanValues.indexOf(sel) > -1) {
+		 		if (search == "yes") {
+			 		search = "true";
+				 	this.value = search;
+		 		}
+		 		if (search == "no") {
+				 	search = "false";
+				 	this.value = search;
+		 		}
+		 		if (search == "y") {
+			 		search = "true";
+				 	this.value = search;
+		 		}
+		 		if (search == "n") {
+				 	search = "false";
+				 	this.value = search;
+		 		}
+		  } // endif
+		  
+		});
+	
+	//]]>
+	</script>
+
+	<script type="text/javascript">
+	//<![CDATA[
+
+	var profile = [];
+	
+	/*
+	 * loads the user profile and creates the asset table
+	 */
+	function fnCreateProfiledDataTable (id, placeholder) {
+		profile = [{"sName" : "assetUseId",
+			"sTitle" : "Select <input type='checkbox' id='check_all' onclick='oSelector.fnCheckAll(this, dataTable.fnGetAllValues(0))' style='padding: 0px; margin: 0px' />",
+			"bVisible" : true,
+			"sWidth" : "2%",
+			"sClass": "non_editable",
+			"bSortable" : false}];
+		blankRow = ["0"];
+		$.jsonp({
+			"url": '${userProfileUrl}' + uid + '?callback=?', 
+			"success": function(json) {
+				for ( var i=0, iLen=json.length ; i<iLen ; i++ ) {
+		        	profile.push( json[i] );
+		        	blankRow.push ("---");
+		        }
+		        // ATTENTION: the order of the profile fields is very important - if you change this, 
+		        // make sure you change in LandingController.buildViewRowTemplate() the indexes
+
+		        // has contracts (length - 13)
+				profile.push ({"sName" : "hasContracts",
+								"sTitle" : "hasContracts",
+								"bVisible" : false,
+								"sWidth" : "5%",
+								"sClass": "non_editable",
+								"bSortable" : false});	
+				blankRow.push (false);
+
+		        // has thumbnail (length - 12)
+				profile.push ({"sName" : "hasThumbnail",
+								"sTitle" : "hasThumbnail",
+								"bVisible" : false,
+								"sWidth" : "5%",
+								"sClass": "non_editable",
+								"bSortable" : false});	
+				blankRow.push (false);
+	        
+		        
+		        // has comments (length - 11)
+				profile.push ({"sName" : "hasComments",
+								"sTitle" : "hasComments",
+								"bVisible" : false,
+								"sWidth" : "5%",
+								"sClass": "non_editable",
+								"bSortable" : false});	
+				blankRow.push (false);
+	        
+		        
+		        // creatorGroupId (length - 10)
+		        profile.push ({"sName" : "creatorGroupId",
+								"sTitle" : "Creator Group Id",
+								"bVisible" : false,
+								"sWidth" : "5%",
+								"sClass": "non_editable",
+								"bSortable" : false});
+				blankRow.push (groupId);
+
+		        // isReplaced (length - 9)
+		        profile.push ({"sName" : "replaced",
+								"sTitle" : "Replaced",
+								"bVisible" : false,
+								"sWidth" : "5%",
+								"sClass": "non_editable",
+								"bSortable" : false});
+				blankRow.push (false);
+		        
+		        // paid (length - 8)
+		        profile.push ({"sName" : "paid",
+								"sTitle" : "Paid",
+								"bVisible" : false,
+								"sWidth" : "5%",
+								"sClass": "non_editable",
+								"bSortable" : false});
+				blankRow.push (false);
+				
+				// has files (length - 7)
+				profile.push ({"sName" : "hasFiles",
+								"sTitle" : "Files",
+								"bVisible" : false,
+								"sWidth" : "5%",
+								"sClass": "non_editable",
+								"bSortable" : false});
+				blankRow.push (false);
+		        
+				// componentId (length - 6)
+				profile.push ({"sName" : "componentId",
+								"sTitle" : "Component ID",
+								"bVisible" : false,
+								"sWidth" : "5%",
+								"sClass": "non_editable",
+								"bSortable" : false});
+				blankRow.push (false);
+				
+				// isCustom (length - 5)
+				profile.push ({"sName" : "custom",
+								"sTitle" : "Custom",
+								"bVisible" : false,
+								"sWidth" : "5%",
+								"sClass": "non_editable",
+								"bSortable" : false});
+				blankRow.push (false);	
+		        
+				// needsPaymentRequest (length - 4)
+				profile.push ({"sName" : "needsPaymentRequest",
+								"sTitle" : "Needs Payment Request",
+								"bVisible" : false,
+								"sWidth" : "5%",
+								"sClass": "non_editable",
+								"bSortable" : false});	
+				blankRow.push (false);	
+				        
+				// disabled (length - 3)
+				profile.push ({"sName" : "disabled",
+								"sTitle" : "Disabled",
+								"bVisible" : false,
+								"sWidth" : "5%",
+								"sClass": "non_editable",
+								"bSortable" : false});	
+				blankRow.push (false);
+	        
+				// ownerTypeCode (length - 2)
+				profile.push ({"sName" : "ownerTypeCode",
+								"sTitle" : "OwnerType",
+								"bVisible" : false,
+								"sWidth" : "5%",
+								"sClass": "non_editable",
+								"bSortable" : false});
+				blankRow.push ("");
+
+				// canceled (length - 1)
+				profile.push ({"sName" : "canceled",
+								"sTitle" : "Canceled",
+								"bVisible" : false,
+								"sWidth" : "5%",
+								"sClass": "non_editable",
+								"bSortable" : false});
+				blankRow.push (false);
+
+				// now we can create the table
+				createAssetTable (id, profile, placeholder);
+				
+				// add the mouseover descriptions
+				fnInitTitleAttributes ();
+			},
+			"error": function() {
+	        	alert ("Error: failed to load profile from ${userProfileUrl}");
+	        }
+        });	
+	}
+	
+	/*
+	 * init event handlers to save the edited row before executing any action
+	 */	
+	function fnInitPreMenuHandlers () {
+		$('#form').live('focus click', function(e){
+		    e.stopPropagation(); // stop prop so it doesnt reach body
+		});
+
+		$('body a').click(function() {
+		   oSelector.fnPreMenuAction (false);
+		});
+		
+		$('body input').click(function() {
+		   oSelector.fnPreMenuAction (false);
+		});
+		
+		$('body li').click(function() {
+		   oSelector.fnPreMenuAction (false);
+		});
+	}
+
+	function fnInitTitleAttributes () {
+		$("th.componentName").attr("title", "e.g. chapters, frontmatter, appendices");
+		$("th.manuscriptPage").attr("title", "manuscript page number");
+		$("th.mediaType").attr("title", "what kind of asset is it");
+		$("th.description").attr("title", "a description of the asset to help uniquely identify it to the copyright owner and to help later identify the asset in the published work");
+		$("th.usage").attr("title", "how is the asset being used? There may be cost implications for different usages.");
+		$("th.position").attr("title", "figure number or other location information");
+		$("th.sourcesAsHTMLLinks").attr("title", "where is the asset coming from, usually the copyright owner");
+		$("th.permissionStatus").attr("title", "the permission status as determined by the system");
+	}
+
+	//]]>
+	</script>
+	
+	<script type="text/javascript">
+	//<![CDATA[
+		$(document).ready(function() {
+			if (bScroll == "true") {
+				$.cookie("SpryMedia_DataTables_assetTable_scroll", null, { path: '${pageContext.request.contextPath}/sapp/cwlanding/' });
+				$.cookie("SpryMedia_DataTables_assetTable_main", null, { path: '${pageContext.request.contextPath}/sapp/cwlanding/' });
+			}
+			fnCreateProfiledDataTable (${cwId}, '#assetTable');
+			fnInitPreMenuHandlers ();
+		} );
+	//]]>		
+	</script>
+
+		<c:if test="${not hasExportInProgress}">
+			<jsp:directive.include file="include/assetTabButtons.jspx" />
+		</c:if>
+
+	<div class="right">
+    	<span style="margin-left: 1em; margin-right: 1em">
+    		<c:choose>
+    		<c:when test="${useFilter}">
+    		Show: <a href="${filterToggleUrl}&amp;useFilter=false">All Assets</a> | Filters applied - <a href="#" id="filterLink">Show Filters</a>
+    		</c:when>
+    		<c:otherwise>
+    		Show: All Assets | <a href="#" id="filterLink">Show Filters</a>
+    		</c:otherwise>
+    		</c:choose>
+    	</span>
+
+		Search by <select id="assetTable_searchColumn" style="margin-left: 2em">
+		</select>
+		<input type="text" size="20" id="assetTable_searchText" />
+	</div>
+	
+	<br/><br/>
+	<form id="form" method="POST" action="${assetSaveUrl}">
+		<div style="display: none">
+			<input type="hidden" name="userId" value="${sessionScope.userSession.currentUser.id}" />
+		</div>
+		<table class="display" id="assetTable" style="width: 100%; font-size: 9pt">
+			<thead>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+   </form>
+	
+	<div id="tooltip" style="display:none;">Loading...</div>
+	
+</jsp:root>

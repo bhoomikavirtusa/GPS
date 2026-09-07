@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root 
+	version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page pageEncoding="UTF-8"/>
+	
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('#sessionTable').dataTable( {
+				"aoColumns": [
+					{ "sWidth" : "15%" }, // Last Name
+					{ "sWidth" : "15%" }, // First Name
+					{ "sWidth" : "15%" }, // Unique Name
+					{ "sWidth" : "15%" }, // Creation Time
+					{ "sWidth" : "20%" }, // Last Accessed Time
+					{ "sWidth" : "10%" }, // Max Inactive (m)
+					{ "sWidth" : "10%" }  // Min to Timeout
+				],
+				"aaSorting": [[6, "desc" ]],  // 0-indexed
+				"bAutoWidth": false,
+				"bProcessing": true,
+				"sPaginationType": "full_numbers",
+				"aLengthMenu": [10, 15, 25, 50, 100],  // override default of [10, 25, 50, 100]
+				"iDisplayLength": 25,
+				"bStateSave": true
+			} );
+		} );
+	</script>
+
+	<p>
+	Max Session Count: ${sessionTracker.maxSessionCount}
+	</p>
+	
+	<table id="sessionTable" class="display">
+		<thead>
+			<tr>
+				<th>Last Name</th>
+				<th>First Name</th>
+				<th>Unique Name</th>
+				<th>Creation Time</th>
+				<th>Last Accessed Time</th>
+				<th>Max Inactive (m)</th>
+				<th>Min to Timeout</th>
+			</tr>
+		</thead>
+		<tbody>
+		<c:forEach items="${sessionTracker.sessionInfoList}" var="sessionInfo">
+			<tr>
+				<td><c:out value="${sessionInfo.userAttribute.currentUser.lastName}" /></td>
+				<td><c:out value="${sessionInfo.userAttribute.currentUser.firstName}" /></td>
+				<td><c:out value="${sessionInfo.userAttribute.currentUser.uniqueName}" /></td>
+				<td><fmt:formatDate pattern="yyyy-dd-MM HH:mm:ss" value="${sessionInfo.creationTime}" /></td>
+				<td><fmt:formatDate pattern="yyyy-dd-MM HH:mm:ss" value="${sessionInfo.lastAccessedTime}" /></td>
+				<td><fmt:formatNumber pattern="###,###" value="${sessionInfo.maxInactiveInterval / 60}" /></td>
+				<td><fmt:formatNumber pattern="###,###" value="${sessionInfo.minsToTimeout}" /></td>
+			</tr>
+		</c:forEach>
+		</tbody>
+	</table>
+
+</jsp:root>

@@ -1,0 +1,150 @@
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+
+	<c:url var="noFlyUrl" value="${wileyfn:getRestUrl(pageContext.request)}/service/source/nofly" />
+	<c:url var="sourceRefIdValidationUrl" value="${wileyfn:getRestUrl(pageContext.request)}/service/asset/validateSourceRefId" />
+
+	<script type="text/javascript">
+	//<![CDATA[
+var bContinue = false; // need this variable to know when continue is pressed, so we do not close the modalDialog in BeforeClose
+var fromNoflyDialog = false; //to know that the button action is from NoFly guideDialog
+var buttons = [{"text": "Continue",
+				"class": "button",
+				"click": function() {
+							bContinue = true;
+							$guideDialog.dialog("close");
+							// show the wizard (and the titlebar)
+							if(fromNoflyDialog) {
+								$('#noFlyMatchApproved').attr('value', true);
+							}
+							$modalDialog.show();
+							$modalDialog.dialog("widget").find(".ui-dialog-titlebar").show();
+						}
+				}, 
+				{"text": "Cancel",
+				 "class": "button",
+				 "id": "cancel",
+				 "click": function() {
+					 		fromNoflyDialog = false;//reset to false when cancelled.
+						  	$guideDialog.dialog("close");
+						  	$modalDialog.dialog("close");
+						  	// close the wizard (and show the titlebar)
+						  	$modalDialog.dialog("widget").find(".ui-dialog-titlebar").show();
+					  	}
+				}];
+
+$( 'input[id$="artist"], textarea[id$="creditLine"]').blur(function(){
+	artistAndCreditLineBlur(this);
+});
+	
+	
+$( 'input[id$="vendorId"]').blur(function() {
+	vendorIdBlur (this);
+});
+
+
+function artistAndCreditLineBlur(obj) {
+	var value = $(obj).val();
+	if (value == '')
+		return;
+	bContinue = false;
+	$.ajax({
+        async: false,
+        type: 'get',
+        url: '${noFlyUrl}' + '/' + $(obj).val() + '?callback=?',
+        dataType: 'json',
+        success: function (json){
+        	if (json.length > 0) {
+        		// hide the wizard (and the titlebar)
+        		$modalDialog.hide();
+        		$modalDialog.dialog("widget").find(".ui-dialog-titlebar").hide();
+        		var message = "Please proceed with caution!  This photographer/contributor's " + 
+        			"last name matches a name identified as 'NO FLY' and therefore prohibited " + 
+        			"from use in Wiley products.  Please verify that this photographer is clear " + 
+        			"for use prior to proceeding and including this asset within your product." +    
+        			"  If you are uncertain please contact Melinda Patelli, Global Rights Permission " + 
+        			"Manager, mpatelli@wiley.com, or your group's Legal Director." + 
+        			" <ul>";
+	        	for ( var i=0, iLen=json.length ; i<iLen ; i++ ) {
+	            	message = message + "<li>" + json[i].name + "(" + json[i].comment + ")</li>";
+	            }
+	            message  = message + "</ul>";
+	            fromNoflyDialog = true;
+
+				openGuideDialog ("Warning", buttons);
+				$guideDialog.on( "dialogbeforeclose", 
+					function( event, ui ) {
+						if (!bContinue) {	
+						  	$modalDialog.dialog("close");
+						  	// close the wizard (and show the titlebar)
+						  	$modalDialog.dialog("widget").find(".ui-dialog-titlebar").show();
+						}					
+					}
+				 );
+				$guideDialog.html(message);
+        	}
+        }
+    });	
+}
+
+function vendorIdBlur (obj) {
+	var value = $(obj).val();
+	if (value == '')
+		return;
+	if (sourceId == '')
+		sourceId = 0;
+	if (assetId == '')
+		assetId = 0;	
+	bContinue = false;
+	$.ajax({
+        async: false,
+        type: 'get',
+        url: '${sourceRefIdValidationUrl}' + '/' + $(obj).val() + '/' + sourceId + '/' + assetId + '?callback=?',
+        dataType: 'json',
+        success: function (json){
+	        if (!json) {
+	        	debug("vendorId.blur(): json is empty. No duplicate asset found");
+	        } else {
+	    		// hide the wizard (and the titlebar)
+	    		$modalDialog.hide();
+	    		$modalDialog.dialog("widget").find(".ui-dialog-titlebar").hide();
+	    		var message = "You have entered a source/Source reference # combination that already exists in the system.<br />\r\n"
+	    			+ "If you continue the existing asset will be used.<br />\r\n"
+	    			+ "Any changes to the asset information (description , source, thumbnail etc) will be reflected in all products using this asset.<br />\r\n"
+	    			+ "Usage information (component, position, size etc) will not affect any other products.<br />\r\n"
+	    			+ "<ul>\r\n"
+		        	+ "<li>Description: " + json.description + "</li>\r\n"
+		        	+ "<li>Source: " + json.sources[0].name + "</li>\r\n"
+		        	+ "<li>Source ref#: " + json.vendorId + "</li>\r\n"
+		        	+ "<li>Owner type: " + json.ownerType.code + "</li>\r\n"
+		        	+ "<li>Royalty free: " + json.royaltyFree + "</li>\r\n"
+		        	+ "<li>Work for hire: " + json.workForHire + "</li>\r\n"
+		        	+ "<li>STMS guideline: " + json.stmGuidelines + "</li>\r\n";
+	            	+ "</ul>";
+	            fromNoflyDialog = false;
+	
+				openGuideDialog ("Warning", buttons);
+				$guideDialog.on( "dialogbeforeclose", 
+					function( event, ui ) {
+						if (!bContinue) {	
+						  	$modalDialog.dialog("close");
+						  	// close the wizard (and show the titlebar)
+						  	$modalDialog.dialog("widget").find(".ui-dialog-titlebar").show();
+						} else {
+				        	if (typeof refreshDataFromDuplicate == 'function') {
+				        		refreshDataFromDuplicate (json);
+				        	}
+						}
+					}
+				 );
+				$guideDialog.html(message);
+			}
+        }
+    });	
+}
+
+//]]>		
+	</script>
+</jsp:root>	

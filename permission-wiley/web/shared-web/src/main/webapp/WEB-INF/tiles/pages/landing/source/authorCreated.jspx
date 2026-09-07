@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="nextUrl" value="/sapp/landing/source/author_created?noform=0" />	
+	<c:url var="nextUrl2" value="/sapp/landing/source/author_created?noform=1" />	
+	<c:url var="prevUrl" value="/sapp/landing/source/pub_assets_details" />
+
+	<h3>Create Internal Request Form</h3>
+
+	<form:form modelAttribute="sourceWizardForm">
+		<table>		
+		<tr>
+			<td colspan="8">
+				You are about to create a Wiley Internal Request to use these assets.  Please confirm the information below.
+			</td>
+		</tr>
+		<tr><td> </td></tr>
+		
+		<tr>
+			<td colspan="8">
+				ASSETS
+			</td>
+		</tr>
+		
+		<c:forEach items="${sourceWizardForm.currentPubAssets}" var="asset" varStatus="vs">
+			<tr>
+				<td colspan="5">
+					${asset.description } / ${asset.originalPublicationAuthor}
+				</td>
+			</tr>	
+		</c:forEach>	
+			
+		<tr><td> </td></tr>
+		<tr>
+			<td>Verify Author Name or Enter a New Author:</td>
+			<td><form:input path="publicationAuthor" size="100" maxlength="100" class="required" /></td>
+		</tr>
+		<tr>
+			<td>
+                <form:label path="userSignature" cssClass="required" cssErrorClass="error">User signature</form:label>
+        	</td>
+			<td>
+			    <form:textarea path="userSignature" htmlEscape="disable" rows="4" cols="60" class="required"/>
+			</td>
+		</tr>
+		<tr>
+			<td>
+			   <form:label path="returnAddress" cssClass="required" cssErrorClass="error">Return address</form:label>
+			</td>
+			<td>
+			    <form:textarea path="returnAddress" rows="4" cols="40" class="required"/> 
+			     <form:checkbox path="makeItDefault" value="1"/> Make my default
+			</td>
+		</tr>
+		</table>
+		
+		<div class="buttonset">
+			<c:if test="${not empty sourceWizardForm.prevUrl}">
+				<input type="button" id="prevB" value="Previous" /> 
+			</c:if>
+			<input type="submit" id="assetsB" value="Generate Form" /> 
+			<input type="button" id="next2" value="Add More Assets from this author" /> 
+			<a href="#" id="cancelLink" class="button">Cancel</a>
+		</div>
+	</form:form>
+	
+	<script type="text/javascript">
+	//<![CDATA[	
+		$('#cancelLink').click (function() {
+			$modalDialog.dialog("close");
+		});
+
+		$('#prevB').click (function() {
+			$.ajax({
+	            async: true,
+	            type: 'get',
+	            url: '${prevUrl}',
+	            data: $('#sourceWizardForm').serialize(),
+	            success: function (response){
+	            	$('#modalDiv').empty().html(response);
+	            	repositionDialog();
+	            }
+	        });
+		});	
+
+		$('#assetsB').click (function() {
+		
+		$.ajax({
+	            type: 'post',
+	            url: '${nextUrl}',
+	            data: $('#sourceWizardForm').serialize(),
+	            success: function (response) {
+	            	$('#modalDiv').empty().html(response);
+	            	repositionDialog();
+	            }
+	        });
+			
+			return false;
+		});	
+
+		$('#next2').click (function() {
+			$.ajax({
+	            type: 'post',
+	            url: '${nextUrl2}',
+	            data: $('#sourceWizardForm').serialize(),
+	            success: function (response) {
+	            	$('#modalDiv').empty().html(response);
+	            	repositionDialog();
+	            }
+	        });
+			return false;
+		});	
+
+	//]]>		
+	</script>
+
+</jsp:root>

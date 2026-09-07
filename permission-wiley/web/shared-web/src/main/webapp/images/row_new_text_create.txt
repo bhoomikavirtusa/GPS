@@ -1,0 +1,4 @@
+Using Photoshop CS5:
+Font: Myriad Pro, Regular, 18 pt, Sharp
+Create new image 200x13, later trim to 183x13
+color: 107, 151, 188 (light blue)

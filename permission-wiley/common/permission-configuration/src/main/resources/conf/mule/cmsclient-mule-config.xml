@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
+	xmlns:stdio="http://www.mulesoft.org/schema/mule/stdio"
+	xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:mule-xml="http://www.mulesoft.org/schema/mule/xml"
+	xmlns:jersey="http://www.mulesoft.org/schema/mule/jersey"	
+   xmlns:spring="http://www.springframework.org/schema/beans"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+		http://www.mulesoft.org/schema/mule/stdio http://www.mulesoft.org/schema/mule/stdio/current/mule-stdio.xsd
+		http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+		http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+		http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+		http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
+		http://www.mulesoft.org/schema/mule/jersey http://www.mulesoft.org/schema/mule/jersey/current/mule-jersey.xsd		
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	">
+
+	<jms:connector
+		name="CMSJMSConnector"
+		connectionFactory-ref="connector.CMSJMSConnector"
+		username=" "
+		password=" "
+		/>
+
+	<file:connector name="CMSFileConnector"/>
+
+	<mule-xml:xslt-transformer
+		name="PermissionsToCMS"
+		returnClass="java.lang.String"
+		xsl-file="xsl/permissions-to-cms.xsl"/>
+
+	<mule-xml:xslt-transformer
+		name="CMSToPermissions"
+		returnClass="java.lang.String"
+		xsl-file="xsl/cms-to-permissions.xsl"/>
+
+	<custom-transformer
+		name="CMSXmlToObject"
+		class="com.wiley.permissions.common.transformer.XmlToObjectTransformer"
+		returnClass="com.wiley.permissions.domain.message.Message" />
+		
+	<custom-transformer
+		name="CMSObjectToXml"
+		class="com.wiley.permissions.common.transformer.ObjectToXmlTransformer"
+		returnClass="java.lang.String" />
+
+	<custom-transformer
+		name="StdioDate"
+		class="com.wiley.permissions.common.dispatcher.StdioDate"
+		returnClass="java.lang.String" />
+		
+	<spring:beans>
+		<spring:import resource="classpath:conf/spring/cmsclient-spring-context.xml"/>
+	</spring:beans>
+
+	<model name="CMSClient">
+		
+		<!-- CMS Message Handler -->
+		<service name="CMSMessageHandler">
+			<inbound>
+				<vm:inbound-endpoint path="cmsHandler" />
+			</inbound>
+
+			<component>
+				<spring-object bean="inbound.message.CmsMessageService"/>
+			</component>
+		</service>
+		<!-- // -->
+	
+		<!-- These services handle inbound/outbound traffic with CMS via JMS -->
+		<service name="cms.inbound">
+			<inbound>
+				<jms:inbound-endpoint queue="${messaging.jms.cms.inbound.queue}?targetClient=1" connector-ref="CMSJMSConnector">
+					
+						<jms:jmsmessage-to-object-transformer/>
+					
+				</jms:inbound-endpoint>
+			</inbound>
+
+			<outbound>
+				<multicasting-router>
+<!-- 
+					<file:outbound-endpoint path="/tmp/perm/fromCMS" connector-ref="CMSFileConnector">
+						
+							<transformer ref="CMSToPermissions"/>
+							<transformer ref="CMSXmlToObject"/>
+						
+					</file:outbound-endpoint>
+ -->					
+					<!-- we will just cache the message, no processing. The processing is done by the processor -->
+					<vm:outbound-endpoint path="messageCache?method=cacheMessage">
+						
+							<transformer ref="CMSToPermissions"/>
+							<transformer ref="CMSXmlToObject"/>
+						
+					</vm:outbound-endpoint>
+				</multicasting-router>
+			</outbound>
+		</service>
+	
+		<!-- 
+			this is called by messageHandler when processes a message that has to go to CMS 
+			DO NOT call it directly because will not cache the message
+		 -->
+		<service name="cms.outbound">
+			<inbound>
+				<vm:inbound-endpoint path="cmsclient.sendMessage" exchange-pattern="one-way">
+					
+						<transformer ref="CMSObjectToXml"/>
+						<transformer ref="PermissionsToCMS"/>
+					
+				</vm:inbound-endpoint>
+			</inbound>
+
+			<outbound>
+				<multicasting-router>
+					<!--
+					<file:outbound-endpoint path="/tmp/perm/toCMS" connector-ref="CMSFileConnector"/>
+					-->
+					<!-- 
+					http://www.mulesoft.org/display/MULE2INTRO/Migrating+Mule+2.1+to+2.2
+					JMS Temporary Destinations
+					When a JMS outbound endpoint is synchronous and not transacted, 
+					Mule will attempt to open a back channel to receive a result. 
+					If a replyTo destination is not set, it will attempt to use a temporary destination. 
+					This behavior can be turned off using the new @disableTemporaryReplyToDestinations flag on 
+					the JMS connector or endpoint.
+					 -->
+					<!--<stdio:outbound-endpoint system="OUT" transformer-refs="StdioDate"/>-->
+					<jms:outbound-endpoint queue="${messaging.jms.cms.outbound.queue}?targetClient=1" connector-ref="CMSJMSConnector" exchange-pattern="one-way">
+						
+							<message-properties-transformer>
+								<add-message-property key="JMSReplyTo" value="${messaging.jms.cms.queueManager}/${messaging.jms.cms.outbound.queue}?targetClient=1" />
+							</message-properties-transformer>
+							<jms:object-to-jmsmessage-transformer/>
+						
+					</jms:outbound-endpoint>
+					<!--<stdio:outbound-endpoint system="OUT" transformer-refs="StdioDate"/> -->
+				</multicasting-router>
+			</outbound>
+			
+		</service>
+		<!-- // -->
+		
+		<!-- Temporary service to do what CMS will normally do - just read the messages from
+		     their inbound queue and discard them. 
+		<service name="cms.outbound2">
+			<inbound>
+				<jms:inbound-endpoint queue="${messaging.jms.cms.outbound.queue}?targetClient=1" connector-ref="CMSJMSConnector">
+					
+						<jms:jmsmessage-to-object-transformer/>
+					
+				</jms:inbound-endpoint>
+			</inbound>
+
+			<outbound>
+				<chaining-router>
+					<vm:outbound-endpoint path="terminator"/>
+				</chaining-router>
+			</outbound>
+		</service>
+		-->
+		
+		<!-- This is for allowing a quick bulk import from the file system -->
+		<service name="cms.file.inbound">
+			<inbound>
+				<file:inbound-endpoint path="/tmp/perm/cmsbulk" connector-ref="CMSFileConnector" />
+			</inbound>
+
+			<outbound>
+				<pass-through-router>
+					<vm:outbound-endpoint
+						path="messageCache?method=cacheMessage"
+						transformer-refs="CMSToPermissions CMSXmlToObject"/>
+				</pass-through-router>
+			</outbound>
+		</service>
+		<!-- // -->
+
+		<!-- Define the REST services  -->
+		<service name="helloWorldResource">
+			<inbound>
+	    		<inbound-endpoint address="http://${mule.host.bind}:63081/service/helloWorld" exchange-pattern="request-response" />
+			</inbound>
+			<jersey:resources>
+				<component class="com.wiley.permissions.cmsclient.HelloWorldResource"/>
+			</jersey:resources>			
+		</service>
+		
+		<service name="sourceDetailResource">
+			<inbound>
+	    		<inbound-endpoint address="http://${mule.host.bind}:63081/service/sourceDetail" exchange-pattern="request-response" />
+			</inbound>
+			<jersey:resources>
+				<component>
+					<spring-object bean="resources.sourceDetailResource" />
+				</component>
+			</jersey:resources>			
+
+		</service>
+		
+		<service name="sourceAddressResource">
+			<inbound>
+	    		<inbound-endpoint address="http://${mule.host.bind}:63081/service/sourceAddress" exchange-pattern="request-response" />
+			</inbound>
+			<jersey:resources>
+				<component>
+					<spring-object bean="resources.sourceAddressResource" />
+				</component>
+			</jersey:resources>				
+
+		</service>
+		
+		<service name="sourceResource">
+			<inbound>
+	    		<inbound-endpoint address="http://${mule.host.bind}:63081/service/source" exchange-pattern="request-response" />
+			</inbound>
+			<jersey:resources>
+				<component>
+					<spring-object bean="resources.sourceResource" />
+				</component>
+			</jersey:resources>				
+		</service>
+		
+		<service name="sourceContactResource">
+			<inbound>
+	    		<inbound-endpoint address="http://${mule.host.bind}:63081/service/sourceContact" exchange-pattern="request-response" />
+			</inbound>
+			<jersey:resources>
+				<component>
+					<spring-object bean="resources.sourceContactResource" />
+				</component>
+			</jersey:resources>			
+		</service>
+						
+	    <service name="countryResource">
+			<inbound>
+	    		<inbound-endpoint address="http://${mule.host.bind}:63081/service/country" exchange-pattern="request-response" />
+			</inbound>
+			<jersey:resources>
+				<component>
+					<spring-object bean="resources.countryResource" />
+				</component>
+			</jersey:resources>			
+		</service>
+		
+	    <service name="contactTypeResource">
+			<inbound>
+	    		<inbound-endpoint address="http://${mule.host.bind}:63081/service/contactType" exchange-pattern="request-response" />
+			</inbound>
+			<jersey:resources>
+				<component>
+					 <spring-object bean="resources.contactTypeResource" />
+				</component>
+			</jersey:resources>			
+		</service>
+		
+	    <service name="addressTypeResource">
+			<inbound>
+	    		<inbound-endpoint address="http://${mule.host.bind}:63081/service/addressType" exchange-pattern="request-response" />
+			</inbound>
+			<jersey:resources>
+				<component>
+					<spring-object bean="resources.addressTypeResource" />
+				</component>
+			</jersey:resources>
+		</service>
+		
+	    <service name="deliveryMethodResource">
+			<inbound>
+	    		<inbound-endpoint address="http://${mule.host.bind}:63081/service/deliveryMethod" exchange-pattern="request-response" />
+			</inbound>
+			<jersey:resources>			
+				<component>
+					<spring-object bean="resources.deliveryMethodResource" />
+				</component>
+			</jersey:resources>
+				
+		</service>
+
+	</model>
+	
+</mule>

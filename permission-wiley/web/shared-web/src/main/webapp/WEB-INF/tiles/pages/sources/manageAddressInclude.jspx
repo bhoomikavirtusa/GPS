@@ -1,0 +1,105 @@
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+
+	<spring:nestedPath path="address">
+		<tr>
+			<td class="label">
+				<form:label path="type" cssClass="required" cssErrorClass="error">Type:</form:label>
+			</td>
+			
+			<!-- This include is used with two different forms. -->
+			<!-- Need way to access address directly from form without using form binding -->
+			<!-- Also used by createSource.jspx (third form) which includes twice and defines addressRef as needed for each. -->
+			<c:if test="${manageAddressForm != null}">
+				<c:set var="addressRef" value="${manageAddressForm.address}" />
+			</c:if>
+			<c:if test="${manageContactForm != null}">
+				<c:set var="addressRef" value="${manageContactForm.contact.address}" />
+			</c:if>
+			
+			<td class="value">
+				<spring:bind path="type">
+					<select name="${status.expression}">
+						<c:forEach items="${addressTypes}" var="item">
+							<c:choose>
+								<c:when test="${item.code == addressRef.type.code}">
+									<option value="${item.code}" selected="selected">${item.description}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${item.code}">${item.description}</option>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+					</select>
+				</spring:bind>
+			</td>
+		</tr>
+									
+		<tr>
+			<td class="label">
+				<form:label path="lineOne" cssClass="required" cssErrorClass="error">Address Line One:</form:label>
+			</td>
+			<td class="value"><form:input path="lineOne" size="45" maxlength="45" /></td>
+		</tr>
+
+		<tr>
+			<td class="label optional"><label name="type">Address Line Two:</label></td>
+			<td class="value"><form:input path="lineTwo" size="45" maxlength="45" /></td>
+		</tr>
+
+		<tr>
+			<td class="label optional"><label name="type">Address Line Three:</label></td>
+			<td class="value"><form:input path="lineThree" size="45" maxlength="45" /></td>
+		</tr>
+
+		<tr>
+			<td class="label">
+				<form:label path="city" cssClass="required" cssErrorClass="error">City:</form:label>
+			</td>
+			<td class="value"><form:input path="city" size="35" maxlength="35" /></td>
+		</tr>
+
+		<tr>
+			<td class="label optional"><label name="type">State / Province:</label></td>
+			<td class="value"><form:input path="province" size="30" maxlength="30" /></td>
+		</tr>
+
+		<tr>
+			<td class="label">
+				<form:label path="postalCode" cssClass="required" cssErrorClass="error">Postal Code:</form:label>
+			</td>
+			<td class="value"><form:input path="postalCode" size="10" maxlength="10" /></td>
+		</tr>
+
+		<tr>
+			<td class="label">
+				<form:label path="country" cssClass="required" cssErrorClass="error">Country:</form:label>
+			</td>
+
+			<td class="value">
+				<spring:bind path="country">
+					<select name="${status.expression}">
+						<c:forEach items="${countries}" var="item">
+							<c:choose>
+								<c:when
+									test="${item.code == addressRef.country.code}">
+									<option value="${item.code}" selected="selected">${item.description}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${item.code}">${item.description}</option>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+					</select>
+				</spring:bind>
+			</td>
+		</tr>
+
+	</spring:nestedPath>
+</jsp:root>

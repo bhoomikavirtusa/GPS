@@ -1,0 +1,553 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.1//EN"
+       "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+
+<tiles-definitions>
+	<definition name="tiles.errors.exception" template="/WEB-INF/tiles/pages/errors/exception.jspx"/>
+	<definition name="errors.general" template="/WEB-INF/tiles/pages/errors/general.jspx"/>
+	
+	<!-- LAYOUTS (TEMPLATES) -->
+	<definition name="layout.main" template="/WEB-INF/tiles/templates/main.jspx">
+		<put-attribute name="title" value="Welcome" cascade="true"/>	
+		<put-attribute name="header" value="/WEB-INF/tiles/templates/main/header.jspx" cascade="true" />
+		<put-attribute name="menu" value="/WEB-INF/tiles/templates/main/menu.jspx" cascade="true" />
+		<put-attribute name="body" value="/WEB-INF/tiles/templates/main/body.jspx" cascade="true" />
+		<put-attribute name="footer" value="/WEB-INF/tiles/templates/main/footer.jspx" cascade="true" />
+	</definition>
+	
+	<definition name="layout.page" template="/WEB-INF/tiles/templates/page.jspx">
+		<put-attribute name="body" value="/WEB-INF/tiles/templates/main/body.jspx" cascade="true" />
+	</definition>	
+	
+	<definition name="layout.main100" template="/WEB-INF/tiles/templates/main100.jspx">
+		<put-attribute name="title" value="Welcome" cascade="true"/>
+		<put-attribute name="header" value="/WEB-INF/tiles/templates/main/header.jspx" cascade="true" />
+		<put-attribute name="menu" value="/WEB-INF/tiles/templates/main/menu.jspx" cascade="true" />
+		<put-attribute name="body" value="/WEB-INF/tiles/templates/main/body.jspx" cascade="true" />
+		<put-attribute name="footer" value="/WEB-INF/tiles/templates/main/footer.jspx" cascade="true" />
+	</definition>
+	
+	<definition name="layout.dialog" template="/WEB-INF/tiles/templates/dialog.jspx">
+		<put-attribute name="body" value="/WEB-INF/tiles/templates/dialog/body.jspx" cascade="true" />
+		<put-attribute name="footer" value="/WEB-INF/tiles/templates/dialog/footer.jspx" cascade="true" />
+	</definition>	
+
+	<!-- SUCCESS -->
+	<definition name="pages.success" extends="layout.main">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/success.jspx" />
+	</definition>
+
+	<definition name="dialog.success" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/success.jspx" />
+	</definition>
+	
+	<!-- PAGES -->
+	<definition name="pages.product" extends="layout.main">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/product.jspx" />
+	</definition>
+
+	<definition name="pages.landing.main" extends="layout.main100">
+		<put-attribute name="title" value="Product Landing" cascade="true"/>
+		<put-attribute name="menu" value="/WEB-INF/tiles/templates/main/lmenu.jspx" cascade="true" />
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/main.jspx" />
+	</definition>
+
+	<definition name="pages.landing.sources" extends="layout.page">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/sources.jspx" />
+	</definition>
+
+	<definition name="pages.landing.invoices" extends="layout.page">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/invoices.jspx" />
+	</definition>
+
+	<definition name="pages.landing.assets" extends="layout.page">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/assets.jspx" />
+	</definition>
+	
+	<definition name="pages.landing.filter" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/filter.jspx" />
+	</definition>
+	
+	<definition name="pages.landing.selectPreviousEdition" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/selectPreviousEdition.jspx" />
+	</definition>
+	
+	<definition name="pages.landing.copyAssetsSearchProduct" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/copyAssetsSearchProduct.jspx" />
+	</definition>
+	
+	<definition name="pages.landing.copyAssets" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/copyAssets.jspx" />
+	</definition>
+	
+	<definition name="pages.landing.component.create" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/componentCreate.jspx" />
+	</definition>
+	
+	<definition name="pages.landing.component.manage" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/componentManage.jspx" />
+	</definition>
+	
+	<definition name="pages.landing.component.editRow"
+		template="/WEB-INF/tiles/pages/landing/componentEditRow.jspx" />
+	
+	<definition name="pages.landing.component.reloadRow"
+		template="/WEB-INF/tiles/pages/landing/componentReloadRow.jspx" />
+	
+	<definition name="pages.landing.summaryPanel"
+		template="/WEB-INF/tiles/pages/landing/summaryPanel.jspx" />
+		
+	<definition name="pages.landing.summaryCountsPanel" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/summaryCountsPanel.jspx" />
+	</definition>
+
+	<definition name="pages.landing.longSummary" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/longSummary.jspx" />
+	</definition>
+
+	<definition name="pages.landing.assetSummary" extends="layout.dialog">	
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/assetSummary.jspx" />		
+	</definition>
+	
+	<definition name="pages.landing.manageAssetSummary" extends="layout.dialog">	
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/manageAssetSummary.jspx" />		
+	</definition>
+	
+	<definition name="pages.landing.photo.estimate.manage" extends="layout.dialog">	
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/managePhotoEstimate.jspx" />		
+	</definition>
+	
+	<definition name="pages.cw.files" extends="layout.dialog">	
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/cw/manageCwFiles.jspx" />		
+	</definition>
+	
+	<definition name="pages.cw.filesList" extends="layout.dialog">	
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/cw/titleFilesList.jspx" />		
+	</definition>
+	
+	<definition name="pages.landing.source.main" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/source/main.jspx" />
+	</definition>
+	
+	<definition name="pages.landing.source.photo.request" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/source/photoRequest.jspx" />
+	</definition>
+
+	<definition name="pages.landing.source.wiley.book" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/source/previousPublicationWarning.jspx" />
+	</definition>
+
+	<definition name="pages.landing.source.wiley.journal" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/source/wileyJournal.jspx" />
+	</definition>
+	
+	<definition name="pages.landing.source.wiley.pub.assets.details" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/source/wileyPubAssetDetails.jspx" />
+	</definition>
+	
+	<definition name="pages.landing.source.author.created" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/source/authorCreated.jspx" />
+	</definition>
+	
+	<definition name="pages.landing.source.determine.owner.type" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/source/determineOwnerType.jspx" />
+	</definition>
+	
+	<definition name="pages.landing.source.asset.not.on.the.list" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/source/assetNotOnTheList.jspx" />
+	</definition>
+	
+	<definition name="pages.landing.source.add.another.asset" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/source/addAnotherAsset.jspx" />
+	</definition>
+	
+	<definition name="pages.landing.source.author.provided" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/source/authorProvided.jspx" />
+	</definition>
+
+	<definition name="pages.landing.source.previous.edition.select.asset" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/source/previousEditionBranchSelectAsset.jspx" />
+	</definition>
+	
+	<definition name="pages.landing.source.previous.edition.select.edition" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/source/previousEditionWarning.jspx" />
+	</definition>
+	
+	<definition name="pages.landing.source.previous.edition.asset.save" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/source/previousEditionWarning.jspx" />
+	</definition>
+	
+	<definition name="pages.landing.source.rights.link.warning" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/source/rightsLinkWarning.jspx" />
+	</definition>
+	
+	<definition name="pages.landing.source.3rdparty.replace" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/source/party3rdReplace.jspx" />
+	</definition>	
+
+	<definition name="pages.landing.source.3rdparty.clear" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/source/party3rdClear.jspx" />
+	</definition>	
+
+	<definition name="pages.landing.source.3rdparty.search" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/source/party3rdSearch.jspx" />
+	</definition>
+
+	<definition name="pages.landing.source.3rdparty.institution" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/source/party3rdInstitution.jspx" />
+	</definition>
+
+	<definition name="pages.landing.source.3rdparty.publication" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/source/party3rdPublication.jspx" />
+	</definition>
+
+	<definition name="pages.landing.source.3rdparty.asset.details" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/source/party3rdAssetDetails.jspx" />
+	</definition>
+
+	<definition name="pages.landing.source.3rdparty.new" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/source/party3rdNew.jspx" />
+	</definition>
+
+	<definition name="pages.sources.include.createSource" template="/WEB-INF/tiles/pages/landing/source/createSourceInclude.jspx" />
+
+	<definition name="pages.user.profile" extends="layout.main">
+		<put-attribute name="title" value="Profile" cascade="true"/>	
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/myaccount/profile.jspx" />
+	</definition>
+	
+	<definition name="pages.landing.descriptionValidation" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/descriptionValidation.jspx" />
+	</definition>
+
+	<definition name="pages.landing.reports.sourceUsageReport" extends="layout.main">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/reports/sourceUsageReport.jspx" />
+	</definition>
+	
+	<definition name="pages.asset.custom.main" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/asset/custom/main.jspx" />
+	</definition>
+
+	<definition name="pages.asset.custom.contract" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/asset/custom/customdetails.jspx" />
+	</definition>
+
+	<definition name="pages.asset.custom.details" template="/WEB-INF/tiles/pages/asset/custom/customdetails.jspx" />
+	
+	<definition name="pages.asset.custom.source.3rdparty.new" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/asset/custom/party3rdNew.jspx" />
+	</definition>
+
+	<definition name="pages.asset.custom.view" template="/WEB-INF/tiles/pages/asset/custom/customview.jspx" />
+	
+	<definition name="pages.asset.main" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/asset/main.jspx" />
+	</definition>
+	
+	<definition name="pages.asset.usage.and.permissions" template="/WEB-INF/tiles/pages/asset/usageAndPermissions.jspx" />
+
+	<definition name="pages.asset.details" template="/WEB-INF/tiles/pages/asset/assetdetails.jspx" />
+
+	<definition name="pages.asset.usage.details" template="/WEB-INF/tiles/pages/asset/usagedetails.jspx" />
+
+	<definition name="pages.asset.main.view" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/asset/view/main.jspx" />
+	</definition>
+	
+	<definition name="pages.asset.main.view" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/asset/view/main.jspx" />
+	</definition>
+	
+	<definition name="pages.asset.asset.upload" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/asset/assetUpload.jspx" />
+	</definition>
+
+	<definition name="pages.asset.view.usage.and.permissions" template="/WEB-INF/tiles/pages/asset/view/usageAndPermissions.jspx" />
+
+	<definition name="pages.asset.view.details" template="/WEB-INF/tiles/pages/asset/view/assetdetails.jspx" />
+
+	<definition name="pages.asset.view.usage.details" template="/WEB-INF/tiles/pages/asset/view/usagedetails.jspx" />
+		
+	<definition name="pages.landing.asset.renumber" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/assetRenumber.jspx" />
+	</definition>
+	
+	<definition name="pages.landing.asset.merge.chapter" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/mergeChapter.jspx" />
+	</definition>
+	
+	<definition name="pages.po.preview" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/po/preview.jspx" />
+	</definition>
+	
+	<definition name="pages.po.embed.pdf" template="/WEB-INF/tiles/pages/po/embedpdf.jspx" />
+	
+	<definition name="pages.amendment.contractlist" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/amendment/contractlist.jspx" />
+	</definition>
+
+	<definition name="pages.amendment.details" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/amendment/details.jspx" />
+	</definition>
+	
+	<definition name="pages.amendment.upload" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/amendment/upload.jspx" />
+	</definition>
+	
+	<definition name="pages.amendment.preview" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/amendment/preview.jspx" />
+	</definition>
+
+	<definition name="pages.amendment.embed.pdf" template="/WEB-INF/tiles/pages/amendment/embedpdf.jspx" />
+	
+	<definition name="pages.po.main" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/po/main.jspx" />
+	</definition>
+	
+	<definition name="pages.po.sources" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/po/sources.jspx" />
+	</definition>
+
+	<definition name="pages.po.assets" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/po/assets.jspx" />
+	</definition>
+	
+	<definition name="pages.po.details" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/po/details.jspx" />
+	</definition>
+
+	<definition name="pages.po.polist" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/po/polist.jspx" />
+	</definition>
+
+	<definition name="pages.po.sourceDetails" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/po/sourceDetails.jspx" />
+	</definition>
+
+	<definition name="pages.contract.polist" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/contract/polist.jspx" />
+	</definition>
+
+	<definition name="pages.contract.filelist" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/contract/filelist.jspx" />
+	</definition>
+
+	<definition name="pages.contract.contractlist" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/contract/contractlist.jspx" />
+	</definition>
+
+	<definition name="pages.contract.view" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/contract/view.jspx" />
+	</definition>
+
+	<definition name="pages.contract.sources" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/contract/sources.jspx" />
+	</definition>
+
+	<definition name="pages.contract.assets" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/contract/assets.jspx" />
+	</definition>
+
+	<definition name="pages.contract.details" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/contract/details.jspx" />
+	</definition>
+
+	<definition name="pages.contract.permissions" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/contract/permissions.jspx" />
+	</definition>
+
+	<definition name="pages.contract.rightssummary" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/contract/rightssummary.jspx" />
+	</definition>
+
+	<definition name="pages.contract.request" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/contract/request.jspx" />
+	</definition>
+
+	<definition name="pages.contract.conditions" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/contract/conditions.jspx" />
+	</definition>
+	
+	<definition name="pages.conditions" extends="layout.main">
+		<put-attribute name="title" value="Conditions" cascade="true"/>	
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/conditions/main.jspx" />
+	</definition>
+	
+	<definition name="pages.conditions.include" template="/WEB-INF/tiles/pages/conditions/main.jspx" />
+	
+	<definition name="pages.myaccount.login" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/myaccount/login.jspx" />
+	</definition>
+	
+	<definition name="pages.asset.assetSearch" extends="layout.main">
+		<put-attribute name="title" value="Asset Search" cascade="true"/>
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/asset/assetSearch.jspx" cascade="true"/>
+	</definition>
+
+	<definition name="pages.asset.assetSearchResults" extends="layout.main">
+		<put-attribute name="title" value="Asset Search" cascade="true"/>
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/asset/assetSearchResults.jspx" cascade="true"/>
+	</definition>
+	
+	<definition name="pages.landing.import.assets" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/importAssets.jspx" cascade="true"/>
+	</definition>
+
+	<definition name="pages.landing.import.assetsreplace" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/importAssetsReplace.jspx" cascade="true"/>
+	</definition>
+
+	<definition name="pages.search.asset.details" extends="layout.main">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/asset/assetdetails.jspx" />
+	</definition>
+	
+	<definition name="pages.search.asset.usage.details" extends="layout.main">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/asset/usagedetails.jspx" />
+	</definition>
+
+	<definition name="pages.paymentrequest.paidView" extends="layout.dialog">	
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/paymentrequest/paidView.jspx" cascade="true"/>	
+	</definition>
+
+	<definition name="pages.paymentrequest.sources" extends="layout.dialog">	
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/paymentrequest/sources.jspx" cascade="true"/>	
+	</definition>
+
+	<definition name="pages.paymentrequest.contractlist" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/paymentrequest/contractlist.jspx" cascade="true"/>
+	</definition>
+
+	<definition name="pages.paymentrequest.main" extends="layout.main">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/paymentrequest/listPaymentRequests.jspx" cascade="true"/>	
+	</definition>
+
+	<definition name="pages.paymentrequest.manage" extends="layout.dialog">	
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/paymentrequest/managePaymentRequest.jspx" cascade="true"/>	
+	</definition>
+
+	<definition name="pages.paymentrequest.view" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/paymentrequest/viewPaymentRequest.jspx" cascade="true"/>
+	</definition>
+
+	<definition name="pages.paymentrequest.list.sources" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/paymentrequest/listSourcesToPay.jspx" cascade="true"/>
+	</definition>
+	
+	<definition name="pages.landing.cwHistoryPanel"
+		template="/WEB-INF/tiles/pages/landing/cwHistory.jspx" />
+
+	<definition name="pages.landing.cwHistoryDialog" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/cwHistory.jspx" />
+	</definition>
+	
+	<!-- source stuff  -->
+	<definition name="tiles.sources.list" template="/WEB-INF/tiles/pages/sources/listSources.jspx"/>
+	<definition name="tiles.sources.sourceGeneral" template="/WEB-INF/tiles/pages/sources/sourceGeneral.jspx"/>
+	<definition name="tiles.sources.sourceFiles" template="/WEB-INF/tiles/pages/sources/sourceFiles.jspx"/>
+	<definition name="tiles.sources.address" template="/WEB-INF/tiles/pages/sources/addressView.jspx"/>
+	<definition name="tiles.sources.contact" template="/WEB-INF/tiles/pages/sources/contactView.jspx"/>
+	<definition name="tiles.sources.source" template="/WEB-INF/tiles/pages/sources/source.jspx"/>
+	<definition name="tiles.sources.sourceFileDetails" template="/WEB-INF/tiles/pages/sources/sourceFileDetails.jspx"/>
+	<definition name="tiles.sources.sourceNoflyDetails" template="/WEB-INF/tiles/pages/sources/sourceNoflyDetails.jspx"/>
+	
+	<definition name="pages.sources.sources.nofly.List" extends="layout.main">
+		<put-attribute name="title" value="No Fly" cascade="true"/>
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/sources/noflyList.jspx" cascade="true"/>
+	</definition>
+
+	<definition name="pages.sources.sources.main" extends="layout.main">
+		<put-attribute name="title" value="Sources" cascade="true"/>
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/sources/sources.jspx" cascade="true"/>
+	</definition>
+
+	<definition name="pages.sources.viewSource" extends="layout.main">
+		<put-attribute name="title" value="Source" cascade="true"/>
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/sources/viewSource.jspx" cascade="true"/>
+	</definition>
+
+	<definition name="pages.sources.createSource" extends="layout.main">
+		<put-attribute name="title" value="Create Source" cascade="true"/>
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/sources/createSource.jspx" cascade="true"/>
+	</definition>
+	
+	<definition name="pages.servicedesk.addUsers" extends="layout.main">
+		<put-attribute name="title" value="Add Users" cascade="true"/>
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/servicedesk/addUsers.jspx" cascade="true"/>
+	</definition>
+	
+	<definition name="pages.sources.manageSource" extends="layout.main">
+		<put-attribute name="title" value="Manage Source" cascade="true"/>
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/sources/manageSource.jspx" cascade="true"/>
+	</definition>
+
+	<definition name="pages.sources.manageContact" extends="layout.main">
+		<put-attribute name="title" value="Manage Contact" cascade="true"/>
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/sources/manageContact.jspx" cascade="true"/>
+	</definition>
+
+	<definition name="pages.po.addContact" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/po/addContact.jspx" cascade="true"/>
+	</definition>
+
+	<definition name="pages.po.addAddress" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/po/addAddress.jspx" cascade="true"/>
+	</definition>
+
+	<definition name="pages.sources.manageAddress" extends="layout.main">
+		<put-attribute name="title" value="Manage Address" cascade="true"/>
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/sources/manageAddress.jspx" cascade="true"/>
+	</definition>
+
+	<definition name="pages.guidelines" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/guidelines.jspx" cascade="true"/>		
+	</definition>
+
+	<definition name="pages.po.addAddress" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/po/addAddress.jspx" cascade="true"/>
+	</definition>
+
+	<definition name="pages.cancel.one.asset" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/asset/cancelOneAsset.jspx" cascade="true"/>
+	</definition>
+
+	<definition name="pages.cancel.multi.assets" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/asset/cancelMultiAssets.jspx" cascade="true"/>
+	</definition>
+	
+	<definition name="pages.flag.as.replacement" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/asset/flagAsReplacementAsset.jspx" cascade="true"/>
+	</definition>
+	
+	<definition name="pages.clear.assets" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/asset/clearAssets.jspx" cascade="true"/>
+	</definition>
+	
+	<definition name="pages.get.replacements" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/asset/selectionsToFlag.jspx" cascade="true"/>
+	</definition>
+
+	<definition name="pages.landing.license" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/license.jspx" />
+	</definition>
+
+	<definition name="pages.landing.license.edit.contract" template="/WEB-INF/tiles/pages/landing/licenseContractEdit.jspx"/>
+
+	<definition name="pages.landing.license.view.contract" template="/WEB-INF/tiles/pages/landing/licenseContractView.jspx" />
+
+	<definition name="pages.landing.license.review" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/licenseReview.jspx" />
+	</definition>
+	
+	<definition name="pages.landing.license.result" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/licenseResult.jspx" />
+	</definition>
+	
+	<!-- Added for SS Task 12 - Start -->
+	<definition name="pages.contract.approveassetdetails" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/contract/approveAssetDetails.jspx" />
+	</definition>
+	<!-- Added for SS Task 12 - End -->
+
+</tiles-definitions>

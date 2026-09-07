@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="assetCancelUrl" value="/sapp/asset/manageAsset/cancelOne" />
+
+	<jsp:element name="script">
+		<jsp:attribute name="type">text/javascript</jsp:attribute>
+		<jsp:attribute name="src">
+			<c:url value="/js/jquery.selectboxes.min.js"/>
+		</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+
+	<jsp:directive.include file="js/jquery-custom-combobox.js.jspx" />
+
+	<script type="text/javascript">
+//<![CDATA[
+	$(document).ready(function() {
+
+		$(function() {
+			$( "#cancelComment" ).combobox();
+		});
+
+		$(":radio[name='cancelR'][value=2]").click (function() {
+			$('#replaceDiv').hide();
+		});
+
+		$(":radio[name='cancelR'][value=1]").click (function() {
+			$('#replaceDiv').show();
+		});
+
+		$('#cancelForm').submit(function() {
+			var url = '${assetCancelUrl}';
+			$.ajax({
+	            type: 'post',
+	            url: url,
+	            data: $('#cancelForm').serialize(),
+	            dataType: 'json',
+				"success": function(json) {
+					// lnagy - because we are not processing multiple uses, it will be a list of one, 
+					// but keep it like this for now, we don't know if the dialog will change'
+					for ( var i=0, iLen=json.length ; i<iLen ; i++ ) {
+						var nIndex = dataTable.fnGetPositionByColumn (0, parseInt (json[i].auId));
+						// if asset deleted
+						if (json[i].deleted) {				
+							dataTable.fnDeleteRow (nIndex);
+						}
+						// for cancel/uncancel - just refresh the row to display the new status
+						else {
+							fnRefreshRows (parseInt (json[i].auId));
+						}
+					}
+					$modalDialog.dialog("close");
+				},
+				"error": function() {
+		        	showErrorMessage ("Error: failed to cancel the selected rows");
+		        }
+	        });
+			return false;
+		});
+	});
+//]]>		
+	</script>
+	
+	<h1> ${assetUse.asset.description}: ${assetUse.component.name}-${assetUse.usage.code}-${assetUse.position}-${assetUse.asset.sourcesAsString}</h1>
+	<p>Please enter a brief comment regarding why this asset is being cancelled. 
+	<br/>Additionally you may designate another asset with the same position value as replacement</p>
+	<br/>
+	<form name="cancelForm" id="cancelForm">
+	<input type="hidden" id="auId" name="auId" value="${assetUse.id}"/>
+	<input type="hidden" id="auId" name="cwId" value="${assetUse.commonWork.id}"/>
+	<table>
+		<c:if test="${multi}">
+		<tr>
+			<td>
+				<input type="radio" name="cancelR" value="1" id="cancelR" />Mark this use cancelled - leave other uses of this asset alone <br/>
+				<input type="radio" name="cancelR" value="2" id="cancelR" />Cancel all uses of this asset in this product (deletes if no forms/invoices ) <br/>
+			</td>
+		</tr>
+		</c:if>
+		<tr>
+			<td>
+				<span style="vertical-align: top">Why was this cancelled?</span>
+				<div class="ui-widget">
+					<select id="cancelComment">
+					<option value="">Select one...</option>
+					<c:forEach items="${cancelReasons}" var="item">
+						<option value="${item.code}">${item.description}</option>
+					</c:forEach>									
+					</select>
+				</div>				
+			</td>
+		</tr>		
+		<tbody id="replaceDiv">
+		<tr>
+			<td>
+				Designate replacement asset
+				<select id="replacementId" name="replacementId">
+					<option value="0">no replacement</option>
+					<c:forEach var="replacement" items="${replacements}">
+						<option value="${replacement.id}">${replacement.asset.description} / ${replacement.asset.sourcesAsString}</option>
+					</c:forEach>
+				</select>
+			</td>
+		</tr>
+		</tbody>
+	</table>
+	<div class="buttonset">		
+	<input type="submit" id="submitB" value="Complete" />
+	<a href="#" id="cancelLink" class="button">Abort Cancellation</a>
+	</div>
+	</form>	
+
+</jsp:root>

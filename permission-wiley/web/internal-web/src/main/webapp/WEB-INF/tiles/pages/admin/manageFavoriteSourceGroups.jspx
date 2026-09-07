@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root 
+	version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="manageGroupUrl" value="/sapp/admin/manageFavoriteGroup/manage_group" />
+
+	<form:form modelAttribute="ManageFavoriteSourceGroupsForm">
+		<jsp:attribute name="action">
+			<c:url value="/sapp/admin/manageFavoriteGroup/manage_group" />
+		</jsp:attribute>
+		<table class="width100">
+			<tr>
+				<th colspan="2">
+					Favorite Source Groups
+					<span class="right top11">
+						<input type="button" id="submitC" value="Create New Favorite Group"/>
+					</span>				
+				</th>
+			</tr>
+			<c:if test="${not empty ManageFavoriteSourceGroupsForm.favoriteGroups}">			
+				<c:forEach items="${ManageFavoriteSourceGroupsForm.favoriteGroups}" var="fsg">
+					<c:url var="editGroupURL" value="/sapp/admin/manageFavoriteGroup/select_group?id=${fsg.id}"/>
+					<tr><td><a href="${editGroupURL}"> <c:out value="${fsg.description}" /> </a></td></tr>
+				</c:forEach>			
+			</c:if>
+		
+			<tr>
+				<th colspan="2">
+					Editing <c:out value="${ManageFavoriteSourceGroupsForm.favoriteGroupDescription}" />
+					<span class="right top11">
+						<input type="submit" id="submitB" value="Save"/>
+					</span>
+				</th>
+			</tr>
+	
+			<tr>
+				<td class="label">
+					<form:label path="favoriteGroupDescription" cssClass="required" cssErrorClass="error">Description:</form:label>
+				</td>
+				<td class="value">
+					<form:input path="favoriteGroupDescription" size="50" maxlength="100" class="required" />
+					<form:hidden path="favoriteGroupId" />
+				</td>
+			</tr>
+			<tbody id="sourcesDiv">
+				<tr>
+					<th colspan="2">
+						Associated Sources for <c:out value="${ManageFavoriteSourceGroupsForm.favoriteGroupDescription}" />
+						<span class="right top11">
+							<c:url var="addSRC" value="/sapp/admin/multiSourceSelection/search?fsgId=${ManageFavoriteSourceGroupsForm.favoriteGroup.id}"/>
+							<a href="${addSRC}" class="button">Add Source(s)</a>
+						</span>				
+					</th>
+				</tr>
+		
+				<c:if test="${not empty ManageFavoriteSourceGroupsForm.favoriteGroup.sources}">
+					<c:forEach items="${ManageFavoriteSourceGroupsForm.favoriteGroup.sources}" var="src">
+						<tr>
+							<td> <c:out value="${src.name}" /></td>
+							<c:url var="removeSourceURL" value="/sapp/admin/manageFavoriteGroup/remove_source?id=${src.id}"/>
+							<td><a href="${removeSourceURL}"> Remove </a></td>
+						</tr>
+					</c:forEach>			
+				</c:if>
+			</tbody>
+		</table>	
+	</form:form>
+	
+	<script type="text/javascript">
+	//<![CDATA[
+	$(document).ready(function() {
+		$('#submitC').click (function() {
+			$('#favoriteGroupId').val(-1);
+			$('#favoriteGroupDescription').val("");
+			$("#sourcesDiv").hide();	
+			return false;
+		});
+		
+		$('#submitB').click (function() {
+			return $("#ManageFavoriteSourceGroupsForm").validate().form();
+		});
+	});
+	//]]>		
+	</script>
+		
+</jsp:root>

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+
+<table>
+	<tr>
+		<td colspan="4">
+			<h2>Invoice or Contract</h2>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			Number:
+		</td>
+		<td>
+			<b>${contract.number}</b>
+		</td>
+		<td>
+			Date:
+		</td>
+		<td>
+			<fmt:formatDate type="date" value="${contract.date}" />
+		</td>
+	</tr>
+	<tr>
+		<td>
+			Invoice type:
+		</td>
+		<td>
+			${contract.contractType.description}
+		</td>
+		<td>
+			Paid By Author:
+		</td>
+		<td>
+			${contract.paymentType == 'AUTHOR' ? 'Yes' : 'No'}
+		</td>
+	</tr>
+	<tr>
+		<td>
+			Price:
+		</td>
+		<td>
+			${contract.price} ${contract.currency.description}
+		</td>
+	</tr>
+	<tr>
+		<td>
+			Start date:
+		</td>
+		<td>
+			<fmt:formatDate type="date" value="${contract.startDate}" />
+		</td>
+		<td>
+			End date:
+		</td>
+		<td>
+			<fmt:formatDate type="date" value="${contract.endDate}" />
+		</td>
+	</tr>
+	<tr>
+		<td>File(s):</td>
+		<td colspan="3">
+			<c:choose>
+				<c:when test="${not empty contract.files}">
+					<table width="100%">
+						<c:forEach items="${contract.files}" var="file">
+							<tr><td>
+								<c:url var="tmpURL"
+									value="/sapp/permissions/contract/download_file?fileId=${file.id}" />
+								<a href="${tmpURL}"> ${file.fileName}</a> (${wileyfn:filesize(file.fileData)}) uploaded on 
+								<fmt:formatDate type="date" value="${file.lastUpdatedDate}" />
+							</td></tr>
+						</c:forEach>
+					</table>
+				</c:when>
+
+				<c:otherwise>
+					No Files Found For This Contract.
+				</c:otherwise>
+			</c:choose>
+		</td>
+	</tr>	
+	<tr>
+		<td nowrap="nowrap">
+			Comp Copy Required:
+		</td>
+		<td>
+			${empty contract.compCopies ? 'No' : 'Yes'}
+		</td>
+	</tr>
+	
+	<c:if test="${not empty contract.compCopies}">
+		<tr>
+			<td>
+				Comp Copies:
+			</td>
+			<td>
+			</td>
+		</tr>
+		<tr>
+			<td>
+			</td>
+			<td>
+				Recipient's:
+			</td>
+			<td>
+				<c:forEach items="${contract.compCopies}" var="comp" varStatus="status">
+					${comp.address};
+				</c:forEach>
+			</td>
+		</tr>
+	</c:if> <!-- end of compCopy test -->
+	<tr>
+		<td colspan="4">
+			<h2>Restrictions:</h2>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="4">
+			${conditions}
+		</td>
+	</tr>	
+	<tr>
+		<td colspan="4">
+			<h2>Assets:</h2>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="4">
+			<c:forEach items="${assets}" var="asset">
+				<c:out value="${asset.assetDescription}" /> : ${asset.usageTypeCode} - ${asset.componentName} - ${asset.position}
+				<c:if test="${asset.poId != 0}">
+					requested on <fmt:formatDate type="date" value="${asset.poDate}" />							
+				</c:if>
+				<br/>
+			</c:forEach>
+		</td>
+	</tr>	
+</table>
+
+	<div class="buttonset">
+		<a href="#" id="cancelLink" class="button">Close</a>
+	</div>
+</jsp:root>

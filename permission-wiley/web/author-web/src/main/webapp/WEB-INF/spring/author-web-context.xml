@@ -1,0 +1,65 @@
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context" xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx" xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+		http://www.springframework.org/schema/util
+		http://www.springframework.org/schema/util/spring-util-4.3.xsd
+	">
+
+	<import resource="shared-web-context.xml"/>
+
+	<bean id="tilesConfigurer" class="org.springframework.web.servlet.view.tiles3.TilesConfigurer">
+		<property name="definitions">
+			<list>
+				<value>/WEB-INF/tiles/definitions/shared-tiles.xml</value>
+				<value>/WEB-INF/tiles/definitions/author-tiles.xml</value>
+				<value>/WEB-INF/tiles/definitions/errors.xml</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean name="/sapp/product/userLanding/*"
+			class="com.wiley.permissions.web.author.controllers.landing.UserLandingController"
+		parent="controllers.BaseAnnotatedController">
+		<property name="userRepository" ref="repository.UserRepository" />
+		<property name="systemNotificationRepository" ref="repository.SystemNotificationRepository" />
+		<property name="productService" ref="services.ProductService" />
+	</bean>
+	
+	<bean name="/sapp/panels/*"
+			class="com.wiley.permissions.web.author.controllers.landing.PanelsController"
+		parent="controllers.BaseAnnotatedController">
+		<property name="userRepository" ref="repository.UserRepository" />
+		<property name="productService" ref="services.ProductService" />
+	</bean>
+
+	<bean name="/app/security/login/*"
+		class="com.wiley.permissions.web.author.controllers.myaccount.LoginController"
+		parent="controllers.BaseLoginController">
+		<property name="userRepository" ref="repository.UserRepository" />
+		<property name="ssoUserLookupUtility" ref="utility.ExternalSSOUserLookupUtility" />
+		<property name="externalUserLdapClient" ref="utility.ExternalUserLdapClient" />
+		<property name="commonWorkService" ref="services.CommonWorkService" />
+	</bean>
+
+	<bean name="/sapp/account/*"
+			class="com.wiley.permissions.web.author.controllers.myaccount.MyAccountController"
+		parent="controllers.BaseAnnotatedController">
+		<property name="ssoUserLookupUtility" ref="utility.ExternalSSOUserLookupUtility" />
+		<property name="externalUserLdapClient" ref="utility.ExternalUserLdapClient" />
+	</bean>
+	
+	<bean name="/sapp/cwlanding/*"
+		class="com.wiley.permissions.web.author.controllers.landing.CwLandingController"
+		parent="LandingController">
+	</bean>
+	
+</beans>

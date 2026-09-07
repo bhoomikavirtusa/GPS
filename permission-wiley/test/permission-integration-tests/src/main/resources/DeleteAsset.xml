@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="permmsg_20080829.xsd"
+    type="request" id="CMS.sourceRequest9948" sent="1183481115542" source="CMS001" protocolVersion="1.0">
+    <target>
+        <system>PERM001</system>
+    </target>
+    <operation name="DeleteAsset">
+        <reference wid="PERM.001.99320203" />
+    </operation>
+</message>

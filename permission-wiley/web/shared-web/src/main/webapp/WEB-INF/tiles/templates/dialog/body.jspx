@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root 
+	version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page">
+
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	BODY
+			
+</jsp:root>

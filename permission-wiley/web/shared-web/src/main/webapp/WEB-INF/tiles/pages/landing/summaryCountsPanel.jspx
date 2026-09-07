@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+
+	<table>
+        <tr>
+           <td><b>Total assets in this product: </b></td>
+           <td><b>${T.internals["total"]}</b></td>
+        </tr>
+	
+		<c:forEach items="${groups}" var="entry">
+        <c:set var="key" value="${entry.name}_count" />
+        <c:set var="keyW" value="${entry.name}_workflow" />
+        <c:set var="keyC" value="${entry.name}_complete" />
+        <c:set var="keyP" value="${entry.name}_problem" />
+		<c:if test="${T.internals[key] > 0}">
+		<tr>
+           <td><b>${entry.name}:</b> </td>
+           <td><b>${T.internals[key]}</b></td>
+        </tr>
+		<tr>
+           <td>In workflow: </td>
+           <td>${T.internals[keyW]}</td>
+        </tr>
+		<tr>
+           <td>Complete: </td>
+           <td>${T.internals[keyC]}</td>
+        </tr>
+		<tr>
+           <td>Problem: </td>
+           <td>${T.internals[keyP]}</td>
+        </tr>
+        </c:if>
+		</c:forEach>
+	</table>
+
+</jsp:root>

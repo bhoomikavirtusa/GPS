@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root 
+	version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+>
+	
+	<jsp:directive.page pageEncoding="UTF-8" />
+	
+	<tiles:importAttribute name="source"/>
+	
+	<jsp:body>
+		<table>
+			<tr>
+				<td class="label">
+					Name:
+				</td>			
+				<td class="value">
+					${source.name} ${source.nName}
+				</td>
+			</tr>
+		</table>
+	</jsp:body>
+</jsp:root>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+
+	<c:url var="downloadUrl" value="/sapp/admin/guidelines/download" />
+
+	<table class="width100">
+		<c:if test="${empty guidelines}">
+			<tr>
+				<td>No files are defined</td>
+			</tr>
+		</c:if>
+		<c:if test="${not empty guidelines}">
+			<c:forEach items="${guidelines}" var="field" varStatus = "status">
+			<tr>
+				<td>
+					<a href="${downloadUrl}?fileId=${field.id}"><c:out value="${field.displayName}" /></a>
+				</td>
+			</tr>
+			</c:forEach>
+		</c:if>
+	</table>
+</jsp:root>

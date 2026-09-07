@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+
+	<c:url var="prevUrl" value="/sapp/landing/source/main" />
+	
+	<jsp:directive.include file="js/wizard.buttons.js.jspx" />
+	
+	<h3>Another Wiley Publication </h3>
+
+	<table>
+		<tr><td></td></tr>
+		<tr><td></td></tr>
+		<tr><td>Please cancel this asset and use the Import/Copy Assets from Another Product option to select assets </td></tr>
+		<tr><td>from another product. If the asset you want is not found in the	system then create it as you would any </td></tr>
+		<tr><td>other asset e.g. from a 3rd party source. 	You may optionally add information about the other product on</td></tr>
+		<tr><td> the Usage Details tab of View/Edit Asset Details after you have created the asset. For content created </td></tr>
+		<tr><td> by another Wiley author please use Rightslink (rightslink.com) to initiate a Wiley-to-Wiley request. Then</td></tr>
+		<tr><td> copy the grant number and paste it into the Imports/Request Rightslink License option to import the details and create the asset(s).</td></tr>
+		<tr><td></td></tr>
+		<tr><td></td></tr>
+		<tr>
+			<td></td>
+			<td><a href="#" id="cancelLink" class="button">Done</a></td>
+		</tr>
+	</table>
+
+</jsp:root>

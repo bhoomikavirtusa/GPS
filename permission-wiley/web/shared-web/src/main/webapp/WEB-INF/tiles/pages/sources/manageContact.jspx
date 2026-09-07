@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+
+<jsp:directive.page pageEncoding="UTF-8" />
+
+<c:set var="contact" value="${manageContactForm.contact}"/>
+
+<jsp:body>
+	<form:form modelAttribute="manageContactForm">
+		<jsp:attribute name="action">
+			<c:url value="/sapp/sources/manageContact/submit" />
+		</jsp:attribute>
+
+		<div style="display: none">
+			<form:hidden path="sourceId"/>
+			<form:hidden path="mode"/>
+		</div>
+
+		<spring:hasBindErrors name="manageContactForm">
+			<jsp:directive.include file="/WEB-INF/tiles/pages/include/formErrors.jspx" />
+		</spring:hasBindErrors>
+
+		<table class="width100">
+			<tr>
+				<th>
+					Contact
+				</th>
+			</tr>		
+		
+			<c:choose>
+				<c:when test="${manageContactForm.mode == 'REMOVE'}">
+					<tr>
+						<th>
+							Are you sure you want to remove the following contact:
+						</th>
+					</tr>
+					<tr>
+						<td>
+							<tiles:insertDefinition name="tiles.sources.contact">
+								<tiles:putAttribute name="contact" value="${contact}" type="object"/>
+							</tiles:insertDefinition>
+						</td>
+					</tr>
+				</c:when>
+
+				<c:otherwise>
+					<tr>
+						<td>
+							<table>
+								<jsp:directive.include file="manageContactInclude.jspx" />
+							</table>
+						</td>
+					</tr>
+
+					<tr>
+						<th>
+							Address
+						</th>
+					</tr>
+					<tr>
+						<td>
+							<table>
+								<jsp:directive.include file="manageAddressInclude.jspx" />
+							</table>
+						</td>
+					</tr>
+				</c:otherwise>
+			</c:choose>
+		</table>
+		<div class="buttonset">			
+				<c:choose>
+					<c:when test="${manageContactForm.mode == 'ADD'}">
+						<jsp:element name="input">
+							<jsp:attribute name="type">submit</jsp:attribute>
+							<jsp:attribute name="value">Add</jsp:attribute>
+							<jsp:attribute name="id">addB</jsp:attribute>
+							<jsp:attribute name="onclick">this.form.elements['mode'].value='ADD';</jsp:attribute>
+						</jsp:element>										
+					</c:when>
+
+					<c:when test="${manageContactForm.mode == 'MODIFY'}">
+						<jsp:element name="input">
+							<jsp:attribute name="type">submit</jsp:attribute>
+							<jsp:attribute name="value">Modify</jsp:attribute>
+							<jsp:attribute name="onclick">this.form.elements['mode'].value='MODIFY';</jsp:attribute>
+						</jsp:element>										
+					</c:when>
+
+					<c:when test="${manageContactForm.mode == 'REMOVE'}">
+						<jsp:element name="input">
+							<jsp:attribute name="type">submit</jsp:attribute>
+							<jsp:attribute name="value">Delete</jsp:attribute>
+							<jsp:attribute name="onclick">this.form.elements['mode'].value='REMOVE';</jsp:attribute>
+						</jsp:element>										
+					</c:when>
+				</c:choose>
+
+				<jsp:element name="input">
+					<jsp:attribute name="type">submit</jsp:attribute>
+					<jsp:attribute name="value">Cancel</jsp:attribute>
+					<jsp:attribute name="id">cancel</jsp:attribute>
+					<jsp:attribute name="class">button</jsp:attribute>							
+					<jsp:attribute name="onclick">this.form.elements['mode'].value='CANCEL';</jsp:attribute>
+				</jsp:element>										
+		</div>
+	</form:form>
+</jsp:body>
+</jsp:root>

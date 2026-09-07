@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+
+	<jsp:directive.page pageEncoding="UTF-8" />
+
+	<c:url var="saveUrl" value="/sapp/sources/po/manageContact/submit" />
+	<c:url var="cancelUrl" value="/sapp/permissions/po/details" />
+
+	<jsp:directive.include file="../sources/manageContact.jspx" />
+
+	<script type="text/javascript">
+	//<![CDATA[
+	$(document).ready(function() {	
+		
+		$('#addB').removeAttr('onclick');
+		$('#addB').click (function() {
+			$.ajax({
+	            async: true,
+	            type: 'get',
+	            url: '${saveUrl}',
+	            data: $('#manageContactForm').serialize(),
+	            success: function (response){
+	                $('#modalDiv').empty().html(response);
+	                repositionDialog();
+	            }
+	        });	
+	        return false;
+		});
+		
+		$('#cancel').removeAttr('onclick');
+		$('#cancel').click (function() {
+			$.ajax({
+	            async: true,
+	            type: 'get',
+	            url: '${cancelUrl}',
+	            success: function (response){
+	                $('#modalDiv').empty().html(response);
+	                repositionDialog();
+	            }
+	        });	
+	        return false;
+		});
+		
+	});	
+	//]]>		
+	</script>		
+</jsp:root>

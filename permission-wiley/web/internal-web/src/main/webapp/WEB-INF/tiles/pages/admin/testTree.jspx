@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- This was only for testing, can be removed. -->
+
+<jsp:root 
+	version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+
+	<jsp:directive.page pageEncoding="UTF-8"/>
+ 
+    <jsp:element name="link">
+		<jsp:attribute name="rel">stylesheet</jsp:attribute>
+		<jsp:attribute name="type">text/css</jsp:attribute>
+		<jsp:attribute name="href">
+			<c:url value="/dynatree/skin/ui.dynatree.css"/>
+		</jsp:attribute>
+	</jsp:element>
+
+	<jsp:element name="script">
+		<jsp:attribute name="type">text/javascript</jsp:attribute>
+		<jsp:attribute name="src">
+			<c:url value="/dynatree/jquery.dynatree.min.js"/>
+		</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+	
+	<c:url var="loadUrl" value="/sapp/admin/testTree/load"/>
+	<c:url var="postUrl" value="/sapp/admin/testTree/submit"/>
+
+  <script type="text/javascript">
+	//<![CDATA[
+    $(function() {
+        $("#tree3").dynatree({
+          checkbox: true,
+          // Override class name for checkbox icon, so radio buttons are displayed:
+          //classNames: {checkbox: "dynatree-radio"},
+          // Select mode 3: multi-tier
+          selectMode: 3,
+          initAjax: { url: "${loadUrl}",
+              data: { key: "root", mode: "all" }
+          }
+        });
+        $("#form3").submit(function() {
+          // Serialize standard form fields:
+          var formData = $(this).serializeArray();
+
+          // then append Dynatree selected 'checkboxes':
+          var tree = $("#tree3").dynatree("getTree");
+          formData = formData.concat(tree.serializeArray());
+
+          // and/or add the active node as 'radio button':
+          if (tree.getActiveNode()) {
+            formData.push({name: "activeNode", value: tree.getActiveNode().data.key});
+          }
+
+          alert("POSTing this:\n" + jQuery.param(formData));
+
+          $.post("${postUrl}",
+               formData,
+               function(response, textStatus, xhr){
+                 alert("POST returned " + response + ", " + textStatus);
+               }
+          );
+          return false;
+        });
+      });
+    //]]>
+    </script>
+
+  <form id="form3" style="margin-top: 1em">
+    <input type="submit" name="submit" value="Send data" />
+    Text box outside tree: <input type="text" name="textBox" />
+    <br />
+    
+    <!-- The name attribute is used by tree.serializeArray()  -->
+    <div id="tree3" name="selNodes"></div>
+  </form>
+
+</jsp:root>

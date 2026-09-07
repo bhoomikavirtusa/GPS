@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<table>
+		<c:if test="${not empty toReplaceAus}">
+			<c:forEach items="${toReplaceAus}" var="assetUse">
+				<tr>
+					<td colspan="5">
+					${assetUse.asset.description}, ${assetUse.usage.code }, Pos: ${assetUse.position }, ${assetUse.asset.mediaType.description } / ${assetUse.asset.sourcesAsString}
+					</td>	
+				</tr>
+			</c:forEach>
+	   </c:if>
+	</table>				
+</jsp:root>

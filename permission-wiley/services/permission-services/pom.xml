@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<parent>
+		<artifactId>services-parent</artifactId>
+		<groupId>com.wiley.permissions.services</groupId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+	
+	<!-- When groupId and version tags omitted here, same as parent -->
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>permission-services</artifactId>
+	<name>Permissions Services Module</name>
+
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+	    	<groupId>org.hibernate.javax.persistence</groupId>
+    		<artifactId>hibernate-jpa-2.0-api</artifactId>
+		</dependency>
+
+		<dependency>
+		    <groupId>javax.validation</groupId>
+		    <artifactId>validation-api</artifactId>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.hibernate</groupId>
+		    <artifactId>hibernate-validator</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-tx</artifactId>
+		</dependency>
+				
+		<dependency>
+			<groupId>com.wiley.sf</groupId>
+			<artifactId>sf-common2</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+			<version>${jaxb-api.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>${httpclient.version}</version>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/jcifs/jcifs -->
+		<dependency>
+		    <groupId>jcifs</groupId>
+		    <artifactId>jcifs</artifactId>
+		    <version>1.3.17</version>
+		</dependency>
+
+		<dependency>
+		    <groupId>commons-dbutils</groupId>
+		    <artifactId>commons-dbutils</artifactId>
+		    <version>1.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+		</dependency>
+
+		<dependency>
+    		<groupId>org.apache.lucene</groupId>
+    		<artifactId>lucene-core</artifactId>
+    		<version>${lucene.version}</version>
+		</dependency>
+		
+		<dependency>
+    		<groupId>org.apache.lucene</groupId>
+    		<artifactId>lucene-queryparser</artifactId>
+    		<version>${lucene.version}</version>
+		</dependency>
+		
+		<dependency>
+    		<groupId>org.apache.lucene</groupId>
+    		<artifactId>lucene-analyzers-common</artifactId>
+    		<version>${lucene.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.wiley.permissions.common</groupId>
+			<artifactId>permission-common-utils</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.wiley.permissions.common</groupId>
+			<artifactId>permission-persistence</artifactId>
+			<version>1.0-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>hibernate-core</artifactId>
+					<groupId>org.hibernate</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>geronimo-jta_1.0.1B_spec.osgi</artifactId>
+					<groupId>org.apache.geronimo.specs</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>geronimo-j2ee-connector_1.5_spec.osgi</artifactId>
+					<groupId>org.apache.geronimo.specs</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>geronimo-j2ee-management_1.0_spec.osgi</artifactId>
+					<groupId>org.apache.geronimo.specs</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>geronimo-jms_1.1_spec.osgi</artifactId>
+					<groupId>org.apache.geronimo.specs</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>com.wiley.permissions.common</groupId>
+			<artifactId>permission-security-lib</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.ldap</groupId>
+			<artifactId>spring-ldap</artifactId>
+			<version>1.3.1.RELEASE</version>
+		</dependency>
+		
+		<dependency>
+	        <groupId>org.springframework.security</groupId>
+	        <artifactId>spring-security-web</artifactId>
+	    </dependency>
+
+	    <dependency>
+	        <groupId>org.springframework.security</groupId>
+	        <artifactId>spring-security-config</artifactId>
+	    </dependency>
+
+	    <dependency>
+	        <groupId>org.springframework.security</groupId>
+	        <artifactId>spring-security-taglibs</artifactId>
+	    </dependency>
+
+		<dependency>
+		    <groupId>net.sf.jxls</groupId>
+		    <artifactId>jxls-reader</artifactId>
+		    <version>${jxls-reader.version}</version>
+		</dependency>
+		
+		<dependency>
+		    <!-- So can read tiff images - see AssetServiceImpl.updateAssetFile() -->
+			<groupId>com.sun.media</groupId>
+			<artifactId>jai_imageio</artifactId>
+			<version>1.1</version>
+			<!-- For some reason this exclusion seems to have no effect - still wants it -->
+			<exclusions>
+				<exclusion>
+					<groupId>javx.media</groupId>
+					<artifactId>jai_core</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-server</artifactId>
+			<version>${jersey.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-core</artifactId>
+			<version>${jersey.version}</version>
+		</dependency>
+
+		<dependency>
+		    <groupId>org.codehaus.jackson</groupId>
+		    <artifactId>jackson-all</artifactId>
+		</dependency>
+
+		<dependency>
+		    <groupId>javax.ws.rs</groupId>
+		    <artifactId>jsr311-api</artifactId>
+		    <version>1.1</version>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
+<dependency>
+    <groupId>javax.servlet</groupId>
+    <artifactId>javax.servlet-api</artifactId>
+    <version>3.1.0</version>
+    <scope>provided</scope>
+</dependency>
+		
+				
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>${maven.jar.version}</version>
+				<configuration>
+					<outputDirectory>${perm.mule.dir}</outputDirectory>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${maven.surefire.version}</version>
+				<configuration>
+					<excludes>
+						<exclude>**/ContactServiceTest.java</exclude>
+						<exclude>**/AssetServiceTest.java</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

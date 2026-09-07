@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:security="http://www.springframework.org/security/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+
+	<p>
+	Please create components for this product. Components are organized units, typically chapters.
+	Click the select box for the components you want to create and then click the Add button.
+	You can edit or add more components later.
+	</p>
+	
+    <jsp:directive.include file="/WEB-INF/tiles/pages/include/generalMessage.jspx" />
+
+	<c:url var="bigAddUrl" value="/sapp/landing/component/bigAdd" />
+
+	<script type="text/javascript">
+	//<![CDATA[
+	
+	function fnChangeCategory (index) {
+		var name ='#component' + index + '\\.name';
+		var cat = '#component' + index + '\\.category option:selected';
+		$(name).val ($(cat).text());
+	}
+	
+	$(document).ready(function() {
+		$('#bigComponentForm').submit(function() {
+			$.ajax({
+	            type: 'post',
+	            url: '${bigAddUrl}',
+	            data: $('#bigComponentForm').serialize(),
+	            success: function (response) {
+	            	$modalDialog.dialog("close");
+	                // $('#modalDiv').html(response);
+	                // repositionDialog();
+	            }
+	        });
+			return false;
+		});
+	});
+	//]]>
+	</script>
+	
+	<form:form modelAttribute="bigComponentForm">
+		<spring:hasBindErrors name="bigComponentForm">
+			<jsp:directive.include file="/WEB-INF/tiles/pages/include/formErrors.jspx" />
+		</spring:hasBindErrors>
+
+	    <table class="display">
+			<tr>
+	    		<th class="label"></th>
+	    		<th class="label">Category</th>
+	    		<th class="label">Name</th>
+			</tr>
+			<security:authorize access="hasAnyRole('EMPLOYEE_DEFAULT', 'cover_assets')">
+			<tr>
+	    		<td align="center">
+	        		<form:checkbox path="add1" />
+	    		</td>
+	    		<td class="value">
+	        		<form:select path="component1.category" onchange="fnChangeCategory (1);">
+			    		<form:options items="${componentCategoryList}" itemValue="code" itemLabel="description" />
+					</form:select>
+				</td>
+	    		<td class="value">
+	        		<form:input path="component1.name" size="20" maxlength="255" />
+	        		<form:hidden path="component1.sortOrder" />
+	    		</td>
+			</tr>
+			<tr>
+	    		<td align="center">
+	        		<form:checkbox path="add2" />
+	    		</td>
+	    		<td class="value">
+	        		<form:select path="component2.category" onchange="fnChangeCategory (2);">
+			    		<form:options items="${componentCategoryList}" itemValue="code" itemLabel="description" />
+					</form:select>
+				</td>
+	    		<td class="value">
+	        		<form:input path="component2.name" size="20" maxlength="255" />
+	        		<form:hidden path="component2.sortOrder" />
+	    		</td>
+			</tr>
+			<tr>
+	    		<td align="center">
+	        		<form:checkbox path="add3" />
+	    		</td>
+	    		<td class="value">
+	        		<form:select path="component3.category" onchange="fnChangeCategory (3);">
+			    		<form:options items="${componentCategoryList}" itemValue="code" itemLabel="description" />
+					</form:select>
+				</td>
+	    		<td class="value">
+	        		<form:input path="component3.name" size="20" maxlength="255" />
+	        		<form:hidden path="component3.sortOrder" />
+	    		</td>
+			</tr>
+			</security:authorize>
+			<tr>
+	    		<td align="center">
+	        		<form:checkbox path="add4" />
+	    		</td>
+	    		<td class="value">
+	        		<form:select path="component4.category" onchange="fnChangeCategory (4);">
+			    		<form:options items="${componentCategoryList}" itemValue="code" itemLabel="description" />
+					</form:select>
+				</td>
+	    		<td class="value">
+	        		<form:input path="component4.name" size="20" maxlength="255" />
+	        		<form:hidden path="component4.sortOrder" />
+	    		</td>
+			</tr>
+			<tr>
+	    		<td align="center">
+	        		<form:checkbox path="add5" />
+	    		</td>
+	    		<td class="value">
+	        		<form:select path="component5.category" onchange="fnChangeCategory (5);">
+			    		<form:options items="${componentCategoryList}" itemValue="code" itemLabel="description" />
+					</form:select>
+				</td>
+	    		<td class="value">
+	        		<form:input path="component5.name" size="20" maxlength="255" />
+	        		<form:hidden path="component5.sortOrder" />
+	    		</td>
+			</tr>
+			<tr>
+	    		<td align="center">
+	        		<form:checkbox path="add6" />
+	    		</td>
+	    		<td class="value">
+	        		<form:select path="component6.category" onchange="fnChangeCategory (6);">
+			    		<form:options items="${componentCategoryList}" itemValue="code" itemLabel="description" />
+					</form:select>
+				</td>
+	    		<td class="value">
+	        		<form:input path="component6.name" size="20" maxlength="255" />
+	        		<form:hidden path="component6.sortOrder" />
+	    		</td>
+			</tr>
+			<tr>
+	    		<td align="center">
+	        		<form:checkbox path="add7" />
+	    		</td>
+	    		<td class="value">
+	        		<form:select path="component7.category" onchange="fnChangeCategory (7);">
+			    		<form:options items="${componentCategoryList}" itemValue="code" itemLabel="description" />
+					</form:select>
+				</td>
+	    		<td class="value">
+	        		<form:input path="component7.name" size="20" maxlength="255" />
+	        		<form:hidden path="component7.sortOrder" />
+	    		</td>
+			</tr>
+			<tr>
+	    		<td align="center">
+	        		<form:checkbox path="add8" />
+	    		</td>
+	    		<td class="value">
+	        		<form:select path="component8.category" onchange="fnChangeCategory (8);">
+			    		<form:options items="${componentCategoryList}" itemValue="code" itemLabel="description" />
+					</form:select>
+				</td>
+	    		<td class="value">
+	        		<form:input path="component8.name" size="20" maxlength="255" />
+	        		<form:hidden path="component8.sortOrder" />
+	    		</td>
+			</tr>
+			<tr>
+	    		<td align="center">
+	        		<form:checkbox path="add9" />
+	    		</td>
+	    		<td class="value">
+	        		<form:select path="component9.category" onchange="fnChangeCategory (9);">
+			    		<form:options items="${componentCategoryList}" itemValue="code" itemLabel="description" />
+					</form:select>
+				</td>
+	    		<td class="value">
+	        		<form:input path="component9.name" size="20" maxlength="255" />
+	        		<form:hidden path="component9.sortOrder" />
+	    		</td>
+			</tr>
+		</table>
+		<br/>
+
+		<table>
+			<tr>
+    			<td><form:checkbox path="addChapters" /> Chapters</td>
+    			<td>From <form:input path="chapterStart" /></td>
+    			<td>To <form:input path="chapterEnd" /></td>
+    			<form:hidden path="chapterStartSortOrder" />
+			</tr>
+			<tr>
+	    		<td><form:checkbox path="addAppendices" /> Appendices</td>
+	    		<td>From <form:input path="appendixStart" /></td>
+	    		<td>To <form:input path="appendixEnd" /></td>
+	    		<form:hidden path="appendixStartSortOrder" />
+			</tr>
+		</table>
+
+	<div class="buttonset">		
+		<jsp:element name="input">
+			<jsp:attribute name="type">submit</jsp:attribute>
+			<jsp:attribute name="value">Add</jsp:attribute>
+		</jsp:element>										
+		<button id="cancelButton" class="button">Close</button>								
+	</div>
+	</form:form>
+
+</jsp:root>

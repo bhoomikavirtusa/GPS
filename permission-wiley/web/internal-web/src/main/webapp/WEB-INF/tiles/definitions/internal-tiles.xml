@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.1//EN"
+       "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+
+<tiles-definitions>
+	<definition name="userLanding" extends="layout.main">
+		<put-attribute name="title" value="My Products" cascade="true"/>	
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/myaccount/userLanding.jspx" cascade="true"/>
+	</definition>
+	
+	<definition name="tiles.product.search" template="/WEB-INF/tiles/pages/include/searchProductBox.jspx">
+		<put-attribute name="searchBoxLabel" value="product.searchProduct" />
+		<put-attribute name="searchBoxButtonLabelValue" value="Go" />
+	</definition>
+	
+	<definition name="advancedSearch" extends="layout.main">
+		<put-attribute name="title" value="Advanced Search" cascade="true"/>	
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/product/advancedSearch.jspx" cascade="true"/>
+	</definition>
+	
+	<definition name="searchProduct" extends="layout.main">
+		<put-attribute name="title" value="Search Product" cascade="true"/>		
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/product/searchProductForm.jspx" />
+	</definition>
+		
+	<definition name="pages.myaccount.view" extends="layout.main">	
+		<put-attribute name="title" value="Profile" cascade="true"/>		
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/myaccount/view.jspx" cascade="true"/>		
+	</definition>
+
+	<definition name="pages.myaccount.manageUserDefaults" extends="layout.main">	
+		<put-attribute name="title" value="Profile" cascade="true"/>		
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/myaccount/manageUserDefaults.jspx" cascade="true"/>		
+	</definition>
+
+	<definition name="pages.myaccount.manageUserSources" extends="layout.main">	
+		<put-attribute name="title" value="My Sources" cascade="true"/>		
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/myaccount/manageUserSources.jspx" cascade="true"/>		
+	</definition>
+
+	<definition name="pages.myaccount.managePODefaults" extends="layout.main">	
+		<put-attribute name="title" value="Profile" cascade="true"/>		
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/myaccount/managePODefaults.jspx" cascade="true"/>		
+	</definition>
+
+	<definition name="pages.myaccount.managePaymentRequestDefaults" extends="layout.main">	
+		<put-attribute name="title" value="Profile" cascade="true"/>		
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/myaccount/managePaymentRequestDefaults.jspx" cascade="true"/>		
+	</definition>
+
+	<definition name="pages.myaccount.manageCommonworkLandingDefaults" extends="layout.main">
+		<put-attribute name="title" value="Profile" cascade="true"/>			
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/myaccount/manageProductLandingDefaults.jspx" cascade="true"/>		
+	</definition>
+	
+	<definition name="pages.myaccount.manageUserGroup" extends="layout.main">	
+		<put-attribute name="title" value="My UserGroup" cascade="true"/>		
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/myaccount/manageUserGroup.jspx" cascade="true"/>		
+	</definition>
+
+	<definition name="pages.landing.authorAccess" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/authorAccess.jspx" />
+	</definition>
+
+	<definition name="pages.landing.authorAccess.userDetails" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/userDetails.jspx" />
+	</definition>
+	
+	<definition name="pages.landing.authorAccess.privileges" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/authorPrivileges.jspx" />
+	</definition>
+
+	<definition name="pages.landing.authorAccess.chapters" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/chapters.jspx" />
+	</definition>
+	
+	<definition name="pages.landing.assetUseIndex" extends="layout.main">	
+		<put-attribute name="title" value="Asset Index" cascade="true"/>		
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/assetUseIndex.jspx" cascade="true"/>		
+	</definition>
+
+	<definition name="pages.admin.main" extends="layout.main">	
+		<put-attribute name="title" value="Administration" cascade="true"/>		
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/admin/main.jspx" cascade="true"/>		
+	</definition>
+
+	<definition name="pages.admin.users.main" extends="layout.main">
+		<put-attribute name="title" value="Users" cascade="true"/>		
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/admin/users.jspx" cascade="true"/>		
+	</definition>
+
+	<definition name="pages.admin.guidelines.main" extends="layout.main">
+		<put-attribute name="title" value="Guidelines Documents" cascade="true"/>		
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/admin/guidelines.jspx" cascade="true"/>		
+	</definition>
+
+	<definition name="pages.admin.user.manage" extends="layout.main">	
+		<put-attribute name="title" value="Manage User" cascade="true"/>		
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/admin/manageUser.jspx" cascade="true"/>		
+	</definition>
+
+	<definition name="pages.admin.user.manageUserProduct" extends="layout.main">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/admin/manageUserProduct.jspx" cascade="true"/>		
+	</definition>
+
+	<definition name="pages.admin.madeal.manage" extends="layout.main">
+		<put-attribute name="title" value="Manage Master Agreement Deal" cascade="true"/>
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/admin/manageMasterAgreementDeal.jspx" cascade="true"/>
+	</definition>
+	
+	<definition name="pages.admin.source.group.manage" extends="layout.main">
+		<put-attribute name="title" value="Manage Source Group" cascade="true"/>
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/admin/manageSourceGroup.jspx" cascade="true"/>	
+	</definition>
+
+	<definition name="pages.admin.userGroups.main" extends="layout.main">	
+		<put-attribute name="title" value="Groups" cascade="true"/>		
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/admin/userGroups.jspx" cascade="true"/>		
+	</definition>
+
+	<definition name="pages.admin.sourceGroups.main" extends="layout.main">	
+		<put-attribute name="title" value="Source Groups" cascade="true"/>		
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/admin/sourceGroups.jspx" cascade="true"/>		
+	</definition>
+	
+	<definition name="pages.admin.userGroup.manage" extends="layout.main">	
+		<put-attribute name="title" value="Manage Group" cascade="true"/>		
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/admin/manageUserGroup.jspx" cascade="true"/>		
+	</definition>
+
+	<definition name="pages.admin.userGroup.findUser" extends="layout.main">	
+		<put-attribute name="beanName" value="manageUserGroupForm" cascade="true" />
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/admin/findUser.jspx" cascade="true"/>		
+	</definition>
+	
+	<definition name="pages.admin.source.group.findSource" extends="layout.main">	
+		<put-attribute name="beanName" value="manageSourceGroupForm" cascade="true" />
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/admin/findSource.jspx" cascade="true"/>		
+	</definition>
+
+	<definition name="pages.admin.source.group.manageRoyaltyFreeDeal" extends="layout.main">	
+		<put-attribute name="beanName" value="manageSourceGroupForm" cascade="true" />
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/admin/royaltyFreeDeal.jspx" cascade="true"/>		
+	</definition>
+
+	<definition name="pages.admin.manageCachedMessageList" extends="layout.main">	
+		<put-attribute name="title" value="Cached Messages" cascade="true"/>		
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/admin/manageCachedMessageList.jspx" cascade="true"/>		
+	</definition>
+
+	<definition name="pages.admin.manageCachedMessageObject" extends="layout.main">	
+		<put-attribute name="title" value="Cached Message" cascade="true"/>		
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/admin/manageCachedMessage.jspx" cascade="true"/>		
+	</definition>
+
+	<definition name="pages.admin.testMessages" extends="layout.main">	
+		<put-attribute name="title" value="Test Message" cascade="true"/>		
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/admin/testMessages.jspx" cascade="true"/>		
+	</definition>
+
+	<definition name="pages.admin.assetUseIndex" extends="layout.main">	
+		<put-attribute name="title" value="Asset Index" cascade="true"/>		
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/admin/assetUseIndex.jspx" cascade="true"/>		
+	</definition>
+	
+	<definition name="pages.admin.productIndex" extends="layout.main">	
+		<put-attribute name="title" value="Product Index" cascade="true"/>		
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/admin/productIndex.jspx" cascade="true"/>		
+	</definition>
+	
+	<definition name="pages.admin.devMisc" extends="layout.main">	
+		<put-attribute name="title" value="Dev Misc" cascade="true"/>		
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/admin/devMisc.jspx" cascade="true"/>		
+	</definition>
+	
+	<definition name="pages.admin.sessionInfo" extends="layout.main">	
+		<put-attribute name="title" value="Session Info" cascade="true"/>		
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/admin/sessionInfo.jspx" cascade="true"/>		
+	</definition>
+	
+	<definition name="pages.admin.performance" extends="layout.main">	
+		<put-attribute name="title" value="Performance" cascade="true"/>		
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/admin/performance.jspx" cascade="true"/>		
+	</definition>
+	
+	<definition name="pages.admin.testTree" extends="layout.main">	
+		<put-attribute name="title" value="Test Tree" cascade="true"/>		
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/admin/testTree.jspx" cascade="true"/>		
+	</definition>
+	
+	<definition name="pages.admin.system.notification.manage" extends="layout.main">	
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/admin/manageSystemNotification.jspx" cascade="true"/>		
+	</definition>
+	
+	<definition name="pages.admin.source.merge" extends="layout.main">	
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/admin/SourceMerge.jspx" cascade="true"/>		
+	</definition>
+	
+		<definition name="pages.admin.source.merge.details" extends="layout.dialog">	
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/admin/SourceMergeDetails.jspx" cascade="true"/>		
+	</definition>
+	
+	<definition name="pages.admin.sourcegroup.multisource.search" extends="layout.main">	
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/admin/findMultiSource.jspx" cascade="true"/>		
+	</definition>
+
+	<definition name="pages.admin.complience.email" extends="layout.main">	
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/admin/manageComplianceEmails.jspx" cascade="true"/>		
+	</definition>
+	
+	<definition name="pages.admin.manage.favorite.source.groups" extends="layout.main">
+		<put-attribute name="title" value="Manage Favorite Source Group" cascade="true"/>
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/admin/manageFavoriteSourceGroups.jspx" cascade="true"/>		
+	</definition>
+
+	<definition name="pages.landing.cw.conditions" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/cwConditions.jspx" />
+	</definition>
+
+	<definition name="pages.report.compliance.form" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/report/complianceForm.jspx" />
+	</definition>
+	
+	<definition name="pages.report.photoResearch" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/report/photoResearchReport.jspx" />
+	</definition>
+	
+	<definition name="pages.report.compliance.list" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/report/complianceList.jspx" />
+	</definition>
+
+	<definition name="pages.product.viewPhotoEditorStatusExcelView" extends="layout.dialog">	
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/report/photoEditorStatusReport.jspx" cascade="true"/>		
+	</definition>
+
+	<definition name="pages.product.permission.summary" extends="layout.dialog">	
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/report/permissionSummaryReport.jspx" cascade="true"/>		
+	</definition>
+	
+	<definition name="pages.product.viewPhotocopyrightExcelView" extends="layout.dialog">	
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/report/photocopyrightReport.jspx" cascade="true"/>		
+	</definition>
+	
+	<definition name="pages.product.viewDivestmentReportExcelView" extends="layout.dialog">	
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/landing/reports/divestmentReport.jspx" cascade="true"/>		
+	</definition>
+	
+	<definition name="pages.report.assetCompliance" extends="layout.dialog">
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/report/assetComplianceReport.jspx" />
+	</definition>
+
+	<definition name="tiles.admin.user" template="/WEB-INF/tiles/pages/admin/user.jspx"/>
+	<definition name="tiles.admin.userGroup" template="/WEB-INF/tiles/pages/admin/userGroup.jspx"/>
+	<definition name="tiles.admin.sourceGroup" template="/WEB-INF/tiles/pages/admin/sourceGroup.jspx"/>
+	<definition name="tiles.admin.source" template="/WEB-INF/tiles/pages/admin/source.jspx"/>
+
+</tiles-definitions>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+		http://www.springframework.org/schema/util
+		http://www.springframework.org/schema/util/spring-util-4.3.xsd
+	">
+	
+	<context:annotation-config />
+
+	<!-- Atomikos -->
+    <bean id="PermissionsDS" class="com.atomikos.jdbc.AtomikosDataSourceBean"
+      	init-method="init" destroy-method="close">
+
+        <property name="uniqueResourceName" value="XAPERM"/>
+    	<property name="xaDataSourceClassName" value="${perm.db.xadriver}" />
+    	<property name="minPoolSize" value="${perm.db.minPoolSize}" />
+		<property name="maxPoolSize" value="${perm.db.maxPoolSize}" />
+		<!-- maxIdleTime is in seconds -->
+		<property name="maxIdleTime" value="60" />
+		<property name="testQuery" value="${perm.db.testQuery}" />
+		<!-- 1 is READ_UNCOMMITTED, 2 is READ_COMMITTED -->
+		<property name="defaultIsolationLevel" value="2" />
+		<property name="xaProperties">
+			<props>
+				<prop key="serverName">${perm.db.server}</prop>
+				<prop key="databaseName">${perm.db.databaseName}</prop>
+				<prop key="user">${perm.db.user}</prop>
+				<prop key="password">${perm.db.password}</prop>
+				
+				<prop key="${perm.db.extra.name1}">${perm.db.extra.value1}</prop>
+				<prop key="${perm.db.extra.name2}">${perm.db.extra.value2}</prop>
+				<prop key="${perm.db.extra.name3}">${perm.db.extra.value3}</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<!--a non Transactional Data Source that can be used in the reports -->	
+	<bean id="PermReportDS" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="driverClassName" value="${perm.db.driver}" />
+        <property name="url" value="${perm.db.url}" />
+        <property name="username" value="${perm.db.user}" />
+        <property name="password" value="${perm.db.password}" />
+        <property name="defaultAutoCommit" value="true" />
+        <property name="minIdle" value="${perm.db.minPoolSize}" />
+        <property name="maxActive" value="${perm.db.maxPoolSize}" />
+        <property name="validationQuery" value="${perm.db.testQuery}" />
+        <!-- 1 is READ_UNCOMMITTED, 2 is READ_COMMITTED -->
+        <property name="defaultTransactionIsolation" value="2" />
+    </bean>
+
+	<!-- Bitronix -->
+	<!--
+	<bean
+		id="PermissionsDS"
+		class="bitronix.tm.resource.jdbc.PoolingDataSource"
+		init-method="init" destroy-method="close">
+
+		<property name="className" value="${perm.db.xadriver}" />
+		<property name="uniqueName" value="PERM" />
+		<property name="minPoolSize" value="${perm.db.minPoolSize}" />
+		<property name="maxPoolSize" value="${perm.db.maxPoolSize}" />
+		<property name="allowLocalTransactions" value="true" />
+		<property name="maxIdleTime" value="60"/>
+		<property name="testQuery" value="${perm.db.testQuery}"/>
+		<property name="isolationLevel" value="READ_COMMITTED"/>
+		<property name="driverProperties">
+			<props>
+				<prop key="serverName">${perm.db.server}</prop>
+				<prop key="databaseName">${perm.db.databaseName}</prop>
+				<prop key="user">${perm.db.user}</prop>
+				<prop key="password">${perm.db.password}</prop>
+				
+				<prop key="${perm.db.extra.name1}">${perm.db.extra.value1}</prop>
+				<prop key="${perm.db.extra.name2}">${perm.db.extra.value2}</prop>
+				<prop key="${perm.db.extra.name3}">${perm.db.extra.value3}</prop>
+			</props>
+		</property>
+	</bean>
+	-->
+</beans>

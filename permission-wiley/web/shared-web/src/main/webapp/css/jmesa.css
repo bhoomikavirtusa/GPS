@@ -1,0 +1,540 @@
+.jmesa {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+}
+
+.jmesa caption {
+	caption-side: top;
+	color: #000000;
+	font-weight: bold;
+	font-size: 1em;
+	text-align: left;
+
+	padding-left: 5px;
+	padding-top: 3px;
+	padding-bottom: 3px;
+	padding-right: 3px;
+
+	background-color: #d9baaa;
+
+	border: 1px solid #bb866f;
+	border-collapse: collapse;
+	border-spacing: 0px;
+}
+
+.jmesa .table {
+	border: 0px solid #bb866f;
+	border-collapse: collapse;
+	border-spacing: 0px;
+	padding: 2px;
+	width: 100%;
+}
+
+.jmesa .toolbar table {
+	margin-right: auto;
+	margin-left: 0px;
+}
+
+.jmesa .toolbar td {
+	background-color: white;
+}
+
+.jmesa .toolbar select {
+	font-size: 11px;
+}
+
+.jmesa .toolbar .pageNumber {
+	font-size: 13px;
+	font-weight: bold;
+	color: #bb866f;
+}
+
+.jmesa .toolbar .pageNumber a {
+	font-size: 13px;
+	font-weight: normal;
+	color: black;
+}
+
+.jmesa .toolbar img {
+	border:0px;
+}
+
+.jmesa .filter td {
+	padding: 3px 2px 3px 2px;
+
+	border-style: solid;
+	border-top-width: 0px;
+	border-left-width: 0px;
+	border-right-width: 0px;
+	border-bottom-width: 0px;
+	border-collapse: collapse;
+	border-spacing: 0px;
+}
+
+.jmesa .tbody input {
+	padding: 0;
+	margin: 0;
+}
+
+.jmesa .filter .dynFilter {
+	position: relative;
+	font-family: verdana, arial, helvetica, sans-serif;
+	font-size: 11px;
+	padding: 0;
+	margin: 0;
+
+	border: 1px solid #aaaaaa;
+	border-collapse: collapse;
+	border-spacing: 0px;
+
+	background-color: #efefef;
+	height: 15px;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.jmesa .filter #dynFilterDiv {
+	position: absolute;
+	top: -2px;
+	left: -2px;
+	padding: 0;
+	margin: 0;
+	height: 17px;
+	border: 1px solid #aaaaaa;
+	background-color: #efefef;
+}
+
+.jmesa .filter #dynFilterInput {
+	font-family: verdana, arial, helvetica, sans-serif;
+	font-size: 12px;
+	padding: 0;
+	margin: 0;
+	border-style: none;
+	background-color: #efefef;
+}
+
+.jmesa .filter #dynFilterDroplistDiv {
+	position: absolute;
+	top: -2px;
+	left: -2px;
+	padding: 0;
+	margin: 0;
+	height: 17px;
+	background-color: #efefef;
+	z-index: 2;
+}
+
+.jmesa .filter #dynFilterDroplist {
+	font-family: verdana, arial, helvetica, sans-serif;
+	font-size: 12px;
+	padding: 0;
+	margin: 0;
+	border: 1px solid #aaaaaa;
+	background-color: #efefef;
+}
+
+.jmesa .header td {
+/*
+	white-space: nowrap;
+	background-color: #d9baaa;
+	color: black;
+	font-size: 11px;
+	font-weight: bold;
+	padding: 4px 3px 4px 3px;
+	
+	border-style: solid;
+	border-width: 1px;
+	border-color: #bb866f;
+	border-collapse: collapse;
+	border-spacing: 0px;
+*/	
+	padding: 3px 18px 3px 10px;
+	border-bottom: 1px solid black;
+	font-weight: bold;
+	cursor: pointer;	
+	background-color: white;
+}
+
+.jmesa .odd a,
+.jmesa .even a
+{
+	text-decoration: underline;
+	color: black;
+}
+
+.jmesa .odd td,.jmesa .even td {
+	font-family: verdana, arial, helvetica, sans-serif;
+	font-size: 11px;
+	padding: 3px 4px 3px 4px;
+	border: 0px solid #aaaaaa;
+	border-collapse: collapse;
+	border-spacing: 0px;
+}
+
+.jmesa .odd {
+	background-color: #F5F5F5;
+}
+
+.jmesa .even {
+	background-color: white;
+}
+
+.jmesa .highlight td {
+	font-family: verdana, arial, helvetica, sans-serif;
+	font-size: 11px;
+	padding: 3px 4px 3px 4px;
+	background-color: #0F5895;
+	border: 0px solid #bb866f;
+	border-collapse: collapse;
+	border-spacing: 0px;
+	color:white;
+}
+
+.jmesa .highlight a {
+	color: black;
+}
+
+.jmesa .statusBar td {
+	font-family: verdana, arial, helvetica, sans-serif;
+	font-size: 11px;
+	border-top: 0px solid silver;
+	background-color: white;
+	padding: 2px;
+}
+
+.jmesa .dropShadow {
+	padding: 10px 14px 14px 10px;
+}
+
+.jmesa .wsColumn {
+	position: relative;
+	font-family: verdana, arial, helvetica, sans-serif;
+	font-size: 11px;
+	padding: 0;
+	margin: 0;
+	border-bottom: 1px solid #c0c0c0;
+	height: 15px;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.jmesa .wsColumnError {
+	position: relative;
+	font-family: verdana, arial, helvetica, sans-serif;
+	font-size: 11px;
+	font-style: italic;
+	padding: 0;
+	margin: 0;
+	color: #ec4646;
+	border-bottom: 1px dashed #ec4646;
+	height: 15px;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.jmesa .wsColumnChange {
+	position: relative;
+	font-family: verdana, arial, helvetica, sans-serif;
+	font-size: 11px;
+	font-style: italic;
+	padding: 0;
+	margin: 0;
+	color: #005e8f;
+	border-bottom: 1px dashed #005e8f;
+	height: 15px;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.jmesa #wsColumnDiv {
+	position: absolute;
+	top: -2px;
+	left: -2px;
+	padding: 0;
+	margin: 0;
+	height: 17px;
+	border: 1px solid #c0c0c0;
+	background-color: #ededed;
+}
+
+.jmesa #wsColumnInput {
+	font-family: verdana, arial, helvetica, sans-serif;
+	font-size: 12px;
+	padding: 0;
+	margin: 0;
+	border-style: none;
+	background-color: #ededed;
+}
+
+.jmesaSubTable {
+	margin: 0;
+	padding: 0;
+
+	width: 100%;
+}
+
+.jmesaSubTable caption {
+	caption-side: top;
+	color: #000000;
+	font-weight: bold;
+	font-size: 1em;
+	text-align: left;
+
+	padding-left: 5px;
+	padding-top: 3px;
+	padding-bottom: 3px;
+	padding-right: 3px;
+
+	background-color: #00baaa;
+
+	border: 1px solid #bb866f;
+	border-collapse: collapse;
+	border-spacing: 0px;
+}
+
+.jmesaSubTable .table {
+	border-style: solid;
+	border-width: 1px;
+	border-color: #999999;
+	border-collapse: collapse;
+	border-spacing: 0px;
+
+	background-color: #FFFFFF;
+	
+	padding: 2px;
+
+	width: 100%;
+}
+
+.jmesaSubTable .toolbar table {
+	margin-right: auto;
+	margin-left: 0px;
+}
+
+.jmesaSubTable .toolbar td {
+	padding: 0px 1px 0px 1px;
+	background-color: #e3e3e3;
+}
+
+.jmesaSubTable .toolbar select {
+	font-size: 11px;
+	border: solid 1px #999999;
+}
+
+.jmesaSubTable .toolbar .pageNumber {
+	font-size: 13px;
+	font-weight: bold;
+	color: #bb866f;
+}
+
+.jmesaSubTable .toolbar .pageNumber a {
+	font-size: 13px;
+	font-weight: normal;
+	color: black;
+}
+
+.jmesaSubTable .toolbar img {
+	border:0px;
+}
+
+.jmesaSubTable .filter td {
+	padding: 3px 2px 3px 2px;
+
+	border-style: solid;
+	border-top-width: 1px;
+	border-left-width: 0px;
+	border-right-width: 0px;
+	border-bottom-width: 0px;
+	border-color: #999999;
+	border-collapse: collapse;
+	border-spacing: 0px;
+}
+
+.jmesaSubTable .tbody input {
+	padding: 0;
+	margin: 0;
+}
+
+.jmesaSubTable .filter .dynFilter {
+	position: relative;
+	font-family: verdana, arial, helvetica, sans-serif;
+	font-size: 11px;
+	padding: 0;
+	margin: 0;
+
+	border: 1px solid #999999;
+	border-collapse: collapse;
+	border-spacing: 0px;
+
+	background-color: #efefef;
+	height: 15px;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.jmesaSubTable .filter #dynFilterDiv {
+	position: absolute;
+	top: -2px;
+	left: -2px;
+	padding: 0;
+	margin: 0;
+	height: 17px;
+	border: 1px solid #999999;
+	background-color: #efefef;
+}
+
+.jmesaSubTable .filter #dynFilterInput {
+	font-family: verdana, arial, helvetica, sans-serif;
+	font-size: 12px;
+	padding: 0;
+	margin: 0;
+	border-style: none;
+	background-color: #efefef;
+}
+
+.jmesaSubTable .filter #dynFilterDroplistDiv {
+	position: absolute;
+	top: -2px;
+	left: -2px;
+	padding: 0;
+	margin: 0;
+	height: 17px;
+	background-color: #efefef;
+	z-index: 2;
+}
+
+.jmesaSubTable .filter #dynFilterDroplist {
+	font-family: verdana, arial, helvetica, sans-serif;
+	font-size: 12px;
+	padding: 0;
+	margin: 0;
+	border: 1px solid #aaaaaa;
+	background-color: #efefef;
+}
+
+.jmesaSubTable .header td {
+	white-space: nowrap;
+	background-color: #bbbbbb;
+	color: black;
+	font-size: 11px;
+	font-weight: bold;
+	padding: 4px 3px 4px 3px;
+	
+	border-style: solid;
+	border-width: 1px;
+	border-color: #999999;
+	border-collapse: collapse;
+	border-spacing: 0px;
+}
+
+.jmesaSubTable .odd a,.jmesaSubTable .even a {
+	text-decoration: underline;
+
+	color: black;
+}
+
+.jmesaSubTable .odd td,.jmesaSubTable .even td {
+	font-family: verdana, arial, helvetica, sans-serif;
+	font-size: 11px;
+	padding: 3px 4px 3px 4px;
+	border: 1px solid #999999;
+	border-collapse: collapse;
+	border-spacing: 0px;
+}
+
+.jmesaSubTable .odd {
+	background-color: #ffffff;
+}
+
+.jmesaSubTable .even {
+	background-color: #e3e3e3;
+}
+
+.jmesaSubTable .highlight td {
+	font-family: verdana, arial, helvetica, sans-serif;
+	font-size: 11px;
+	padding: 3px 4px 3px 4px;
+	background-color: #ddddef;
+	border: 1px solid #999999;
+	border-collapse: collapse;
+	border-spacing: 0px;
+}
+
+.jmesaSubTable .highlight a
+{
+	text-decoration: underline;
+	color: black;
+}
+
+.jmesaSubTable .statusBar td {
+	font-family: verdana, arial, helvetica, sans-serif;
+	font-size: 11px;
+	border-top: 1px solid silver;
+	background-color: #dedede;
+	padding: 2px;
+}
+
+.jmesaSubTable .dropShadow {
+	padding: 10px 14px 14px 10px;
+}
+
+.jmesaSubTable .wsColumn {
+	position: relative;
+	font-family: verdana, arial, helvetica, sans-serif;
+	font-size: 11px;
+	padding: 0;
+	margin: 0;
+	border-bottom: 1px solid #999999;
+	height: 15px;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.jmesaSubTable .wsColumnError {
+	position: relative;
+	font-family: verdana, arial, helvetica, sans-serif;
+	font-size: 11px;
+	font-style: italic;
+	padding: 0;
+	margin: 0;
+	color: #ec4646;
+	border-bottom: 1px dashed #ec4646;
+	height: 15px;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.jmesaSubTable .wsColumnChange {
+	position: relative;
+	font-family: verdana, arial, helvetica, sans-serif;
+	font-size: 11px;
+	font-style: italic;
+	padding: 0;
+	margin: 0;
+	color: #005e8f;
+	border-bottom: 1px dashed #005e8f;
+	height: 15px;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.jmesaSubTable #wsColumnDiv {
+	position: absolute;
+	top: -2px;
+	left: -2px;
+	padding: 0;
+	margin: 0;
+	height: 17px;
+	border: 1px solid #c0c0c0;
+	background-color: #ededed;
+}
+
+.jmesaSubTable #wsColumnInput {
+	font-family: verdana, arial, helvetica, sans-serif;
+	font-size: 12px;
+	padding: 0;
+	margin: 0;
+	border-style: none;
+	background-color: #ededed;
+}

@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+ 
+	<jsp:useBean id="dataType" class="com.wiley.permissions.domain.persistence.permissions.DataType" />
+
+	<c:url var="addUrl" value="/sapp/landing/managePhotoEstimate/add" />
+	<c:url var="doneUrl" value="/sapp/landing/cw/assetSummary" />
+	<c:url var="deleteUrl" value="/sapp/landing/managePhotoEstimate/delete" />
+	
+	<script type="text/javascript">
+	//<![CDATA[
+		var lastDisplayed = null;
+
+		$.datepicker.setDefaults({
+		     dateFormat: '${dateFormat}'
+		});
+		
+
+		function displayDollarSign (estimateType) {
+			if (lastDisplayed != null) {
+				document.getElementById(lastDisplayed).style.display = "none";
+			}
+			var element = document.getElementById(photoEstimateType);
+			if (element) {
+				element.style.display = "";
+				lastDisplayed = element.id;
+			}
+		}
+
+		$(function() {
+			$("input[id='date']").datepicker();
+			$("input[id='d_date']").datepicker();
+			var d1 = $.datepicker.parseDate('mm/dd/yy', $("input[id='date']").val());
+			var d2 = $.datepicker.formatDate('${dateFormat}', d1);
+	    	$("input[id='d_date']").val(d2);
+		});
+
+		
+		$(document).ready(function() {
+			$('#photoEstimateTable').dataTable( {
+				"aoColumns": [
+					{ "sWidth" : "5%", "sClass" : "center", "bSortable" : false, "bSearchable" : false }, // Delete
+					{ "sWidth" : "20%" }, // Photo Estimate
+					{ "sWidth" : "20%" }, // Date
+					{ "sWidth" : "15%" }, // Reproduction
+					{ "sWidth" : "10%" }, // Research
+					{ "sWidth" : "10%" }, // Freelance
+					{ "sWidth" : "10%" }, // Photos
+					{ "sWidth" : "10%" } // Fee Total
+				],
+				"aaSorting": [[2, "asc" ]],
+
+				"bAutoWidth": false,
+				"bProcessing": true,
+				"bStateSave": true,
+				"sPaginationType": "full_numbers",
+				"aLengthMenu": [10, 15, 25, 50, 100],  // override default of [10, 25, 50, 100]
+				"iDisplayLength": 10 // same as default
+			} );
+		} );
+		
+		$(function() {
+			$('#cwPhotoEstimate').submit(function() {
+				$.ajax({
+		            type: 'post',
+		            url: $(this).attr("action"),
+		            data: $('#cwPhotoEstimate').serialize(),
+		            success: function (response) {
+		                $('#modalDiv').html(response);
+		                repositionDialog();
+		            }
+		        });
+				return false;
+			});
+			
+			$('.deleteLink').click(function() {
+				var r = confirm("Are you sure you want to delete?");
+				if (r == true) {
+					$("#modalDiv").load($(this).attr("href"));
+					repositionDialog();
+					// prevent the default action, e.g., following a link
+					return false;
+				} else {
+				    return false;
+				}
+		    });
+			
+			$('#doneLink').click(function() {
+				$("#modalDiv").load('${doneUrl}');
+				repositionDialog();
+				return false;
+		    });
+
+			$("input[id='d_date']").change(function() {
+				var d1 = $.datepicker.parseDate('${dateFormat}', $("input[id='d_date']").val());
+				var d2 = $.datepicker.formatDate('mm/dd/yy', d1);
+		    	$("input[id='date']").val(d2);
+
+			});
+		});
+		//]]>
+	</script>
+
+	<jsp:body>
+		<jsp:directive.include file="/WEB-INF/tiles/pages/include/globalErrors.jspx" />
+
+		<form:form method="post" action="${addUrl}" modelAttribute="cwPhotoEstimate">
+			
+			<h3>Manage Photo Estimates</h3>
+		<table>
+			<tr>
+				<td class="label">Stage</td>
+				<td class="value">
+					<form:select id="photoEstimateType" path="photoEstimateType" onchange="displayDollarSign (this.form.elements['photoEstimateType'].value);">
+					    <fmt:message key="select.choose.one" var="chooseOneMsg" />
+						<option value="" selected="selected" >${chooseOneMsg}</option>
+						<c:forEach items="${photoEstimateTypes}" var="estimateType">
+							<option value="${estimateType.code}">${estimateType.description}</option>
+						</c:forEach>
+					</form:select>
+				</td>
+				
+				<td class="label">Date</td>
+				<td class="value">
+					<!-- Allow 20 maxlength for time when field initially set by DatePropertyEditorSupport -->
+					 <input type="text" id="d_date" name="d_date" size="10" maxlength="20"/> (${dateFormat})
+					<form:hidden path="date"/>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="label">Reproduction</td>
+				<td class="value">
+					<form:input path="reproductionFees" />
+				</td>
+				<td class="label">Research</td>
+				<td class="value">
+					<form:input path="researchFees" />
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="label">Freelance</td>
+				<td class="value">
+					<form:input path="freelanceResearchFees" />
+				</td>
+				<td class="label">Photos</td>
+				<td class="value">
+					<form:input path="photos" />
+				</td>
+			</tr>
+		</table>
+		<jsp:element name="input">
+			<jsp:attribute name="type">submit</jsp:attribute>
+			<jsp:attribute name="value">Add</jsp:attribute>
+		</jsp:element>															
+		</form:form>
+
+		<c:url var="deleteImageURL" value="/images/buttons/delete-icon.png" />
+		<c:if test="${not empty estimates}">
+		<h3>Photo Estimates</h3>
+				<table class="display" id="photoEstimateTable">
+					<thead>
+						<tr>
+							<th>Delete</th>
+							<th>Photo Estimate</th>
+							<th>Date</th>
+							<th>Reproduction</th>
+							<th>Research</th>
+							<th>Freelance</th>
+							<th>Photos</th>
+							<th>Fee Total</th>
+						</tr>
+					</thead>
+					<tbody>
+						<c:forEach items="${estimates}" var="estimate">
+							<tr>
+								<td>
+									<a class="deleteLink" href="${deleteUrl}?estimateId=${estimate.id}"><img src="${deleteImageURL}" alt="Delete" /></a>
+								</td>
+								<td><c:out value="${estimate.photoEstimateType.description}" /></td>
+								<td><fmt:formatDate type="date" value="${estimate.date}" /></td>
+								<td><fmt:formatNumber type="currency" currencyCode="USD" value="${estimate.reproductionFees}" /></td>
+								<td><fmt:formatNumber type="currency" currencyCode="USD" value="${estimate.researchFees}" /></td>
+								<td><fmt:formatNumber type="currency" currencyCode="USD" value="${estimate.freelanceResearchFees}" /></td>
+								<td><fmt:formatNumber maxFractionDigits="0" value="${estimate.photos}" /></td>
+								<td><fmt:formatNumber type="currency" currencyCode="USD" value="${estimate.estimatedValue}" /></td>
+							</tr>
+						</c:forEach>
+					</tbody>
+				</table>
+
+			<p>(note: To modify an existing photo estimate, delete it above and re-add it with a different value)</p>
+		</c:if>
+		<div class="buttonset">	
+			<input id="doneLink" type="button" value="Done" />
+		</div>
+		
+	</jsp:body>
+</jsp:root>

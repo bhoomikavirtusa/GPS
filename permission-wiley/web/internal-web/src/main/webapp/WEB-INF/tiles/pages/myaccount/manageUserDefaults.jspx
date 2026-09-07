@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root 
+	version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+>
+
+	<jsp:directive.page pageEncoding="UTF-8"/>
+
+	<c:set var="user" value="${myAccountForm.user}"/>
+	<c:set var="userDefaults" value="${myAccountForm.user.userDefaults}"/>
+
+		<form:form modelAttribute="myAccountForm" method="post">
+			<jsp:attribute name="action">
+				<c:url value="/sapp/myaccount/submit"/>
+			</jsp:attribute>
+
+			<div style="display: none">
+				<form:hidden path="mode"/>
+
+				<input type="hidden" name="page" value="5"/>
+			</div>
+
+			<table class="width100">
+				<tr>
+					<th colspan="2">User Defaults</th>
+				</tr>
+
+				<spring:nestedPath path="user.userDefaults">
+					<tr>
+						<td class="label">
+							Enable asset request in source selection: 
+						</td>
+						<td class="value">
+							<form:radiobutton path="showRequest" value="true" />
+							Yes
+							<form:radiobutton path="showRequest" value="false" cssStyle="margin-left: 1em"/>
+							No
+						</td>
+					</tr>
+					<tr>
+						<td class="label">
+							Enable quick asset creation: 
+						</td>
+						<td class="value">
+							<form:radiobutton path="customMode" value="true" />
+							Yes
+							<form:radiobutton path="customMode" value="false" cssStyle="margin-left: 1em"/>
+							No
+						</td>
+					</tr>
+					<!-- 					<tr>
+						<td class="label">
+							Enable filter: 
+						</td>
+						<td class="value">
+							<form:radiobutton path="customFilter" value="" />
+							No Filter
+							<form:radiobutton path="customFilter" value="Custom" cssStyle="margin-left: 1em"/>
+							Custom only
+							<form:radiobutton path="customFilter" value="Internal" cssStyle="margin-left: 1em"/>
+							Internal only
+						</td>
+					</tr>
+					 -->
+					
+					<tr>
+						<td class="label">
+							Select default Wiley entity: 
+						</td>
+						<td class="value">
+							<spring:bind path="wileyEntity">
+								<select name="${status.expression}">
+									<c:forEach items="${wileyEntities}" var="wileyEntity">
+										<c:choose>
+											<c:when test="${wileyEntity.code == userDefaults.wileyEntity.code}">
+												<option value="${wileyEntity.code}" selected="selected">
+													${wileyEntity.description}
+												</option>
+											</c:when>
+											<c:otherwise>
+												<option value="${wileyEntity.code}">
+													${wileyEntity.description}
+												</option>
+											</c:otherwise>
+										</c:choose>
+									</c:forEach>
+								</select>
+							</spring:bind>
+						</td>
+					</tr>
+					<tr>
+						<td class="label">
+							Select default currency: 
+						</td>
+						<td class="value">
+							<spring:bind path="currency">
+								<select name="${status.expression}">
+									<c:forEach items="${currencies}" var="currency">
+										<c:choose>
+											<c:when test="${currency.code == userDefaults.currency.code}">
+												<option value="${currency.code}" selected="selected">
+													${currency.description}
+												</option>
+											</c:when>
+											<c:otherwise>
+												<option value="${currency.code}">
+													${currency.description}
+												</option>
+											</c:otherwise>
+										</c:choose>
+									</c:forEach>
+								</select>
+							</spring:bind>
+						</td>
+					</tr>								
+					<tr>
+						<td class="label">
+							Select default country: 
+						</td>
+						<td class="value">
+							<spring:bind path="country">
+								<select name="${status.expression}">
+									<c:forEach items="${countries}" var="country">
+										<c:choose>
+											<c:when test="${country.code == userDefaults.countryCode}">
+												<option value="${country.code}" selected="selected">
+													${country.description}
+												</option>
+											</c:when>
+											<c:otherwise>
+												<option value="${country.code}">
+													${country.description}
+												</option>
+											</c:otherwise>
+										</c:choose>
+									</c:forEach>
+								</select>
+							</spring:bind>
+						</td>
+					</tr>								
+					<tr>
+						<td class="label">
+							Select location: 
+						</td>
+						<td class="value">
+							<spring:bind path="userLocation">
+								<select name="${status.expression}">
+									<c:forEach items="${userLocations}" var="location">
+										<c:choose>
+											<c:when test="${location.code == userDefaults.userLocation.code}">
+												<option value="${location.code}" selected="selected">
+													${location.name}
+												</option>
+											</c:when>
+											<c:otherwise>
+												<option value="${location.code}">
+													${location.name}
+												</option>
+											</c:otherwise>
+										</c:choose>
+									</c:forEach>
+								</select>
+							</spring:bind>
+						</td>
+					</tr>								
+					<tr>
+						<td class="label">
+							Select division: 
+						</td>
+						<td class="value">
+							<spring:bind path="businessUnit">
+								<select name="${status.expression}">
+									<c:forEach items="${businessUnits}" var="businessUnit">
+										<c:choose>
+											<c:when test="${businessUnit.code == userDefaults.businessUnit.code}">
+												<option value="${businessUnit.code}" selected="selected">
+													${businessUnit.name}
+												</option>
+											</c:when>
+											<c:otherwise>
+												<option value="${businessUnit.code}">
+													${businessUnit.name}
+												</option>
+											</c:otherwise>
+										</c:choose>
+									</c:forEach>
+								</select>
+							</spring:bind>
+						</td>
+					</tr>
+					<tr>
+		    	    	<td class="label">Size:</td>
+						<td class="value">
+							<spring:bind path="size">
+								<select name="${status.expression}">
+									<c:forEach items="${sizes}" var="s">
+										<c:choose>
+											<c:when test="${s.code == userDefaults.size.code}">
+												<option value="${s.code}" selected="selected">
+													${s.description}
+												</option>
+											</c:when>
+											<c:otherwise>
+												<option value="${s.code}">
+													${s.description}
+												</option>
+											</c:otherwise>
+										</c:choose>
+									</c:forEach>
+								</select>
+							</spring:bind>
+						</td>
+					</tr>
+			</spring:nestedPath>
+			<tr>
+    	    	<td class="label">User Group: </td>
+				<td class="value">
+					<spring:bind path="user.group">
+						<select name="${status.expression}">
+							<c:forEach items="${userGroupList}" var="ug">
+								<c:choose>
+									<c:when test="${ug.id == user.group.id}">
+										<option value="${ug.id}" selected="selected">
+											${ug.name}
+										</option>
+									</c:when>
+									<c:otherwise>
+										<option value="${ug.id}">
+											${ug.name}
+										</option>
+									</c:otherwise>
+								</c:choose>
+							</c:forEach>
+						</select>
+					</spring:bind>
+				</td>
+			</tr>
+			<tr>
+				<td class="label">Date Format: </td>
+				<td>
+					<form:select path="user.userDefaults.dateFormat">
+					<c:if test="${user.userDefaults.dateFormat == 'mm/dd/yyyy' || null == user.userDefaults.dateFormat}">
+						<option value="mm/dd/yyyy" selected="selected">mm/dd/yyyy</option>
+						<option value="dd/mm/yyyy">dd/mm/yyyy</option>
+					</c:if>
+					<c:if test="${user.userDefaults.dateFormat == 'dd/mm/yyyy'}">
+						<option value="mm/dd/yyyy">mm/dd/yyyy</option>
+						<option value="dd/mm/yyyy" selected="selected">dd/mm/yyyy</option>
+					</c:if>
+					</form:select>							
+				</td>
+			</tr>
+			
+			
+			</table>
+
+			<div class="buttonset">				
+				<jsp:element name="input">
+					<jsp:attribute name="type">submit</jsp:attribute>
+					<jsp:attribute name="value">Save</jsp:attribute>
+					<jsp:attribute name="onclick">this.form.elements['mode'].value='MODIFY';</jsp:attribute>
+				</jsp:element>																			
+				<c:url var="userAccountUrl" value="/sapp/myaccount/form" />
+				<a href="${userAccountUrl}" id="cancel" class="button">Cancel</a>	
+			</div>										
+		</form:form>
+</jsp:root>

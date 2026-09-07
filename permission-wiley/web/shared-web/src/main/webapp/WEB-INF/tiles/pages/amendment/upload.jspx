@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="nextUrl" value="/sapp/permissions/amendment/submit_upload" />
+	<c:url var="uploadUrl" value="/sapp/permissions/amendment/upload_file" />
+
+	<!--include as jspx so the jsp variable are recognized-->
+	<jsp:directive.include file="js/wizard.buttons.js.jspx" />
+
+	<div id="amendment">
+		<form method="post" action="${uploadUrl}" enctype="multipart/form-data" id="uploadForm">
+			<input type="file" id="file" name="file" size="40" class="required"/>
+		</form>
+	</div>
+	
+	<form:form modelAttribute="amendmentWizardForm">
+	</form:form>
+	
+	<div class="buttonset">
+		<a href="#" id="cancelLink" class="button">Cancel</a>
+	</div>
+	
+	<script type="text/javascript">
+	//<![CDATA[
+
+	$(document).ready(function() {
+
+	    $("#file").change(function() {
+	        var fileName = $(this).val();
+	        $('#uploadForm').ajaxSubmit({
+		        success: function(data) {
+		            var $out = $('#amendment');
+		            uploaded = true;
+		            $out.html(data);
+					if (data.indexOf("too large") == -1) {
+	            		uploaded = true;
+	            		finish('post');
+	            	}
+		        }
+		    }); 
+	    });
+	});
+	//]]>		
+	</script>
+</jsp:root>

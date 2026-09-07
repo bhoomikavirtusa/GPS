@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Context reloadable="false" privileged="true" unpackWAR="false">
+    <Valve
+        className="org.apache.catalina.valves.AccessLogValve"
+        directory="logs"
+        pattern='%{USER_IP}i %l %u %t "%r" %s %b "%{Referer}i" "%{User-agent}i" " %{USER_DN}i" %D'
+        prefix="author_access."
+        suffix=".txt"
+        resolveHosts="false"
+    />
+
+</Context>

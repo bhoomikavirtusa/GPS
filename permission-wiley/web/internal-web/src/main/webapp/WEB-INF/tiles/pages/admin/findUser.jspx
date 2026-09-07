@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2" xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:jmesa="http://code.google.com/p/jmesa">
+
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8" />
+
+	<tiles:importAttribute name="beanName" />
+
+	<jsp:element name="link">
+		<jsp:attribute name="rel">stylesheet</jsp:attribute>
+		<jsp:attribute name="type">text/css</jsp:attribute>
+		<jsp:attribute name="href">
+			<c:url value="/css/jmesa.css" />
+		</jsp:attribute>
+	</jsp:element>
+
+	<jsp:element name="script">
+		<jsp:attribute name="type">text/javascript</jsp:attribute>
+		<jsp:attribute name="src">
+			<c:url value="/js/jmesa-2.5.3.js" />
+		</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+
+	<jsp:element name="script">
+		<jsp:attribute name="type">text/javascript</jsp:attribute>
+		<jsp:attribute name="src">
+			<c:url value="/js/jquery.jmesa-2.5.3.js" />
+		</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+
+	<script type="text/javascript">
+		// For the JMesa table
+		function onInvokeAction(id, action) {
+			setExportToLimit(id, '');
+			createHiddenInputFieldsForLimitAndSubmit(id);
+		}
+	</script>
+
+	<form:form modelAttribute="${beanName}">
+		<input type="hidden" name="_page1" value="true" />
+
+		<div style="display: none">
+			<form:hidden path="selectedUser" />
+			<form:hidden path="mode" />
+		</div>
+
+		<table class="width100">
+			<tr>
+				<th>Select User
+					<div class="right top11">
+						<jsp:element name="input">
+							<!-- name and "Back" value is checked by ManageUserGroupController-->
+							<jsp:attribute name="name">submit</jsp:attribute>												
+							<jsp:attribute name="type">submit</jsp:attribute>
+							<jsp:attribute name="value">Back</jsp:attribute>
+						</jsp:element>
+					</div>
+				</th>
+			</tr>
+			<tr>
+				<td>
+					<table>
+						<tr>
+							<td>
+								<jmesa:tableFacade id="findUserList" items="${users}" limit="${limit}" var="user">
+									<jmesa:htmlTable>
+										<jmesa:htmlRow>
+											<jmesa:htmlColumn property="select" title="Select"
+												filterable="false" style="text-align:center"
+												headerStyle="text-align:center">
+												<jsp:element name="input">
+												<jsp:attribute name="type">image</jsp:attribute>
+												<jsp:attribute name="onclick" trim="true">
+													this.form.elements['selectedUser'].value='${user.id}';
+												</jsp:attribute>
+												<jsp:attribute name="src">
+													<c:url value="/images/buttons/add-icon.png" />
+												</jsp:attribute>
+											</jsp:element>
+											</jmesa:htmlColumn>
+
+											<jmesa:htmlColumn property="firstName" title="First Name" />
+
+											<jmesa:htmlColumn property="lastName" title="Last Name" />
+
+											<jmesa:htmlColumn property="email" title="E-Mail" />
+										</jmesa:htmlRow>
+									</jmesa:htmlTable>
+								</jmesa:tableFacade>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+	</form:form>
+</jsp:root>

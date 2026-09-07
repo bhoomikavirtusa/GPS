@@ -1,0 +1,130 @@
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+	<c:url var="assetSourceListUrl" value="/sapp/landing/sources?cwId=${poWizardForm.cwId}" />
+	
+	<script type="text/javascript">
+	//<![CDATA[
+
+	// ------------------ BUTTONS ----------------
+	$('#nextB').click (function() {
+		next('post');
+	});
+	
+	$('#selectB').click (function() {
+		next ('get');
+	});
+		
+	$('#finishB').click (function() {
+		finish('post');
+	});
+	
+	$('#prevB').click (function() {
+		prev('get');
+	});
+
+	// set focus on first input
+	$('#poWizardForm *:input[type!=hidden]:first').focus();	
+	
+	function next (rtype) {
+		if ($("#poWizardForm").validate({
+			rules: {
+				'po.note': { maxlength: 500 }
+			}
+		}).form() == true) {	
+			$.ajax({
+	            async: true,
+	            type: rtype,
+	            url: '${nextUrl}',
+	            data: $('#poWizardForm').serialize(),
+	            success: function (response){
+	                $('#modalDiv').empty().html(response);
+                    repositionDialog();
+                }
+	        });
+		}
+	}
+	
+	// keep this in sync with returnAddress logic in .../asset/custom/customdetails.jspx
+	// ReturnAddress validation should match PurchaseOrder.validateReturnAddress() (java code)
+	jQuery.validator.addMethod("sevenLines", function(value, element) {
+	    var lines = value.split("\n");
+	    return (lines.length <= 7);
+	}, "Return Address cannot have more than 7 lines");
+	
+	jQuery.validator.addMethod("line38chars", function(value, element) {
+	    var lines = value.split(/\r?\n/);
+	    for (var i=0; i < lines.length; i++) {
+	    	if (lines[i].length > 38) return false;
+	    }
+	    return true;
+	}, "Return Address cannot have a line more than 38 chars");
+	
+	function finish (rtype) {
+		if ($("#poWizardForm").validate({
+		    rules: {
+		    	'po.note': { maxlength: 500 },
+		        'po.returnAddress': {  // keep this in sync with returnAddress logic in .../asset/custom/customdetails.jspx
+		        	sevenLines: true,
+		        	line38chars: true
+		        }
+			}
+		}).form() == true) {
+			$.ajax({
+	            async: true,
+	            type: rtype,
+	            url: '${nextUrl}',
+	            data: $('#poWizardForm').serialize(),
+	            dataType: 'json',
+	            success: function (json){
+	            	var selected = $tabs.tabs( "option", "selected" );
+	            	// if asset table tab selected, refresh just selected rows
+	                if (selected == 0) {
+	                	for ( var i=0, iLen=json.auids.length ; i<iLen ; i++ ) {
+		                	fnRefreshRows (json.auids[i]);
+		                }
+		            // if source table tab selected, refresh the whole table
+		            } else {
+		            	$('#ltabs #ui-tabs-2').load('${assetSourceListUrl}');
+		            }
+		            refreshPanels (${poWizardForm.cwId});
+
+		            // redirect to preview
+		            if (json.url != '') {
+		                $.ajax({
+				            async: true,
+				            type: 'get',
+				            url: json.url,
+				            success: function (resp){
+				            	$('#modalDiv').empty().html(resp);
+				            }
+				        });
+	                    repositionDialog();
+	                } else {
+	                	alert ("No permission forms created - maybe no assets found that need permission form");
+	                	$modalDialog.dialog("close");
+	                }
+	            },
+	            error: function(request,error) {
+	                $('#modalDiv').empty().html(error);
+                    repositionDialog();
+	            }
+	        });
+		}
+	}
+
+	function prev (rtype) {
+		$.ajax({
+            async: true,
+            type: rtype,
+            url: '${prevUrl}',
+            success: function (response){
+                $('#modalDiv').empty().html(response);
+                repositionDialog();
+            }
+        });
+	}
+	//]]>		
+	</script>
+</jsp:root>		

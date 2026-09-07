@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:security="http://www.springframework.org/security/tags">
+
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+
+	<c:url var="previousUrl" value="/sapp/landing/license/load" />
+	<c:url var="saveUrl" value="/sapp/landing/license/save" />
+	<c:url var="waitUrl" value="/images/animated_progress_bar.gif" />
+	<c:url var="editContractUrl" value="/sapp/landing/license/editContract" />
+
+	<c:url var="plusImageUrl" value="/images/buttons/plus.png" />
+	<jsp:directive.include file="/WEB-INF/tiles/pages/include/js/toggleScript.js.jspx" />
+	
+	<table class="width100">
+		<thead>
+			<tr>
+				<th colspan="4">License:</th>
+			</tr>
+			<tr>
+				<td><img src="${plusImageUrl}" onclick="return toggleDetails('license', this)"/> Details:</td>
+			</tr>
+		</thead>
+		<tbody id="details-license" style="display: none">
+			<tr>
+				<td colspan="4" style="white-space: pre">
+					<c:out value="${license}" />
+				</td>
+			</tr>
+		</tbody>
+		<security:authorize access="hasAuthority('DEV')">
+			<tbody>
+				<tr>
+					<td><img src="${plusImageUrl}" onclick="return toggleDetails('xml', this)"/> XML:</td>
+				</tr>
+			</tbody>
+			<tbody id="details-xml" style="display: none">
+				<tr>
+					<td colspan="4" style="white-space: pre">
+						<c:out value="${license.xml}" />
+					</td>
+				</tr>
+			</tbody>
+		</security:authorize>
+		<tbody>
+			<tr>
+				<th colspan="4">Asset</th>
+			</tr>
+			<tr>
+				<td width="20%">description</td>
+				<td colspan="3"><c:out value="${license.assetDescription}" /></td>
+			</tr>
+			<tr>
+				<td>original publication title</td>
+				<td colspan="3"><c:out value="${license.originalPublicationTitleExtended}" /></td>
+			</tr>
+			<tr>
+				<td>original article title</td>
+				<td colspan="3"><c:out value="${license.originalArticleTitle}" /></td>
+			</tr>
+			<tr>
+				<td>original article author</td>
+				<td colspan="3"><c:out value="${license.originalArticleAuthor}" /></td>
+			</tr>
+			<tr>
+				<td>media type</td>
+				<td colspan="3"><c:out value="${license.mediaType.description}" /></td>
+			</tr>
+		</tbody>
+	</table>
+	<span id="contractBody">
+		<jsp:directive.include file="/WEB-INF/tiles/pages/landing/licenseContractView.jspx" />
+	</span>
+
+	<form name="LicenseForm" id="LicenseForm" action="${saveUrl}" method="POST">
+		<input type="hidden" name="cwId" value="${cwId}" />
+		<input type="hidden" name="contractId" value="${contractId }" />
+		<table class="width100">
+			<tbody>
+				<tr>
+					<th colspan="4">
+						# Assets to be created from this grant
+					</th>
+				</tr>
+				<tr>
+					<td colspan="4">
+						<select name="numAssets">
+							<c:forEach begin="1" end="10" var="value">
+								<c:if test="${assetCount le value}">
+									<option>${value}</option>
+								</c:if>
+							</c:forEach>
+						</select>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</form>
+	<table class="width100">
+		<tr>
+			<th>
+				Grant details to be entered below
+			</th>
+		</tr>
+		<c:forEach items="${license.specialMapping}" var="entry">
+			<tr>
+		    <td><b>${entry.key}</b>: ${entry.value}</td>
+		    </tr>
+		</c:forEach>
+	</table>	
+	<!-- These vars used by conditions include below -->
+	<!-- postUrl is not actually used but must still be defined -->
+	<c:url var="loadUrl" value="/sapp/landing/license/loadConditions?contractId=${contractId}"/>
+	<c:url var="postUrl" value="/sapp/landing/license/saveConditions"/>
+	<c:url var="postNodeUrl" value="/sapp/landing/license/postNode"/>
+
+	<form id="conditionForm">
+		<jsp:directive.include file="/WEB-INF/tiles/pages/conditions/main.jspx" />
+	</form>
+	
+	<div id="buttonDiv" class="buttonset">
+		<c:if test="${contractId == 0}">
+			<input id="previousB" type="button" class="button" value="Previous" />
+		</c:if>
+		<input id="saveB" type="button" class="button" value="Save" />
+		<button id="cancelButton" class="button">Cancel</button>
+	</div>
+	<div id="waitDiv" class="buttonset" style="display: none">
+		<img src="${waitUrl}" alt="Please wait..." />
+	</div>
+	
+	<script type="text/javascript">
+	//<![CDATA[
+	$('#previousB').click(function() {
+		$.ajax({
+	    	async: true,
+	        type: "get",
+	        url: '${previousUrl}',
+	        data: $('#LicenseForm').serialize(),
+	        success: function (response) {
+	          	$('#modalDiv').empty().html(response);
+	        	repositionDialog();
+	        }
+	    });
+	});
+
+	// needed to take save button out of form so could have conditions between license info and buttons
+	//$('#LicenseForm').submit(function() {
+	$('#saveB').click(function() {
+		// validate tree
+		if (!fnValidateTree ($("#conditionTree").dynatree("getTree").selectKey("_1"))) {
+			return false;
+		}
+		$("#buttonDiv").hide();
+		$("#waitDiv").show();
+		
+		$.ajax({
+	    	async: true,
+	        type: "post",
+	        url: '${saveUrl}',
+	        data: $('#LicenseForm').serialize(),
+	        success: function (response) {
+	          	$('#modalDiv').empty().html(response);
+	        	repositionDialog();
+	        }
+	    });
+		
+		//return false;  // prevent normal form submission
+	});
+	
+	$(document).ready(function() {
+
+		// instead of following I set min-width on conditionTree div in modal.dialog.js.jspx to 680px
+		// I think this is best rather than doing stuff here
+		
+		// temporarily override max-width of 900px (other values are the same as in modal.dialog.js.jspx)
+		//$("#modalDiv").css({'max-height': '700px', 'max-width': '1100px', 'overflow-y': 'auto', 'overflow-x': 'auto'});
+		
+		// also want tree a bit wider even if text above doesn't need it so this forces that
+		//$("#conditionTree").css({'width': '680px'});
+	});
+	//]]>
+	</script>
+</jsp:root>

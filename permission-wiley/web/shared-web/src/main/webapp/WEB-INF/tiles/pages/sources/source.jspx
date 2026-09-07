@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page pageEncoding="UTF-8" />
+	
+	<tiles:importAttribute name="source"/>
+	
+	<jsp:body>
+		<table>
+			<tr>
+				<td class="label">Official name for request forms:</td>
+				<td class="value"><c:out value="${source.name}" /></td>
+			</tr>
+			<tr>
+				<td class="label">Internally displayed name:</td>
+				<td class="value"><c:out value="${source.displayName}" /></td>
+			</tr>
+			<tr>
+				<td class="label">Country:</td>
+				<td class="value">${source.country == null ? "" : source.country.description}</td>
+			</tr>
+			<tr>
+				<td class="label">Phone:</td>
+				<td class="value">${source.phoneNumber}</td>
+			</tr>
+			
+			<tr>
+				<td class="label">Fax:</td>
+				<td class="value">${source.faxNumber}</td>
+			</tr>
+			
+			<tr>
+				<td class="label">Website:</td>
+				<td class="value"><c:out value="${source.website}" /></td>
+			</tr>
+			
+			<tr>
+				<td class="label">JDE Vendor#:</td>
+				<td class="value">${source.jdeVendorNumber}</td>
+			</tr>
+			
+			<!-- Hide for now but may "come back" so we still have this field in DB.
+			<tr>
+				<td class="label">Permission Type:</td>
+				<td class="value">${source.permissionType}</td>
+			</tr>
+			-->
+			
+			<tr>
+				<td class="label">Comment:</td>
+				<td class="value"><c:out value="${source.comment}" /></td>
+			</tr>
+			
+			<tr>
+				<td class="label">Default Credit Line:</td>
+				<td class="value"><c:out value="${source.creditLine}" /></td>
+			</tr>
+			
+			<tr>
+				<td class="label">Delivery Method:</td>
+				<td class="value">${source.deliveryMethod == null ? "" : source.deliveryMethod.description}</td>
+			</tr>
+			<tr>
+				<td class="label">Permission Request URL:</td>
+				<td class="value"><c:out value="${source.permissionRequestUrl}" /></td>
+			</tr>
+		</table>
+		
+		<c:if test="${not empty sourceCwAssetCount}">
+		<table>
+			<tr>
+				<td colspan="2"><h2>Statistics (for current product)</h2></td>
+			</tr>
+			
+			<tr>
+				<td class="label">Asset Count:</td>
+				<td class="value"><fmt:formatNumber maxFractionDigits="0" value="${sourceCwAssetCount}" /></td>
+			</tr>
+			<tr>
+				<td class="label">Invoice Total:</td>
+				<td class="value"><fmt:formatNumber type="currency" currencyCode="${sourceCurrency.code}"
+				    value="${sourceCwContractPrice}" />
+				</td>
+			</tr>
+			
+		</table>
+		</c:if>
+	
+	</jsp:body>
+</jsp:root>

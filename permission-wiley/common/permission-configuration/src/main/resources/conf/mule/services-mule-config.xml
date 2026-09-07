@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:https="http://www.mulesoft.org/schema/mule/https"
+	xmlns:spring="http://www.springframework.org/schema/beans"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+        http://www.mulesoft.org/schema/mule/https http://www.mulesoft.org/schema/mule/https/current/mule-https.xsd
+		http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd        
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	">
+	<spring:beans>
+		<spring:import resource="classpath:conf/spring/services-spring-context.xml"/>
+	</spring:beans>
+
+	<https:connector name="httpConnector"> 
+		<https:tls-key-store path="jssecacerts" keyPassword="changeit" storePassword="changeit" /> 
+    </https:connector> 
+
+    <xml-entity-decoder-transformer name="XmlDecoder"/>
+    <object-to-string-transformer name="ToString"/>
+
+    <byte-array-to-object-transformer name="ByteArrayToObject" />
+
+	<custom-transformer 
+		name="SSOXmlToObject"
+		class="com.wiley.permissions.common.transformer.XmlToObjectTransformer"
+		returnClass="com.wiley.permissions.security.sso.SSOUserMessage" />
+
+
+
+	<!-- custom-transformer
+		name="ProdCountXmlToObject"
+		class="com.wiley.permissions.common.transformer.XmlToObjectTransformer"
+		returnClass="com.wiley.permissions.domain.persistence.permissions.ProductCount" /-->
+		
+	<custom-transformer
+
+		name="CompCopyXmlToObject"
+		class="com.wiley.permissions.common.transformer.XmlToObjectTransformer"
+		returnClass="com.wiley.permissions.domain.persistence.permissions.CompCopy" />
+
+	<model name="Services">
+		<default-service-exception-strategy enableNotifications="false">
+			<rollback-transaction exception-pattern="*"/>
+		</default-service-exception-strategy>
+		
+		<!--
+		<entry-point-resolver-set>
+		    <reflection-entry-point-resolver acceptVoidMethods="true" />
+		</entry-point-resolver-set>
+		-->
+
+		<!--
+		   *******************************************
+		   The following endpoint definitions are found in the AssetService
+		   *******************************************
+		-->
+		<service name="assetService">
+			<inbound>
+				<vm:inbound-endpoint path="assetService" exchange-pattern="request-response"/>			
+				<vm:inbound-endpoint path="assetService.handleUpdateAssetMessage" exchange-pattern="request-response">
+					<property key="method" value="handleUpdateAssetMessage"/>
+				</vm:inbound-endpoint>
+				<vm:inbound-endpoint path="assetService.handleDeleteAssetMessage" exchange-pattern="request-response">
+					<property key="method" value="handleDeleteAssetMessage"/>
+				</vm:inbound-endpoint>
+				<vm:inbound-endpoint path="assetService.handleGetAssetMessage" exchange-pattern="request-response">
+					<property key="method" value="handleGetAssetMessage"/>
+				</vm:inbound-endpoint>				
+			</inbound>
+			<component>
+				<spring-object bean="services.AssetService"/>
+			</component>
+		</service>
+
+		<!--
+		   *******************************************
+		   The following endpoint definitions are found in the ProductService
+		   *******************************************
+		-->
+		<service name="productService">
+			<inbound>
+				<vm:inbound-endpoint path="productService" exchange-pattern="request-response"/>			
+				<vm:inbound-endpoint path="productService.saveProducts" exchange-pattern="request-response">
+					<property key="method" value="saveProducts"/>
+				</vm:inbound-endpoint>
+				<vm:inbound-endpoint path="productService.saveMasterLists" exchange-pattern="request-response">
+					<property key="method" value="saveMasterLists"/>
+				</vm:inbound-endpoint>	
+				<vm:inbound-endpoint path="productService.saveProduct" exchange-pattern="request-response">
+					<property key="method" value="saveProduct"/>
+				</vm:inbound-endpoint>			
+				<vm:inbound-endpoint path="productService.updateCommonWork" exchange-pattern="request-response">
+					<property key="method" value="updateCommonWork"/>
+				</vm:inbound-endpoint>						
+				<vm:inbound-endpoint path="productService.handleErrorMessageOp" exchange-pattern="request-response">
+					<property key="method" value="handleErrorMessageOp"/>
+				</vm:inbound-endpoint>					
+			</inbound>
+			<component>
+				<spring-object bean="services.ProductService"/>
+			</component>
+		</service>
+
+		<service name="localProductService">
+			<inbound>
+				<vm:inbound-endpoint path="localProductService" exchange-pattern="request-response"/>
+				<vm:inbound-endpoint path="localProductService.updateCommonWorkFromPE" exchange-pattern="request-response">
+					<property key="method" value="updateCommonWorkFromPE"/>
+				</vm:inbound-endpoint>
+			</inbound>
+			<component>
+				<spring-object bean="services.LocalProductService"/>
+			</component>
+		</service>
+		
+		<!--
+		   *******************************************
+		   The following endpoint definitions are found in the CommonWorkService
+		   *******************************************
+		-->
+		<service name="commonWorkService">
+			<inbound>
+				<vm:inbound-endpoint path="commonWorkService" exchange-pattern="request-response"/>
+				<vm:inbound-endpoint path="commonWorkService.handleUpdateComponentMessage" exchange-pattern="request-response">
+					<property key="method" value="handleUpdateComponentMessage"/>
+				</vm:inbound-endpoint>
+				<vm:inbound-endpoint path="commonWorkService.handleGetComponentMessage" exchange-pattern="request-response">
+					<property key="method" value="handleGetComponentMessage"/>
+				</vm:inbound-endpoint>
+				<vm:inbound-endpoint path="commonWorkService.handleDeleteComponentMessage" exchange-pattern="request-response">
+					<property key="method" value="handleDeleteComponentMessage"/>
+				</vm:inbound-endpoint>				
+				<vm:inbound-endpoint path="commonWorkService.handleGetComponentListMessage" exchange-pattern="request-response">
+					<property key="method" value="handleGetComponentListMessage"/>
+				</vm:inbound-endpoint>				
+			</inbound>
+			<component>
+				<spring-object bean="services.CommonWorkService"/>
+			</component>
+		</service>
+
+		<!--
+		   *******************************************
+		   The following endpoint definitions are found in the AssetUseService
+		   *******************************************
+		-->
+		<service name="assetUseService">
+			<inbound>
+				<vm:inbound-endpoint path="assetUseService" exchange-pattern="request-response"/>
+				<vm:inbound-endpoint path="assetUseService.handleUpdateAssetUseMessage" exchange-pattern="request-response">
+					<property key="method" value="handleUpdateAssetUseMessage"/>
+				</vm:inbound-endpoint>	
+				<vm:inbound-endpoint path="assetUseService.handleDeleteAssetUseMessage" exchange-pattern="request-response">
+					<property key="method" value="handleDeleteAssetUseMessage"/>
+				</vm:inbound-endpoint>
+				<vm:inbound-endpoint path="assetUseService.handleGetAssetUseMessage" exchange-pattern="request-response">
+					<property key="method" value="handleGetAssetUseMessage"/>
+				</vm:inbound-endpoint>	
+				<vm:inbound-endpoint path="assetUseService.handleGetPerformanceStats" exchange-pattern="request-response">
+					<property key="method" value="handleGetPerformanceStats"/>
+				</vm:inbound-endpoint>				
+			</inbound>
+			<component>
+				<spring-object bean="services.AssetUseService"/>
+			</component>
+		</service>
+
+		<!--
+		   *******************************************
+		   The following endpoint definitions are found in the ContactService
+		   *******************************************
+		-->
+		<service name="sourceService">
+			<inbound>
+				<vm:inbound-endpoint path="sourceService"  exchange-pattern="request-response"/>
+				<vm:inbound-endpoint path="sourceService.handleDeleteSource"  exchange-pattern="request-response">				
+					<property key="method" value="handleDeleteSource"/>
+				</vm:inbound-endpoint>
+			</inbound>
+			<component>
+				<spring-object bean="services.SourceService"/>
+			</component>
+		</service>
+
+		<service name="permissionStatusValidationService">
+			<inbound>
+				<vm:inbound-endpoint path="permissionStatusValidationService"  exchange-pattern="request-response"/>
+				<vm:inbound-endpoint path="permissionStatusValidationService.updatePermissionStatusForAssetUseCollection"  exchange-pattern="request-response">				
+					<property key="method" value="updatePermissionStatusForAssetUseCollection"/>
+				</vm:inbound-endpoint>
+			</inbound>
+			<component>
+				<spring-object bean="services.PermissionStatusValidationService"/>
+			</component>
+		</service>
+
+		<service name="securityService">
+			<inbound>
+				<vm:inbound-endpoint path="securityService" exchange-pattern="request-response"/>
+			</inbound>
+			<component>
+				<spring-object bean="services.SecurityService"/>
+			</component>
+		</service>
+		
+		<!-- This is our message router for the message router -->
+		<service name="MessageCache">
+			<inbound>
+				<vm:inbound-endpoint path="messageCache.cacheMessage" exchange-pattern="one-way">
+					<property key="method" value="cacheMessage"/>
+				</vm:inbound-endpoint>
+				<vm:inbound-endpoint path="messageCache.postProcessMessage" exchange-pattern="one-way">
+					<property key="method" value="postProcessMessage"/>
+				</vm:inbound-endpoint>	
+				<vm:inbound-endpoint path="messageCache.preProcessMessage" exchange-pattern="one-way">
+					<property key="method" value="preProcessMessage"/>
+				</vm:inbound-endpoint>				
+			</inbound>
+			
+			<component>		
+				<spring-object bean="repository.CachedMessageRepository"/>
+			</component>
+		</service>		
+		<!--
+		<service name="MessageCacheCacheMessage">
+			<inbound>
+				<vm:inbound-endpoint path="messageCachecacheMessage" exchange-pattern="one-way" />
+			</inbound>
+			
+			<component>
+		  		<method-entry-point-resolver>
+			  		<include-entry-point method="cacheMessage"/>
+		  		</method-entry-point-resolver>			
+				<spring-object bean="repository.CachedMessageRepository"/>
+			</component>
+		</service>
+		<service name="MessageCachePreProcessMessage">
+			<inbound>
+				<vm:inbound-endpoint path="messageCachepreProcessMessage" exchange-pattern="one-way" />
+			</inbound>
+			
+			<component>
+		  		<method-entry-point-resolver>
+			  		<include-entry-point method="preProcessMessage"/>
+		  		</method-entry-point-resolver>			
+				<spring-object bean="repository.CachedMessageRepository"/>
+			</component>
+		</service>	
+		<service name="MessageCachePostProcessMessage">
+			<inbound>
+				<vm:inbound-endpoint path="messageCachepostProcessMessage" exchange-pattern="one-way" />
+			</inbound>
+			
+			<component>
+		  		<method-entry-point-resolver>
+			  		<include-entry-point method="postProcessMessage"/>
+		  		</method-entry-point-resolver>			
+				<spring-object bean="repository.CachedMessageRepository"/>
+			</component>
+		</service>			
+		-->
+		<!-- 
+		<service name="ProdCountService">
+			<inbound>
+				<vm:inbound-endpoint
+					path="services.ProdCountService"
+					exchange-pattern="request-response"
+					responseTransformer-refs="ToString ProdCountXmlToObject">
+				</vm:inbound-endpoint>
+			</inbound>
+
+			<http:rest-service-component httpMethod="GET" 
+			   serviceUrl="${prod.count.request.url}+isbn13(a0130):#[map-payload:isbn13]+prodtyp(a0010):#[map-payload:prodtyp]" />
+		</service>
+		-->
+
+		<service name="CompCopyService">
+			<inbound>
+				<vm:inbound-endpoint
+					path="services.CompCopyService"
+					exchange-pattern="request-response"
+					responseTransformer-refs="ToString CompCopyXmlToObject">
+				</vm:inbound-endpoint>
+			</inbound>
+
+			<http:rest-service-component httpMethod="GET" 
+			   serviceUrl="${comp.copy.request.url}+isbn10(a0100):#[map-payload:isbn10]+fname(a0300):#[map-payload:fname]+lname(a0300):#[map-payload:lname]+street1(a0300):#[map-payload:street1]+street2(a0300):#[map-payload:street2]+city(a0300):#[map-payload:city]+state(a0300):#[map-payload:state]+isocntry(a0040):#[map-payload:countrycode]+postcode(a0090):#[map-payload:postcode]+vendctry(a0020):#[map-payload:countrycode]" />
+
+			   </service>
+		
+		<!--  <service name="CompCopyAuService">
+			<inbound>
+				<vm:inbound-endpoint
+					path="services.CompCopyAuService"
+					exchange-pattern="request-response"
+					responseTransformer-refs="ToString CompCopyXmlToObject">
+				</vm:inbound-endpoint>
+			</inbound>
+
+			<http:rest-service-component httpMethod="GET" 
+			   serviceUrl="${comp.copy.request.au.url}+isbn10(a0100):#[map-payload:isbn10]+account13(a0300):#[map-payload:acctno]+fname(a0300):#[map-payload:fname]+lname(a0300):#[map-payload:lname]+PO(a0300):#[map-payload:po]+
+			   street1(a0300):#[map-payload:street1]+street2(a0300):#[map-payload:street2]+city(a0300):#[map-payload:city]+state(a0300):#[map-payload:state]+isocntry(a0040):#[map-payload:countrycode]+postcode(a0090):#[map-payload:postcode]" />
+		</service>  -->
+		
+		
+		<service name="CompCopyAuService">
+			<inbound>
+				<vm:inbound-endpoint
+					path="services.CompCopyAuService"
+					exchange-pattern="request-response"
+					responseTransformer-refs="ToString CompCopyXmlToObject">
+				</vm:inbound-endpoint>
+			</inbound>
+
+			<http:rest-service-component httpMethod="GET" 
+			   serviceUrl="${comp.copy.request.au.url}+isbn10(a0100):#[map-payload:isbn10]+account13(a0300):#[map-payload:acctno]+fname(a0300):#[map-payload:fname]+lname(a0300):#[map-payload:lname]+
+			   street1(a0300):#[map-payload:street1]+street2(a0300):#[map-payload:street2]+city(a0300):#[map-payload:city]+state(a0300):#[map-payload:state]+isocntry(a0040):#[map-payload:countrycode]+postcode(a0090):#[map-payload:postcode]" />
+		</service>
+		
+
+		<!-- Not being used but leave here for now -->
+		<service name="RightsLinkService">
+			<inbound>
+				<vm:inbound-endpoint
+					path="services.RightsLinkLicenseService"
+					exchange-pattern="request-response"
+					responseTransformer-refs="ToString XmlDecoder">
+				</vm:inbound-endpoint>
+			</inbound>
+
+			<http:rest-service-component httpMethod="GET" 
+			   serviceUrl="https://dem100.copyright.com/svc-rightslink-rest/rest/licenses/#[map-payload:licenseNumber].xml">
+			</http:rest-service-component>
+		</service>
+
+	</model>
+</mule>

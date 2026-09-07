@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.1//EN"
+       "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+
+<tiles-definitions>
+	<!-- remove the following definition when we have something to put in here -->
+	<definition name="tiles.errors.exception" template="/WEB-INF/tiles/pages/errors/exception.jspx"/>
+
+	<definition name="user.landing" extends="layout.main">
+		<put-attribute name="title" value="My Products" cascade="true"/>	
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/myaccount/userLanding.jspx" cascade="true"/>
+	</definition>
+	
+	<definition name="user.landing.archived" extends="layout.main">
+		<put-attribute name="title" value="Archived Products" cascade="true"/>	
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/myaccount/archivedProjects.jspx" cascade="true"/>
+	</definition>
+	
+	<definition name="user.account.changePassword" extends="layout.dialog">	
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/myaccount/changePassword.jspx" />
+	</definition>
+</tiles-definitions>

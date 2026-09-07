@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<message protocolVersion="1.0" sent="1228857404000" direction="OUTGOING" type="request" source="PERM001" id="903526455.1228857404000.2">
+    <targets>
+        <target>PE001</target>
+    </targets>
+    <operations>
+        <operation operationType="productUpdate">
+            <parameters>
+                <parameter value="US" name="dataSource"/>
+            </parameters>
+            <items>
+                <product>
+                    <externalId>CORE.001.PROD.0000107736</externalId>
+                    <userToProducts/>
+                </product>
+            </items>
+        </operation>
+    </operations>
+    <metadata/>
+</message>

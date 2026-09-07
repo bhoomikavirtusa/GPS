@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<jsp:element name="script">
+		<jsp:attribute name="type">text/javascript</jsp:attribute>
+		<jsp:attribute name="src">
+			<c:url value="/js/jquery.blockUI-2.38.js"/>
+		</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+
+	<!-- These vars used by conditions include below -->
+	<c:url var="loadUrl" value="/sapp/landing/cwConditions/load?cwId=${cwId}"/>
+	<c:url var="postUrl" value="/sapp/landing/cwConditions/save?cwId=${cwId}"/>
+	<c:url var="postNodeUrl" value="/sapp/landing/cwConditions/postNode"/>
+	
+	<c:url var="cwConditionsEditUrl" value="/sapp/landing/cwConditions/viewEdit?cwId=${cwId}" />
+	<c:url var="assetListUrl" value="/sapp/landing/assets?cwId=${cwId}" />
+	<c:url var="waitUrl" value="/images/please_wait.gif" />
+	<c:url var="saveGrantYearsUrl" value="/sapp/landing/cwConditions/saveGrantYears" />
+	<c:url var="summaryPanelUrl" value="/sapp/panels/summaryPanel?cwId=${cwId}&amp;isReadOnly=${isReadOnly}" />
+	
+	<c:choose>
+	<c:when test="${readOnly}">
+		<jsp:directive.include file="/WEB-INF/tiles/pages/conditions/main.jspx" />
+		
+		<script type="text/javascript">
+			$(document).ready(function() {
+				$("#editLink").click(function() {
+					$("#modalDiv").load("${cwConditionsEditUrl}");
+					repositionDialog();
+					return false;
+				});
+			});
+		</script>
+
+		<div class="buttonset">
+			<button id="editLink">Edit</button>
+			<a href="#" id="cancelLink" class="button">Continue</a>
+		</div>
+	</c:when>
+	<c:otherwise>
+		<form id="conditionForm">
+			<jsp:directive.include file="/WEB-INF/tiles/pages/conditions/main.jspx" />
+<!-- lnagy - grantYears is 10 years now and is unchangeable	
+			<table>
+				<tr>
+					<td>Length of Grant (Years): </td>
+					<td>
+						<input type="hidden" name="cwId" value="${cwId}" />
+						<input type="text" size="10" id="grantYears" name="grantYears" value="${grantYears}" />
+						0 means Life of the edition
+						<span id="grantYearsError" style="margin-left: 1em; color: red; display: none">Must be an integer</span>
+					</td>
+				</tr>
+				<tr>
+				</tr>
+			</table>
+-->
+			<div class="buttonset">
+				<input type="submit" value="Save"/>
+				<a href="#" id="cancelLink" class="button">Cancel</a>
+			</div>
+		</form>
+	</c:otherwise>
+	</c:choose>
+
+	<script type="text/javascript">
+	//<![CDATA[
+		/*	lnagy grantYears is 10 years now and is unchangeable
+    	function isInt(input) {
+    		return /^[0-9]+$/.test(input);
+		}
+    	
+    	$("#grantYears").change(function() {
+			$.ajax({
+        		type: 'post',
+        		url: '${saveGrantYearsUrl}',
+        		data: $('#conditionForm').serialize(),
+        	 	success: function (response) {
+        	 		// response will be either same as entry or else "Must be an integer"
+        	 		
+        			if (!isInt(response)) {
+    					$('#grantYears').val("");
+    					$('#grantYearsError').show();
+        			}
+        			else {
+        				$('#grantYears').val(response);
+        				$('#grantYearsError').hide();
+        			}
+            	}
+    		});
+			return false;
+		});
+        */
+        
+		$(document).ajaxStop($.unblockUI);
+
+		function fnPostSubmit() {
+			$("#summaryPanel_${cwId}").load("${summaryPanelUrl}");
+			$('#ltabs #ui-tabs-1').load('${assetListUrl}');
+		}
+
+		function fnPreSubmit() {			
+			// if grantYears is blank or non an integer
+			/*
+			if (!isInt($('#grantYears').val())) {
+				$('#grantYearsError').show();
+				return false;
+			}
+			*/
+			// close the dialog here and show the "wait" message
+			$modalDialog.dialog("close");
+			$.blockUI({ message: '<table><tr><td><img src="${waitUrl}" /></td><td><b>Please wait. It can take a few minutes to recalculate the status of all of the assets for this product.</b></td></tr></table>' });
+			return true;
+		}
+	//]]>
+	</script>
+
+</jsp:root>

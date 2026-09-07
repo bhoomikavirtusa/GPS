@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<workbook>
+	<worksheet name="FileMakerProducts">
+		<section startRow="0" endRow="0" />		
+		<loop startRow="2" endRow="2" items="products" var="product"
+			varType="com.wiley.permissions.domain.persistence.permissions.Product">
+			<section startRow="2" endRow="2">
+				<mapping row="2" col="0">product.isbn10</mapping>
+				<mapping row="2" col="1">product.title</mapping>
+				<mapping row="2" col="2">product.dataSource</mapping>
+				<!--  Ashima Spreadsheet Import Task -->
+				<mapping row="2" col="3">product.commonWork.notes</mapping>							
+				<!--  Ends -->
+				<!--<mapping row="2" col="3">product.edition.editionNumber</mapping>-->
+			</section>
+			<loopbreakcondition>
+ 				<rowcheck offset="0">
+ 					<cellcheck offset="0"></cellcheck>
+ 					<cellcheck offset="1"></cellcheck>
+ 					<cellcheck offset="2"></cellcheck>
+ 					<cellcheck offset="3"></cellcheck>
+ 					<cellcheck offset="4"></cellcheck>
+ 					<cellcheck offset="5"></cellcheck>
+ 					<cellcheck offset="6"></cellcheck>
+ 					<cellcheck offset="7"></cellcheck>
+ 					<cellcheck offset="8"></cellcheck>
+ 				</rowcheck>
+ 			</loopbreakcondition>			
+		</loop>
+	</worksheet>
+</workbook>

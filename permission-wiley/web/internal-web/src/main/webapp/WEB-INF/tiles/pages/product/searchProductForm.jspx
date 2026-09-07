@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"	  
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+>
+	<jsp:directive.page pageEncoding="UTF-8" />
+
+	<style type="text/css">
+		.greybox { width: 97%; }
+	</style>
+	
+	<c:url value="/images/buttons/go_to_product.png" var="goToProductUrl"/>
+
+	<c:url value="/sapp/product/product/search" var="searchProductUrl" />
+	<c:url value="/sapp/product/product/loadProduct" var="loadProductUrl" />
+	<c:url value="/sapp/product/product/addCWToUser" var="addCWUrl" />
+	<c:url value="/sapp/product/product/removeCWFromUser" var="removeCWUrl" />
+	
+	<jsp:element name="script">
+		<jsp:attribute name="type">text/javascript</jsp:attribute>
+		<jsp:attribute name="src">
+			<c:url value="/js/jquery.blockUI-2.38.js"/>
+		</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+	
+	<jsp:body>
+		<script type="text/javascript">
+			<![CDATA[
+				$(document).ajaxStop($.unblockUI);
+
+				$(document).ready(function() {
+					$('#productSearchResultsTable').dataTable( {
+						"aoColumns": [
+							{ "sWidth" : "65%" }, // Title
+							{ "sWidth" : "20%" }, // Author(s)
+							{ "sWidth" : "10px" }, // ISBN
+							{ "sWidth" : "10px", "sClass" : "center" }, // Medium
+							{ "sWidth" : "10px", "sClass" : "center" }, // Ed. #
+							{ "sWidth" : "15%" }, // Division
+							{ "sWidth" : "10px" }, // Copyright Year
+							{ "sWidth" : "10px" }, // Editor
+							{ "sWidth" : "10px", "sClass" : "center" }, // Pub. Status
+							{ "sWidth" : "10px", "sClass" : "center", "bSearchable" : false, "bSortable": false } // Watched
+						],
+						"aaSorting": [[0, "asc" ]],
+
+						"bAutoWidth": false,
+						"bProcessing": true,
+						// Turn off stateSave because saves page number as well as sort - not so good
+						//"bStateSave": true,
+						"sPaginationType": "full_numbers",
+						"aLengthMenu": [10, 15, 25, 50, 100],  // override default of [10, 25, 50, 100]
+						"iDisplayLength": 15 // override default of 10
+					} );
+				} );
+
+				function doProductSearch(form) {
+					form.elements["selectedProduct"].value = null;
+					form.elements["selectedProductDataSource"].value = null;
+					form.action = "${searchProductUrl}";
+				}
+
+				function doProductSelection(selectedProduct, dataSource, commonWork) {
+					$.blockUI(); 
+					var form = document.getElementById("searchProductForm");
+					form.elements["selectedProduct"].value = selectedProduct;
+					form.elements["selectedProductDataSource"].value = dataSource;
+					form.elements["commonWork"].value = commonWork;
+					form.action = "${loadProductUrl}";
+					form.elements["target"].value = "${searchProductForm.target}";
+						
+					// fix so that after user clicks on Watched checkbox, if they
+					// then click on a product they will go to the landing page and
+					// not stay on the search page
+					if ("${searchProductForm.target}" == "searchViewName") {
+						form.elements["target"].value = "landingViewName";
+					}
+						
+					form.submit();
+				}
+
+				function quickLink(selectedProduct, dataSource, commonWork, obj) {
+					$.blockUI(); 
+					var form = document.getElementById("searchProductForm");
+					if (obj.checked) {
+						form.action = "${addCWUrl}";
+						form.elements["target"].value = "searchViewName";
+					}
+					else {
+						form.action = "${removeCWUrl}";
+						form.elements["target"].value = "searchViewName";
+					}
+					form.elements["selectedProduct"].value = selectedProduct;
+					form.elements["selectedProductDataSource"].value = dataSource;
+					form.elements["commonWork"].value = commonWork;
+					form.submit();
+				}
+
+				function checkKeys(form, event) {
+					var output = true;
+
+					if (event.keyCode && event.keyCode == 13) {
+						doProductSearch(form);
+						form.submit();
+
+						output = false;
+					}
+
+					return output;
+				}
+			]]>
+		</script>
+
+		<c:set var="hasErrors" value="false"/>
+
+		<spring:hasBindErrors name="searchProductForm">
+			<c:set var="hasErrors" value="true"/>
+		</spring:hasBindErrors>
+		
+		<jsp:directive.include file="/WEB-INF/tiles/pages/include/generalMessage.jspx" />
+
+		<form:form method="post" action="${searchProductUrl}"
+		    modelAttribute="searchProductForm" onkeypress="return checkKeys(this, event)">
+
+			<div style="display: none">
+				<form:hidden path="target" />
+
+				<form:hidden path="selectedProduct" />
+				<form:hidden path="selectedProductDataSource" />
+				<form:hidden path="commonWork" />
+                <form:hidden path="searchString" />
+                <form:hidden path="searchField" />
+                <input type="hidden" name="afterFirstHit" value="true" />
+            </div>
+         </form:form>
+
+		<c:set var="titleKey"><fmt:message key="product.label.title"/></c:set>
+		<c:set var="authorKey"><fmt:message key="product.label.authors"/></c:set>
+		<c:set var="isbnKey"><fmt:message key="product.label.isbn13"/></c:set>
+
+		<c:if test="${hasErrors}">
+			<table class="width100">
+				<tr>
+					<td>
+						<form:errors cssClass="error" path="*"/>
+					</td>
+				</tr>
+			</table>
+		</c:if>
+
+		<c:if test="${not empty searchProductForm.results}">
+			<c:url var="chooseButtonURL" value="/images/buttons/view-icon.png" />
+			
+			<table class="width100">
+				<tr>
+					<th>Product Search Results</th>
+				</tr>
+				<tr>
+					<td>
+			<!-- Make font size little smaller than normal. -->
+			<table class="display" id="productSearchResultsTable">
+				<thead>
+					<tr>
+						<th>${titleKey}</th>
+						<th>${authorKey}</th>
+						<th>${isbnKey}</th>
+						<th>Medium</th>
+						<th>Ed. #</th>
+						<th>Division</th>
+						<th>&amp;copy; Year</th>
+						<th>Editor</th>
+						<th>Pub. Status</th>
+						<th>Bookmarked</th>
+					</tr>
+				</thead>
+				<tbody>
+					<c:forEach items="${searchProductForm.results}" var="product">
+						<tr>
+							<td>
+								<a href="#" onclick="doProductSelection('${product.wid}', '${product.dataSource}', '${product.commonWorkCode}')">${product.title}</a>
+							</td>
+
+							<td>
+								<ul>
+									<c:forEach items="${product.authors}" var="author">
+										<li>${author}</li>
+									</c:forEach>
+								</ul>
+							</td>
+							
+							<td>${product.isbn}</td>
+							<td>${product.mediumCode}</td>
+							<td>${product.editionNumber}</td>
+							<td>${product.businessUnitName}</td>
+							<td>${product.copyrightYear}</td>
+							<!-- Note this is really editor code, but that was the requirement -->
+							<td>${product.editor}</td>
+							<td>${product.status}</td>
+							
+							<td>
+								<c:choose>
+									<c:when test="${product.watched}">
+										<input type="checkbox" value="${product.wid}" checked="checked"
+											onclick="quickLink('${product.wid}', '${product.dataSource}', '${product.commonWorkCode}', this)" />
+									</c:when>
+									<c:otherwise>
+										<input type="checkbox" value="${product.wid}"
+											onclick="quickLink('${product.wid}', '${product.dataSource}', '${product.commonWorkCode}', this)" />
+									</c:otherwise>
+								</c:choose>
+							</td>
+						</tr>
+					</c:forEach>
+				</tbody>
+			</table>
+			</td>
+			</tr>
+		</table>
+		</c:if>
+
+		<c:if test="${empty searchProductForm.results}">
+			<table class="width100">
+				<tr>
+					<th>Product Search Results</th>
+				</tr>
+				<tr>
+					<td>
+						No Products Found!
+					</td>
+				</tr>
+			</table>
+		</c:if>
+
+	</jsp:body>
+</jsp:root>

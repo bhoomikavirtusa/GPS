@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="permmsg_20080829.xsd"
+    type="notification" replyId="CMS_componentRequest.664" id="CMS.002.334650209"
+    sent="1183481115542" source="PERM001" protocolVersion="1.0">
+    <target>
+        <system>CMS001</system>
+    </target>
+    <operation name="UpdateComponent">
+        <component wid="perm.component.1" updateTime="11834800394850">
+            <product wid="PE.HE99343490.2222"/>
+            <name>Chapter 1</name>
+            <category>AA</category>
+        </component>
+    </operation>
+</message>

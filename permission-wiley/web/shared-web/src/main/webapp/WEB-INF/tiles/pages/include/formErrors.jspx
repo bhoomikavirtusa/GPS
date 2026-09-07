@@ -1,0 +1,9 @@
+			<table style="margin-bottom: 1em">
+				<tr xmlns:form="http://www.springframework.org/tags/form">
+					<td class="error">					
+							There are ${errors.errorCount} errors with your entry!
+						<br/><br/>
+                        <form:errors cssClass="error" path="*" htmlEscape="false"/>                 
+					</td>
+				</tr>
+			</table>

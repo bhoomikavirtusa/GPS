@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
+	xmlns:stdio="http://www.mulesoft.org/schema/mule/stdio"
+	xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:jersey="http://www.mulesoft.org/schema/mule/jersey" 	
+	xmlns:mule-xml="http://www.mulesoft.org/schema/mule/xml"
+	xmlns:spring="http://www.springframework.org/schema/beans"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/doc http://www.mulesoft.org/schema/mule/doc/current/mule-doc.xsd
+		http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+		http://www.mulesoft.org/schema/mule/stdio http://www.mulesoft.org/schema/mule/stdio/current/mule-stdio.xsd
+		http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+		http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+		http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+		http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd	
+		http://www.mulesoft.org/schema/mule/jersey http://www.mulesoft.org/schema/mule/jersey/current/mule-jersey.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	">
+
+<!--					  
+
+	<jms:activemq-connector name="PEInboundJMSConnector"
+                          brokerURL="tcp://localhost:61616"/>
+	<jms:activemq-connector name="PEOutboundJMSConnector"
+                          brokerURL="tcp://localhost:61616"/>	
+-->
+						  
+	<jms:connector
+		name="PEInboundJMSConnector"
+		maxRedelivery="5"
+		connectionFactory-ref="connector.inbound.PEJMSConnector"
+		username=" "
+		password=" "
+		/>
+
+	<jms:connector
+		name="PEOutboundJMSConnector"
+		connectionFactory-ref="connector.outbound.PEJMSConnector"
+		username=" "
+		password=" "
+		/>
+
+	<file:connector name="PEFileConnector"/>
+
+	<custom-transformer
+		name="JMSAndGZip"
+		class="com.wiley.permissions.common.transformer.JMSAndGZipMessageTransformer"
+		returnClass="java.lang.String">
+	</custom-transformer>
+
+	<custom-transformer
+		name="PermissionsRequestToPE"
+		class="com.wiley.permissions.common.transformer.XsltMessageTransformer"
+		returnClass="java.lang.String">
+		<spring:property name="xsltFile" value="/xsl/permissions-request-to-pe.xsl" />
+	</custom-transformer>
+		
+	<custom-transformer
+		name="PEReplyToPermissions"
+		class="com.wiley.permissions.common.transformer.XsltMessageTransformer"
+		returnClass="java.lang.String">
+		<spring:property name="xsltFile" value="/xsl/pe-reply-to-permissions.xsl" />
+		<spring:property name="saveBefore" value="true" />
+	</custom-transformer>
+	
+	<custom-transformer
+		name="PENotificationToPermissions"
+		class="com.wiley.permissions.common.transformer.XsltMessageTransformer"
+		returnClass="java.lang.String">
+		<spring:property name="xsltFile" value="/xsl/pe-notification-to-permissions.xsl" />
+		<spring:property name="saveBefore" value="true" />
+	</custom-transformer>	
+
+	<custom-transformer
+		name="PEXmlToObject"
+		class="com.wiley.permissions.common.transformer.XmlToObjectTransformer"
+		returnClass="com.wiley.permissions.domain.message.Message" />
+		
+	<custom-transformer
+		name="ExternalMessageTransformer"
+		class="com.wiley.permissions.domain.message.ExternalMessageTransformer"
+		returnClass="com.wiley.permissions.domain.message.Message" />
+		
+	<custom-transformer
+		name="PEObjectToXml"
+		class="com.wiley.permissions.common.transformer.ObjectToXmlTransformer"
+		returnClass="java.lang.String" />
+		
+	<custom-transformer
+		name="PESearchXmlToObject"
+		class="com.wiley.permissions.common.transformer.XmlToObjectTransformer"
+		returnClass="com.wiley.permissions.domain.message.pe.ProductSearchMessage" />
+
+	<spring:beans>
+		<spring:import resource="classpath:conf/spring/peclient-spring-context.xml"/>
+	</spring:beans>
+
+	<!-- /////////////////////////////////////////////////// -->
+	<!-- Load product information messages 					 -->
+	<!-- /////////////////////////////////////////////////// -->
+	<model name="ProductEngineeringClient">
+
+		<!-- Product Engineering Message Handler -->
+		<service name="ProductEngineeringMessageHandler">
+			<inbound>
+				<!-- <vm:inbound-endpoint path="productEngineeringHandler"/> -->
+				<vm:inbound-endpoint path="productEngineeringHandler.receiveMessage">
+					<property key="method" value="receiveMessage"/>
+				</vm:inbound-endpoint>	
+			</inbound>
+			
+			<component>
+				<spring-object bean="inbound.message.PEMessageService"/>
+			</component>
+		</service>
+		
+		<service name="DebugMessageRouter">
+			<inbound>
+				<vm:inbound-endpoint path="debugMessageRouter"/>
+			</inbound>
+			
+			<component>
+				<spring-object bean="inbound.message.DebugMessageRouter"/>
+			</component>
+		</service>		
+		<!-- // -->
+	
+		<!-- These services handle inbound/outbound traffic with PE via JMS -->
+		<service name="pe.inbound">
+			<inbound>
+				<jms:inbound-endpoint queue="${messaging.jms.pe.inbound.queue}?targetClient=1" disableTransportTransformer="true" connector-ref="PEInboundJMSConnector" exchange-pattern="one-way">
+				
+					<custom-filter class="com.wiley.permissions.common.mule.JMSMessageFilter"/>
+						<transformer ref="JMSAndGZip" />
+					<!--
+						lnagy - I hoped that reseting the ReplyTo will overwrite the value from the message, but it does not
+						<message-properties-transformer>
+							<add-message-property key="JMSReplyTo" value="" />
+						</message-properties-transformer>
+					-->
+					<!--  smarkoff - no longer needed because the JMSAndGZip Transformer converts JMSTextMessage to String
+						<jms:jmsmessage-to-object-transformer/>
+					-->
+				</jms:inbound-endpoint>
+			</inbound>
+			
+			<outbound>
+			<!--
+				 use the filtering, because the messages have a ReplyTo and that makes each message 
+				to send a reply message to same InboundQueue, and the replyMessage is just a NullPayload message 
+			-->
+				<filtering-router>
+				<!--
+				we will just cache the message, no processing. The processing is done by the processor
+				-->
+					<vm:outbound-endpoint path="messageCache.cacheMessage">
+							<transformer ref="PEReplyToPermissions"/>
+							<transformer ref="PEXmlToObject"/>
+							<transformer ref="ExternalMessageTransformer" />
+					</vm:outbound-endpoint>
+				    <and-filter>
+				      <payload-type-filter expectedType="java.lang.String"/>
+				      <mule-xml:jxpath-filter pattern="message/@type" expectedValue="reply" />
+				    </and-filter>
+				</filtering-router>
+
+				<filtering-router>
+				<!--
+				 we will just cache the message, no processing. The processing is done by the processor
+				-->
+					<vm:outbound-endpoint path="messageCache.cacheMessage">
+							<transformer ref="PENotificationToPermissions"/>
+							<transformer ref="PEXmlToObject"/>
+							<transformer ref="ExternalMessageTransformer" />
+					</vm:outbound-endpoint>
+				    <and-filter>
+				      <payload-type-filter expectedType="java.lang.String"/>
+				      <regex-filter pattern="message*"/>
+				      <or-filter>
+					      <mule-xml:jxpath-filter pattern="message/@type" expectedValue="notification" />
+					      <mule-xml:jxpath-filter pattern="message/@type" expectedValue="request" />
+				      </or-filter>
+				    </and-filter>
+				</filtering-router>
+			</outbound>
+			<rollback-exception-strategy maxRedeliveryAttempts="0" doc:name="Rollback Exception Strategy">
+				<logger message="Will attempt redelivery" level="INFO" doc:name="Logger" />
+				<on-redelivery-attempts-exceeded>
+					<logger message="redelivery attempt exceeded" level="INFO" doc:name="Logger" />
+				</on-redelivery-attempts-exceeded>
+			</rollback-exception-strategy>			
+		</service>
+
+		<!-- 
+			this is called by messageHandler when processes a message that has to go to PE
+			DO NOT call it directly because will not cache the message
+		 -->
+		<service name="pe.outbound">
+			<inbound>
+				<vm:inbound-endpoint path="peclient.sendMessage" exchange-pattern="one-way">
+						<transformer ref="PEObjectToXml"/>
+						<transformer ref="PermissionsRequestToPE"/>
+				</vm:inbound-endpoint>
+			</inbound>
+
+			<outbound>
+				<multicasting-router>
+					<!--
+					<file:outbound-endpoint path="/tmp/perm/toPE" connector-ref="PEFileConnector"/>
+					-->
+
+					<jms:outbound-endpoint queue="${messaging.jms.pe.outbound.queue}?targetClient=1" connector-ref="PEOutboundJMSConnector" exchange-pattern="one-way" >
+							<message-properties-transformer>
+								<add-message-property key="JMSReplyTo" value="${messaging.jms.pe.outbound.queueManager}%2F${messaging.jms.pe.outbound.queue}%3FtargetClient%3D1" />
+							</message-properties-transformer>
+							<jms:object-to-jmsmessage-transformer/>
+					
+					</jms:outbound-endpoint>
+				</multicasting-router>
+			</outbound>
+		</service>
+		<!-- // -->
+
+		<!-- This is for allowing a quick bulk import from the file system --><!--
+		<service name="pe.file.inbound">
+			<inbound>
+				<file:inbound-endpoint path="/tmp/perm/pebulk" connector-ref="PEFileConnector" />
+			</inbound>
+
+			<outbound>
+				<pass-through-router>
+					<vm:outbound-endpoint
+						path="messageCache?method=cacheMessage"
+						transformer-refs="PEToPermissions PEXmlToObject"/>
+				</pass-through-router>
+			</outbound>
+		</service>
+		--><!-- // -->
+
+	    <service name="productResource">
+			<inbound>
+				<!-- 
+					cannot use transformers here because they are ignored 
+					(http://www.mulesoft.org/jira/browse/JERSEY-15)
+					so we have to do the transformation in the component 
+				-->
+	    		<inbound-endpoint address="http://${mule.host.bind}:63081/service/requestProduct" exchange-pattern="request-response" />
+			</inbound>
+			 <jersey:resources>
+				<component>
+					<spring-object bean="resources.productResource" />
+				</component>
+			</jersey:resources>			
+
+		</service>		
+	</model>	
+</mule>

@@ -1,0 +1,697 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:security="http://www.springframework.org/security/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+
+	<c:url var="assetSubmitUrl" value="/sapp/asset/details/asset_submit" />
+	<c:url var="landingUrl" value="/sapp/cwlanding/main?cwId=${commonWorkId}" />
+	<c:url var="deleteIconUrl" value="/images/buttons/delete-icon.png" />
+	<c:url var="contractDownloadUrl" value="/sapp/permissions/contract/download_start?auId=${assetDetailsForm.assetUse.id}" />
+	<c:url var="deleteOriginalFileUrl" value="/sapp/asset/details/delete_original_file?assetId=${assetDetailsForm.assetUse.asset.id}" />
+
+	<script type="text/javascript">
+	//<![CDATA[
+		var sourceId = '${assetDetailsForm.assetUse.asset.sources[0].id}';
+		var assetId = '${assetDetailsForm.assetUse.asset.id}';
+	//]]>		
+	</script>	 	
+	
+	<jsp:directive.include file="js/validate.js.jspx" />
+
+	<script type="text/javascript">
+	//<![CDATA[
+
+	function repositionDialog() {
+		// $modalDialog.dialog('option', 'position', $modalDialog.dialog('option','position'));
+	}
+	
+	$(document).ready(function() {
+
+		$('a.downloadContractRF').unbind('click').bind ('click', fnClickDownloadContractHandler);		
+		onChangeMediaType();
+		repositionDialog();
+		
+		$('#prevC').click (function() {
+			$.ajax({
+	            async: true,
+	            type: 'get',
+	            url: '${landingUrl}',
+	            success: function (response) {
+	            	// $('#modalDiv').empty().html(response);
+	              	// $modalDialog.dialog("close");
+		            fnEditRows ();
+	            }
+	        });
+		});	
+
+		onChangeMediaType();
+		
+		var hasBiblio = ${assetDetailsForm.hasBiblio};
+		
+		if (hasBiblio)
+			$('#biblioDiv').toggle();
+					
+		$('#hasBiblio1').click (function() {
+			$('#biblioDiv').toggle();
+		});		
+	});
+	
+	function onChangeMediaType() {
+		var mediaType = document.getElementById("assetUse.asset.mediaType");
+		hideAllMedia();
+		var currentValue = mediaType.options[mediaType.selectedIndex].value;
+		showMedia (currentValue);
+		
+		var showColor = (currentValue == 'Photo' || currentValue == 'Illustration' || currentValue == 'Map' || currentValue == 'Cartoon' || currentValue == 'Graph');
+		var colorRow = document.getElementById("colorRow");
+	}
+
+	function hideAllMedia () {
+		var media = document.getElementById("assetUse.asset.mediaType");
+		for (k = 0; k < media.length; k++) {
+			hideMedia (media.options[k].value);
+		}
+	}
+	
+	function hideMedia (name) {
+		var ourDiv = document.getElementById("details-Media-" + name);
+		if (ourDiv != null) {
+			ourDiv.style.display = "none";
+		}
+	}
+
+	function showMedia (name) {
+		var ourDiv = document.getElementById("details-Media-" + name);
+		if (ourDiv != null) {
+			ourDiv.style.display = "";
+		}
+	}
+
+	function onAssetRestrictedUseChange(checkbox) {
+		var row = document.getElementById("restrictedUseDetailsRow");
+		var div = document.getElementById("ruApprovedDiv");
+		
+		if (checkbox.checked) {
+            row.style.display="";
+            div.style.display="";
+		}
+		else {
+            row.style.display="none";
+            div.style.display="none";
+		}
+	}	
+//]]>		
+	</script>
+
+	<jsp:directive.include file="/WEB-INF/tiles/pages/include/generalMessage.jspx" />
+
+	<div class="requiredtxt">* indicates required field</div>	
+	<br/><br/>
+	<form:form modelAttribute="assetDetailsForm" method="POST" enctype="multipart/form-data" action="${assetSubmitUrl}">
+	<table>
+		<tr>
+			<td class="label">
+    			<form:label path="assetUse.asset.description" cssClass="required" cssErrorClass="error">Description:</form:label>
+			</td>
+			<td colspan="3">
+			    <form:input path="assetUse.asset.description" class="required" size="80" maxlength="1000" />
+			</td>
+		</tr>	
+		<tr>
+			<td>
+    			Active
+			</td>
+			<td>
+			    <!-- Use onclick instead of onchange because works better in IE. -->
+			    <form:checkbox path="assetUse.asset.active"/>
+			</td>
+				<td>Global BPM Category</td>
+			<td>
+				<form:select path="assetUse.gbpmCategory">
+				    <form:option label="Not Selected" value="0"/>
+					<form:options items="${gbpmCategories}" itemValue="code" itemLabel="description" />
+				</form:select>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				Owner Type
+			</td>
+			<td> 
+				${assetDetailsForm.assetUse.asset.ownerType.description}			
+			</td>		
+			<td>
+   			    Media Type
+			</td>
+			<td>
+				<form:select path="assetUse.asset.mediaType" onchange="onChangeMediaType()">
+					<form:options items="${mediaTypes}" itemValue="code" itemLabel="description" />
+				</form:select>
+			</td>
+				
+		</tr>
+		<tr>
+			<td>
+			   Wiley Owns Copyright
+			</td>
+			<td colspan="2">
+				<form:select path="assetUse.asset.copyrightType" class="required">
+				    <form:option label="No" value="0"/>
+				    <form:option label="Work For Hire" value="1"/>
+				    <form:option label="Copyright Transfer Agreement" value="2"/>
+				</form:select>
+			</td>
+		
+		</tr>
+							
+        <c:if test="${not assetDetailsForm.takenFromAnotherPublication}">
+		<tr>
+	 		<td colspan="4">
+				Asset Taken From Another Publication : <b>No</b>
+			</td>
+		</tr>
+		</c:if>
+		  <tr>
+		      <td colspan="4" id="originalPubData" style="${assetDetailsForm.takenFromAnotherPublication ? '' : 'display: none'}">
+		      <table style="width: 100%"> 
+		            <tr>
+			            <td colspan="4">
+				      		Asset taken from another publication: <b>Yes</b>
+				      	</td>
+				    </tr>
+		            <tr>
+			            <td>
+							Publication title:
+						</td>
+						<td>
+			    			<form:input path="assetUse.asset.originalPublicationTitle" size="20" maxlength="100" />
+						</td>											
+						<td>
+			    			Publication author:
+						</td>
+						<td>
+			    			<form:input path="assetUse.asset.originalPublicationAuthor" size="20" maxlength="100" />
+						</td>											
+					</tr>
+		            <tr>
+			            <td>
+							Article title:
+						</td>
+						<td>
+			    			<form:input path="assetUse.asset.originalArticleTitle" size="20" maxlength="100" />
+						</td>											
+						<td>
+			    			Article author:
+						</td>
+						<td>
+			    			<form:input path="assetUse.asset.originalArticleAuthor" size="20" maxlength="50" />
+						</td>											
+					</tr>
+					<tr>
+						<td>
+			    			Publication ISBN:
+						</td>
+						<td>
+			    			<form:input path="assetUse.asset.originalPublicationIsbn" size="17" maxlength="17" />
+						</td>											
+					</tr>
+					<tr>
+						<td>
+			    			Asset identified as:
+						</td>
+						<td>
+			    			<form:input path="assetUse.asset.originalFigureNumber" size="20" maxlength="50" />
+						</td>											
+						<td>
+			    			Publication page#:
+						</td>
+						<td>
+			    			<form:input path="assetUse.asset.originalPageNumber" size="10" maxlength="10" />
+						</td>						
+					</tr>
+				</table>
+			</td>
+		</tr>
+
+		<tr>
+			<td colspan="4">
+				<div id="details-Media-Text" style="display: none;">
+					<table width="100%">
+						<tr>
+							<td>
+							    From 1:
+							</td>
+							<td>
+							    <form:input path="assetUse.asset.from1" size="10" maxlength="25" />
+							</td>											
+							<td>
+							    To 1:
+							</td>
+							<td>
+							    <form:input path="assetUse.asset.to1" size="10" maxlength="25" />
+							</td>											
+						</tr>
+						<tr>
+							<td>
+							    From 2:
+							</td>
+							<td>
+							    <form:input path="assetUse.asset.from2" size="10" maxlength="25" />
+							</td>											
+							<td>
+							    To 2:
+							</td>
+							<td>
+							    <form:input path="assetUse.asset.to2" size="10" maxlength="25" />
+							</td>											
+						</tr>
+						<tr>
+							<td>
+							    From 3:
+							</td>
+							<td>
+							    <form:input path="assetUse.asset.from3" size="10" maxlength="25" />
+							</td>											
+							<td>
+							    To 3:
+							</td>
+							<td>
+							    <form:input path="assetUse.asset.to3" size="10" maxlength="25" />
+							</td>											
+						</tr>
+					</table>										
+				</div>							
+			</td>
+		</tr>
+		<tr>
+			<td>
+				Keywords
+			</td>
+			<td colspan="3">
+			    <form:input path="assetUse.asset.keywords" size="50" maxlength="256" />
+			</td>
+		</tr>
+
+		<tr>
+			<td>
+    			File name
+			</td>
+			<td colspan="3">
+    			<form:input path="assetUse.asset.filename" size="50" maxlength="100" />
+			</td>
+		</tr>
+		<security:authorize access="hasAnyRole('upload_asset_file', 'EMPLOYEE_DEFAULT')">
+		<tr>
+			<td>
+    			Upload Original File
+			</td>
+			<td colspan="3">
+    			<input type="file" name="assetFile" size="40" />
+			</td>
+		</tr>
+		<tbody id="originalFileDiv">
+		<c:if test="${not empty assetDetailsForm.assetUse.asset.originalFile}">
+
+			<tr>
+				<td></td>
+				<td colspan="3">
+					Uploading new file will replace current one.<br />
+					<c:url var="thumbUrl" value="/sapp/product/assetThumbnail?assetId=${assetDetailsForm.assetUse.asset.id}&amp;size=medium" />
+					<img src="${thumbUrl}" alt="Thumbnail" />
+				</td>
+			</tr>		
+			<tr>
+				<td>Original File</td>
+				<td colspan="3">
+					<c:url var="downloadUrl" value="/sapp/asset/details/download_file?fileId=${file.id}" />
+					
+					<jsp:element name="a">
+						<jsp:attribute name="href">
+							<c:url value="/sapp/asset/details/download_file?fileId=${assetDetailsForm.assetUse.asset.originalFile.id}"/>
+						</jsp:attribute>
+							(${assetDetailsForm.assetUse.asset.originalFile.objectName})
+							(${wileyfn:filesize(assetDetailsForm.assetUse.asset.originalFile.data)})
+							uploaded on <fmt:formatDate type="date" value="${assetDetailsForm.assetUse.asset.originalFile.lastUpdatedDate}" />	
+					</jsp:element>
+				
+				</td>
+				<td>
+					<a id="deleteOriginalFileFF" href="#">
+					<img src="${deleteIconUrl}" alt="delete Original File" />
+					</a>
+				</td>
+			</tr>
+			
+			</c:if>	
+			</tbody>
+		</security:authorize>
+		<tr>
+			<td>
+    			Source Reference#
+			</td>
+			<td colspan="3">
+    			<form:input path="assetUse.asset.vendorId" size="50" maxlength="50" />
+			</td>
+		</tr>
+    <c:if test="${assetDetailsForm.assetUse.needToIncludePhotographer}">	
+		<tr>
+			<td>
+    			Artist/Photographer
+			</td>
+			<td colspan="3">
+    			<form:input path="assetUse.asset.artist" size="50" maxlength="100" />
+			</td>
+		</tr>
+	</c:if>
+		<tr>
+			<td>
+       			Credit Line for this Asset
+			</td>
+			<td colspan="3">
+				<form:textarea path="assetUse.asset.creditLine" rows="2" cols="60" />
+			</td>
+		</tr>
+		<tr>
+			<td>
+				Add bibliographic reference 
+			</td>
+			<td colspan="3">
+				<form:checkbox path="hasBiblio"/> 
+			</td>
+		</tr>	
+			
+		<tbody id="biblioDiv" style="margin-left: 2em;display:none;" >
+			<tr>
+				<td>
+					Citation:
+				</td>
+				<td colspan="3">
+					<form:textarea path="assetUse.asset.citation" htmlEscape="true" cols="40" rows = "3" />				
+				</td>
+			</tr>	
+	
+			<tr>
+				<td>
+					Biblio ref.:
+				</td>
+				<td colspan="3">
+					<form:textarea path="assetUse.asset.biblio" htmlEscape="true" cols="40" rows = "3" />				
+				</td>
+			</tr>
+		</tbody>		
+		<tr>
+			<td>
+			    Source Default Credit Line
+			</td>
+			<td colspan="3">
+			    <c:out value="${assetDetailsForm.assetUse.asset.sourceCreditLine}" />
+			</td>
+		</tr>
+		<tr>
+			<td>
+			    Source(s)
+			</td>
+			<td colspan="3">
+			    <c:out value="${assetDetailsForm.assetUse.asset.sourcesAsString}" />
+			</td>
+		</tr>
+	<c:if test="${assetDetailsForm.assetUse.asset.importSource != null}">
+		<tr>
+			<td>This asset originated from</td>
+			<td><c:out value="${assetDetailsForm.assetUse.asset.importSource.description}" /></td>
+		</tr>
+	</c:if>
+		
+		<tr>
+			<td>
+   			   Model Release/Patient Consent
+			</td>
+			<td  colspan="3">
+			    <form:select path="assetUse.asset.modelRelease">
+					<form:options items="${modelReleases}" itemValue="code" itemLabel="name" />
+				</form:select>
+			</td>
+		</tr>
+		<tr>
+							<td>
+			    				Media Manager
+							</td>
+							<td>
+			    				<form:checkbox path="assetUse.mediaManager"/>
+							</td>
+		</tr>
+		<tr>
+		    <td>
+		        <table>
+					<tr>
+						<td>
+							<form:checkbox path="assetUse.asset.managed" disabled="true" />
+						</td>
+						<td>
+			    			Rights Managed
+						</td>
+					</tr>
+					<tr>
+						<td>
+						    <form:checkbox path="assetUse.asset.feeRequired" disabled="true"/>
+						</td>
+						<td>
+			    			Fee Required
+						</td>
+					</tr>
+					<tr>
+						<td>
+						    <form:checkbox path="assetUse.asset.royaltyFree" disabled="true"/>
+						</td>
+						<td>
+			    			Royalty Free
+						</td>
+					</tr>
+					<tr>
+						<td>
+						    <form:checkbox path="assetUse.asset.willBeRoyaltyFree"/>
+						</td>
+						<td>
+			    			Will be royalty free
+						</td>
+					</tr>
+					<tr>
+						<td>
+						    <form:checkbox path="assetUse.asset.restrictedUse" onclick="onAssetRestrictedUseChange(this)" />
+						</td>
+						<td>
+			    			Restricted Use
+						</td>
+					</tr>
+			    	<tr>
+						<td>
+						    <!-- Use onclick instead of onchange because works better in IE. -->
+						    <form:checkbox path="assetUse.asset.workForHire" disabled="true" />
+						</td>
+						<td>
+			    			Work For Hire
+						</td>
+					</tr>
+			    	<tr>
+						<td>
+						    <!-- Use onclick instead of onchange because works better in IE. -->
+						    <form:checkbox path="assetUse.asset.willBeWorkForHire" disabled="true"/>
+						</td>
+						<td>
+			    			Will be work for hire
+						</td>
+					</tr>	
+		        </table>
+            </td>
+            <td>
+ 			   <table>
+ 			   	   <tr>
+ 			   			<td>
+							<form:checkbox path="assetUse.asset.stmGuidelines" disabled="true" />
+						</td>
+						<td>
+			    			STM Guidelines
+						</td>
+				    </tr>
+ 			   		<tr>
+						<td>
+						    <form:checkbox path="assetUse.asset.mustDisplayCredit" />
+						</td>
+						<td nowrap="1">
+			    			Must Display Credit
+						</td>
+					</tr>
+ 			   		<tr>
+						<td>
+						    <form:checkbox path="assetUse.asset.obtainedByAuthor" />
+						</td>
+						<td nowrap="1">
+			    			Obtained By Author
+						</td>
+					</tr>
+					<tr>
+						<td>
+						    <form:checkbox path="assetUse.asset.propertyRelease" />
+						</td>
+						<td nowrap="1">
+			    			Property Release
+						</td>
+					</tr>					
+					<tr>
+						<td>
+						    <form:checkbox path="assetUse.asset.archive" />
+						</td>
+						<td>
+			    			Archive
+						</td>
+					</tr>
+	        	</table>
+	    	</td>
+	    	<c:if test="${not empty rfDeals}">
+	    	<td colspan="2" valign="top">
+	    		<table class="display">
+	    			<tr>
+	    				<th>Royalty Free</th>
+	    			</tr>
+	    			<c:forEach items="${rfDeals}" var="rfDeal">
+	    				<tr>
+	    					<td nowrap="1">${rfDeal.description}<c:if test="${hasFile}">(<a class="downloadContractRF" id="${assetDetailsForm.assetUse.id}" href="#">download</a>)
+	    					</c:if>
+	    					</td>
+	    				</tr>
+	    			</c:forEach>
+	    			<tr>
+	    				<td>Total seats: ${0 == assetDetailsForm.assetUse.asset.totalSeats ? "Unlimited" : assetDetailsForm.assetUse.asset.totalSeats}</td>
+	    			</tr>
+	    			<tr>
+	    				<td>Used seats: ${assetDetailsForm.assetUse.asset.totalUsedSeats}</td>
+	    			</tr>
+	    			<tr>
+	    				<td>Print run: ${0 == assetDetailsForm.assetUse.asset.totalPrintRun ? "Unlimited" : assetDetailsForm.assetUse.asset.totalPrintRun}</td>
+	    			</tr>
+	    		</table>
+	    	</td>
+	    	</c:if>
+	    </tr>
+		<tr>
+			<td colspan="4">
+				<div id="ruApprovedDiv" style="${assetDetailsForm.assetUse.asset.restrictedUse ? '' : 'display: none'}">
+					<table>
+						<tr>
+							<td>
+			    				Restricted Use Approved
+							</td>
+							<td>
+			    				<form:checkbox path="assetUse.restrictedUseApproved"/>
+							</td>
+						</tr>
+						<c:if test="${assetDetailsForm.assetUse.restrictedUseApproved}">
+						<tr>
+							<td>
+			    				Restricted Use Approved User
+							</td>
+							<td>
+			    				${assetDetailsForm.assetUse.restrictedUseApprovedUser.fullName}
+							</td>
+							<td>
+			    				Restricted Use Approved Date
+							</td>
+							<td>
+			    				<fmt:formatDate type="date" value="${assetDetailsForm.assetUse.restrictedUseApprovedDate}" />
+							</td>
+						</tr>
+						</c:if>
+		            </table>
+		        </div>
+		    </td>
+		</tr>					    
+		<tr id="restrictedUseDetailsRow" style="${assetDetailsForm.assetUse.asset.restrictedUse ? '' : 'display: none'}">
+			<td>
+               Restricted Use Details
+            </td>
+			<td colspan="3">
+			    <form:textarea path="assetUse.asset.restrictedUseDetails" rows="1" cols="60"/>
+			</td>
+		</tr>
+	</table>
+
+	<div class="buttonset">	
+	   <c:if test="${null == searchflag}">
+			<input type="submit" id="submitBC" value="Save"/>
+		</c:if>
+		<c:if test="${null != searchflag}">
+			<input type="button" id="prevC" value="Previous" />
+			<input type="submit" id="submitC" value="Save"/>
+		</c:if>
+	</div>	
+</form:form>
+
+	<script type="text/javascript">
+	    $('#assetDetailsForm').ajaxForm({
+	        success: function(data) {
+	        	if (${null == searchflag}) {
+ 					$('#tabs #ui-tabs-1').empty().html(data);
+ 			  		//$modalDialog.dialog("close");
+	                fnRefreshRows (${assetDetailsForm.assetUse.id});	            
+	            }  else {
+	            	$modalDialog.dialog("close");
+	            	//fnRefreshRows (${assetDetailsForm.assetUse.id});
+	            	//window.location.reload();   
+	            	}
+	        //	document.location.href = "${landingUrl}";
+        	},
+        	error: function(request, error) {
+        		// smarkoff: Is this correct? - using response which is not in params
+        		$('#modalDiv').html(response);
+        		//repositionDialog();
+        	}
+	    });
+	    
+	    <!-- SR_239173 - No Fly photographer match warning on click of 'NEXT' button changes starts-->
+	    $('#submitBC').click (function() {
+	    	var $artistID = $( 'input[id$="artist"]');
+			if ($artistID.length) {
+				artistAndCreditLineBlur($artistID);
+				$('#noFlyMatchApproved').attr('value', true);
+				
+			}
+		
+			});
+	    
+	    $('#cancelLink').click (function() {
+	    	document.location.href = "${landingUrl}";
+	    });
+	    
+	    <!-- SR_239173 - No Fly photographer match warning on click of 'NEXT' button changes ends-->
+
+		$('#deleteOriginalFileFF').click(function() {
+			var r = confirm("Are you sure you want to delete this file?");
+			if (r == true) {
+				deleteFile();
+			} else {
+			    return false;
+			}
+		});
+		
+		function deleteFile() {
+			$.ajax({
+	            async: true,
+	            type: 'post',
+	            url: '${deleteOriginalFileUrl}',
+	            success: function (response) {
+	            	fnRefreshRows (${assetDetailsForm.assetUse.id});
+	            	$('#originalFileDiv').hide();
+	            }
+	        });			
+	        return false;
+		}
+		   
+	</script>
+</jsp:root>

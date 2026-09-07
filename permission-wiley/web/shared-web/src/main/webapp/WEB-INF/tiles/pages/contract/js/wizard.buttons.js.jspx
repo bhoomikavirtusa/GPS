@@ -1,0 +1,106 @@
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+	<c:url var="assetSourceListUrl" value="/sapp/landing/sources?cwId=${contractWizardForm.cwId}" />
+
+	<script type="text/javascript">
+	//<![CDATA[
+
+	// ------------------ BUTTONS ----------------
+	$('#nextB').click (function() {
+		next('post');
+	});
+
+	$('#selectB').click (function() {
+		next ('get');
+	});
+		
+	$('#finishB').click (function() {
+		finish('post');
+	});
+	
+	$('#prevB').click (function() {
+		prev('get');
+	});
+	
+	// set focus on first input
+	$('#contractWizardForm *:input[type!=hidden]:first').focus();
+
+	function next (rtype) {
+		if ($("#contractWizardForm").validate().form() == true) {	
+			$.ajax({
+	            async: true,
+	            type: rtype,
+	            url: '${nextUrl}',
+	            data: $('#contractWizardForm').serialize(),
+	            success: function (response){
+	            	$('#modalDiv').empty().html(response);
+	            	repositionDialog();
+	            }
+	        });
+		}
+	}
+
+	function finish (rtype) {
+		if ($("#contractWizardForm").validate().form() == true) {
+			$("#finishButtons").hide();
+			$("#waitDiv").show();
+			$.ajax({
+	            async: false,
+	            type: rtype,
+	            url: '${nextUrl}',
+	            data: $('#contractWizardForm').serialize(),
+	            dataType: 'json',
+	            success: function (json){
+	            	var selected = $tabs.tabs( "option", "selected" );
+	            	// if asset table tab selected, refresh just selected rows
+	                if (selected == 0) {
+	                	for ( var i=0, iLen=json.auids.length ; i<iLen ; i++ ) {
+		                	fnRefreshRows (json.auids[i]);
+		                }
+		            // if source table tab selected, refresh the whole table
+		            } else {
+		            	$('#ltabs #ui-tabs-2').load('${assetSourceListUrl}');
+		            }
+		            refreshPanels (${contractWizardForm.cwId});
+		            // redirect to exclude assets
+	                $.ajax({
+			            async: true,
+			            type: 'get',
+			            url: json.url,
+			            dataType: 'html',
+			            success: function (resp) {
+			            	// smarkoff (11/2013): regarding comment on next line we no longer have excluded mediums - should a change be made?
+			            	// empty response means no excluded mediums means close the dialog
+			            	if (resp == '')
+			            		$modalDialog.dialog("close");
+			            	else 
+			            		$('#modalDiv').empty().html(resp);
+			            		repositionDialog();
+			            }
+			        });		            
+	                repositionDialog();
+	            },
+	            error: function(request, error) {
+	                $('#modalDiv').empty().html(error);
+	                repositionDialog();
+	            }
+	        });
+		}
+	}
+
+	function prev (rtype) {
+		$.ajax({
+            async: true,
+            type: rtype,
+            url: '${prevUrl}',
+            success: function (response){
+                $('#modalDiv').empty().html(response);
+                repositionDialog();
+            }
+        });
+	}
+	//]]>		
+	</script>
+</jsp:root>	

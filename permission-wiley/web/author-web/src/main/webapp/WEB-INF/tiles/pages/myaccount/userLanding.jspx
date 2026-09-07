@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+
+	<jsp:directive.page pageEncoding="UTF-8" />
+
+	<c:url var="cwLandingUrl" value="/sapp/cwlanding/scroll" />
+	
+	<c:url var="summaryPanelUrl" value="/sapp/panels/summaryPanel" />
+	<c:url var="historyPanelUrl" value="/sapp/landing/cw/history" />
+	<c:url var="countsPanelUrl" value="/sapp/landing/cw/countsPanel" />
+	
+	<c:url var="userProfileUrl" value="${wileyfn:getRestUrl(pageContext.request)}/service/user/profile/" />
+	<c:url var="extraMuleRequestUrl" value="${wileyfn:getRestUrl(pageContext.request)}/service/asset/test2" />
+
+	<jsp:body>
+		<script type="text/javascript">
+		$(document).ready(function() {
+			<c:forEach items="${productList}" var="product">
+				<c:set var="cw" value="${product.commonWork}" />
+				$("#summaryPanel_${cw.id}").load("${summaryPanelUrl}?cwId=${cw.id}&amp;readOnly=1");
+				$("#countsPanel_${cw.id}").load("${countsPanelUrl}?cwId=${cw.id}");
+				$("#historyPanel_${cw.id}").load("${historyPanelUrl}?cwId=${cw.id}&amp;limit=5");
+			</c:forEach>
+		});
+		
+		function testMuleRequest() {
+			var uid = "${userSession.currentUser.id}";
+			if (uid == "") uid = "1";
+			$.jsonp({
+				"url": '${userProfileUrl}' + uid + '?callback=?', 
+				"success": function(json) {
+					alert("loaded user profile successfully from ${userProfileUrl}");
+				},
+				"error": function() {
+		        	alert ("Error: failed to load profile from ${userProfileUrl}");
+		        }
+	        });
+		}
+		
+		// not currently used
+		function testMuleRequest2() {
+			alert("testMuleRequest2() calling: ${extraMuleRequestUrl}");
+			$.ajax({
+		    	type: 'get',
+		        url: '${extraMuleRequestUrl}',
+		        data: "",
+		        success: function (response) {
+		            alert("response: " + response);
+		        },
+		        error: function (jqXHR, textStatus, errorThrown) {
+		        	alert("error happened: textStatus: " + textStatus + ", errorThrown: " + errorThrown
+		        		+ ", status: " + jqXHR.status + ", responseText: " + jqXHR.responseText);
+		        }
+		    });
+		}
+		</script>
+		
+		<c:if test="${notification != null and notification != '*'}">
+			<table class="width100">
+        		<tr>
+        			<td style="border: thick solid red">
+						${notification}
+					</td>
+				</tr>
+			</table>
+		</c:if>
+		
+		<c:if test="${empty productList}">
+			There are no active products assigned at this time.
+		</c:if>
+
+		<c:forEach items="${productList}" var="product">
+			<c:set var="cw" value="${product.commonWork}" />
+		 	<table class="width100">
+		 		<tr class="lightGrayGradient">
+		 		    <td style="width: 35%; vertical-align: top"><div id="summaryPanel_${cw.id}" style="clear: both">Loading...</div></td>
+    				<td style="width: 15%; vertical-align: top">
+    					<div id="countsPanel_${cw.id}" style="clear: both">Loading...</div>
+    					<div style="margin-top: 10px">
+    						<a href="${cwLandingUrl}?cwId=${cw.id}" class="button">Go to Product</a>
+    						&#x2003;
+    						<a href="javascript:testMuleRequest()" style="text-decoration: none">&#x2003;</a>
+    					</div>
+    				</td>
+    				<td style="width: 50%; vertical-align: top"><div id="historyPanel_${cw.id}">Loading...</div></td>    
+		 		</tr>
+		 	</table>
+		 	<br/><br/>
+		</c:forEach>
+
+	</jsp:body>
+</jsp:root>

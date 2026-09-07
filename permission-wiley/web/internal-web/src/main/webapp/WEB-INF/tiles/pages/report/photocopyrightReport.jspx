@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+	
+	<c:url var="nextUrl" value="/sapp/commonwork/report/PhotocopyrightReport.xls" />
+	<c:url var="prevUrl" value="/sapp/cwlanding/main?cwId=${cwId}" />
+	
+	<jsp:directive.page pageEncoding="UTF-8" />
+
+	<fmt:setBundle basename="messages" />
+
+	<jsp:body>
+		<c:url var="photocopyrightReportUrl" value="/sapp/commonwork/report/photocopyrightReport.xls" />
+		
+		<h3>Photo Department by Copyright Year Report</h3>
+		<form method="post" action="${photocopyrightReportUrl}">
+			<table>
+				<tr>
+					<td>
+						Enter Copyright Year for the report: 
+						<input type="text" name="year" />  (Defaults to current year)
+					</td>
+				</tr>
+			</table>
+			<div class="buttonset">					
+				<input type="submit" id="generateB" value="Generate-Spreadsheet" />
+				<a href="#" id="cancelLink" class="button">Cancel</a> 	 															
+			</div>
+		</form>
+		
+		<br/>
+	
+	</jsp:body>
+	
+	<script type="text/javascript">
+	//<![CDATA[
+      $(document).ready(function() {
+           
+		$('#generateB').click (function() {
+			$.ajax({
+	            async: true,
+	            type: 'get',
+	            url: '${nextUrl}',
+	            success: function (response){
+	            	$modalDialog.dialog("close");
+	            }
+	        });
+		});
+	});
+	//]]>		
+	</script>
+</jsp:root>

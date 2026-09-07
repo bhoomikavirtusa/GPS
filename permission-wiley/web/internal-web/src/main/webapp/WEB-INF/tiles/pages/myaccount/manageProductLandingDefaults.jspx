@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root 
+	version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+>
+
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+
+	<c:set var="user" value="${myAccountForm.user}"/>
+	<c:set var="userDefaults" value="${myAccountForm.user.userDefaults}"/>
+
+	<form:form modelAttribute="myAccountForm">
+		<jsp:attribute name="action">
+			<c:url value="/sapp/myaccount"/>
+		</jsp:attribute>
+
+		<div style="display: none">
+			<input type="hidden" name="_page4" value="true"/>
+			<form:hidden path="mode"/>
+		</div>
+
+		<table class="width100">
+			<tr>
+				<th>Product Landing Defaults</th>
+				<th></th>
+			</tr>
+
+			<spring:nestedPath path="user.userDefaults">
+				<tr>
+					<td>
+						<form:label path="componentCategory" cssClass="required" cssErrorClass="error">Component Category:</form:label>
+					</td>
+					<td>
+						<form:select path="componentCategory" items="${componentCategoryList}" itemLabel="description" itemValue="code"/>
+					</td>
+				</tr>
+			</spring:nestedPath>
+		</table>
+		
+		<div class="buttonset">
+			<jsp:element name="input">
+				<jsp:attribute name="name">_target0</jsp:attribute>
+				<jsp:attribute name="type">submit</jsp:attribute>
+				<jsp:attribute name="value">Save</jsp:attribute>
+				<jsp:attribute name="onclick">this.form.elements['mode'].value='MODIFY';</jsp:attribute>
+			</jsp:element>
+			
+			<c:url var="userAccountUrl" value="/sapp/myaccount" />
+			<a href="${userAccountUrl}" id="cancel" class="button">Cancel</a>	
+		</div>			
+	</form:form>
+</jsp:root>

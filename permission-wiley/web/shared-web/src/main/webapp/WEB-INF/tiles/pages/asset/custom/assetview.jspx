@@ -1,0 +1,66 @@
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+		<tr>
+			<td>Description</td>
+			<td colspan="3">${customAssetForm.extendedAssetUse.asset.description}
+			</td>
+		</tr>	
+		<tr>
+			<td>Media Type</td>
+			<td>${customAssetForm.extendedAssetUse.asset.mediaType.description}
+			</td>
+			
+			<td>Usage</td>
+			<td>${customAssetForm.extendedAssetUse.usage.description}
+			</td>			
+		</tr>
+		<tr>
+			<td>Permission Type</td>
+			<td>
+				${customAssetForm.extendedAssetUse.permissionType}
+			</td>
+								
+			<td>Size</td>
+			<td>${customAssetForm.extendedAssetUse.size.description}
+			</td>
+		</tr>		
+		<tr>
+			<td>Credit Line</td>
+			<td colspan="3">${customAssetForm.extendedAssetUse.asset.creditLine}
+			</td>
+		</tr>
+		<c:if test="${not empty customAssetForm.extendedAssetUse.asset.sources}">
+		<input type="hidden" id="sourceId" value="${customAssetForm.extendedAssetUse.asset.sources[0].id}"/>
+		<tr>
+			<td>Vendor name</td>
+			<td colspan="3">${customAssetForm.extendedAssetUse.asset.sourcesAsString}
+			</td>				
+		</tr>
+		</c:if>
+		<tr>
+			<td>Source Reference#</td>
+			<td>${customAssetForm.extendedAssetUse.asset.vendorId}
+			</td>
+			
+			<td>Keywords</td>
+			<td>${customAssetForm.extendedAssetUse.asset.keywords}
+			</td>
+		</tr>
+		<tr>
+			<td>Permission comment</td>
+			<td colspan="3">${customAssetForm.extendedAssetUse.permissionComment}
+			</td>
+		</tr>
+		<tr>
+			<td>Canceled</td>
+			<td colspan="3">${wileyfn:formatBoolean(customAssetForm.extendedAssetUse.canceled)}  
+			</td>
+		</tr>
+</jsp:root>

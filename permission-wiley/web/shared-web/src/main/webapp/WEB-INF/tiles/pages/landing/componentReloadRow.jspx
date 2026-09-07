@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+
+>
+	<!-- Need to specify text/html since default for jspx is text/xml
+	and 4 td's are not a valid XML document.
+	-->
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8" />
+
+						<!-- Just copy/pasted from components.jspx -->
+						<td style="text-align: center">
+							<jsp:element name="input">
+								<jsp:attribute name="type">image</jsp:attribute>
+								<jsp:attribute name="alt">Delete Component</jsp:attribute>
+								<jsp:attribute name="onclick">deleteRow('${component.id}')</jsp:attribute>
+								<jsp:attribute name="src">
+									<c:url value="/images/buttons/delete-icon.png" />
+								</jsp:attribute>
+							</jsp:element>
+						</td>
+						<td onclick="editRow(${component.id})"><c:out value="${component.category.description}" /></td>
+						<td onclick="editRow(${component.id})"><c:out value="${component.name}" /></td>
+						<td>
+							<c:url var="downIconUrl" value="/images/buttons/down_arrow.png" />
+							<c:url var="upIconUrl" value="/images/buttons/up_arrow.png" />
+							<c:if test="${not status.first}"> 
+								<a href="#" onclick="moveUp(${component.id}); return false;"> <img src="${upIconUrl}" /> </a>
+							</c:if>
+							<c:if test="${not status.last}">
+						 		<a href="#" onclick="moveDown(${component.id}); return false;"> <img src="${downIconUrl}" /> </a>
+						 	</c:if>
+						</td>						
+
+</jsp:root>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<message protocolVersion="1.0" type="reply" sent="1213911742234" source="PERM001" id="2967051286.1213911742234.1">
+    <targets>
+        <target>CMS001</target>
+        <target>PERM001</target>
+    </targets>
+    <operations>
+        <operation operationType="productUpdate">
+            <parameters/>
+            <items>
+                <product>
+                    <xmlId>0</xmlId>
+                    <id>0</id>
+                    <externalId>ext-prod-001</externalId>
+                    <isbn10>0123456789</isbn10>
+                    <isbn13>0123456789ABCD</isbn13>
+                    <pnumber>PN1234567890</pnumber>
+                    <sku>SKU1234567890</sku>
+                    <title>LONG TITLE</title>
+                    <shortTitle>Short Title</shortTitle>
+                    <volume>Volume 1</volume>
+                    <copyrightYear>2008</copyrightYear>
+                    <productionDate>2008-06-19T14:42:22.250-07:00</productionDate>
+                    <printDate>2008-06-19T14:42:22.250-07:00</printDate>
+                    <subjectCode>
+                        <code>SC01</code>
+                        <name>Subject Code</name>
+                    </subjectCode>
+                    <targetMedium>
+                        <code>MED01</code>
+                        <name>Medium</name>
+                    </targetMedium>
+                    <businessUnit>
+                        <code>BU01</code>
+                        <name>Business Unit</name>
+                    </businessUnit>
+                    <edition>
+                        <xmlId>0</xmlId>
+                        <id>0</id>
+                        <externalId>ext-pe-123</externalId>
+                        <name>Product Edition</name>
+                        <editionNumber>1</editionNumber>
+                        <productLine>PL01</productLine>
+                    </edition>
+                    <productLine>
+                        <code>PL01</code>
+                        <name>ProductLine</name>
+                        <businessUnit>BU01</businessUnit>
+                    </productLine>
+                    <productFamily>
+                        <code>PF01</code>
+                        <name>ProductFamily</name>
+                    </productFamily>
+                    <productType>
+                        <code>PT01</code>
+                        <name>Product Type</name>
+                    </productType>
+                    <geographicalLocation>
+                        <code>US</code>
+                        <name>United States</name>
+                    </geographicalLocation>
+                    <userToProducts>
+                        <userToProduct>
+                            <user>
+                                <type>AUTHOR</type>
+                                <email>author@wiley.com</email>
+                                <firstName>John</firstName>
+                                <lastName>Author</lastName>
+                                <code>AU01</code>
+                            </user>
+                            <product>0</product>
+                            <roles>
+                                <role>AU</role>
+                            </roles>
+                        </userToProduct>
+                        <userToProduct>
+                            <user>
+                                <type>EMPLOYEE</type>
+                                <email>editor@wiley.com</email>
+                                <firstName>Jane</firstName>
+                                <lastName>Editor</lastName>
+                            </user>
+                            <product>0</product>
+                            <roles>
+                                <role>ED</role>
+                            </roles>
+                        </userToProduct>
+                    </userToProducts>
+                </product>
+            </items>
+        </operation>
+    </operations>
+</message>

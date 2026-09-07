@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
+	<appender name="weblog"
+		class="org.apache.log4j.RollingFileAppender">
+		<param name="File" value="${catalina.base}/logs/author.log" />
+		<param name="MaxFileSize" value="10MB"/>
+        <param name="MaxBackupIndex" value="10"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{ISO8601} %-5p %40.40c - %m%n" />
+		</layout>
+	</appender>
+	
+	<category name="org.springframework">
+		<priority value="warn"/>
+	</category>
+
+<!-- Enable to see when transactions are created and commits are done
+    <category name="org.springframework.transaction">
+        <priority value="debug"/>
+    </category>
+-->
+<!--
+	<category name="org.springframework.security">
+		<priority value="debug" />
+	</category>
+-->
+	<category name="org.apache">
+		<priority value="info" />
+	</category>
+
+	<category name="org.mule">
+		<priority value="warn" />
+	</category>
+
+	<category name="org.hibernate">
+		<priority value="warn" />
+	</category>
+<!-- Enable SQL to see statements, enable type to see param values
+	<category name="org.hibernate.SQL">
+    	<priority value="TRACE"/>
+	</category>
+    
+	<category name="org.hibernate.type">
+		<priority value="TRACE"/>
+	</category>
+-->
+
+	<!-- We now use atomikos instead of bitronix -->
+	<category name="bitronix.tm.recovery.Recoverer">
+	    <priority value="warn" />
+	</category>
+	
+	<category name="com.atomikos">
+		<priority value="warn" />
+	</category>
+	
+	<!-- Temporarily suppress Atomikos warnings: do want to figure out why getting warnings in the future -->
+	<category name="com.atomikos.icatch">
+		<priority value="error" />
+	</category>
+	<category name="com.atomikos.datasource">
+		<priority value="error" />
+	</category>
+
+	<category name="com.wiley.permissions">
+		<priority value="debug" />
+	</category>
+
+	<category name="com.wiley.sf.common">
+		<priority value="debug" />
+	</category>
+	
+	<!-- uncomment for debug, do not check in with debug though
+	<category name="net.sf.jasperreports">
+		<priority value="debug" />
+	</category>
+	-->
+
+	<root>
+		<priority value="info" />
+
+		<appender-ref ref="weblog" />
+	</root>
+</log4j:configuration>

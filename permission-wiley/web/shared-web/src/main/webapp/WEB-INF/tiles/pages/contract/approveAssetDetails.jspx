@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="approveAssetDetailUrl" value="/sapp/permissions/contract/submit_ApproveAssetDtl" />
+	<c:url var="assetSourceListUrl" value="/sapp/landing/sources?cwId=159015" />
+	<c:url var="invoiceTabUrl" value="/sapp/landing/invoices?cwId=159015" />
+	
+
+	
+	<script type="text/javascript">
+	//<![CDATA[	
+	$('#saveB1').click (function() {
+		
+		if ($("#contractWizardForm").validate().form() == true) {	
+			$.ajax({
+	            async: false,
+	            type: 'post',
+	            url: '${approveAssetDetailUrl}',
+	            data: $('#contractWizardForm').serialize(),
+	            dataType: 'json',
+	            success: function (json){
+	        		var selected = $tabs.tabs( "option", "selected" );
+	            	// if asset table tab selected, refresh just selected rows
+	                if (selected == 0) {
+		            	var ids = "";
+	                	for ( var i=0, iLen=json.auids.length ; i<iLen ; i++ ) {
+		                	ids += json.auids[i] + ",";
+		                }
+		                fnRefreshRows (ids);
+		            // if source table tab selected, refresh the whole table
+		            } else if (selected == 1) {
+		            	$('#ltabs #ui-tabs-2').load('${assetSourceListUrl}');
+		            }
+	            	// if invoice tab selected, refresh the whole table
+		            else if (selected == 2) {
+		            	$('#ltabs #ui-tabs-3').load('${invoiceTabUrl}');
+		            }
+	                if (json.url != '') {
+	                	// not sure if a second is enough to refresh the rows, 
+	                	// otherwise the download does not work
+		                setTimeout("fnDownload('" + json.url + "')", 1000);
+		                $modalDialog.dialog("close");
+				    } else {                
+	            		$modalDialog.dialog("close");
+	            	}
+	            }
+	});	
+			
+	}
+	});	
+	//]]>		
+	</script>
+
+	<form:form modelAttribute="contractWizardForm" action="approveAssetDetailUrl"> 
+	<input type="hidden" name="auId" id="auId" value="${auId}"/>
+	
+	<table>
+		<tr>
+			<td colspan="2">
+			You are indicating that your Publisher or Legal representative has authorized an exception to the minimum grant <BR />
+			requirement for this asset. Please enter the name of the person authorizing the exception and an explanation. 			
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2"> 
+			</td>
+		</tr>	
+		<tr>
+			<td colspan="2">
+			</td>
+		</tr>		
+		<tr>
+			<td align="right"><form:label path="contract.approverName" cssErrorClass="error">  Name of approver</form:label></td><td align="left">
+			<form:input path="contract.approverName" class="required" maxlength="50" size="50" /></td>
+		</tr>	
+		<tr>
+			<td colspan="2">
+			</td>
+		</tr>	
+		<tr>
+			<td align="right">
+			<form:label path="contract.approverRemarks" cssErrorClass="error">  Reason for exception</form:label></td><td align="left">
+			<form:input path="contract.approverRemarks" class="required" maxlength="50" size="50" /></td>
+		</tr>	
+	</table>
+	</form:form>
+
+	<div class="buttonset">
+		<input type="button" id="saveB1" value="Save" /> 
+		<a href="#" id="cancelLink" class="button">Cancel</a>
+	</div>
+	
+</jsp:root>

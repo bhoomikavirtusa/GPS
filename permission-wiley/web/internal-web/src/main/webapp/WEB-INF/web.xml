@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.0" metadata-complete="true"
+	xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+	
+	<display-name>Internal Web UI</display-name>
+	
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+			classpath:conf/spring/global-spring-context.xml,
+			classpath:conf/spring/persistence-context.xml,
+			classpath:conf/spring/services-spring-context.xml,
+			/WEB-INF/spring/permissions-application-context.xml,
+			/WEB-INF/spring/shared-security-context.xml
+		</param-value>
+	</context-param>
+	
+	<context-param>
+		<param-name>debug.mode</param-name>
+		<param-value>false</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>jmesaPreferencesLocation</param-name>
+		<param-value>/jmesa.properties</param-value>
+	</context-param>
+	
+	<context-param>
+        <param-name>com.wiley.sf.common.servlet.SessionTracker.userAttributeName</param-name>
+        <param-value>userSession</param-value>
+    </context-param>
+
+    <jsp-config>
+        <jsp-property-group>
+            <description>Property group for common configuration for all the JSP's</description>
+            <url-pattern>*.jsp</url-pattern>
+            <page-encoding>UTF-8</page-encoding>
+            <!--
+            <include-prelude>prelude.jspf</include-prelude>
+            <include-coda>coda.jspf</include-coda>
+            -->
+        </jsp-property-group>
+    </jsp-config>
+
+	<filter>
+	    <filter-name>springSecurityFilterChain</filter-name>
+	    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+	</filter>
+	
+	<filter-mapping>
+	  <filter-name>springSecurityFilterChain</filter-name>
+	  <url-pattern>/*</url-pattern>
+	  <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+	</filter-mapping>
+
+    <filter>
+        <description>Make sure all form submissions are UTF-8</description>
+        <filter-name>encoding-filter</filter-name>
+        <filter-class>
+            org.springframework.web.filter.CharacterEncodingFilter
+        </filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+    </filter>
+
+	<filter>
+		<description>Used to make sure there is a UserSession</description>
+		<filter-name>Security Filter</filter-name>
+		<filter-class>com.wiley.permissions.web.shared.SecurityFilter</filter-class>
+	</filter>
+	
+	<filter>
+		<description>Save userId into ThreadLocal variable</description>
+		<filter-name>Audit Filter</filter-name>
+		<filter-class>com.wiley.permissions.web.shared.AuditFilter</filter-class>
+	</filter>
+	
+	<filter-mapping>
+		<filter-name>Audit Filter</filter-name>
+		<url-pattern>/sapp/*</url-pattern>
+		<url-pattern>/app/*</url-pattern>
+	</filter-mapping>
+	
+	<filter>
+		<description>Add Cache-Control header to response to make sure content not cached</description>
+		<filter-name>NoCache Filter</filter-name>
+		<filter-class>com.wiley.permissions.web.shared.NoCacheFilter</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>NoCache Filter</filter-name>
+		<url-pattern>/sapp/*</url-pattern>
+		<url-pattern>/app/*</url-pattern>
+	</filter-mapping>
+
+	<!-- If put this before Audit Filter then that is not called (this comment is old - might retest) -->
+    <filter-mapping>
+        <filter-name>encoding-filter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
+	<filter-mapping>
+		<filter-name>Security Filter</filter-name>
+		<url-pattern>/*</url-pattern>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>FORWARD</dispatcher>
+		<dispatcher>INCLUDE</dispatcher>
+		<dispatcher>ERROR</dispatcher>
+	</filter-mapping>
+
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+	
+	<listener>
+        <listener-class>com.wiley.sf.common.servlet.SessionTracker</listener-class>
+    </listener>
+    
+    <listener>
+        <listener-class>com.wiley.permissions.web.shared.USDCSessionListener</listener-class>
+    </listener>
+
+	<servlet>
+		<servlet-name>dispatcher</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>/WEB-INF/spring/internal-web-context.xml</param-value>
+		</init-param>
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+    
+	<servlet-mapping>
+		<servlet-name>dispatcher</servlet-name>
+		<url-pattern>/sapp/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>dispatcher</servlet-name>
+		<url-pattern>/app/*</url-pattern>
+	</servlet-mapping>
+    
+	<session-config>
+		<!-- timeout in minutes -->
+		<!-- no point in having timeout longer than 60 min because SSO times out in 60 min -->
+		<session-timeout>60</session-timeout>
+	</session-config>
+
+	<welcome-file-list>
+		<welcome-file>redirect.jspx</welcome-file>
+	</welcome-file-list>
+
+	<!-- If don't have this then when download spreadsheet important template in IE 8, tries to save as .zip -->
+	<mime-mapping>
+        <extension>xlsm</extension>
+        <mime-type>application/vnd.ms-excel.sheet.macroEnabled</mime-type>
+    </mime-mapping>
+	<mime-mapping>
+        <extension>docx</extension>
+        <mime-type>application/vnd.openxmlformats-officedocument.wordprocessingml.document</mime-type>
+    </mime-mapping>    
+
+	<error-page>
+		<error-code>400</error-code>
+		<location>/app/errors/400</location>
+	</error-page>
+
+	<error-page>
+		<error-code>403</error-code>
+		<location>/app/errors/403</location>
+	</error-page>
+
+	<error-page>
+		<error-code>404</error-code>
+		<location>/app/errors/404</location>
+	</error-page>
+
+	<error-page>
+		<error-code>500</error-code>
+		<location>/app/errors/500</location>
+	</error-page>
+
+	<error-page>
+		<exception-type>java.lang.Exception</exception-type>
+		<location>/app/errors/general</location>
+	</error-page>
+	<!-- 
+	<security-constraint>
+		<display-name>App Security</display-name>
+		<web-resource-collection>
+			<web-resource-name>All Resources</web-resource-name>
+			<description>This captures all resources for security</description>
+			<url-pattern>/sapp/*</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>PUT</http-method>
+			<http-method>HEAD</http-method>
+			<http-method>POST</http-method>
+			<http-method>OPTIONS</http-method>
+			<http-method>TRACE</http-method>
+			<http-method>DELETE</http-method>
+		</web-resource-collection>
+		<auth-constraint>
+			<description>All</description>
+			<role-name>EMPLOYEE_DEFAULT</role-name>
+		</auth-constraint>
+	</security-constraint>
+
+	<security-constraint>
+		<display-name>Administration</display-name>
+		<web-resource-collection>
+			<web-resource-name>Administration</web-resource-name>
+			<description>Admin Tools</description>
+			<url-pattern>/sapp/admin/*</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+			<http-method>HEAD</http-method>
+			<http-method>PUT</http-method>
+			<http-method>OPTIONS</http-method>
+			<http-method>TRACE</http-method>
+			<http-method>DELETE</http-method>
+		</web-resource-collection>
+		<auth-constraint>
+			<description>Admin</description>
+			<role-name>SUPER</role-name>
+		</auth-constraint>
+	</security-constraint>
+
+	<login-config>
+		<auth-method>FORM</auth-method>
+		<realm-name>PERMS</realm-name>
+		<form-login-config>
+			<form-login-page>/app/security/login/load</form-login-page>
+			<form-error-page>/app/security/login/load</form-error-page>
+		</form-login-config>
+	</login-config>
+
+	<security-role>
+		<description>Allows Employee Use of Permissions</description>
+		<role-name>EMPLOYEE_DEFAULT</role-name>
+	</security-role>
+	
+	<security-role>
+		<description>Use of administration tools
+		</description>
+		<role-name>SUPER</role-name>
+	</security-role>
+	 -->
+</web-app>

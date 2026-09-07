@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="MultiReport" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="poSubReport" class="net.sf.jasperreports.engine.JasperReport" isForPrompting="false"/>
+	<parameter name="PRODUCT_ID" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SOURCE_CONNECTION" class="java.sql.Connection" isForPrompting="false"/>
+	<parameter name="sourceSubReport" class="net.sf.jasperreports.engine.JasperReport" isForPrompting="false"/>
+	<parameter name="assetsSubReport" class="net.sf.jasperreports.engine.JasperReport" isForPrompting="false"/>
+	<parameter name="CW_ID" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="POIDS" class="java.util.List"/>
+	<queryString>
+		<![CDATA[select ID from purchase_order where $X{IN, id, POIDS}]]>
+	</queryString>
+	<field name="ID" class="java.lang.Integer"/>
+	<group name="ID" isStartNewPage="true" isResetPageNumber="true">
+		<groupExpression><![CDATA[$F{ID}]]></groupExpression>
+	</group>
+	<detail>
+		<band height="40" splitType="Stretch">
+			<subreport>
+				<reportElement stretchType="RelativeToTallestObject" isPrintRepeatedValues="false" x="0" y="0" width="555" height="33"/>
+				<subreportParameter name="PRODUCT_ID">
+					<subreportParameterExpression><![CDATA[$P{PRODUCT_ID}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="CW_ID">
+					<subreportParameterExpression><![CDATA[$P{CW_ID}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="SOURCE_CONNECTION">
+					<subreportParameterExpression><![CDATA[$P{SOURCE_CONNECTION}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="PO_ID">
+					<subreportParameterExpression><![CDATA[$F{ID}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="sourceSubReport">
+					<subreportParameterExpression><![CDATA[$P{sourceSubReport}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="assetsSubReport">
+					<subreportParameterExpression><![CDATA[$P{assetsSubReport}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression class="net.sf.jasperreports.engine.JasperReport"><![CDATA[$P{poSubReport}]]></subreportExpression>
+			</subreport>
+		</band>
+	</detail>
+</jasperReport>

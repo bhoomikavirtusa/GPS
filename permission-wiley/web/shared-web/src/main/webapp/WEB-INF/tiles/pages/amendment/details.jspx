@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="nextUrl" value="/sapp/permissions/amendment/save" />
+	<c:url var="prevUrl" value="${amendmentWizardForm.prevUrl}" />
+	
+	<!--include as jspx so the jsp variable are recognized-->
+	<jsp:directive.include file="js/wizard.buttons.js.jspx" />
+
+	<form:form modelAttribute="amendmentWizardForm">
+		<h3>Generate amendment for contract sent on <fmt:formatDate type="date" value="${amendmentWizardForm.amendment.contract.date}" /></h3>
+		
+		<table>
+			<tr>
+				<td>Note</td>
+				<td>
+			    	<form:textarea path="amendment.note" rows="4" cols="60" />
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Please choose the form's language
+				</td>
+				<td>
+			   		<form:select path="amendment.languageCode">
+						<form:options items="${languages}" itemValue="code" itemLabel="description" />
+					</form:select>
+				</td>
+			</tr>
+		</table>
+	</form:form>
+	
+	<div class="buttonset">
+		<c:if test="${not empty amendmentWizardForm.prevUrl}">
+			<input type="submit" id="prevB" value="Previous" /> 
+		</c:if>
+		<input type="submit" id="finishB" value="Generate" /> 
+		<a href="#" id="cancelLink" class="button">Cancel</a>
+	</div>
+
+</jsp:root>

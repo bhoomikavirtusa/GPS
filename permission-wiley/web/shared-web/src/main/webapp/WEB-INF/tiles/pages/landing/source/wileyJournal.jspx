@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="nextUrl" value="/sapp/landing/source/submit_wiley" />
+	<c:url var="prevUrl" value="/sapp/landing/source/main" />
+	<c:url var="productSearchUrl" value="${wileyfn:getRestUrl(pageContext.request)}/service/product/search" />
+	
+	<!--include as jspx so the jsp variable are recognized-->
+	<jsp:directive.include file="js/wizard.buttons.js.jspx" />
+
+	<h3>${sourceWizardForm.assetUse.asset.description} 
+	| ${sourceWizardForm.assetUse.asset.mediaType.description}
+	| Page ${sourceWizardForm.assetUse.manuscriptPage}
+	| ${sourceWizardForm.assetUse.usage.description} ${sourceWizardForm.assetUse.position} </h3>
+	<div class="requiredtxt">* indicates required field</div>
+	<form:form modelAttribute="sourceWizardForm" action="${submitUrl}">
+		<table>
+			<tr>
+				<td class="label">
+					<form:label path="assetUse.pickupTitle" cssClass="required" cssErrorClass="error">Title or name of original publication:</form:label>
+				</td>
+				<td class="value" colspan="3">
+					<form:input path="assetUse.pickupTitle" size="40" maxlength="40" class="required"/>
+				</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td colspan="3">
+					<span class="explanation">Enter the title or name of the publication you want to pick the asset up from</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="label">
+					<form:label path="assetUse.pickupISBN" cssClass="required" cssErrorClass="error">ISBN:</form:label>
+				</td>
+				<td class="value" colspan="3">
+					<form:input path="assetUse.pickupISBN" size="40" maxlength="40" class="required"/>
+				</td>
+			</tr>
+			<tr>
+				<td class="label">
+					<form:label path="assetUse.pickupIssueNumber" cssClass="required" cssErrorClass="error">Vol / Issue:</form:label>
+				</td>
+				<td class="value">
+					<form:input path="assetUse.pickupIssueNumber" size="10" maxlength="10" class="required"/>
+				</td>
+				<td class="label">
+					Date:
+				</td>
+				<td class="value">
+				 	<input type="text" id="assetUse_pickupIssueDate" name="assetUse_pickupIssueDate" size="10" maxlength="10"/> (${dateFormat})
+			    	<form:hidden  path="assetUse.pickupIssueDate"/>
+				</td>
+			</tr>
+			<tr>
+				<td class="label">
+					Author of original article:
+				</td>
+				<td class="value" colspan="3">
+					<form:input path="assetUse.pickupAuthor" size="40" maxlength="40"/>
+				</td>
+			</tr>
+			<tr>
+				<td class="label">
+					Original page #:
+				</td>
+				<td class="value">
+					<form:input path="assetUse.pickupPage" size="7" maxlength="7"/>
+				</td>
+				<td class="label">
+					Identified as:
+				</td>
+				<td class="value">
+					<form:input path="assetUse.pickupPosition" size="7" maxlength="7"/>
+				</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td>
+					<span class="explanation">e.g. figure #, other label</span>
+				</td>
+			</tr>
+			
+			<c:if test="${sourceWizardForm.includeAssetDescription}">	 
+				<tr>
+					<td class="label">
+						<form:label path="assetUse.asset.description" cssClass="required" cssErrorClass="error">Asset Description:</form:label>
+					</td>
+					<td class="value">
+						<form:input path="assetUse.asset.description" size="100" maxlength="100" class="required" />
+					</td>
+				</tr>
+			</c:if>
+			
+			<tr>
+				<td class="label">
+					Estimated cost:
+				</td>
+				<td class="value" colspan="3">
+					<form:input path="assetUse.estimatedCost" size="10" maxlength="10" />
+					<form:select path="assetUse.estimatedCurrency">
+						<form:options items="${currencies}" itemValue="code" itemLabel="description" />
+					</form:select>			
+				</td>				
+			</tr>			
+			
+			<tr>
+				<td class="label">
+					Comments or special instructions:
+				</td>
+				<td class="value" colspan="3">
+					<form:textarea path="assetUse.pickupComment" htmlEscape="true" cols="40" rows = "3"/>
+				</td>
+			</tr>
+		</table>
+	</form:form>
+
+	<div class="buttonset">
+		<input type="button" id="prevB" value="Previous"/>
+	
+		<c:if test="${!sourceWizardForm.multiAsset}">
+			<input type="submit" id="finishB" value="Finish"/>
+		</c:if>
+		<c:if test="${sourceWizardForm.lastAssetUse}">
+			<input type="submit" id="finishB" value="Finish"/>
+		</c:if>
+	
+		<c:if test="${sourceWizardForm.multiAsset}">
+			<c:if test="${!sourceWizardForm.lastAssetUse}">
+				<input type="submit" id="finishC" value="Save and process Next Asset"/>
+			</c:if>
+		</c:if>
+	
+		<a href="#" id="cancelLink" class="button">Cancel</a> 	
+	</div>	
+	 
+	<script type="text/javascript">
+	//<![CDATA[
+	$.datepicker.setDefaults({
+	     dateFormat: '${dateFormat}'
+	});
+	
+	$(document).ready(function() {
+		$(function() {
+			$("#ui-datepicker-div").css("z-index", "9999" );
+			$("input[id='assetUse.pickupIssueDate']").datepicker();
+			$("input[id='assetUse_pickupIssueDate']").datepicker();
+			var d1 = $.datepicker.parseDate('mm/dd/yy', $("input[id='assetUse_pickupIssueDate']").val());
+			var d2 = $.datepicker.formatDate('${dateFormat}', d1);
+	    	$("input[id='assetUse_pickupIssueDate']").val(d2);
+		});
+
+		$("input[id='assetUse_pickupIssueDate']").change(function() {
+			var d1 = $.datepicker.parseDate('${dateFormat}', $("input[id='assetUse_pickupIssueDate']").val());
+			var d2 = $.datepicker.formatDate('mm/dd/yy', d1);
+	    	$("input[id='assetUse.pickupIssueDate']").val(d2);
+
+		});
+		
+		
+		$( "input[id='assetUse.pickupTitle']" ).autocomplete({
+			source: function( request, response ) {
+				$.jsonp({
+					"url": '${productSearchUrl}/' + request.term + '?callback=?', 
+					"success": function(json) {
+						response( $.map( json, function( item ) {
+							return {
+								value: item.title,							
+								isbn: item.isbn13,
+								author: item.author
+							}
+						}));
+					},
+					"error": function() {
+			        	alert ("Error: failed to search product");
+			        }
+		        });				
+			},
+			minLength: 3,
+			select: function( event, ui ) {
+				$( "input[id='assetUse.pickupAuthor']" ).val (ui.item.author);
+				$( "input[id='assetUse.pickupISBN']" ).val (ui.item.isbn);
+			},
+			open: function() {
+				$( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+			},
+			close: function() {
+				$( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+			}
+		});
+	});	
+	//]]>		
+	</script>
+</jsp:root>

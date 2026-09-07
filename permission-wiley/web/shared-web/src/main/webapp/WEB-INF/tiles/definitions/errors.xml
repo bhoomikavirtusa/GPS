@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+	<definition name="errors.general" extends="layout.main">
+		<put-attribute name="title" value="title.error.general" />
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/errors/general.jspx" />
+	</definition>	
+	
+	<definition name="errors.400" extends="layout.main">
+		<put-attribute name="title" value="title.error.general" />
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/errors/400.jspx" />
+	</definition>	
+
+	<definition name="errors.403" extends="layout.main">
+		<put-attribute name="title" value="title.error.general" />
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/errors/403.jspx" />
+	</definition>	
+
+	<definition name="errors.404" extends="layout.main">
+		<put-attribute name="title" value="title.error.general" />
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/errors/404.jspx" />
+	</definition>	
+
+	<definition name="errors.500" extends="layout.main">
+		<put-attribute name="title" value="title.error.general" />
+		<put-attribute name="body" value="/WEB-INF/tiles/pages/errors/general.jspx" />
+	</definition>
+</tiles-definitions>

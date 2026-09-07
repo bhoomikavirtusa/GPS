@@ -1,0 +1,716 @@
+#created on: Jun 13, 2008
+package com.wiley.permissions.rules
+
+#list any import classes here.
+import java.util.List;
+import java.util.ArrayList;
+
+import com.wiley.permissions.domain.persistence.permissions.Asset;
+import com.wiley.permissions.domain.persistence.permissions.AssetUse;
+import com.wiley.permissions.domain.persistence.permissions.CommonWork;
+import com.wiley.permissions.domain.persistence.permissions.PaymentRequest;
+import com.wiley.permissions.domain.persistence.permissions.Source;
+import com.wiley.permissions.domain.persistence.permissions.Contract;
+import com.wiley.permissions.domain.persistence.permissions.Condition;
+import com.wiley.permissions.domain.persistence.permissions.PurchaseOrder;
+import com.wiley.permissions.domain.persistence.permissions.ConditionList;
+import com.wiley.permissions.domain.persistence.permissions.ContractList;
+import com.wiley.permissions.domain.persistence.permissions.PurchaseOrderList;
+import com.wiley.permissions.domain.persistence.permissions.PermissionStatus;
+import com.wiley.permissions.domain.persistence.permissions.ConditionMatchResult;
+import com.wiley.permissions.domain.persistence.permissions.ConditionType;
+import com.wiley.permissions.rules.utils.RuleLog;
+import com.wiley.permissions.domain.persistence.permissions.OwnerType;
+import com.wiley.permissions.domain.persistence.permissions.ImportSource;
+import org.apache.commons.collections.CollectionUtils;
+import org.springframework.context.ApplicationContext;
+import com.wiley.permissions.common.spring.AppContext;
+import com.wiley.permissions.services.CommonWorkService;
+import com.wiley.permissions.services.PurchaseOrderService;
+import com.wiley.permissions.services.ContractService;
+import com.wiley.permissions.repositories.ConditionRepository;
+import com.wiley.permissions.repositories.ContractRepository;
+
+# Documentation on rule language (for Drools 5.2 but seems the same):
+# http://docs.jboss.org/drools/release/5.2.0.Final/drools-expert-docs/html/ch05.html
+
+#declare any global variables here
+global com.wiley.permissions.validator.rules.service.ValidationResult validationResult;
+
+# The facts added to start (by PermissionStatusRequiresNew.updatePermissionStatus(AssetUse))
+# are a single AssetUse and a single Source (if the Asset has multiple sources the
+# status is calculated for one at a time).
+# - Also a PurchaseOrderList and ContractList - these may be empty (will always be empty
+# if there is no source)
+
+rule "Start AssetUse status"
+agenda-group "Permission-Status"
+salience 7400
+	when
+	    not PermissionStatus()
+		assetUse : AssetUse()
+	then 
+		RuleLog.debug("Starting AssetUse status calculation");
+end
+
+rule "Check if AssetUse is Replaced"
+agenda-group "Permission-Status"
+salience 7300
+	when
+		assetUse : AssetUse(cancelReplacement != null)
+	then
+		/* keep other rules from taking effect by inserting the status as a fact */
+		insert(PermissionStatus.REPLACED);
+		validationResult.setStatus(PermissionStatus.REPLACED);
+		validationResult.setExplanation("AssetUse is Replaced");
+		RuleLog.debug("AssetUse is Replaced - REPLACED");
+end
+
+rule "Check if AssetUse is Canceled but not Replaced"
+agenda-group "Permission-Status"
+salience 7300
+	when
+		assetUse : AssetUse(canceled == Boolean.TRUE && cancelReplacement == null) 
+	then
+		/* keep other rules from taking effect by inserting the status as a fact */
+		PermissionStatus status = assetUse.isRemoved() ? PermissionStatus.REMOVED : PermissionStatus.CANCELED;
+		insert(status);
+		validationResult.setStatus(status);
+		validationResult.setExplanation("AssetUse is Canceled");
+		RuleLog.debug("AssetUse is Canceled - CANCELED");
+end
+
+rule "Check if  Asset is Missing Info (OwnerType or MediaType)"
+agenda-group "Permission-Status"
+salience 7200
+	when
+	    not PermissionStatus()
+		assetUse : AssetUse()
+	then 
+		if (assetUse.getAsset().getOwnerType() == null || assetUse.getAsset().getMediaType() == null) {
+			insert(PermissionStatus.MISSING_INFO);
+			validationResult.setStatus(PermissionStatus.MISSING_INFO);
+			String explanation = "OwnerType is missing";
+			if (assetUse.getAsset().getOwnerType() != null) {
+			    explanation = "Media Type is missing";
+			}
+			validationResult.setExplanation(explanation);
+			RuleLog.debug(explanation + " - MISSING_INFO");
+		}
+end
+
+// James said that now it's ok to be (!managed AND !royaltyFree) (5/2012) so comment this out
+/*
+rule "Check if not Managed that RoyaltyFree"
+agenda-group "Permission-Status"
+salience 7100
+	when
+		not PermissionStatus()
+		assetUse : AssetUse()
+	then
+		Asset asset = assetUse.getAsset();
+		RuleLog.debug("7100: asset id = " + asset.getId() + ", isManaged = " + asset.isManaged() + ", isRoyaltyFree = " + asset.isRoyaltyFree());
+		if (!asset.isManaged() && !asset.isRoyaltyFree()) {
+			insert(PermissionStatus.ILLEGAL);
+			validationResult.setStatus(PermissionStatus.ILLEGAL);
+			String explanation = "!isManaged AND !isRoyaltyFree - ILLEGAL";
+			validationResult.setExplanation(explanation);
+			RuleLog.debug(explanation);
+		}
+end
+*/
+
+rule "Initializing Block"
+agenda-group "Permission-Status"
+salience 7000
+	when
+		not PermissionStatus()
+		assetUse : AssetUse()
+	then
+		# Need to insert the facts required to activate these rules
+		insert(assetUse.getAsset());
+		insert(assetUse.getCommonWork());
+
+		drools.setFocus("Check-OwnerType");
+end
+
+rule "Reviewed Unknown"
+agenda-group "Check-OwnerType"
+salience 6900
+	when
+		not PermissionStatus()
+		asset : Asset(reviewedUnknown == Boolean.TRUE)
+	then
+		insert(PermissionStatus.LEGACY_UPLOAD_REVIEWED_UNKNOWN);
+		validationResult.setStatus(PermissionStatus.LEGACY_UPLOAD_REVIEWED_UNKNOWN);
+		String explanation = "Reviewed Unknown Asset flag set";
+		validationResult.setExplanation(explanation);
+		RuleLog.debug(explanation);
+end
+
+rule "Author Provided Unknown"
+agenda-group "Check-OwnerType"
+salience 6800
+	when
+		not PermissionStatus()
+		asset : Asset(authorProvidedUnknown == Boolean.TRUE)
+	then
+		insert(PermissionStatus.LEGACY_UPLOAD_AUTHOR_PROVIDED);
+		validationResult.setStatus(PermissionStatus.LEGACY_UPLOAD_AUTHOR_PROVIDED);
+		String explanation = "Author Provided Unknown Asset flag set";
+		validationResult.setExplanation(explanation);
+		RuleLog.debug(explanation);
+end
+
+rule "From Filemaker"
+agenda-group "Check-OwnerType"
+salience 6700
+	when
+		not PermissionStatus()
+		assetUse : AssetUse(importSource == ImportSource.FROM_FILEMAKER)
+		contractList : ContractList()
+	then
+		// there is probably a way to check for empty list above in the "when"
+		// section, which would be nicer, but not sure how to do it
+		if (CollectionUtils.isEmpty(contractList)) {
+			insert(PermissionStatus.MIGRATED_FROM_FILEMAKER);
+			validationResult.setStatus(PermissionStatus.MIGRATED_FROM_FILEMAKER);
+			String explanation = "Import Source == From Filemaker";
+			validationResult.setExplanation(explanation);
+			RuleLog.debug(explanation);
+		}
+		// else - continue onward to a different status
+end
+
+rule "From Australia"
+agenda-group "Check-OwnerType"
+salience 6600
+	when
+		not PermissionStatus()
+		assetUse : AssetUse(importSource == ImportSource.FROM_AUSTRALIA)
+	then
+		// at one point checked for contract as above for Filemaker but
+		// requirement for AUS is just to show AUS status even if there is a contract
+		insert(PermissionStatus.MIGRATED_FROM_AUSTRALIA);
+		validationResult.setStatus(PermissionStatus.MIGRATED_FROM_AUSTRALIA);
+		String explanation = "Import Source == From Australia";
+		validationResult.setExplanation(explanation);
+		RuleLog.debug(explanation);
+	end
+
+rule "STM Guidelines"
+agenda-group "Check-OwnerType"
+salience 6400
+	when
+		not PermissionStatus()
+		asset : Asset(stmGuidelines == Boolean.TRUE)
+	then
+		insert(PermissionStatus.GRANTED_STM_GUIDELINES);
+		validationResult.setStatus(PermissionStatus.GRANTED_STM_GUIDELINES);
+		String explanation = "STM Guidelines flag set";
+		validationResult.setExplanation(explanation);
+		RuleLog.debug(explanation);
+end
+
+rule "Public Domain"
+agenda-group "Check-OwnerType"
+salience 6300
+	when
+		not PermissionStatus()
+		asset : Asset(ownerType == OwnerType.PUBLIC_DOMAIN)
+		contractList : ContractList()
+	then
+	    if (asset.isManaged()) {
+				insert(PermissionStatus.UNREQUESTED);
+				validationResult.setStatus(PermissionStatus.UNREQUESTED);
+				String explanation = "Public Domain with Not Requested Status";
+				validationResult.setExplanation(explanation);
+				RuleLog.debug(explanation);	
+			//insert(PermissionStatus.ILLEGAL);
+			//validationResult.setStatus(PermissionStatus.ILLEGAL);
+			//String explanation = "Public Domain must NOT be Managed";
+			//validationResult.setExplanation(explanation);
+			//RuleLog.debug(explanation + " - ILLEGAL");
+		// 2/2014: James says is no longer possible for an asset to be unmanaged and feeRequired
+		//} else if (asset.isFeeRequired()) {
+		//    insert(PermissionStatus.UNPAID);
+		//    validationResult.setStatus(PermissionStatus.UNPAID);
+		//    String explanation = "Public Domain AND feeRequired - UNPAID";
+		//    validationResult.setExplanation(explanation);
+		//    RuleLog.debug(explanation);
+		} else {
+				Contract contract = null;				
+				if (CollectionUtils.isNotEmpty(contractList)) {
+					contract = contractList.get(0);  // first is newest
+					validationResult.setContractId(contract.getId());
+				}
+		        insert(PermissionStatus.GRANTED_PUBLIC_DOMAIN);
+			    validationResult.setStatus(PermissionStatus.GRANTED_PUBLIC_DOMAIN);
+			    String explanation = "Public Domain AND no feeRequired - GRANTED_PUBLIC_DOMAIN";
+			    validationResult.setExplanation(explanation);
+			    RuleLog.debug(explanation);
+		}
+end
+
+rule "Fair Use"
+agenda-group "Check-OwnerType"
+salience 6300
+	when
+		not PermissionStatus()
+		asset : Asset(ownerType == OwnerType.FAIR_USE)
+	then
+	    if (asset.isManaged()) {
+			insert(PermissionStatus.ILLEGAL);
+			validationResult.setStatus(PermissionStatus.ILLEGAL);
+			String explanation = "Fair Use must NOT be Managed";
+			validationResult.setExplanation(explanation);
+			RuleLog.debug(explanation + " - ILLEGAL");
+		} else if (asset.isFeeRequired()) {
+		    insert(PermissionStatus.ILLEGAL);
+		    validationResult.setStatus(PermissionStatus.ILLEGAL);
+		    String explanation = "Fair Use cannot have feeRequired";
+		    validationResult.setExplanation(explanation);
+		    RuleLog.debug(explanation + " - ILLEGAL");
+		} else {
+		    insert(PermissionStatus.GRANTED_FAIR_USE);
+		    validationResult.setStatus(PermissionStatus.GRANTED_FAIR_USE);
+		    String explanation = "Fair Use AND no feeRequired - GRANTED_FAIR_USE";
+		    validationResult.setExplanation(explanation);
+		    RuleLog.debug(explanation);
+		}
+end
+
+rule "Third Party"
+agenda-group "Check-OwnerType"
+salience 6200
+	when
+		not PermissionStatus()
+		asset : Asset(ownerType == OwnerType.THIRD_PARTY)
+	then
+		if (CollectionUtils.isEmpty(asset.getSources())) {
+			insert(PermissionStatus.NO_SOURCE);
+			validationResult.setStatus(PermissionStatus.NO_SOURCE);
+			String explanation = "Third Party AND no source - NO_SOURCE";
+			validationResult.setExplanation(explanation);
+			RuleLog.debug(explanation);
+		} else {
+			RuleLog.debug("Third Party - Activating Asset-Managed Agenda");
+			drools.setFocus("Asset-Managed");
+		}
+end
+
+rule "Request"
+agenda-group "Check-OwnerType"
+salience 6100
+	when
+		not PermissionStatus()
+		asset : Asset(ownerType == OwnerType.PHOTO_REQUEST || ownerType == OwnerType.ILLUSTRATION_REQUEST)
+	then
+		if (CollectionUtils.isEmpty(asset.getSources())) {
+			insert(PermissionStatus.NO_SOURCE);
+			validationResult.setStatus(PermissionStatus.NO_SOURCE);
+			String explanation = "Photo/Illustration Request AND no source - NO_SOURCE";
+			validationResult.setExplanation(explanation);
+			RuleLog.debug(explanation);
+		}
+		else {
+			insert(PermissionStatus.ILLEGAL);
+			validationResult.setStatus(PermissionStatus.ILLEGAL);
+			String explanation = "Photo/Illustration Request cannot have source(s)";
+			validationResult.setExplanation(explanation);
+			RuleLog.debug(explanation + " - ILLEGAL");
+		}
+end
+
+rule "Wiley Owned"
+agenda-group "Check-OwnerType"
+salience 6000
+	when
+		not PermissionStatus()
+		asset : Asset(ownerType == OwnerType.WILEY || ownerType == OwnerType.WORK_FOR_HIRE || ownerType == OwnerType.WILEY_CREATED)
+		contractList : ContractList()
+	then
+		if (asset.isManaged()) {
+			insert(PermissionStatus.UNREQUESTED);
+			validationResult.setStatus(PermissionStatus.UNREQUESTED);
+			String explanation = asset.getOwnerType().getCode() + " must NOT be Managed";
+			validationResult.setExplanation(explanation);
+			RuleLog.debug(explanation + " - ILLEGAL");
+		}
+		else {
+			if (asset.getOwnerType().equals(OwnerType.WORK_FOR_HIRE)) {
+				insert(PermissionStatus.GRANTED_WORK_FOR_HIRE);
+		    	validationResult.setStatus(PermissionStatus.GRANTED_WORK_FOR_HIRE);
+		    	String explanation = "Work for Hire and not managed - GRANTED_WORK_FOR_HIRE";
+		    	validationResult.setExplanation(explanation);
+		    	RuleLog.debug(explanation);
+			}
+			else {
+				Contract contract = null;				
+				if (CollectionUtils.isNotEmpty(contractList)) {
+					contract = contractList.get(0);  // first is newest
+					validationResult.setContractId(contract.getId());
+				}
+				insert(PermissionStatus.GRANTED_WILEY_OWNED);
+		    	validationResult.setStatus(PermissionStatus.GRANTED_WILEY_OWNED);
+		    	String explanation = "Wiley owned and not managed - GRANTED_WILEY_OWNED";
+		    	validationResult.setExplanation(explanation);
+		    	RuleLog.debug(explanation);
+		    }
+		}
+end
+
+rule "Author created"
+agenda-group "Check-OwnerType"
+salience 6000
+	when
+		not PermissionStatus()
+		asset : Asset(ownerType == OwnerType.AUTHOR_OWNED)
+	then
+		if (CollectionUtils.isEmpty(asset.getSources())) {
+			insert(PermissionStatus.NO_SOURCE);
+			validationResult.setStatus(PermissionStatus.NO_SOURCE);
+			String explanation = "Author owned AND no source - NO_SOURCE";
+			validationResult.setExplanation(explanation);
+			RuleLog.debug(explanation);
+		} else {
+			RuleLog.debug("Author owned - Activating Asset-Managed Agenda");
+			drools.setFocus("Asset-Managed");
+		}
+		/*	
+			//Specification has changes as part of DM-186.
+			//Now for Author owned owner type, if the other layer owner type is "Will be work for  hire" or
+			//"No value selected on layer 2 owner type" then it has to go through permission work flow.
+		*/
+end
+
+# This used to be below "Royalty Free" rule below but needs to be above
+# so that the contract is set on the validationResult, even though the
+# "Royalty Free" rule does not look at it.
+rule "Determine newest PO or Contract"
+agenda-group "Asset-Managed"
+salience 5700
+when
+	not PermissionStatus()
+	poList : PurchaseOrderList()
+	contractList : ContractList()
+then
+	RuleLog.debug("5700: Determine newest PO or Contract");
+	// Important: poService and contractService methods to load list above sort by date desc
+	// Even if newest Contract has expired, we still want the status for the newest.
+	PurchaseOrder po = null;
+	Contract contract = null;
+	if (CollectionUtils.isNotEmpty(poList)) {
+		po = poList.get(0);  // first is the newest
+		validationResult.setPoId(po.getId());
+	}
+	if (CollectionUtils.isNotEmpty(contractList)) {
+		contract = contractList.get(0);  // first is newest
+		validationResult.setContractId(contract.getId());
+	}
+	if (contract != null || po != null) {
+		if (contract != null && po != null) {
+			// if po and contract date are the same then contract should "win"
+			//if (contract.getDate().after(po.getDate())) {
+			if (!po.getDate().after(contract.getDate())) {
+				po = null;
+			}
+			else {
+				contract = null;
+			}
+		}
+		
+		if (po != null) {
+			// find newest contract for po (but po may not have any contracts)
+			for (Contract c : contractList) {
+				PurchaseOrder temp = c.getPurchaseOrder();
+				if (temp!= null && temp.getId().intValue() == po.getId().intValue()) {
+					contract = c;
+					validationResult.setContractId(contract.getId());
+					po = null;
+					break;
+				} 
+			}
+		}
+		
+		if (contract == null) insert(po);
+		else insert(contract);
+	}
+end
+
+rule "Royalty Free"
+agenda-group "Asset-Managed"
+salience 5600
+	when
+		not PermissionStatus()
+		asset : Asset(royaltyFree == Boolean.TRUE)
+		assetUse : AssetUse()
+		contractList : ContractList()
+	then
+	    // if (royaltyFree) then should be !managed and OwnerType should be 3rd Party but
+	    // for now we aren't going to check/enforce this (maybe not necessary)
+	    // James is certain that royaltyFree implies 3rd Party but little less about royaltyFree implies !managed
+		// *******************************************************
+		// if no seat limit then status = Granted RF Unlimited
+		// if user already has seat then status = Granted RF Limited
+		// if seat is available allocate seat to user, decrement count status = Granted RF Limited
+		// if no seat available then treat like a rights managed 3rd party asset. Initial status = Unrequested. Asset goes through standard request workflow. During invoice entry do not allow user to select RightsManaged option.
+		// After invoice entered add new seat allotment to existing total (if new is unlimited then set to unlimited). Same for print run limit.
+		
+		RuleLog.debug("5600: Royalty Free");
+
+		ApplicationContext ctx = AppContext.getApplicationContext();
+	    ConditionRepository conditionRepository = (ConditionRepository) ctx.getBean("repository.ConditionRepository");
+	   // sandhya manage deals
+	   //Added for Paperwork changes to add the Contract
+	   Contract contract = null;				
+	    if (CollectionUtils.isNotEmpty(contractList)) {
+			contract = contractList.get(0);  // first is newest
+			validationResult.setContractId(contract.getId());
+		} 
+		//Ends Added for Paperwork changes to add the Contract
+	    if (asset.getTotalPrintRun() > 0 && asset.getTotalSeats() > 0 && asset.isSublicense()) {
+	   		RuleLog.debug("5600: Royalty Free - Limited Print Run & Seats");
+		    insert(PermissionStatus.GRANTED_RF_LIMITED_PRINT_SEATS);
+		    validationResult.setStatus(PermissionStatus.GRANTED_RF_LIMITED_PRINT_SEATS);
+		    String explanation = "Royalty Free - Limited Print Run & Seats  - GRANTED_RF_LIMITED_PRINT_SEATS";
+		    validationResult.setExplanation(explanation);
+		    RuleLog.debug(explanation);
+	    } else if(asset.getTotalPrintRun() > 0 && asset.getTotalSeats() <= 0 && (asset.isSublicense())) {
+	   		RuleLog.debug("5600: Royalty Free – Limited Print Run");
+		    insert(PermissionStatus.GRANTED_RF_LIMITED_PRINTRUN);
+		    validationResult.setStatus(PermissionStatus.GRANTED_RF_LIMITED_PRINTRUN);
+		    String explanation = "Royalty Free – Limited Print Run - GRANTED_RF_LIMITED_PRINTRUN";
+		    validationResult.setExplanation(explanation);
+		    RuleLog.debug(explanation);
+	    } else if(asset.getTotalPrintRun() > 0 && asset.getTotalSeats() <= 0 && !(asset.isSublicense())) {
+	   		RuleLog.debug("5600: Royalty Free  - Limited Print Run & No Sublicensing");
+		    insert(PermissionStatus.GRANTED_RF_LIMITED_PRINT_SUBLIC);
+		    validationResult.setStatus(PermissionStatus.GRANTED_RF_LIMITED_PRINT_SUBLIC);
+		    String explanation = "Royalty Free  - Limited Print Run & No Sublicensing - GRANTED_RF_LIMITED_PRINT_SUBLIC";
+		    validationResult.setExplanation(explanation);
+		    RuleLog.debug(explanation);
+	    } else if(asset.getTotalPrintRun()<= 0 && asset.getTotalSeats() > 0 && (asset.isSublicense())) {
+	   		RuleLog.debug("5600: Royalty Free – Limited Seats");
+		    insert(PermissionStatus.GRANTED_RF_LIMITED);
+		    validationResult.setStatus(PermissionStatus.GRANTED_RF_LIMITED);
+		    String explanation = "Royalty Free – Limited Seats - GRANTED_RF_LIMITED";
+		    validationResult.setExplanation(explanation);
+		    RuleLog.debug(explanation);
+	    } else if(asset.getTotalPrintRun() <= 0 && asset.getTotalSeats() > 0 && !(asset.isSublicense())) {
+	   		RuleLog.debug("5600: 'Royalty Free – Limited Seats & No Sublicensing");
+		    insert(PermissionStatus.GRANTED_RF_LIMITED_SEATS_SUBLIC);
+		    validationResult.setStatus(PermissionStatus.GRANTED_RF_LIMITED_SEATS_SUBLIC);
+		    String explanation = "Royalty Free – Limited Seats & No Sublicensing - GRANTED_RF_LIMITED_SEATS_SUBLIC";
+		    validationResult.setExplanation(explanation);
+		    RuleLog.debug(explanation);
+	    }else if(asset.getTotalPrintRun() <= 0 && asset.getTotalSeats() <= 0 && (asset.isSublicense())) {
+	   		RuleLog.debug("5600: Royalty Free - Unlimited Print Run, Seats & Sublicensing");
+		    insert(PermissionStatus.GRANTED_RF_UNLIMITED_PRINT_SUBLIC);
+		    validationResult.setStatus(PermissionStatus.GRANTED_RF_UNLIMITED_PRINT_SUBLIC);
+		    String explanation = "Royalty Free - Unlimited Print Run, Seats & Sublicensing - GRANTED_RF_UNLIMITED_PRINT_SUBLIC";
+		    validationResult.setExplanation(explanation);
+		    RuleLog.debug(explanation);
+	    } else if(asset.getTotalPrintRun() <= 0 && asset.getTotalSeats() <= 0 && !(asset.isSublicense())) {
+	   		RuleLog.debug("5600: Royalty Free - No Sublicensing");
+		    insert(PermissionStatus.GRANTED_RF_LIMITED_SUBLIC);
+		    validationResult.setStatus(PermissionStatus.GRANTED_RF_LIMITED_SUBLIC);
+			String explanation = "Royalty Free - No Sublicensing - GRANTED_RF_LIMITED_SUBLIC";
+		    validationResult.setExplanation(explanation);
+		    RuleLog.debug(explanation);
+	    } else if(asset.getTotalPrintRun() > 0 && asset.getTotalSeats() > 0 && !(asset.isSublicense())) {
+	   		RuleLog.debug("5600: Royalty Free – Limited Print Run, Seats & No Sublicensing");
+		    insert(PermissionStatus.GRANTED_RF_LIMITED_PRINT_SWAR_SUBLIC);
+		    validationResult.setStatus(PermissionStatus.GRANTED_RF_LIMITED_PRINT_SWAR_SUBLIC);
+		    String explanation = "Royalty Free – Limited Print Run, Seats & No Sublicensing - GRANTED_RF_LIMITED_PRINT_SWAR_SUBLIC";
+		    validationResult.setExplanation(explanation);
+		    RuleLog.debug(explanation);
+	    }
+end	    
+
+// 2/2014: James says no longer possible for asset to be unmanaged and feeRequired
+//rule "Not Managed"
+//agenda-group "Asset-Managed"
+//salience 5500
+//	when
+//		not PermissionStatus()
+//		asset : Asset(managed == Boolean.FALSE)
+//	then
+//		if (asset.isFeeRequired()) {
+//	   		insert(PermissionStatus.UNPAID);
+//			validationResult.setStatus(PermissionStatus.UNPAID);
+//			String explanation = "Not Managed && feeRequired -> UNPAID";
+//			validationResult.setExplanation(explanation);
+//			RuleLog.debug(explanation);
+//		}
+//end
+
+rule "Not Managed 2"
+agenda-group "Asset-Managed"
+salience 5400
+	when
+		not PermissionStatus()
+		asset : Asset(managed == Boolean.FALSE)
+		contract : Contract()
+	then
+		// -- this should be identical to code in 5100
+		validationResult.setNeedPaymentRequest(contract.isNeedPaymentRequest());
+		validationResult.setPaid(contract.isPaid());
+end
+
+rule "Not Managed 3"
+agenda-group "Asset-Managed"
+salience 5300
+	when
+		not PermissionStatus()
+		asset : Asset(managed == Boolean.FALSE && royaltyFree == Boolean.FALSE)
+	then
+		insert(PermissionStatus.GRANTED);
+		validationResult.setStatus(PermissionStatus.GRANTED);
+		String explanation = "NOT managed AND NOT feeRequired -> GRANTED";
+		validationResult.setExplanation(explanation);
+		RuleLog.debug(explanation);
+end
+
+# from this point on we are only dealing with Asset(managed == Boolean.TRUE)
+# so we are not going to bother specifying this
+
+rule "If no POs or Contracts"
+agenda-group "Asset-Managed"
+salience 5200
+	when
+		not PermissionStatus()
+		purchaseOrderList : PurchaseOrderList()
+		contractList : ContractList()
+		eval(CollectionUtils.isEmpty(purchaseOrderList))
+		eval(CollectionUtils.isEmpty(contractList))
+		asset : Asset()
+	then
+		PermissionStatus status = PermissionStatus.UNREQUESTED;
+		// James says only one of the "will-be" flags will be checked at a time
+		if (asset.isWillBeWorkForHire())  status = PermissionStatus.NOT_REQUESTED_BE_WORKFORHIRE;
+		else if (asset.isWillBeRoyaltyFree())  status = PermissionStatus.NOT_REQUESTED_ROYALTY_FREE;
+		insert(status);
+		validationResult.setStatus(status);
+		String explanation = "managed AND No POs or Contracts - Not Requested";
+		validationResult.setExplanation(explanation);
+		RuleLog.debug(explanation);
+end
+
+rule "Check contract"
+agenda-group "Asset-Managed"
+salience 5100
+	when
+		not PermissionStatus()
+		contract : Contract()
+		source : Source()
+		assetUse : AssetUse()
+	then
+		RuleLog.debug("Then: Check contract");
+
+		ApplicationContext ctx = AppContext.getApplicationContext();
+		ConditionRepository conditionRepository = (ConditionRepository) ctx.getBean("repository.ConditionRepository");
+		ContractRepository contractRepository = (ContractRepository) ctx.getBean("repository.ContractRepository");
+
+		if (contract.isDateExpired()) {
+			insert(PermissionStatus.OUT_OF_COMPLIANCE_EXPIRED);
+			validationResult.setStatus(PermissionStatus.OUT_OF_COMPLIANCE_EXPIRED);
+			String explanation = "Most recent contract expired - OUT_OF_COMPLIANCE";
+			validationResult.setExplanation(explanation);
+			RuleLog.debug(explanation);
+		} else {
+			ConditionMatchResult matchResult = conditionRepository.matches(contract, assetUse);
+			
+			if (!matchResult.isMatch()) {
+
+# Added for SS Task 12 - Start			
+				int totalAssets = contract.getAssets().size();	
+				int assetId = assetUse.getAsset().getId().intValue();		
+				int assetIndex = 0;		
+				for(int assetIdx = 0;assetIdx < totalAssets; assetIdx++){
+					if(assetId == contract.getAssets().get(assetIdx).getAssetBaseId().intValue()){
+						assetIndex = assetIdx;
+						break;
+					}
+				}
+				if (contract.getAssets().get(assetIndex).getApproverName() != null && contract.getAssets().get(assetIndex).getApproverRemarks() != null) {
+					insert(PermissionStatus.GRANTED_INSUFFICIENT_APPROVED);
+					validationResult.setStatus(PermissionStatus.GRANTED_INSUFFICIENT_APPROVED);
+					String explanation = "CONTRACT_INSUFFICIENT exception is approved by - " + contract.getAssets().get(assetIndex).getApproverName() + " with remarks - " + contract.getAssets().get(assetIndex).getApproverRemarks();
+					validationResult.setExplanation(explanation);
+					RuleLog.debug(explanation);
+				}
+# Added for SS Task 12 - End						
+				else {
+				insert(PermissionStatus.CONTRACT_INSUFFICIENT);
+				validationResult.setStatus(PermissionStatus.CONTRACT_INSUFFICIENT);
+				String explanation = "Most recent contract did not match - CONTRACT_INSUFFICIENT: " + matchResult.getExplanation();
+				validationResult.setExplanation(explanation);
+				RuleLog.debug(explanation);
+				}
+			}
+		    else if (contractRepository.doesContractNeedAmendment(contract)) {
+			    if (contract.hasAmendment()) {
+		    		insert(PermissionStatus.AMENDMENT_SENT);
+					validationResult.setStatus(PermissionStatus.AMENDMENT_SENT);
+					String explanation = "Most recent contract has amendment sent - AMENDMENT_SENT";
+					validationResult.setExplanation(explanation);
+					RuleLog.debug(explanation);
+				}
+			}
+			else if (contractRepository.exceededPrinting(contract)) {
+				RuleLog.debug("Contract exceeded printing.");	
+				insert(PermissionStatus.OUT_OF_COMPLIANCE_PRINT_RUN);
+				validationResult.setStatus(PermissionStatus.OUT_OF_COMPLIANCE_PRINT_RUN);
+				String explanation = "Most recent contract exceeded printing - OUT_OF_COMPLIANCE";
+				validationResult.setExplanation(explanation);
+				RuleLog.debug(explanation);
+			}
+			else if (assetUse.getAsset().isManagerApproved()) { //Added a new status for DM-374
+				insert(PermissionStatus.GRANTED_MANAGER_APPROVED);
+				validationResult.setStatus(PermissionStatus.GRANTED_MANAGER_APPROVED);
+				String explanation = "Manager Approved this asset - "+PermissionStatus.GRANTED_MANAGER_APPROVED;
+				validationResult.setExplanation(explanation);
+				RuleLog.debug(explanation);
+			}
+			else {
+				PermissionStatus status = PermissionStatus.GRANTED;
+				String explanation = "Most recent contract matches everything and no limits on Print Run, End Date, Language, Sublicense - GRANTED";
+				
+				String limitedExplanation = contract.getLimitedExplanation();
+				if (limitedExplanation.length() > 0) {
+					status = contract.isUnlimitedPrintRun() ? PermissionStatus.GRANTED_LIMITED : PermissionStatus.GRANTED_LIMITED_PRINT;
+					explanation = "Most recent contract matches everything but " + limitedExplanation + " - GRANTED_LIMITED";
+				}
+
+				insert(status);
+				validationResult.setStatus(status);
+				validationResult.setExplanation(explanation);
+				RuleLog.debug(explanation);
+				
+				// -- this should be identical to code in 5400
+				validationResult.setNeedPaymentRequest(contract.isNeedPaymentRequest());
+				validationResult.setPaid(contract.isPaid());
+			}
+		}
+end
+
+rule "Check purchase order"
+agenda-group "Asset-Managed"
+salience 5000
+	when
+		not PermissionStatus()
+		purchaseOrder : PurchaseOrder()
+		asset : Asset()
+	then
+		RuleLog.debug("Then: Check purchase order");
+		PermissionStatus status = PermissionStatus.FORM_SENT;
+		// James says only one of the "will-be" flags will be checked at a time
+		if (asset.isWillBeWorkForHire())  status = PermissionStatus.FORM_SENT_BE_WORKFORHIRE;
+		else if (asset.isWillBeRoyaltyFree())  status = PermissionStatus.FORM_SENT_BE_ROYALTYFREE;
+	   	insert(status);
+		validationResult.setStatus(status);
+		String explanation = "Managed AND We have a PO";
+		validationResult.setExplanation(explanation);
+		RuleLog.debug(explanation + " - FORM_SENT");
+end

@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+    xmlns:spring="http://www.springframework.org/schema/beans"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/3.1/mule.xsd
+		http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/3.1/mule-vm.xsd
+		http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/3.1/mule-http.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	">
+	<spring:beans>
+		<spring:import resource="classpath:conf/spring/services-spring-context.xml"/>
+	</spring:beans>
+
+	<object-to-string-transformer name="ToString"/>
+	
+	<byte-array-to-object-transformer name="ByteArrayToObject" />
+
+	<custom-transformer 
+		name="SSOXmlToObject"
+		class="com.wiley.permissions.common.transformer.XmlToObjectTransformer"
+		returnClass="com.wiley.permissions.security.sso.SSOUserMessage" />
+
+	<custom-transformer
+		name="CompCopyXmlToObject"
+		class="com.wiley.permissions.common.transformer.XmlToObjectTransformer"
+		returnClass="com.wiley.permissions.domain.persistence.permissions.CompCopy" />
+
+	<model name="Services">
+		<default-service-exception-strategy enableNotifications="false">
+			<rollback-transaction exception-pattern="*"/>
+		</default-service-exception-strategy>
+		
+		<!--
+		<entry-point-resolver-set>
+		    <reflection-entry-point-resolver acceptVoidMethods="true" />
+		</entry-point-resolver-set>
+		-->
+
+		<!--
+		   *******************************************
+		   The following endpoint definitions are found in the AssetService
+		   *******************************************
+		-->
+		<service name="assetService">
+			<inbound>
+				<vm:inbound-endpoint path="assetService" exchange-pattern="request-response" />
+			</inbound>
+			<component>
+				<spring-object bean="services.AssetService"/>
+			</component>
+		</service>
+
+		<!--  product service moved to below -->
+
+
+		<service name="localProductService">
+			<inbound>
+				<vm:inbound-endpoint path="localProductService" exchange-pattern="request-response" />
+			</inbound>
+			<component>
+				<spring-object bean="services.LocalProductService"/>
+			</component>
+		</service>
+		
+		<!--
+		   *******************************************
+		   The following endpoint definitions are found in the CommonWorkService
+		   *******************************************
+		-->
+		<service name="commonWorkService">
+			<inbound>
+				<vm:inbound-endpoint path="commonWorkService" exchange-pattern="request-response" />
+			</inbound>
+			<component>
+				<spring-object bean="services.CommonWorkService"/>
+			</component>
+		</service>
+
+		<!--
+		   *******************************************
+		   The following endpoint definitions are found in the AssetUseService
+		   *******************************************
+		-->
+		<service name="assetUseService">
+			<inbound>
+				<vm:inbound-endpoint path="assetUseService" exchange-pattern="request-response" />
+			</inbound>
+			<component>
+				<spring-object bean="services.AssetUseService"/>
+			</component>
+		</service>
+
+		<!--
+		   *******************************************
+		   The following endpoint definitions are found in the ContactService
+		   *******************************************
+		-->
+		<service name="sourceService">
+			<inbound>
+				<vm:inbound-endpoint path="sourceService" exchange-pattern="request-response" />
+			</inbound>
+			<component>
+				<spring-object bean="services.SourceService"/>
+			</component>
+		</service>
+
+		<service name="permissionStatusValidationService">
+			<inbound>
+				<vm:inbound-endpoint path="permissionStatusValidationService" exchange-pattern="request-response" />
+			</inbound>
+			<component>
+				<spring-object bean="services.PermissionStatusValidationService"/>
+			</component>
+		</service>
+
+		<service name="securityService">
+			<inbound>
+				<vm:inbound-endpoint path="securityService" exchange-pattern="request-response" />
+			</inbound>
+			<component>
+				<spring-object bean="services.SecurityService"/>
+			</component>
+		</service>
+
+		<service name="SSOUserInfoService">
+			<inbound>
+				<vm:inbound-endpoint path="ssoUserInfoService"
+					exchange-pattern="request-response"
+					responseTransformer-refs="ToString SSOXmlToObject"/>
+			</inbound>
+
+			<component>
+				<spring-object bean="services.SSOUserInfoService"/>
+			</component>
+		</service>
+
+		<service name="CompCopyService">
+			<inbound>
+				<vm:inbound-endpoint
+					path="services.CompCopyService"
+					exchange-pattern="request-response"
+					responseTransformer-refs="ToString CompCopyXmlToObject">
+				</vm:inbound-endpoint>
+			</inbound>
+
+			<http:rest-service-component httpMethod="GET" 
+			   serviceUrl="${comp.copy.request.url}+isbn10(a0100):#[map-payload:isbn10]+fname(a0300):#[map-payload:fname]+lname(a0300):#[map-payload:lname]+
+			   street1(a0300):#[map-payload:street1]+street2(a0300):#[map-payload:street2]+city(a0300):#[map-payload:city]+state(a0300):#[map-payload:state]+isocntry(a0040):#[map-payload:countrycode]+postcode(a0090):#[map-payload:postcode]" />
+		</service>
+		
+		<service name="CompCopyAuService">
+			<inbound>
+				<vm:inbound-endpoint
+					path="services.CompCopyAuService"
+					synchronous="true"
+					responseTransformer-refs="ToString CompCopyXmlToObject">
+				</vm:inbound-endpoint>
+			</inbound>
+			
+			
+			<http:rest-service-component httpMethod="GET" 
+			   serviceUrl="${comp.copy.request.au.url}+isbn10(a0100):#[map-payload:isbn10]+account13(a0300):#[map-payload:acctno]+fname(a0300):#[map-payload:fname]+lname(a0300):#[map-payload:lname]+PO(a0300):#[map-payload:po]+
+			   street1(a0300):#[map-payload:street1]+street2(a0300):#[map-payload:street2]+city(a0300):#[map-payload:city]+state(a0300):#[map-payload:state]+isocntry(a0040):#[map-payload:countrycode]+postcode(a0090):#[map-payload:postcode]" />
+		  </service>
+
+	</model>
+	
+	<flow name="productService">
+		<composite-source>
+			<vm:inbound-endpoint path="productService.updateCommonWork" exchange-pattern="one-way">
+				<property key="method" value="updateCommonWork" />
+			</vm:inbound-endpoint>
+			<vm:inbound-endpoint path="productService.handleErrorMessageOp" exchange-pattern="request-response">
+				<property key="method" value="handleErrorMessageOp" />
+			</vm:inbound-endpoint>
+			<vm:inbound-endpoint path="productService.saveProducts" exchange-pattern="request-response">
+				<property key="method" value="saveProducts" />
+			</vm:inbound-endpoint>
+			<vm:inbound-endpoint path="productService.saveProduct" exchange-pattern="request-response">
+				<property key="method" value="saveProduct" />
+			</vm:inbound-endpoint>
+			<vm:inbound-endpoint path="productService.saveMasterLists" exchange-pattern="request-response">
+				<property key="method" value="saveMasterLists" />
+			</vm:inbound-endpoint>
+		</composite-source>
+		<component>
+			<spring-object bean="services.ProductService"/>
+		</component>
+	</flow>
+
+	<!-- This is our message router for the message router -->
+	<flow name="MessageCache">
+		<composite-source>
+			<vm:inbound-endpoint path="messageCache.cacheMessage" exchange-pattern="request-response">
+				 <property key="method" value="cacheMessage" />
+			</vm:inbound-endpoint>
+			<vm:inbound-endpoint path="messageCache.preProcessMessage" exchange-pattern="request-response">
+				 <property key="method" value="preProcessMessage" />
+			</vm:inbound-endpoint>
+		</composite-source>
+		<component>
+			<spring-object bean="repository.CachedMessageRepository"/>
+		</component>
+	</flow>
+
+	<flow name="MessageCache2">
+		<vm:inbound-endpoint path="messageCache.postProcessMessage" exchange-pattern="request-response">
+			 <property key="method" value="postProcessMessage" />
+		</vm:inbound-endpoint>
+		<component>
+			<spring-object bean="repository.CachedMessageRepository"/>
+		</component>
+	</flow>
+</mule>

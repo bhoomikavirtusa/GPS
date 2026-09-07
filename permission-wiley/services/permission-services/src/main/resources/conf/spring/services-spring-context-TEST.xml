@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd"
+>
+
+
+<bean id="com.wiley.permissions.mule.muleDispatcher" scope="prototype"
+		class="com.wiley.permissions.common.dispatcher.RemoteMuleDispatcher">
+		<property name="serverURL" value="http://localhost:60504" />
+</bean>
+<!-- 
+<bean id="com.wiley.permissions.services.contactServiceImplTest" 
+		class="com.wiley.permissions.services.ContactServiceTest">
+		<property name="dispatcher" ref ="com.wiley.permissions.mule.muleDispatcher" />
+		
+</bean>
+
+<bean id="com.wiley.permissions.services.assetServiceImplTest" 
+		class="com.wiley.permissions.services.AssetServiceTest">
+		<property name="dispatcher" ref ="com.wiley.permissions.mule.muleDispatcher" />
+		
+</bean>
+
+<bean id="com.wiley.permissions.services.PermissionStatusValidationServiceTest" 
+		class="com.wiley.permissions.services.PermissionStatusValidationServiceTest">
+		<property name="dispatcher" ref ="com.wiley.permissions.mule.muleDispatcher" />
+		
+</bean>
+ -->
+</beans>

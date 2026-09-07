@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+
+	<c:url var="actionUrl" value="/sapp/cwlanding/user/profile" />
+	<c:url var="upUrl" value="/sapp/cwlanding/user/profile?sortup=" />
+	<c:url var="downUrl" value="/sapp/cwlanding/user/profile?sortdown=" />
+	<c:url var="downIconUrl" value="/images/buttons/down_arrow.png" />
+	<c:url var="upIconUrl" value="/images/buttons/up_arrow.png" />
+	
+	<script type="text/javascript">
+		function sortUp( did ) {
+			var frm = document.getElementById('profileForm') || null;
+			if (frm) {
+			   frm.action = "${upUrl}"  + did 
+			   frm.submit();
+			}
+	    }
+		
+		function sortDown( did ) {
+			var frm = document.getElementById('profileForm') || null;
+			if (frm) {
+				frm.action = "${downUrl}"  + did 
+				frm.submit();
+			}
+		}
+	</script>
+	
+	<form method="post" id="profileForm" action="${actionUrl}">
+	<input type="hidden" name="userId" value="${userId}" />
+	<table>
+		<tr>
+			<th colspan="4">Manage Landing Layout</th>
+		</tr>
+		<tr>
+			<td colspan="4">Select fields to add to asset table</td>
+		</tr>
+			<c:forEach items="${profile}" var="field">
+			<tr>
+				<td>
+					<c:choose>
+						<c:when test="${field.required}">
+							<input type="checkbox" name="field" value="${field.name}" checked="checked" disabled="true"/>
+						</c:when>
+						<c:otherwise>
+							<c:choose>
+								<c:when test="${field.visible}">
+									<input type="checkbox" name="field" value="${field.name}" checked="checked"/>
+								</c:when>
+								<c:otherwise>
+									<input type="checkbox" name="field" value="${field.name}"/>
+								</c:otherwise>
+							</c:choose>						
+						</c:otherwise>
+					</c:choose>	
+				</td>
+				<td>
+					<c:out value="${field.title}" />
+				</td>
+			
+				<td>
+					<c:if test="${field.sortOrder != 1}"> 
+						<a href="#" onClick="sortUp(${field.sortOrder})"> <img src="${upIconUrl}" /> </a>
+					</c:if>
+				</td>
+				<td>
+					<c:if test="${field.sortOrder != 18}">
+				 		<a href="#" onClick="sortDown(${field.sortOrder})"> <img src="${downIconUrl}" /> </a>
+				 	</c:if>
+				 </td>
+			</tr>
+			<tr>
+				<td colspan="4"><hr style="margin-top: 1px; margin-bottom: 1px" /></td>
+			</tr>
+			</c:forEach>
+	</table>
+	<div class="buttonset">			
+		<input type="submit" value="Save"/> 
+		<c:url var="userAccountUrl" value="/sapp/myaccount/form" />
+		<a href="${userAccountUrl}" id="cancel" class="button">Cancel</a>
+	</div>
+	</form>
+</jsp:root>

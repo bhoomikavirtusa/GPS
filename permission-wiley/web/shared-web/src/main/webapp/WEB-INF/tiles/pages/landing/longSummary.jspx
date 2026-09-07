@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<jsp:directive.include file="/WEB-INF/tiles/pages/include/js/toggleScript.js.jspx" />
+
+	<c:url var="plusImageUrl" value="/images/buttons/plus.png" />
+	<c:url var="goImageUrl" value="/images/buttons/go.png" />
+	<c:url var="cwLandingUrl" value="/sapp/cwlanding/scroll" />
+	
+	<script type="text/javascript">
+	//<![CDATA[
+	function showProduct(productId) {
+		$modalDialog.dialog("close");
+		document.location.href='${cwLandingUrl}?productId=' + productId;
+	}
+	
+	$(function() {
+		$('#closeLink').click (function() {
+			$modalDialog.dialog("close");
+		});
+	});
+	//]]>
+	</script>
+	
+	<h2>${product.title} - Current Print Run Total = <fmt:formatNumber value="${totalPrintings}" /></h2>
+	<h3><img src="${plusImageUrl}" onclick="return toggleDetails('membersDiv', this);"/> Common Work members</h3>
+	<span id="details-membersDiv" style="margin-left: 2em; display:none;" >	
+	<table class="display width100">
+		<tr>
+			<th>Primary</th>
+			<th>Medium</th>
+			<th>ISBN</th>
+			<th>Title</th>
+			<th>Printed/Sold</th>
+		</tr>
+	
+		<c:forEach items="${cwMembers}" var="product">
+			<tr id="productRow_${product.id}" class="${product.cwPrimary ? 'productRow highlight' : 'productRow'}">
+				<td>
+					<c:if test="${product.cwPrimary}">
+						*
+					</c:if>
+				</td>
+				<td style="white-space: nowrap">${product.medium.name}</td>
+				<td style="white-space: nowrap">${product.isbn13}</td>
+				<td style="white-space: nowrap">${product.title}</td>
+				<td style="white-space: nowrap">${product.ebookFromBIorCore}</td>
+			</tr>
+		</c:forEach>
+	</table>
+	</span>
+	
+	<h3><img src="${plusImageUrl}" onclick="return toggleDetails('relatedDiv', this);"/> Related custom publications</h3>
+	<span id="details-relatedDiv" style="margin-left: 2em; display:none;" >	
+	<table class="display width100">
+		<tr>
+			<th>Medium</th>
+			<th>ISBN</th>
+			<th>Title</th>
+			<th>Printed/Sold</th>
+		</tr>
+	
+		<c:forEach items="${customPubs}" var="product">
+			<tr>
+				<td style="white-space: nowrap">${product.medium.name}</td>
+				<td style="white-space: nowrap">${product.isbn13}</td>
+				<td style="white-space: nowrap">${product.title}</td>
+				<td style="white-space: nowrap">${product.ebookFromBIorCore}</td>
+			</tr>
+		</c:forEach>
+	</table>
+	</span>
+	
+	<h3><img src="${plusImageUrl}" onclick="return toggleDetails('familyEditionsDiv', this);"/> Family edition members</h3>
+	<span id="details-familyEditionsDiv" style="margin-left: 2em; display:none;" >	
+	<table class="display width100">
+		<tr>
+			<th>Go</th>
+			<th>Assets</th>
+			<th>Medium</th>
+			<th>ISBN</th>
+			<th>Title</th>
+		</tr>
+	
+		<c:forEach items="${familyMembers}" var="product">
+			<tr>
+				<td style="white-space: nowrap"><img src="${goImageUrl}" id="go" onclick="showProduct(${product.id})"/></td>
+				<!-- For this jsp only ebookSales is actually the asset count set by LandingController.longSummary() -->
+				<td style="white-space: nowrap">${product.ebookSales}</td>
+				<td style="white-space: nowrap">${product.medium.name}</td>
+				<td style="white-space: nowrap">${product.isbn13}</td>
+				<td style="white-space: nowrap">${product.title}</td>
+			</tr>
+		</c:forEach>
+	</table>	
+	</span>
+	<br />
+	
+	<h2>Primary Product</h2>
+	<span id="details-primaryProductDiv">	
+		<table id="productTable_${product.id}" class="productTable" >
+			<tr>
+				<td class="label"><fmt:message key="product.label.medium" /></td>
+				<td class="value">${product.medium.name}</td>
+			</tr>
+			<tr>
+				<td class="label">Title</td>
+				<td class="value">${product.title}</td>
+			</tr>
+			<tr>
+				<td class="label"><fmt:message key="product.label.isbn13" /></td>
+				<td class="value">${product.isbn}</td>
+			</tr>
+			<tr>
+				<td class="label"><fmt:message key="product.label.authors" /></td>
+				<td class="value">${product.authorsAsString}</td>
+			</tr>
+			<tr>
+				<td class="label"><fmt:message key="product.label.publicationStatus" />:</td>
+				<td class="value">${product.publicationStatus.description}</td>
+			</tr>
+			<tr>
+				<td class="label"><fmt:message key="product.label.printDate" />:</td>
+				<td class="value"><fmt:formatDate type="date" value="${product.printDate}" /></td>
+			</tr>
+			<c:if test="${not empty product.edition}">
+			<tr>
+				<td class="label"><fmt:message key="product.label.edition" />:</td>
+				<td class="value">${product.edition.editionNumber}</td>
+			</tr>
+			</c:if>
+			<c:if test="${not empty product.subMedium}">
+			<tr>
+				<td class="label"><fmt:message key="product.label.submedium" />:</td>
+				<td class="value">${product.subMedium.name}</td>
+			</tr>
+			</c:if>
+			
+			<tr>
+				<td class="label">Division / <fmt:message key="product.label.productLine" />:</td>
+				<td class="value">
+					<!-- businessUnit is non-nullable but productLine is nullable -->
+					${product.businessUnit.name} /
+					<c:if test="${not empty product.productLine}">
+					${product.productLine.name}
+					</c:if>
+				</td>
+			</tr>
+			
+			<c:if test="${not empty product.productFamily}">
+			<tr>
+				<td class="label"><fmt:message key="product.label.productFamily" />:</td>
+				<td class="value">${product.productFamily.name}</td>
+			</tr>
+			</c:if>
+			<c:if test="${not empty product.productType}">
+			<tr>
+				<td class="label"><fmt:message key="product.label.productType" />:</td>
+				<td class="value">${product.productType.name}</td>
+			</tr>
+			</c:if>
+			<tr>
+				<td class="label"><fmt:message key="product.label.copyRightYear" />:</td>
+				<td class="value">${product.copyrightYear}</td>
+			</tr>
+			<c:if test="${not empty product.permissionPayer}">
+			<tr>
+				<td class="label"><fmt:message key="product.label.permissionPayer" />:</td>
+				<td class="value">${product.permissionPayer.description}</td>
+			</tr>
+			</c:if>
+			<tr>
+				<td class="label"><fmt:message key="product.label.lastUpdatedDate" />:</td>
+				<td class="value"><fmt:formatDate type="date" value="${product.lastUpdatedDate}" /></td>
+			</tr>
+			<tr>
+				<td class="label">Editor Code:</td>
+				<td class="value">${product.editor}</td>
+			</tr>			
+			<tr>
+				<td class="label">Photo Editor:</td>
+				<td class="value">${product.photoEditor.fullName}</td>
+			</tr>
+			<tr>
+				<td class="label">Production Editor:</td>
+				<td class="value">${product.productionEditor.fullName}</td>
+			</tr>
+			<tr>
+				<td class="label">Designer:</td>
+				<td class="value">${product.designer.fullName}</td>
+			</tr>
+			<tr>
+				<td class="label">Photo Researcher:</td>
+				<td class="value">${product.photoResearcher.fullName}</td>
+			</tr>
+			<tr>
+				<td class="label">Development Editor:</td>
+				<td class="value">${product.developmentEditor.fullName}</td>
+			</tr>
+			<tr>
+				<td class="label">Acquisitions Editor:</td>
+				<td class="value">${product.acquisitionsEditor.fullName}</td>
+			</tr>
+			<tr>
+				<td class="label">Tier:</td>
+				<td class="value">${product.productPriority}</td>
+			</tr>
+			<c:if test="${not empty bpmUrl}">
+				<tr>
+					<td class="label">BPM Link:</td>
+					<td class="value"><a target="perm_bpm" href="${bpmUrl}">Link</a></td>
+				</tr>
+			</c:if>
+		</table>
+	</span>
+	<div class="buttonset">		
+		<button id="closeLink">Close</button>
+	</div>
+
+</jsp:root>

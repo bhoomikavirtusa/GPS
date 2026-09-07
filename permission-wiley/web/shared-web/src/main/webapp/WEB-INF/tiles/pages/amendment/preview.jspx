@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="iFrameUrl" value="/sapp/permissions/amendment/pdf/embed?auId=${param.auId}" />
+	<c:url var="pdfUrl" value="/sapp/permissions/amendment/pdf?auId=${param.auId}" />
+	<c:url var="pdfDownloadUrl" value="/sapp/permissions/amendment/pdf?auId=${param.auId}&amp;download=1" />
+	
+	<jsp:directive.include file="/WEB-INF/tiles/pages/preview.jspx" />
+</jsp:root>

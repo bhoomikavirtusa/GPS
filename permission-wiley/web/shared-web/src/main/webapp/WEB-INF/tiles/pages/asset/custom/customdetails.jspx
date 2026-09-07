@@ -1,0 +1,1147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:security="http://www.springframework.org/security/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<jsp:directive.include file="/WEB-INF/tiles/pages/include/js/toggleScript.js.jspx" />
+
+	<c:url var="assetCacheUrl" value="/sapp/asset/custom/cache" />
+	<c:url var="assetSubmitUrl" value="/sapp/asset/custom/submit" />
+	<c:url var="sourceSearchUrl" value="${wileyfn:getRestUrl(pageContext.request)}/service/source/search" />
+	<c:url var="sourceContacsUrl" value="${wileyfn:getRestUrl(pageContext.request)}/service/source/getContacts" />
+	<c:url var="sourceAddressesUrl" value="${wileyfn:getRestUrl(pageContext.request)}/service/source/getAddresses" />
+	<c:url var="uploadUrl" value="/sapp/asset/custom/upload_file" />
+	<c:url var="upload2Url" value="/sapp/asset/custom/upload_asset_file" />
+	<c:url var="showUrl" value="/sapp/asset/custom/show_files" />
+	<c:url var="deleteFileUrl" value="/sapp/asset/custom/delete_file" />
+	<c:url var="deleteOriginalFileUrl" value="/sapp/asset/custom/delete_original_file?assetId=${customAssetForm.extendedAssetUse.asset.id}" />
+	<c:url var="plusImageUrl" value="/images/buttons/plus.png" />
+	<c:url var="productSearchUrl" value="${wileyfn:getRestUrl(pageContext.request)}/service/product/search" />
+	<c:url var="isbnSearchUrl" value="${wileyfn:getRestUrl(pageContext.request)}/service/product/isbnsearch" />
+	<c:url var="productDataUrl" value="${wileyfn:getRestUrl(pageContext.request)}/service/product/loadProductData" />
+	<c:url var="deleteIconUrl" value="/images/buttons/delete-icon.png" />
+	<c:url var="assetContactUrl" value="/sapp/asset/custom/source_contact_details" />
+
+	<jsp:element name="script">
+		<jsp:attribute name="type">text/javascript</jsp:attribute>
+		<jsp:attribute name="src">
+			<c:url value="/js/jquery.blockUI-2.38.js"/>
+		</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+
+	<script type="text/javascript">
+	//<![CDATA[
+		var sourceId = '${customAssetForm.extendedAssetUse.asset.sources[0].id}';
+		var assetId = '${customAssetForm.extendedAssetUse.asset.id}';
+	//]]>		
+	</script>	
+ 		
+	<jsp:directive.include file="../js/validate.js.jspx" />
+
+	<script type="text/javascript">	
+	//<![CDATA[
+	
+	var iStock = [${istockphoto}];
+	var reg = /^(-)*[0-9]+(,[0-9]+)*$/;
+	var errorReg = /^Error$/;
+	var currUsage = 0;
+	var currentEstimatedCost = parseFloat("${estimatedCost}");
+	var estimatedCost = parseFloat("${customAssetForm.po.estimatedPrice}");
+	var usageMax = 3;
+	
+	function refreshDataFromDuplicate (json) {
+		$( 'input[id="extendedAssetUse\\.asset\\.description"]').val (json.description);
+	//Ram added below code for auto population	
+	
+	$( 'input[id="extendedAssetUse\\.asset\\.artist"]').val (json.artist);
+	$( '#extendedAssetUse\\.asset\\.creditLine').val(json.creditLine);
+
+	//ends for auto population code
+	 changeSource(json.sources[0].id);
+	}
+	
+	//Start -- Added for implementing Build DM-364
+	function fnDeleteFileOnID(id) {
+		var r = confirm("Are you sure you want to delete this file?");
+		if (r == true) {
+			fnDeleteFile(id);
+		} else {
+		    return false;
+		}
+	}	
+	//End -- Added for implementing Build DM-364
+	
+	function fnDeleteFile (id) {
+		$.ajax({
+            async: true,
+            type: 'post',
+            url: '${deleteFileUrl}',
+            data: 'fileId=' + id,
+            success: function (response) {
+            	fnRefreshRows (${param.auId});
+            	$('#file' + id).empty().html(response);
+            }
+        });
+        return false;
+	}
+	
+	// keep this in sync with returnAddress logic in .../po/js/wizard.buttons.js.jspx
+	// ReturnAddress validation should match PurchaseOrder.validateReturnAddress() (java code)
+	jQuery.validator.addMethod("sevenLines", function(value, element) {
+	    var lines = value.split("\n");
+	    return (lines.length <= 7);
+	}, "Return Address cannot have more than 7 lines");
+	
+	jQuery.validator.addMethod("line38chars", function(value, element) {
+		var lines = value.split(/\r?\n/);
+	    for (var i=0; i < lines.length; i++) {
+	    	if (lines[i].length > 38) return false;
+	    }
+	    return true;
+	}, "Return Address cannot have a line more than 38 chars");
+	
+	function valid () {
+		if ($("#customAssetForm").validate({
+			// required only if visible
+		    rules: {
+		        'sourceName': {
+		            required: function() {
+		            	return $("#sourceName").is(":visible") && $("#favSource option:selected").val() == "" && $("#sourceName").val() == "";
+		            }
+		        },
+				'extendedAssetUse.asset.vendorId': {
+		            required: function() {
+		            	return $("#extendedAssetUse\\.asset\\.vendorId").is(":visible");
+		            }
+		        },
+		        'po.returnAddress': {  // keep this in sync with returnAddress logic in .../po/js/wizard.buttons.js.jspx
+		        	sevenLines: true,
+		        	line38chars: true
+		        }
+			}
+		}).form() == false) {
+			return false;
+		}
+		return true;
+	}
+
+	function changeSource (id) {
+        $( "#customAssetForm #sourceId" ).val (id);
+        sourceId = id;
+        toggleOnPermisionType ($('#extendedAssetUse\\.permissionType'));
+		
+		$('#po\\.sourceContactInfo').empty(); 
+		$('#po\\.sourceContactInfo')[0].options.add( new Option("To whom it may concern", "0") );
+        $('#po\\.sourceAddressInfo').empty(); 
+        $('#po\\.sourceAddressInfo')[0].options.add( new Option("Source Main Address", "0") );
+		$.ajax({
+           async: true,
+           type: 'post',
+           url: '${sourceContacsUrl}/' + id + '?callback=?',
+           dataType: 'json',
+            success: function (json) {
+               for ( var i=0, iLen=json.length ; i<iLen ; i++ ) {
+                   var dname = json[i].firstName + " " + json[i].lastName;
+                   var did = json[i].id + "";
+                   var demail = json[i].email;
+                   $('#po\\.sourceContactInfo')[0].options.add( new Option(dname,did) );
+               }
+          	}
+        });
+	}
+	
+	function toggleOnPermisionType(obj) {
+		if (obj.val() == "Author Supplied Art" || 
+			obj.val() == "Wiley Created") {
+			$("#sourceDiv1").hide();
+		} else {
+			$("#sourceDiv1").show();
+		}
+
+		if (obj.val() == "Wiley Created" ||
+			obj.val() == "Author Supplied Art" ||
+			obj.val() == "Public Domain") {
+			$("#poDiv").hide();
+			$("#sDiv").show();
+			$("#cDiv").hide();
+		} else if (obj.val() == "Work for Hire") {
+			$("#poDiv").show();
+			$("#sDiv").hide();
+			$("#cDiv").hide();
+		} else if (obj.val() == "Rights Managed") {
+			var id = parseInt ($( "#customAssetForm #sourceId" ).val());
+	        if ($.inArray(id, iStock) == -1) {
+	        	// not istock
+	        	$("#poDiv").show();
+				$("#sDiv").hide();
+				$("#cDiv").hide();
+	        } else {
+	        	// is istock
+	        	$("#poDiv").hide();
+				$("#sDiv").hide();
+				$("#cDiv").show();
+	        }
+		}
+	}
+	
+	function addUsage (count, enabled) {
+		$("#usageDiv" + count).show();
+		if (!enabled) {
+			$("#usages\\[" + count + "\\]\\.usage").attr("disabled", "disabled");
+			$("#usages\\[" + count + "\\]\\.size").attr("disabled", "disabled");
+			$("#usages\\[" + count + "\\]\\.estimatedCost").attr("disabled", "disabled");
+		} else {		
+			currUsage++;
+		}
+		$("#customAssetForm #usageCount").val(currUsage);
+		// hardcoded 3, can be changed with anything as well as in the counter loop
+		if (currUsage == usageMax) {
+			$("#addUsageButton").attr("disabled", "disabled");
+			$("#addUsageButton").hide();
+		}
+	}
+
+	function toggleUsage () {
+		var usageCount = $("#customAssetForm #usageCount").val();
+		for (var i=0; i < usageCount; i++) {
+			if (i == 0)
+				addUsage (i, true);
+			else
+				addUsage (i, false);
+		}
+	}
+	
+	function changeEstimatedCurrency (currency) {
+		for (var count=0; count < usageMax; count++) {
+			$("#usages" + count + "\\.estimatedCurrency").val(currency.val());
+		}
+		$('#po\\.estimatedCurrency').val (currency.val());
+	}
+
+	function calculateEstimatedCost (recalc) {
+		// if a value has been entered for po estimated cost but no estimated cost per asset use
+		if (!(0 == currentEstimatedCost && 0 != estimatedCost) || recalc) {
+			estimatedCost = currentEstimatedCost;
+			for (var count=0; count < usageMax; count++) {
+				estimatedCost += parseFloat($("#usages" + count + "\\.estimatedCost").val());
+			}
+		}
+		$('#po\\.estimatedPrice').val (estimatedCost);
+	}
+
+	function handleComponentChange (component, idx) {
+		var selection = component.find("option:selected").text();
+		// note category is a custom attribute added to the drop down in order to figure our the defaults for usage
+		var category = component.find("option:selected").attr("category");
+				
+		if(category.indexOf("CVW") > -1) {
+				$("#usages\\[" + idx + "\\]\\.usage").each(function () {
+			    	$('option', this).each(function () {
+			        	if ($(this).html() == "Front Cover") {
+			            	$(this).attr('selected', 'selected')
+			        	};
+			    	});
+				});
+		}
+
+		if(category.indexOf("CVW") < 0) {
+			$("#usages\\[" + idx + "\\]\\.usage").each(function () {
+		    	$('option', this).each(function () {
+		        	if ($(this).text() == "Figure") {
+		            	$(this).attr('selected', 'selected')
+		        	};
+		    	});
+			});
+		}
+
+	
+	
+	}
+
+	function cacheForm (fnCallback) {
+		if (!valid()) return;
+
+		$.ajax({
+            async: true,
+            type: 'post',
+            url: '${assetCacheUrl}' + '?sourceId=' + $("#customAssetForm #sourceId").val(),
+            data: $('#customAssetForm').serialize(),
+            success: function (response) {
+            	// if only digits - it is the auId
+            	if (reg.test(response)) {
+            		// when cache is called, we have to add the new id to the ids list in the NavigatorController
+            		add (response, fnCallback);
+            	}
+            }
+        });	
+	}
+
+	$(document).ajaxStop($.unblockUI);
+
+	$(document).ready(function() {
+
+	    $('#uploadForm').ajaxForm({    
+	        success: function(data) {
+	            var $out = $('#files');
+	            $out.html(data);
+	        }
+	    });
+
+	    $('#upload2Form').ajaxForm({
+	        success: function(data) {
+	          	var $out = $('#thumbFileDiv');
+	            $out.empty().html(data);
+				$('#originalFileDiv').hide();
+	        }
+	    });
+	    
+	    $("#assetUseFile").change(function() {
+	        var fileName = $(this).val();
+	        $("#uploadForm").submit();
+	    });
+	    
+	    $("#assetFile").change(function() {
+	        var fileName = $(this).val();
+	        $("#upload2Form").submit();
+	    });
+
+		$('#deleteOriginalFile').click(function() {
+			var r = confirm("Are you sure you want to delete this file?");
+			if (r == true) {
+				$.ajax({
+		            async: true,
+		            type: 'post',
+		            url: '${deleteOriginalFileUrl}',
+		            success: function (response){
+		            	fnRefreshRows (${param.auId});
+		            	$('#thumbFileDiv').empty().html(response);
+		            	$('#originalFileDiv').hide();
+		            }
+		        });			
+		        return false;
+			} else {
+			    return false;
+			}
+			
+		});
+		
+		toggleOnPermisionType($('#extendedAssetUse\\.permissionType'));
+		toggleUsage();
+		calculateEstimatedCost (false);
+		
+		$('#extendedAssetUse\\.permissionType').change(function() {
+			$("#extendedAssetUse\\.permissionType option:selected").each(function () {
+				toggleOnPermisionType($("#extendedAssetUse\\.permissionType option:selected"));
+	        });	
+		});
+
+		
+		for (var count=0; count < usageMax; count++) {
+			$("#usages" + count + "\\.estimatedCost").change(function() {
+				calculateEstimatedCost (true);
+			});
+			$("#usages" + count + "\\.estimatedCurrency").change(function() {
+				changeEstimatedCurrency ($(this));
+			});
+		}
+		
+		$('#extendedAssetUse\\.asset\\.artist').change(function() {
+			if ($("#sourceName").val() != "" && $("#extendedAssetUse\\.asset\\.artist").val() != "" ) {
+				//Code Change for SS Task 10
+				//var creditLine = $("#extendedAssetUse\\.asset\\.artist").val() + " / " + $("#sourceName").val();
+				var creditLine = $("#extendedAssetUse\\.asset\\.artist").val() + " / ";
+				 if($("#sourceName").length <= 0){
+					 creditLine = creditLine + $("#sourceNameMoreAssets").val();
+				}else{
+					 creditLine = creditLine + $("#sourceName").val(); 
+				 }
+				//Code Change for SS Task 10
+				$('#extendedAssetUse\\.asset\\.creditLine').val(creditLine);
+			}
+		});
+
+		$('#sourceName').focusout(function() {
+			if ($("#sourceName").val() != "" && $("#extendedAssetUse\\.asset\\.artist").val() != "" ) {
+				//Code Change for SS Task 10
+				//var creditLine = $("#extendedAssetUse\\.asset\\.artist").val() + " / " + $("#sourceName").val();
+				var creditLine = $("#extendedAssetUse\\.asset\\.artist").val() + " / ";
+				if($("#sourceName").length <= 0){
+					 creditLine = creditLine + $("#sourceNameMoreAssets").val();
+				 }else{
+					 creditLine = creditLine + $("#sourceName").val(); 
+				 }
+				//Code Change for SS Task 10
+				$('#extendedAssetUse\\.asset\\.creditLine').val(creditLine);
+			}
+		});
+        
+		// cancel button below commented out so this could also be removed
+		$('#cancelLink').click (function() {
+			$modalDialog.dialog("close");
+		});
+
+		$('#favSource').change(function() {
+			$("#favSource option:selected").each(function () {
+				changeSource ($(this).val());
+				$("#sourceName").val ("");   
+	        });	
+		});
+		
+		$("#sourceName").autocomplete({
+			source: function( request, response ) {
+				$.jsonp({
+					"url": '${sourceSearchUrl}/' + request.term + '?callback=?', 
+					"success": function(json) {
+						if (json.length == 0) {
+                    		$( "#customAssetForm #sourceId" ).val (0);
+                    		response();
+                		} else {
+							response( 
+								$.map( json, function( item ) {
+								return {
+									value: item.name,
+									id: item.id,
+									disabled: item.disabled
+								}
+							}));
+						}
+					},
+					"error": function() {
+			        	alert ("Error: failed to search sources");
+			        }
+		        });				
+			},
+			minLength: 3,
+			select: function( event, ui ) {
+				if (ui.item.disabled) {
+					alert ("Use of any assets provided by this source has been prohibited by Wiley.  Please cancel this asset, and select one from an alternate source.");
+					$("#sourceName").val("");
+					return false;
+				} else {
+					changeSource(ui.item.id);					
+				}
+			},
+			open: function() {
+				$(this).removeClass("ui-corner-all").addClass("ui-corner-top");
+			},
+			close: function() {
+				$(this).removeClass("ui-corner-top").addClass("ui-corner-all");
+			}
+		});
+
+		$('#cacheB').click (function() {
+			cacheForm("loadNew");
+        });
+		
+		$('#createPOB').click (function() {
+			$('#createPO').val(true);
+			$('#saveB').click();
+		});
+
+		$('#finishNOPOB').click (function() {
+			if (!valid()) return;
+			
+			$('#createPO').val(false);
+			$('#createContract').val(false);
+			$('#finish').val(true);
+			$('#saveB').click();
+			$modalDialog.dialog("close");
+		});
+
+		$('#addAnotherNOPOB').click (function() {
+			$('#createPO').val(false);
+			$('#finish').val(false);
+			$('#createContract').val(false);
+			$('#addAnother').val(true);
+			$('#saveB').click();
+		});
+
+		$('#createNOPOB').click (function() {
+			$('#createContract').val(true);
+			$('#saveB').click();
+		});
+
+		$('#createCB').click (function() {
+			$('#createContract').val(true);
+			$('#saveB').click();
+		});
+
+		$('input:radio[name="extendedAssetUse.new"]').change(
+			function() {
+			    $('input[name="extendedAssetUse.pickup"]')[0].checked = false;
+			    $('input[name="extendedAssetUse.reusedFromPreviousEdition"]')[0].checked = false;  
+			    $("#pickupDiv").hide();
+			});
+
+		$('input:radio[name="extendedAssetUse.pickup"]').change(
+			function() {
+			    $('input[name="extendedAssetUse.new"]')[0].checked = false;
+			    $('input[name="extendedAssetUse.reusedFromPreviousEdition"]')[0].checked = false;   
+			    $("#pickupDiv").show();
+			});
+
+		$('input:radio[name="extendedAssetUse.reusedFromPreviousEdition"]').change(
+			function() {
+			    $('input[name="extendedAssetUse.new"]')[0].checked = false;
+			    $('input[name="extendedAssetUse.pickup"]')[0].checked = false;
+			    $("#pickupDiv").show();
+			});
+
+		$('#saveB').click (function() {
+			if (!valid())
+				return;
+
+			$.blockUI({baseZ: 2000});
+
+			$.ajax({
+	            async: true,
+	            type: 'post',
+	            url: '${assetSubmitUrl}' + '?sourceId=' + $("#customAssetForm #sourceId").val(),
+	            data: $('#customAssetForm').serialize(),
+	            dataType: 'json',
+	            success: function (json) {
+	            	if (json.error) {
+	            		//if (typeof load == 'function')
+	            		//	load('${param.auId}', json.error);
+	            		//else
+	            			alert (json.error);	
+	            	}
+	            	try {
+						for (var i = 0, iLen = json.auids.length; i < iLen; i++) {
+							var n = json.auids[i];
+		            		if (${param.auId} == 0) {
+			            		// add the id to the selected ids so we can navigate back to the new entered ones
+			            		var newRow = blankRow.slice();
+			            		newRow[0] = n;
+			            		// insert one row before last empty row
+			            		var aNewRow = fnInsertBeforeLast (newRow, true);
+			            		fnRefreshRow (aNewRow);
+			            	} else {
+		            			fnRefreshRowById (n);		            	
+			            	}
+						}
+					} catch (err) {
+						// ignore it, maybe log it
+					}
+	            	if (json.url) {
+						// redirect to url
+		                $.ajax({
+				            async: true,
+				            type: 'get',
+				            url: json.url,
+				            dataType: 'html',
+				            success: function (resp){			            
+			            		$('#modalDiv').empty().html(resp);
+			            		repositionDialog();
+				            }
+				        });		            	
+	            	} else {
+	            		$modalDialog.dialog("close");
+	            	}
+	            }
+	        });
+		});		
+		
+		$('#po\\.sourceContactInfo').change(function() {
+		    $('#po\\.sourceAddressInfo').empty(); 
+			if ($(this).val() == 0) {
+				   $('#po\\.sourceAddressInfo').empty(); 
+			        $('#po\\.sourceAddressInfo')[0].options.add( new Option("Source Main Address", "0") );
+				// do nothing
+			} else {
+		
+			$.ajax({
+	        	async: true,
+	        	type: 'post',
+	        	url: '${sourceAddressesUrl}/'+ $(this).val() + '?callback=?',
+	        	dataType: 'json',
+	        	success: function (json) {
+	            	var daddress = json.line1;
+	                var did = json.id + "";
+	                var demail = json.line3;
+
+	                if (demail) {
+						$('#po\\.sourceAddressInfo')[0].options.add (new Option("Contact email: " + demail, "C:email") );
+					}
+	                        
+	                $('#po\\.sourceAddressInfo')[0].options.add( new Option(daddress,did) );
+		     	 }
+	        });	
+	
+			}
+		});
+		
+		repositionDialog();
+	});
+
+	//]]>		
+	</script>
+
+	<jsp:directive.include file="/WEB-INF/tiles/pages/include/generalMessage.jspx" />
+
+	<form:form modelAttribute="customAssetForm">
+		<input type="hidden" id="createPO" name="createPO" value="${customAssetForm.createPO}" />
+		<input type="hidden" id="createContract" name="createContract" value="${customAssetForm.createContract}" />
+		<input type="hidden" id="finish" name="finish" value="${customAssetForm.finish}" />
+		<input type="hidden" id="addAnother" name="addAnother" value="${customAssetForm.addAnother}" />
+	<table>
+		<tr>
+			<td class="label">
+				<form:label path="extendedAssetUse.asset.description" cssClass="required" cssErrorClass="error">Description:</form:label>
+			</td>
+			<td colspan="6">
+			    <form:input path="extendedAssetUse.asset.description" class="required" size="80" maxlength="1000" />
+			</td>
+			<td>
+				<div class="requiredtxt">* indicates required field</div>	
+			</td>
+		</tr>
+		<tr>
+			<td class="label">Permission type</td>
+			<c:if test="${not empty customAssetForm.extendedAssetUse.permissionType}">
+				<td>
+					<input type="hidden" id="extendedAssetUse.permissionType" value="${customAssetForm.extendedAssetUse.permissionType}"/>
+					<c:out value="${customAssetForm.extendedAssetUse.permissionType}" />
+				</td>
+			</c:if>
+			<c:if test="${empty customAssetForm.extendedAssetUse.permissionType}">
+			<td>
+				<form:select path="extendedAssetUse.permissionType">
+					<form:option label="Rights Managed" value="Rights Managed"/>
+					<form:option label="Public Domain" value="Public Domain"/>
+					<form:option label="Author created/owned" value="Author Supplied Art"/>
+					<form:option label="Wiley created/owned" value="Wiley Created"/>
+					<form:option label="Will be royalty free" value="Will be royalty free"/>
+					<form:option label="Will be work for hire" value="Will be work for hire"/>
+					<form:option label="STM guidelines" value="STM guidelines"/>
+				</form:select>
+			</td>
+			</c:if>		
+			<td class="label">Media type</td>
+			<td>
+				<form:select path="extendedAssetUse.asset.mediaType">
+					<form:options items="${mediaTypes}" itemValue="code" itemLabel="description" />
+				</form:select>
+			</td>
+		</tr>
+		
+		<input type="hidden" id="usageCount" name="usageCount" value="${customAssetForm.usageCount}" />
+		<c:forEach var="counter" begin="0" end="2" step="1">
+			<tbody id="usageDiv${counter}" style="display: none">
+
+       		<tr>
+	  			<td>
+					Component
+				</td>		
+				<td>
+					<select name="usages[${counter}].component" id="usages[${counter}].component" onchange="javascript:handleComponentChange($(this),${counter})">
+						<c:forEach items="${components}" var="component">
+							<c:choose>
+								<c:when test="${component.id == customAssetForm.usages[counter].component.id}">
+									<option value="${component.id}" selected="selected" category="${component.category.code}">${component.name}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${component.id}" category="${component.category.code}">${component.name}</option>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+					</select>
+				</td>
+		
+				<td class="label">
+					Usage
+				</td>
+				<td>
+					<select name="usages[${counter}].usage" id="usages[${counter}].usage">
+						<c:forEach items="${usages}" var="usage">
+							<c:choose>
+								<c:when test="${usage.code == customAssetForm.usages[counter].usage.code}">
+									<option value="${usage.code}" selected="selected">${usage.description}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${usage.code}">${usage.description}</option>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+					</select>
+				</td>
+
+				<td>Position
+					<form:input path="usages[${counter}].position" size="10" maxlength="10" />
+				</td>
+			</tr>
+
+			<tr>
+				<td>Final Page #</td>
+			<td> 
+    			<form:input path="usages[${counter}].finalPage" size="10" maxlength="10" />
+			</td>
+			<td>
+    			Size
+			</td>
+			<td>
+				<select name="usages[${counter}].size" id="usages[${counter}].size">
+				<c:forEach items="${sizes}" var="size">
+						<c:choose>
+							<c:when test="${size == customAssetForm.usages[counter].size}">
+								<option value="${size.code}" selected="selected">${size.description}</option>
+							</c:when>
+							<c:otherwise>
+								<option value="${size.code}" selected="selected">${size.description}</option>
+							</c:otherwise>
+						</c:choose>
+					</c:forEach>
+				</select>
+				
+				<form:select path="usages[${counter}].pagePosition">
+				<form:option value="" label="--page Position--" />
+				<form:options items="${pagePositions}" itemValue="code" itemLabel="description" />
+				</form:select>							
+			</td>
+			
+			<td>
+ 				<!--// for new one allow multiple usages -->
+				<c:if test="${param.auId == 0 and counter == 0}">
+					<input type="button" onclick="addUsage(currUsage, true); return false;" id="addUsageButton" value="Add another usage"/>
+				</c:if>
+			</td>
+			</tr>
+			
+			<tr>
+				<td>
+	       			Estimated cost
+				</td>
+				<td>
+					<form:input path="usages[${counter}].estimatedCost" size="10" maxlength="10"  />
+				</td>
+				<td>Currency</td>
+				<td>
+					<form:select path="usages[${counter}].estimatedCurrency">
+						<form:options items="${currencies}" itemValue="code" itemLabel="description" />
+					</form:select>		
+				</td>
+			</tr>
+		
+			</tbody>
+		</c:forEach>
+
+		<tbody id="sourceDiv1" style="display:none">
+		
+		<c:if test="${not empty customAssetForm.extendedAssetUse.asset.sources}">
+		<input type="hidden" id="sourceId" value="${customAssetForm.extendedAssetUse.asset.sources[0].id}"/>
+		<!-- Code Change for SS Task 10 -->
+		<input type="hidden" id="sourceNameMoreAssets" name="sourceNameMoreAssets" value="${customAssetForm.extendedAssetUse.asset.sourcesAsString}" />
+		<!-- Code Change for SS Task 10 -->
+		<tr>
+			<td class="label">
+				Vendor name
+			</td>
+			<td colspan="5">
+				<c:out value="${customAssetForm.extendedAssetUse.asset.sourcesAsString}" />
+			</td>
+		
+		</tr>
+		</c:if>
+		
+		<c:if test="${empty customAssetForm.extendedAssetUse.asset.sources}">
+		<input type="hidden" id="sourceId" />
+		<tr>
+			<td class="label">
+				<label path="" class="required">Vendor name</label>
+			</td>
+			<td colspan="5">
+				<select id="favSource">
+					<option value="">--Select--</option>
+					<c:forEach items="${mysources}" var="source">
+						<c:if test="${not source.disabled}">
+							<option value="${source.id}">${source.name}</option>
+						</c:if>
+					</c:forEach>
+				</select>
+				or				
+				<input type="text" id="sourceName" name="sourceName" class="required" size="40" maxlength="100"/>
+			</td>				
+		</tr>
+		</c:if>
+		
+		<tr>
+			<td class="label">
+				<form:label path="extendedAssetUse.asset.vendorId" cssClass="required" cssErrorClass="error">Source reference#</form:label>
+			</td>
+			<td colspan="2">
+    			<form:input path="extendedAssetUse.asset.vendorId" class="required" size="50" maxlength="150" />
+			</td>
+			
+			<td colspan="3">
+				<table>
+					<tr>
+						<td class="label">
+							<form:label path="extendedAssetUse.asset.keywords" cssClass="optional" cssErrorClass="error">Keywords</form:label>
+						</td>
+						<td>
+    						<form:textarea path="extendedAssetUse.asset.keywords" rows="1" cols="46" maxlength="256" />
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td>Photographer </td>
+			<td colspan="2">
+				<form:input path="extendedAssetUse.asset.artist" size="50" maxlength="400"  />
+			</td>
+			<td>
+				<form:checkbox path="extendedAssetUse.isExtArchive" value="1"/> Archive
+			</td>
+		</tr>
+		
+		<tbody id="creditLineDiv1">
+		<tr>
+			<td>
+       			Credit line
+			</td>
+			<td colspan="7">
+				<form:textarea path="extendedAssetUse.asset.creditLine" rows="1" cols="80" />
+			</td>
+		</tr>
+		</tbody>
+
+		</tbody>
+
+		<tr>
+			<td nowrap="true">
+				<form:radiobutton path="extendedAssetUse.new" value="true"/>New
+				<security:authorize access="hasAnyRole('EMPLOYEE_DEFAULT','copy_assets_product')">	
+					<form:radiobutton path="extendedAssetUse.pickup" value="true" />Pickup
+				</security:authorize>
+				<security:authorize access="hasAnyRole('EMPLOYEE_DEFAULT','copy_assets')">	
+					<form:radiobutton path="extendedAssetUse.reusedFromPreviousEdition" value="true" />Reuse
+				</security:authorize>
+			</td>
+		 	<td>
+				Model release
+    			<form:select path="extendedAssetUse.asset.modelRelease">
+					<form:options items="${modelReleases}" itemValue="code" itemLabel="name" />
+				</form:select>
+			</td>	
+			
+			<td class="buttonset">
+				<span id="sDiv">
+					<input type="button" id="saveB" value="Save&amp;Done" />
+				</span>
+			</td>
+			<td> 
+				<input type="button" id="cacheB" value="More assets from this vendor"/>		
+				<span id="cDiv">
+					<input type="button" id="createCB" value="Edit contract details"/>
+				</span>
+				<!-- Asked to remove Cancel button -->
+				<!--
+				<a href="#" id="cancelLink" class="button">Cancel</a>
+				-->
+			</td>
+		</tr>
+		
+		<tbody id="pickupDiv" style="display:none">
+		<tr><td colspan="7"><table>
+			<tr>
+				<td>Pickup/reuse ISBN</td>
+				<td>
+					<form:input path="extendedAssetUse.pickupISBN"  size="13"/> 
+				</td>
+				<td>Author</td>
+				<td>
+					<form:input path="extendedAssetUse.pickupAuthor"  size="30"/> 
+				</td>
+			</tr>
+			<tr>
+				<td>
+					 <form:checkbox path="extendedAssetUse.imagePostedFtp" value="1"/>Image Posted FTP
+				</td>
+				<td> </td>
+				<td>Title</td>
+				<td>
+					<form:input path="extendedAssetUse.pickupTitle"  size="30"/> 
+				</td>
+			</tr>
+			<tr>
+				<td> </td>
+				<td> </td>
+				<td>Edition:</td>
+				<td>
+					<form:input path="extendedAssetUse.pickupEditionNumber"  size="10"/> 
+				</td>
+			</tr>
+			<tr>
+				<td>Pickup Position (e.g. Figure 4-2)</td>
+				<td>
+					 <form:input path="extendedAssetUse.pickupPosition"  size="10"/>
+				</td>
+				<td>Pickup Page</td>
+				<td>
+					<form:input path="extendedAssetUse.pickupPage"  size="10"/> 
+				</td>
+			</tr>
+		</table></td></tr>
+		</tbody>
+		
+		<tr>
+			<td colspan="2"><img src="${plusImageUrl}" onclick="return toggleDetails('commentsDiv', this);" /> Comments</td>
+		</tr>
+		<tbody id="details-commentsDiv" style="display: none">
+			<tr>
+		    	<td>Permission Comment</td>
+		      	<td colspan="5">
+		      		  <form:textarea  path="extendedAssetUse.permissionComment" rows="2" cols="80" maxlength="5000" />
+		      	</td>
+			</tr>
+			<tr>
+		    	<td>Production Comment</td>
+		    	<td colspan="5">
+		      		<form:textarea path="extendedAssetUse.productionComment" rows="2" cols="80" maxlength="5000" />
+		      	</td>
+			</tr>
+		</tbody>
+
+		<tbody>
+		</tbody>
+	</table>
+		
+	<div id="contactDataDiv">
+	<table>
+		<tr>
+			<td>
+			   Contact
+			</td>
+			<td>
+				<form:select path="po.sourceContactInfo">
+					<form:option value="0">To whom it may concern</form:option>
+				</form:select>
+			</td>
+			<td>
+			   Address
+			</td>
+			<td>
+				<form:select path="po.sourceAddressInfo">
+				</form:select>			    		    
+			</td>
+		</tr>
+	</table>
+	</div>
+	
+	<table>	
+		<tbody id="poDiv">
+		<tr>
+			<td>
+			</td>
+			<td>
+				<span class="explanation">To overwrite the assets estimated cost, you can enter the total here</span>				
+			</td>
+		</tr>		
+		<tr>
+			<td>
+			   Estimated price <form:input path="po.estimatedPrice" size="10"/>
+			 </td>
+			 <td>
+				<form:select path="po.estimatedCurrency">
+					<form:options items="${currencies}" itemValue="code" itemLabel="description" />
+				</form:select>				    
+			    language
+			    <form:select path="po.languageCode">
+					<form:options items="${languages}" itemValue="code" itemLabel="description" />
+				</form:select>
+			</td>
+			<td>
+			</td>
+		</tr>
+		
+		<tr>
+			<td><b>PO Return Address</b></td>
+			<td colspan="2"><b>PO comment</b> <form:checkbox path="makeItDefault" value="1"/> Make this my default</td>
+		</tr>
+		<tr>
+			<td>
+		    	<form:textarea path="po.returnAddress" rows="4" cols="40" class="required" />
+			</td>
+			<td colspan="2">
+			    <form:textarea path="po.note" rows="4" cols="60" />
+			</td>
+		</tr>
+		
+		</tbody>		
+	</table> 
+	</form:form>	
+
+	<hr/>
+	Upload related document?
+	<form method="post" action="${uploadUrl}" enctype="multipart/form-data" id="uploadForm">
+		<input type="file" name="file" id="assetUseFile" size="40" />
+		<!-- Instead of having submit button here we have JavaScript that auto-submits when file is changed -->
+	</form>
+	
+	<c:if test="${not empty customAssetForm.files}">
+		<b>File(s) uploaded:</b>
+		<table>
+		<c:forEach items="${customAssetForm.files}" var="file">
+			<tr><td>
+				<div id="file${file.id}">
+					<c:url var="downloadUrl" value="/sapp/asset/custom/cdownload_file?fileId=${file.id}" />
+					
+					<a href="${downloadUrl}"> ${file.fileName}</a> (${wileyfn:filesize(file.fileData)}) uploaded on 
+					<fmt:formatDate type="date" value="${file.lastUpdatedDate}" />
+					<a href="#" onClick="fnDeleteFileOnID (${file.id})"><img src="${deleteIconUrl}" /></a>
+				</div>
+			</td></tr>
+		</c:forEach>
+		</table>
+	</c:if>
+	<div id="files" style="margin-left: 2em;">
+	</div>
+
+	<hr/>
+
+	Upload original file (create thumbnails)? - This replaces existing file if any
+	<form method="post" action="${upload2Url}" enctype="multipart/form-data" id="upload2Form">
+		<input type="file" name="file" id="assetFile" size="40" />
+		<!-- Instead of having submit button here we have JavaScript that auto-submits when file is changed -->
+	</form>
+
+	<div id="thumbFileDiv" style="margin-left: 2em;">
+	</div>
+	
+	<div id="originalFileDiv" style="margin-left: 2em;">
+	<c:if test="${not empty customAssetForm.extendedAssetUse.asset.originalFile}">
+	<table>
+		<tr>
+			<td colspan="2">
+				<b>Currently uploaded original file</b>
+			</td>
+		</tr>
+		<tr>
+			<td>${customAssetForm.extendedAssetUse.asset.originalFile.objectName}
+				<a href="#" id="deleteOriginalFile">
+					<img src="${deleteIconUrl}" alt="Delete Original File" />
+				</a>
+			</td>
+			<td>
+				<c:url var="thumbUrl" value="/sapp/product/assetThumbnail?assetId=${customAssetForm.extendedAssetUse.asset.id}&amp;size=medium" />
+				<img src="${thumbUrl}" alt="Thumbnail" />
+			</td>
+		</tr>
+	</table>
+	</c:if>
+	</div>
+		
+	<table>
+		<tr>
+			<td valign="bottom">
+				<div class="buttonset">	
+					<input type="button" id="finishNOPOB" value="Skip PO. Finish"/>
+					<input type="button" id="addAnotherNOPOB" value="Skip PO. add another"/>
+					<input type="button" id="createPOB" value="Create PO"/>
+					<input type="button" id="createNOPOB" value="Skip PO, enter details"/>	
+				</div>			
+			</td>
+		</tr>
+	</table>
+
+	<script type="text/javascript">
+	//<![CDATA[
+	$(document).ready(function() {	 
+
+		$("input[id='extendedAssetUse.pickupTitle']").autocomplete({
+			source: function( request, response ) {
+				$.jsonp({
+					"url": '${productSearchUrl}/' + request.term + '?callback=?', 
+					"success": function(json) {
+						response( $.map( json, function(item) {
+							return {
+								value: item.title,
+								isbn: item.isbn13,
+								author: item.author
+							}
+						}));
+					},
+					"error": function() {
+			        	alert ("Error: failed to search product");
+			        }
+		        });				
+			},
+			minLength: 3,
+			select: function(event, ui) {
+				$("input[id='extendedAssetUse.pickupAuthor']").val (ui.item.author);
+				$("input[id='extendedAssetUse.pickupISBN']").val (ui.item.isbn);
+				getProdData();
+			},
+			open: function() {
+				$(this).removeClass("ui-corner-all").addClass("ui-corner-top");
+			},
+			close: function() {
+				$(this).removeClass("ui-corner-top").addClass("ui-corner-all");
+			}
+		});
+
+		$( "input[id='extendedAssetUse.pickupISBN']" ).autocomplete({
+			source: function( request, response ) {
+				$.jsonp({
+					"url": '${isbnSearchUrl}/' + request.term + '?callback=?', 
+					"success": function(json) {
+						response( $.map( json, function( item ) {
+							return {
+								value: item.isbn13,
+								title: item.title,
+								author: item.author,
+								medium: item.mediumCode
+							}
+						}));
+					},
+					"error": function() {
+			        	alert ("Error: failed to search product");
+			        }
+		        });				
+			},
+			minLength: 10,
+			select: function( event, ui ) {
+				$( "input[id='extendedAssetUse.pickupAuthor']" ).val (ui.item.author);
+				$( "input[id='extendedAssetUse.pickupTitle']" ).val (ui.item.title);
+				getProdData ();
+			//	$( "input[id='medium']" ).val (ui.item.mediumCode);
+			},
+			open: function() {
+				var $children = jQuery(this).data('autocomplete').menu.element.children();
+				if ($children.size() == 1) {
+					$children.children('a').mouseenter().click();
+				}			
+				$(this).removeClass("ui-corner-all").addClass("ui-corner-top");
+			},
+			close: function() {
+				$(this).removeClass("ui-corner-top").addClass("ui-corner-all");
+			}
+		});
+		
+	});
+
+	function getProdData() {
+		isbn = $( "input[id='extendedAssetUse.pickupISBN']" ).val();
+		$.jsonp({
+			"url": '${productDataUrl}/' + isbn + '?callback=?', 
+			"success": function(json) {
+					$( "input[id='extendedAssetUse.pickupEditionNumber']" ).val (json[0].editionNumber)
+			},
+			"error": function() {
+	        }
+        });	
+	}
+	
+	//]]>		
+	</script>	 	
+
+</jsp:root>

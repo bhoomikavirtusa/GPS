@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="submitUrl" value="/sapp/asset/manageAsset/flagAsReplace?auId=${manageAssetForm.assetUse.id}" />
+	<c:url var="replacementsUrl" value="/sapp/asset/manageAsset/getReplacements?auId=${manageAssetForm.assetUse.id}" />
+
+	<h3>${manageAssetForm.assetUse.asset.description} 
+	| ${manageAssetForm.assetUse.asset.mediaType.description}
+	| Page ${manageAssetForm.assetUse.manuscriptPage}
+	| ${manageAssetForm.assetUse.usage.description} ${manageAssetForm.assetUse.position} </h3>
+
+	<form:form modelAttribute="manageAssetForm" action="${submitUrl}">
+		<form:hidden path="assetUse.id"/>
+		<table>
+		
+		<tr>
+			<td colspan="6">
+				You are designating this asset as a replacement for a previously canceled asset.
+				Below is a list of canceled assets with matching position values.
+				Please select from that list to designate replacement.		
+			</td>
+		</tr>
+	
+	<c:if test="${empty canceledUses}">	
+		<tr>
+			<td> </td>
+			<td colspan="5">
+				There are no canceled assets to replace - 
+				Please make sure that assets being replaced have corresponding position values and are canceled - 
+				please click "Abort" to continue.
+			</td>
+		</tr>
+	</c:if>
+	<c:if test="${not empty canceledUses}">
+		<tr>
+			<td> </td>
+			<td colspan="5">
+				<form:select path="assetBeingReplaced">
+						<form:option label="select asset to tag as replaced" value="0"/> 
+					<c:forEach items="${canceledUses}" var="assetUse">
+						<form:option label="${assetUse.asset.description}, ${assetUse.usage.code }, Pos: ${assetUse.position }, ${assetUse.asset.mediaType.description } / ${assetUse.asset.sourcesAsString}" value="${assetUse.id}"/>
+					</c:forEach>
+				</form:select>
+			</td>
+		</tr>
+	</c:if>
+	
+	<tr>
+		<td colspan="6">
+			<div id="messageDiv">	
+	     		<b>... working - this may take some time.....</b>
+			</div>
+		</td>
+	</tr>
+	
+	<tbody id="replacementDiv2">	
+		<tr><td colspan="6"> This Asset was being used in these positions.  Do you want to create and link identical positions for the replacement asset to match?</td></tr>
+		<tr> 
+			 <td colspan="2">
+			 	<form:radiobutton path="replaceAll" value="true" />Yes 
+						    <form:radiobutton path="replaceAll" value="false" />No
+			 </td>
+		</tr>
+	 </tbody>
+	
+	<tr>
+		<td colspan="6">
+			<div id="replacementDiv">	
+	     		<b>searching existing uses for this asset.....</b>
+			</div>
+		</td>
+	</tr>
+
+		</table>				
+	</form:form>
+
+	<div class="buttonset">
+		<c:if test="${not empty canceledUses}">	
+			<input type="button" id="finishB" value="Complete"/>
+		</c:if>
+		<a href="#" id="cancelLink" class="button">Abort</a>
+	</div>
+
+	<script type="text/javascript">
+	//<![CDATA[	
+	
+		$(document).ready(function() {
+
+		$('#replacementDiv').hide();
+		$('#messageDiv').hide();
+		$('#replacementDiv2').hide();
+
+		$('#assetBeingReplaced').change(function() {
+		 	if($('#assetBeingReplaced').val() != 0) {
+			   $('#finishB').hide();
+			   $('#replacementDiv').show();
+					$.ajax({
+		            	async: true,
+		            	type: 'post',
+		            	url: '${replacementsUrl}',
+		            	data: $('#manageAssetForm').serialize(),
+		            	success: function (response){
+		            		$('#finishB').show();
+		            		$('#replacementDiv2').show();
+		            	 	$('#replacementDiv').empty().html(response);
+		            }
+		        });
+		 	}
+		});	
+			
+		$('#finishB').click (function() {
+			$('#replacementDiv').hide();
+			$('#replacementDiv2').hide();
+			$('#messageDiv').show();
+			$('#finishB').hide();
+			$.ajax({
+	            async: true,
+	            type: 'post',
+	            url: '${submitUrl}',
+	            data: $('#manageAssetForm').serialize(),
+	            success: function (json) {
+		      
+	            	$modalDialog.dialog('close'); 	
+					for (var i=0, iLen=json.length; i < iLen; i++) {
+						if(parseInt(json[i]) == -1) {
+							 window.location.reload();
+							 break;
+						}
+						fnRefreshRows(parseInt(json[i]));
+					}
+					
+		          
+		        }
+	            
+	        });
+		});	
+
+		});	
+	
+	//]]>		
+	</script>
+	
+</jsp:root>
+

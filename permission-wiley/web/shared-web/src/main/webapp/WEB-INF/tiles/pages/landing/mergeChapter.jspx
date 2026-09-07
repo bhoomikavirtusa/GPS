@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:form="http://www.springframework.org/tags/form">
+
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="doNextUrl" value="${nextUrl}" />
+	<c:url var="doPrevUrl" value="${prevUrl}" />
+
+	<script type="text/javascript">
+	//<![CDATA[
+	$(document).ready(function() {
+
+		var check1 = 0;
+		var check2 = 0;
+
+		$('#chaptersCheckBox').click (function() {
+			if(check1 == 0) {
+				check1 = 1;
+			} else {
+				check1 = 0;
+			}
+		});
+
+		$('#appendicesCheckBox').click (function() {
+			if(check2 == 0) {
+				check2 = 1;
+			} else {
+				check2 = 0;
+			}
+		});
+		
+
+		$('#cancelLink2').click (function() {
+			$modalDialog.dialog("close");
+		});
+
+		$('#cancelLink3').click (function() {
+			$modalDialog.dialog("close");
+		});
+
+		
+		$('#nextB').click (function() {
+			$.ajax({
+	            async: true,
+	            type: 'post',
+	            url: '${doNextUrl}',
+	            data: $('#chapterMergeForm').serialize(),
+	            success: function (response){
+	            	$('#modalDiv').empty().html(response);
+	            	repositionDialog();
+	            }
+	        });
+		});
+
+		$('#finish2').click (function() {
+
+		   if(check1 == 1) {
+				if($.trim($("#chapterFrom").val()).length < 1)
+				{
+					alert("Chapter From is requied");
+					return false;
+				}
+				var num = $("#chapterFrom").val();
+					num >=0 || num < 0
+				if(num >=0 || num < 0)
+				{ 
+					// ok
+				} else {
+					alert("Chapter From must be numeric");
+					return false;
+				}
+				if($.trim($("#chapterTo").val()).length < 1)
+				{
+					alert("Chapter To is requied");
+					return false;
+				}
+				var num2 = $("#chapterFrom").val();
+				if(num2 >=0 || num2 < 0)
+				{ 
+					// ok
+				} else {
+					alert("Chapter To must be numeric");
+					return false;
+				}
+			   }
+
+			if(check2 == 1) {
+				var letters = /^[A-Za-z]+$/;
+				if($.trim($("#appendicesFrom").val()).length < 1)
+				{
+					alert("Appendices From is requied");
+					return false;
+				}
+				var num = $("#appendicesFrom").val();
+				if(num >=0 || num < 0) {
+					// numeric is OK
+				} else {
+					if(num.match(letters)) {
+						alert("Appendix From must be numeric or begin with a leter and end with a digit");
+						return false;
+					} else {
+						num3 = num.substring(0,1);
+						if(num3 >= 0 || num3 <= 0) {
+							alert("Appendix From must  must be numeric or begin with a leter and end with a digit");
+							return false;
+						}
+					}
+				}
+					
+				if($.trim($("#appendicesTo").val()).length < 1)
+				{
+					alert("Appendices To is requied");
+					return false;
+				}
+				var num2 = $("#appendicesTo").val();
+				if(num2 >=0 || num2 < 0) {
+			 		// numeric is OK
+				}  else {
+					if(num2.match(letters)) {
+						alert("Appendix To must  must be numeric or begin with a leter and end with a digit");
+						return false;
+					} else {
+							num3 = num2.substring(0,1);
+							if(num3 >= 0 || num3 <= 0) {
+								alert("Appendix To must  must be numeric or begin with a leter and end with a digit");
+								return false;
+							}
+					}
+				}
+					
+			}
+
+			if(check1 == 0) {
+				if(check2 == 0) {
+					alert("Must check the appropriate check box");
+					return false;
+				}
+			}		
+			
+			$.ajax({
+	            async: true,
+	            type: 'post',
+	            url: '${doNextUrl}',
+	            data: $('#chapterMergeForm').serialize(),
+	            success: function (response){
+	            	$('#modalDiv').empty().html(response);
+	            	repositionDialog();
+	            }
+	        });
+		});
+
+		$('#prevB').click (function() {
+			$.ajax({
+	            async: true,
+	            type: 'get',
+	            url: '${doPrevUrl}',
+	            success: function (response){
+	            	$('#modalDiv').empty().html(response);
+	            	repositionDialog();
+	            }
+	        });
+		});	
+		
+	});
+	//]]>		
+	</script>	
+	
+	<form:form modelAttribute="chapterMergeForm">	
+	
+	<!--Step: ${step}-->
+	<c:if test="${step == 'gettingChapters'}">
+	<table>
+	<tr>
+		<td>Select chapter to be merged: </td>
+		<td>
+			<c:if test="${null == chapters}">
+				ERROR: There are no assets that matched the selection criteria 
+			</c:if>
+			<c:if test="${null != chapters}">
+				<form:select path="selectedChapter">
+					<form:options items="${chapters}" itemValue="component.id" itemLabel="component.name" />
+				</form:select>
+			</c:if>
+		</td>
+	</tr>
+	</table>
+	</c:if>
+
+	<c:if test="${step == 'chapters'}">
+	<table class="display">
+		  <c:if test="${null != chapterMergeForm.renumList}">
+		  		<tr><td colspan="5">Assets being moved to new chapter</td></tr>
+
+		  		<tr>
+					<th>Type of Asset</th>
+					<th>Asset Description</th>
+					<th>Asset to be used as</th>
+					<th>Current Position</th>
+					<th>Current Chapter</th>
+ 					<th>New Chapter</th>
+				</tr>
+		  
+				<c:forEach items="${chapterMergeForm.renumList}" var="auv"  varStatus="vs">
+					<tr class="${(vs.index mod 2 == 0) ? 'even' : 'odd'}">	
+						<td>${auv.mediaType}</td>
+							<td>${auv.assetDescription}</td>
+							<td>${auv.usage}</td>
+							<td>${auv.position}</td>
+							<td>${auv.component}</td>
+ 							<td>
+ 								<form:input path="renumList[${vs.index}].newPosition" size="20" maxlength="50"/>
+							</td>
+						</tr>
+					</c:forEach>
+				<tr><td> </td></tr>
+				<tr>
+					<td>
+						<a href="#" id="cancelLink">Cancel</a> 	
+					</td>
+					<td>
+						<input type="submit" id="nextB" value="finish"/>
+					</td>
+				</tr>
+		</c:if>
+		 <c:if test="${null == chapterMergeForm.renumList}">
+		 	<tr>
+		 		<td colspan="5">
+		 		     NO assets found to renumber -  Please click on previous button and change selection criteria
+		 		</td>
+		 	</tr>
+		 	
+		 	<tr><td><input type="button" id="prevB" value="Previous"/></td></tr>
+		 	
+		 </c:if>
+		</table>
+		
+	</c:if>
+	
+	
+	<c:if test="${step == 'insertingChapter'}">
+		<table>
+			<tr>
+				<td><b>Insert Between</b></td>
+			</tr>
+			<c:if test="${null == chapters}">
+				<tr>
+					<td>
+						ERROR: There are no chapters currently click on insert to create "Chapter 1" 
+					</td>
+				</tr>
+			</c:if>
+	
+			<c:if test="${null != chapters}">
+			
+				<tr>
+					<td>Select Chapter after which the new chapter will be inserted</td>
+					<td>
+						<form:select path="selectedChapter">
+							<form:options items="${chapters}" itemValue="id" itemLabel="name" />
+						</form:select>
+					</td>
+				</tr>
+			</c:if>
+		</table>
+		
+		<div class="buttonset">	
+			<input type="submit" id="finish" value="Insert" />
+			<a href="#" id="cancelLink2" class="button">Cancel</a> 	
+		</div>
+
+		<table>
+			<tr><td></td></tr>
+			<tr><td><b>OR</b></td></tr>
+			<tr><td>${error} </td></tr>
+			<tr>
+				<td><b>Add Chapters or appendices at the end</b></td>
+			</tr>
+			<tr>
+				<td>
+					<form:checkbox path="chaptersCheckBox" id="chaptersCheckBox" label="Chapters"/>
+				</td>
+				<td>From</td>
+				<td>
+					 <form:input path="chapterFrom" size="10" maxlength="10"/>
+				</td>
+				<td>To</td>
+				<td>
+					 <form:input path="chapterTo" size="10" maxlength="10"/>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<form:checkbox path="appendicesCheckBox" id="appendicesCheckBox" label="Appendices"/>
+				</td>
+				<td>From</td>
+				<td>
+					 <form:input path="appendicesFrom" size="10" maxlength="10"/>
+					
+				</td>
+				<td>To</td>
+				<td>
+					 <form:input path="appendicesTo" size="10" maxlength="10"/>
+				</td>
+			</tr>
+		</table>
+			
+		<div class="buttonset">	
+			<input type="submit" id="finish2" value="Add"/>
+			<a href="#" id="cancelLink3" class="button">Cancel</a> 	
+		</div>
+
+	</c:if>
+	
+</form:form>
+
+<c:if test="${step != 'insertingChapter'}">
+	<c:if test="${step != 'chapters' || null == chapterMergeForm.renumList}">
+		<div class="buttonset">	
+				<input type="button" id="nextB" value="Next"/>
+				<a href="#" id="cancelLink" class="button">Cancel</a> 	
+		</div>	
+	</c:if>
+</c:if>
+</jsp:root>

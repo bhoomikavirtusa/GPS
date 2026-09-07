@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mbeans-descriptors>
+	<mbean
+		name="PermissionsSSORealm"
+		className="org.apache.catalina.mbeans.ClassNameMBean"
+		description="Permissions Security Realm"
+		domain="Catalina"
+		group="Realm"
+		type="com.wiley.permissions.security.web.SecurityRealm">
+
+		<attribute name="loginModuleJNDIName"
+               description="Name of the Spring instantiated SecurityHelper to use for authentication"
+               type="java.lang.String"/>
+	</mbean>
+</mbeans-descriptors>

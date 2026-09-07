@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+	
+	<jsp:directive.page pageEncoding="UTF-8" />
+	
+	<c:url var="nextUrl" value="/sapp/commonwork/report/EditorUsageReport.xls" />
+	<c:url var="prevUrl" value="/sapp/cwlanding/main?cwId=${cwId}" />
+
+	<fmt:setBundle basename="messages" />
+	
+	<jsp:element name="script">
+			<jsp:attribute name="type">text/javascript</jsp:attribute>
+			<jsp:attribute name="src">
+			<c:url value="/js/jquery.ui.datepicker.min.js"/>
+			</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+
+	<jsp:body>
+		<c:url var="photocopyrightReportUrl" value="/sapp/commonwork/report/editorUsageReport.xls" />
+		
+		<h3>Permission System Usage Report  (This report may take a long time to run if minimal or no selection criteria is provided)</h3>
+		<form method="post" action="${photocopyrightReportUrl}">
+			<table>
+					<tr>
+						<td>
+							Enter Copyright Year selection: 
+						</td>
+						<td>
+							From Year: <input type="text" name="yearFrom" />  To Year: <input type="text" name="yearTo" /> 
+							(Defaults to all)
+						</td>
+					</tr>
+					
+					<tr>
+						<td>
+							Enter Consolidated Release date range for the report: 
+						</td>
+						<td>
+							From Date: <input type="text" class="datepicker" name="crdFrom" />  To Date: <input type="text" class="datepicker" name="crdTo" />
+							(Defaults to all)
+						</td>
+					</tr>
+					
+					
+					<tr>
+						<td>
+							Enter worked on date range for the report: 
+						</td>
+						<td>
+							From Date: <input type="text" name="workedFrom" class="datepicker" />  To Date: <input type="text" name="workedTo" class="datepicker"  />
+							(Defaults to all)
+						</td>
+					</tr>
+					
+					<tr>
+						<td>
+							Desired Editor Code:
+						</td>
+						<td>
+						   <input type="text" name="editorCode" /> (Defaults to all)
+						</td>
+					</tr>
+					
+					<tr>
+						<td>
+							Enter Division for the report: 
+						</td>
+						<td>
+							<input type="hidden" name="businessUnit" id="businessUnit"/> 
+						
+							<select id="businessUnitDD" size="1" onclick="javascript: setBu(); ">
+								<option value="">All Divisions</option> 
+								<c:forEach items="${bu}" var="bu">
+									<option value="${bu.code}"><c:out value="${bu.code} - ${bu.name}" /></option> 
+								</c:forEach> 
+							</select>
+							(Defaults to all)
+						</td>
+					</tr>
+					
+					<tr>
+						<td>
+							Enter Product Line for the report: 
+						</td>
+						<td>
+							<input type="hidden" name="productLine" id="productLine"/>  
+								<select id="productLineDD" size="1" onclick="javascript: setPl(); ">
+								<option value="">All Product Lines</option> 
+								<c:forEach items="${pl}" var="pl">
+									<option value="${pl.id}"><c:out value="${pl.code} - ${pl.name}" /></option> 
+								</c:forEach> 
+							</select>
+							(Defaults to all)
+						</td>
+					</tr>
+			</table>
+					
+			<div class="buttonset">					
+				<input type="submit" id="generateB" value="Generate-Spreadsheet" />
+				<a href="#" id="cancelLink" class="button">Close</a> 	 															
+			</div>
+		</form>
+		
+	<br/>
+		
+	</jsp:body>
+	
+	<script type="text/javascript">
+	//<![CDATA[
+    $(document).ready(function() {
+           
+		$('#generateB').click (function() {
+			$.ajax({
+	            async: true,
+	            type: 'get',
+	            url: '${nextUrl}',
+	            success: function (response){
+	            	$modalDialog.dialog("close");
+	            }
+	        });
+		});
+
+		$(function() {
+			$('input').filter('.datepicker').datepicker({dateFormat: 'yy-mm-dd'});
+		});
+	
+	});
+
+    function setBu () {
+  		var selection = document.getElementById("businessUnitDD");
+  		var currentValue = selection[selection.selectedIndex].value;
+  		$("#businessUnit").val(currentValue);
+  	
+  		return false;
+  	}
+
+    function setPl () {
+    	var selection = document.getElementById("productLineDD");
+    	var currentValue = selection[selection.selectedIndex].value;
+    	$("#productLine").val(currentValue);
+    	
+    	return false;
+    }
+  	
+	//]]>		
+	</script>
+</jsp:root>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="nextUrl" value="/sapp/permissions/contract/select_po" />
+	<c:url var="prevUrl" value="${contractWizardForm.prevUrl}" />
+	
+	<!--include as jspx so the jsp variable are recognized-->
+	<jsp:directive.include file="js/wizard.buttons.js.jspx" />
+	
+	<p>Choose permission request or purchase order to enter details for: </p>
+	
+	<form:form modelAttribute="contractWizardForm">
+		<table>
+			<c:forEach items="${pos}" var="po">
+				<tr>
+					<td>
+						<input type="radio" name="poId" value="${po.id}" class="required"/>
+						<c:if test="${po.permissionRequest}">
+							Permission request sent on <fmt:formatDate type="date" value="${po.date}" />
+						</c:if> 
+						<c:if test="${!po.permissionRequest}">
+							Purchase order sent on <fmt:formatDate type="date" value="${po.date}" />
+						</c:if>
+						(Notes: ${po.note})				
+					</td>
+				</tr>
+			</c:forEach>
+		</table>
+	</form:form>
+	
+	<div class="buttonset">
+		<c:if test="${not empty contractWizardForm.prevUrl}">
+			<input type="submit" id="prevB" value="Previous" /> 
+		</c:if>
+		<input type="button" id="selectB" value="Next" /> 
+		<a href="#" id="cancelLink" class="button">Cancel</a>
+	</div>
+</jsp:root>

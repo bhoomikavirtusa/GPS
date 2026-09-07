@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root 
+	version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+>
+    <jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+    
+    <c:url var="deleteUrl" value="/sapp/admin/manageSystemNotification/edit" />
+        
+	<jsp:element name="script">
+			<jsp:attribute name="type">text/javascript</jsp:attribute>
+			<jsp:attribute name="src">
+			<c:url value="/js/jquery.ui.datetimepicker.min.js"/>
+			</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+
+   	<script type="text/javascript">
+		$(function() {
+			$('input').filter('.datetimepicker').datetimepicker({dateFormat: 'mm/dd/yyyy HH:mm:ss'});
+			
+		});
+
+		function deleteRow(selectedId) {
+			var r = confirm("Are you sure you want to delete this message?");
+			if (r == true) {
+				var form = document.getElementById('manageNotificationForm');
+				form.elements['selectedId'].value = selectedId;
+				form.elements['selectedAction'].value = "Delete";
+				form.submit();
+			} else {
+			    return false;
+			}
+		}
+
+		function updateRow(selectedId) {
+			var form = document.getElementById('manageNotificationForm');
+
+			form.elements['selectedId'].value = selectedId;
+			form.elements['selectedAction'].value = "Update";
+			form.submit();
+		}
+
+		function addRow() {
+			var form = document.getElementById('manageNotificationForm');
+			form.elements['selectedAction'].value = "Add";
+			form.submit();
+		}
+
+		function saveRow() {
+			var form = document.getElementById('manageNotificationForm');
+			form.elements['selectedAction'].value = "Save";
+			form.submit();
+		}
+	</script>
+	
+	<c:url var="formUrl" value="/sapp/admin/manageNotification/notification" />
+	<c:url var="finishUrl" value="/sapp/admin/manageNotification/notification" />
+
+	<form:form modelAttribute="manageNotificationForm">
+		<spring:hasBindErrors name="manageNotificationForm">
+			<jsp:directive.include file="/WEB-INF/tiles/pages/include/formErrors.jspx" />
+		</spring:hasBindErrors>
+		
+		<jsp:attribute name="action">
+			<c:url value="/sapp/admin/manageNotification/notification" />
+		</jsp:attribute>
+		
+		<input type="hidden" name="selectedId" />
+		<input type="hidden" name="selectedAction" />
+		
+		<table class="width100">
+			<tr>
+				<th colspan="2">Enter/Modify System Notification</th>
+			</tr>	
+					
+			<tr>
+				<td> Message:</td>
+				<td>
+					<form:textarea path="systemNotification.messageToPost" rows="5" cols="100" htmlEscape="true" />
+				</td>
+			</tr>		
+	
+			<tr>
+				<td>From Date/Time:</td>
+				<td>
+					<form:input class="datetimepicker" path="systemNotification.fromDate"/>
+				</td>
+			</tr>		
+			
+			<tr>
+				<td>To Date/Time:</td>
+				<td>
+					<form:input class="datetimepicker"  path="systemNotification.toDate"/>
+				</td>
+			</tr>
+		</table>
+
+		<c:if test="${null != manageNotificationForm.notelist}">
+			<table class="width100">	
+				<tr>
+					<th colspan="5">Current and Pending Notifications </th>
+				</tr>	
+				<tr>
+					<td><h2>Delete</h2></td>
+					<td><h2>Modify</h2></td>
+					<td><h2>From Date</h2></td>
+					<td><h2>To Date</h2></td>
+					<td><h2>Message Text</h2></td>
+				</tr>
+				
+				<c:forEach items="${manageNotificationForm.notelist}" var="note">
+					<tr>
+						<td>
+							<jsp:element name="input">
+								<jsp:attribute name="type">image</jsp:attribute>
+								<jsp:attribute name="alt">Delete Message</jsp:attribute>
+								<jsp:attribute name="onclick">deleteRow('${note.id}')</jsp:attribute>
+								<jsp:attribute name="src">
+									<c:url value="/images/buttons/delete-icon.png" />
+								</jsp:attribute>
+							</jsp:element>
+						</td>
+						
+						<td>
+							<jsp:element name="input">
+								<jsp:attribute name="type">image</jsp:attribute>
+								<jsp:attribute name="alt">Update Message</jsp:attribute>
+								<jsp:attribute name="onclick">updateRow('${note.id}')</jsp:attribute>
+								<jsp:attribute name="src">
+									<c:url value="/images/buttons/edit-icon.png" />
+								</jsp:attribute>
+							</jsp:element>
+						</td>
+				
+				   		<td class="datetimepicker"><fmt:formatDate type="date" value="${note.fromDate}" /></td>
+				   		<td class="datetimepicker"><fmt:formatDate type="date" value="${note.toDate}" /></td>
+				   		<td><c:out value="${note.messageToPost}" /></td>
+					</tr>
+				</c:forEach>
+			</table>
+		</c:if>
+
+		<div class="buttonset">		
+			<jsp:element name="input">
+				<jsp:attribute name="type">submit</jsp:attribute>
+				<jsp:attribute name="value">Add New Message</jsp:attribute>
+				<jsp:attribute name="onclick">addRow()</jsp:attribute>
+			</jsp:element>
+
+			<jsp:element name="input">
+				<jsp:attribute name="type">submit</jsp:attribute>
+				<jsp:attribute name="value">Save Changes</jsp:attribute>
+				<jsp:attribute name="onclick">saveRow()</jsp:attribute>
+			</jsp:element>
+		</div>
+	
+	</form:form>
+</jsp:root>

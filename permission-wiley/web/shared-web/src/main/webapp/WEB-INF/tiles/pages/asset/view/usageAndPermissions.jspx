@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8" />
+
+	<c:url var="deleteFileUrl" value="/sapp/permissions/contract/delete_file" />
+
+	<table>
+		<c:forEach items="${permissions}" var="permission">
+			<tr>
+				<td colspan="2">
+					<h2>Source: ${permission.key.name}</h2>
+				</td>
+			</tr>
+			<tr>
+				<td>Credit Line:</td>
+				<td>${permission.key.creditLine}</td>
+			</tr>
+
+			<c:if test="${null == permission.value}">
+				<tr>
+					<td><b>No Invoice or Contract</b></td>
+				</tr>
+			</c:if>
+			
+			<c:if test="${null != permission.value}">
+				<tr>
+					<td colspan="2">
+						<h2>Invoice or Contract</h2>
+					</td>
+				</tr>
+
+				<c:forEach items="${permission.value}" var="contract">
+					<c:if test="${commonWorkId != contract.commonWork.id}">
+						<tr>
+							<td colspan="2">(from a previous edition)</td>
+						</tr>
+					</c:if>
+					<tr>
+						<td>Number:</td>
+						<td><b>${contract.number}</b></td>
+					</tr>
+					<tr>
+						<td>Date:</td>
+						<td>
+							<fmt:formatDate type="date" value="${contract.date}" />
+						</td>
+					</tr>
+					<tr>
+						<td>Price:</td>
+						<td>${contract.price} Currency: ${contract.currency.description }</td>
+					</tr>
+					<tr>
+						<td>Paid By Author:</td>
+						<td>${contract.paymentType == 'AUTHOR' ? 'Yes' : 'No'}</td>
+					</tr>
+					<tr>
+						<td>Comp Copy Required:</td>
+						<td>${empty contract.compCopies ? 'No' : 'Yes'}</td>
+					</tr>
+
+					<c:if test="${not empty contract.compCopies}">
+						<tr>
+							<td>Comp Copies:</td>
+						</tr>
+						<tr>
+							<td></td>
+							<td>Recipient's:</td>
+							<td>
+								<c:forEach items="${contract.compCopies}" var="comp" varStatus="status">
+									<c:out value="${comp.address}" />; 
+								</c:forEach>
+							</td>
+						</tr>
+					</c:if>  <!-- end of compCopy test -->
+
+					<c:if test="${not empty contract.files}">
+						<tr>
+							<td>Returned form/invoice:</td>
+						</tr>
+						<tr>
+							<td colspan="2">
+								<table>
+									<c:forEach items="${contract.files}" var="file">
+										<tr>
+											<td>
+												<div id="file${file.id}">
+													<c:url var="downloadUrl" value="/sapp/permissions/contract/download_file?fileId=${file.id}" />
+													<c:url var="deleteIconUrl" value="/images/buttons/delete-icon.png" />
+													<a href="${downloadUrl}"> ${file.fileName}</a>
+													(${wileyfn:filesize(file.fileData)}) uploaded on
+													<fmt:formatDate type="date" value="${file.lastUpdatedDate}" />
+												</div>
+											</td>
+										</tr>
+									</c:forEach>
+								</table>
+							</td>
+						</tr>
+					</c:if>
+				</c:forEach>
+			</c:if>  <!-- end of contracts test -->
+		</c:forEach>
+
+		<c:if test="${null != projects}">
+			<tr>
+				<td colspan="2">
+					<h2>Other products using this asset:</h2>
+				</td>
+			</tr>
+
+			<c:forEach items="${projects}" var="project" varStatus="status">
+				<tr>
+					<td colspan="2">${project.name}</td>
+				</tr>
+			</c:forEach>
+		</c:if>
+	</table>
+</jsp:root>

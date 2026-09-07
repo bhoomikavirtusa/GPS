@@ -1,0 +1,216 @@
+	<script type="text/javascript">
+//<![CDATA[
+
+function Selector () {
+	this.sCheckedValues = [];
+	
+	/*
+	 * the name of the checkbox used when checkAll/uncheckAll
+	 */
+	this.checkBox;
+
+	/*
+	 * the id is used when we open the source wizard dialog, so we can refresh 
+	 * the row when we are done
+	 */
+	this.id;
+
+	/* 
+	 * oSelectedRow is constructed based on a record in aoData array: 
+	 * 		_aData - the dataTable aoData[iRow]._aData
+	 *		nTr - the dataTable aoData[iRow].TR object 
+	 * 		progress - indicates the saving is in progress
+	 *		encoded - the form fields encoded in base64 to be used as dirty flag
+	 */	
+	this.oSelectedRow = null;
+	
+	this.fnSetSelectedRow = function (aRow) 
+	{
+		this.oSelectedRow = aRow;
+		this.fnRefreshMenu ();
+	}
+		
+	this.fnGetCheckedValuesArray = function () 
+	{	
+		// based on James specifications, if no checkboxes selected, if selectedRow, we return the selected row 
+		// otherwise if we have at least one checkebox selected, we return the checkboxes
+		if (this.sCheckedValues.length == 0)
+			if (null == this.oSelectedRow)
+				return [];
+			else {
+				if (0 != this.oSelectedRow.fnGetId())
+					return [this.oSelectedRow.fnGetId()];
+				else 
+					return [];
+			}
+		return this.sCheckedValues;
+	}
+		
+	/*
+	 * returns the selected checkboxes (assetUseIds) separated by comma
+	 * 		Returns : comma separated auIds  
+	 */
+	this.fnGetCheckedValues = function () 
+	{
+		var arr = this.fnGetCheckedValuesArray ();
+		var sData = arr.join(",");
+		//alert( "The following data would have been submitted to the server: \n\n" + sData);
+		
+		return sData;
+	}
+	
+	/*
+	 * returns the last selected checkbox (assetUseIds)
+	 * 		Returns : auId
+	 */
+	this.fnGetLastCheckedValue = function () 
+	{
+		var arr = this.fnGetCheckedValuesArray ();
+		var sData = arr[arr.length-1];
+		//alert( "The following data would have been submitted to the server: \n\n" + sData);
+		return sData;
+	}
+
+	/*
+	 * returns the first selected checkbox (assetUseIds)
+	 * 		Returns : auId
+	 */
+	this.fnGetFirstCheckedValue = function () 
+	{
+		var arr = this.fnGetCheckedValuesArray ();
+		var sData = arr[0];
+		//alert( "The following data would have been submitted to the server: \n\n" + sData);
+		return sData;
+	}
+
+	/*
+	 * function used by the row template to check the checkbox if it has been selected, on draw 
+	 *		id - the asset use id
+	 */
+	this.fnIsChecked = function (id) 
+	{
+		var iIndex = $.inArray(id, this.sCheckedValues);
+		if (iIndex != -1) {
+			return "checked='checked'";
+		} 
+	}
+	
+	/*
+	 * select all records
+	 * TODO - to be implemented
+	 */
+	this.fnCheckAll = function (checkbox, values) 
+	{
+		this.sCheckedValues = [];
+		if ($(checkbox).is(':checked')) {
+			for ( var i=0, iLen=values.length ; i<iLen ; i++ ) {
+				this.fnAdd (values[i]);
+			}
+		}
+        $.each ($('tr #' + this.checkBox), function () {
+            $(this).attr('checked', $(checkbox).is(':checked'));
+        });
+        
+        this.fnRefreshMenu ();
+	}
+
+	this.fnClearAllChecked = function () 
+	{
+		this.sCheckedValues = [];
+		$.each ($('tr #' + this.checkBox), function () {
+			// $(this).removeAttr('checked');
+			$(this).attr('checked', false);
+		});
+			
+		this.fnRefreshMenu ();
+	}
+
+	this.fnAdd = function (nVal) 
+	{
+		// if it is a new record it comes with id = 0, we do not add that
+		if (nVal == 0)
+			return;
+		var iIndex = $.inArray(nVal, this.sCheckedValues);
+		if (iIndex == -1)
+			this.sCheckedValues.push (nVal);
+			
+		this.fnRefreshMenu ();
+	}
+
+	this.fnRemove = function (nVal) 
+	{
+		var iIndex = $.inArray(nVal, this.sCheckedValues);
+		// if found in array
+		if (iIndex != -1)
+			this.sCheckedValues.splice( iIndex, 1 );
+		
+		// when current row is deselected take it out of edit mode - save the changes first
+		// https://www.pivotaltracker.com/story/show/16370283
+		if (null != this.oSelectedRow && this.oSelectedRow.fnGetId() == nVal) {
+			if (this.oSelectedRow.fnValid ($('#form'))) {
+				this.oSelectedRow.fnSaveForm ($('#form'));
+				this.fnSetSelectedRow (null);
+			}
+		} 
+		this.fnRefreshMenu ();
+	}
+	
+	this.fnRefreshMenu = function () {
+		var arr = this.fnGetCheckedValuesArray ();
+		if (arr.length == 1) {
+			$.each ($('input[type=button].one'), function () {
+				$(this).attr('disabled', false);
+			});		
+			$.each ($('input[type=button].multi'), function () {
+				$(this).attr('disabled', false);
+			});		
+			$.each ($('input[type=button].none'), function () {
+				$(this).attr('disabled', true);
+			});		
+		}
+		if (arr.length > 1) {
+			$.each ($('input[type=button].one'), function () {
+				$(this).attr('disabled', true);
+			});		
+			$.each ($('input[type=button].none'), function () {
+				$(this).attr('disabled', true);
+			});		
+		}
+		if (arr.length < 1) {
+			$.each ($('input[type=button].one'), function () {
+				$(this).attr('disabled', true);
+			});		
+			$.each ($('input[type=button].multi'), function () {
+				$(this).attr('disabled', true);				
+			});
+			$.each ($('input[type=button].none'), function () {
+				$(this).attr('disabled', false);
+			});			
+		}
+		// close the menu
+		$('#subMenuAction').hide();
+	}
+		
+	this.fnPreMenuAction = function (bMulti) 
+	{
+		var sValues = this.fnGetFirstCheckedValue ();
+		// if multiple selection allowed
+		if (bMulti)
+			sValues = this.fnGetCheckedValues ();
+
+		if (this.oSelectedRow != null && this.oSelectedRow.fnValid ($('#form'))) {
+			this.oSelectedRow.fnSaveForm ($('#form'));
+			this.fnSetSelectedRow (null);
+		}
+		return sValues;
+	}
+	
+	this.fnPostMenuAction = function () 
+	{
+		// clear the selected values
+		this.fnClearAllChecked ();
+		this.fnRefreshMenu ();
+	}
+}
+//]]>		
+	</script>

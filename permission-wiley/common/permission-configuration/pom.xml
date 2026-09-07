@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<parent>
+		<artifactId>common</artifactId>
+		<groupId>com.wiley.permissions.common</groupId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+
+	<!-- When groupId and version tags omitted here, same as parent -->
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>permission-configuration</artifactId>
+	<name>Permissions Configuration Files</name>
+	<url>http://maven.apache.org</url>
+
+	<dependencies>
+	
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>${maven.jar.version}</version>
+				<configuration>
+					<outputDirectory>${perm.mule.dir}</outputDirectory>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>${maven.antrun.version}</version>
+				<executions>
+					<execution>
+						<phase>compile</phase>
+						
+						<configuration>
+							<target>
+								<!-- This whole little section is only here to make sure the build profile stuff works -->
+								<echo>Packaging For Build Profile: ${perm.build.profile}</echo>
+									
+                                <!-- No longer used
+								<move
+									failonerror="false"
+									file="${project.build.directory}/classes/conf/properties/profiles/${perm.build.profile}.properties"
+									tofile="${project.build.directory}/classes/conf/properties/permissions.properties"/>
+
+								<property file="${project.build.directory}/classes/conf/properties/permissions.properties"/>
+
+								<copy
+									failonerror="false"
+									file="${project.build.directory}/classes/conf/spring/pool-templates/${perm.db.type}-pool-template.xml"
+									tofile="${project.build.directory}/classes/conf/spring/permissions-pool.xml"/>
+
+								<copy
+									failonerror="false"
+									file="${project.build.directory}/classes/conf/spring/pool-templates/${wintouch.db.type}-pool-template.xml"
+									tofile="${project.build.directory}/classes/conf/spring/wintouch-pool.xml"/>
+
+								<replace
+									file="${project.build.directory}/classes/conf/spring/permissions-pool.xml"
+									token="#DSNAME#"
+									value="${perm.db.datasourceName}"/>
+
+								<replace
+									file="${project.build.directory}/classes/conf/spring/permissions-pool.xml"
+									token="#TYPE#"
+									value="perm"/>
+
+								<replace
+									file="${project.build.directory}/classes/conf/spring/wintouch-pool.xml"
+									token="#DSNAME#"
+									value="${wintouch.db.datasourceName}"/>
+
+								<replace
+									file="${project.build.directory}/classes/conf/spring/wintouch-pool.xml"
+									token="#TYPE#"
+									value="wintouch"/>
+							   -->
+
+								<delete dir="${project.build.directory}/classes/conf/spring/pool-templates"/>
+								<delete dir="${project.build.directory}/classes/conf/properties/profiles"/>
+							</target>
+						</configuration>
+
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

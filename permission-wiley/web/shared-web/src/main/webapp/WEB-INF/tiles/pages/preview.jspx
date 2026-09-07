@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<script type="text/javascript">
+	//<![CDATA[
+	function printTrigger() {
+	    var iFrame = document.getElementById('iFramePdf');	    
+	    var pdf = iFrame.contentWindow.document.getElementById('pdfEmbed');
+	    if ($.browser.msie) {
+	    	pdf.print();
+	    } else {
+	    	// https://bugzilla.mozilla.org/show_bug.cgi?id=647658 -  PDF in an iframe can't be printed with JavaScript in Firefox 4 and greater
+	   		iFrame.focus();
+	    	iFrame.contentWindow.print();
+	    }
+	}
+
+	$('#editPo').click(function() {
+		$("#modalDiv").load('${updatePoUrl}', function() {
+			openModalDialog ('Edit PO');
+        });
+		// prevent the default action, e.g., following a link
+		return false;
+	});
+
+	$('#cancelButton').click(function() {
+		// make sure to load any asset uses added by Previous Wiley Pub branch 
+		 window.location.reload();
+		return true;
+	});
+	
+	function sendEmail() {
+		// TODO add real message
+		var email = "${userSession.currentUser.email}";
+		var subject = ""
+		if ('${param.type}' == 'po')
+			subject = encodeURIComponent("Purchase Order");
+		else if ('${param.type}' == 'pr')
+			subject = encodeURIComponent("Permission Request");
+		
+		// smarkoff - wileyfn:getServerUrl() (used on line below) has been removed from JSTLFunctions.
+		// Right now this fuction is not used but if re-enable (below) then should be able to create the full url
+		// without using this function - it was removed because it needs to be different for internal/external.
+		// Just use c:url tag and should be ok.
+		
+		// removed dollar sign before {wileyfn because otherwise jsp engine tries to process even though commented out
+		//var body = encodeURIComponent("Please follow this link to download the request form \n{wileyfn:getServerUrl()}${pdfUrl}.\n" + 
+		//	"");
+		var body = "dummy";
+		
+		location.href = "mailto:" + email + "?subject=" + subject  + "&body=" + body;
+	}
+	
+	$(document).ready(function() {
+		if ($.browser.msie) {
+			$("#wait").replaceWith ("<iframe id=\"iFramePdf\" src=\"${iFrameUrl}\" width=\"100%\" height=\"700\">Loading...</iframe>");
+		} else {
+			$("#wait").replaceWith ("<iframe id=\"iFramePdf\" src=\"${pdfUrl}\" width=\"100%\" height=\"700\">Loading...</iframe>");
+		}
+
+	    if ($.browser.mozilla) {
+	    	$("#printB").hide();
+	    }
+	});
+
+	//]]>
+	</script>
+	
+	<span id="wait">Loading...</span>
+	<br/> 
+	Print to send a hard copy to the source, download it to email an electronic version <!-- or e-mail -->
+	
+	<div class="buttonset">
+		<c:if test="${not current_common_work.permissionComplete and not empty updatePoUrl}">
+			<input type="button" value="Edit Form" id="editPo" />
+		</c:if>
+		<input type="button" value="Print" id="printB" onclick="printTrigger();" />
+		<input type="button" value="Download" onClick="location.href='${pdfDownloadUrl}'"/>
+		<button id="cancelButton" class="button">Close</button>	
+		<!-- 							
+		<a href="#" onClick="sendEmail();" class="button">E-mail</a>
+		-->
+	</div>
+</jsp:root>

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- This was only for testing, can be removed. -->
+
+<jsp:root 
+	version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+
+	<jsp:directive.page pageEncoding="UTF-8"/>
+ 
+    <jsp:element name="link">
+		<jsp:attribute name="rel">stylesheet</jsp:attribute>
+		<jsp:attribute name="type">text/css</jsp:attribute>
+		<jsp:attribute name="href">
+			<c:url value="/dynatree/skin/ui.dynatree.css"/>
+		</jsp:attribute>
+	</jsp:element>
+
+	<jsp:element name="script">
+		<jsp:attribute name="type">text/javascript</jsp:attribute>
+		<jsp:attribute name="src">
+			<c:url value="/dynatree/jquery.dynatree.min.js"/>
+		</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+	
+	<c:url var="postUrl" value="/sapp/admin/testTree/submit"/>
+	
+	<script type="text/javascript">
+	//<![CDATA[
+	$(function() {
+        // Attach the dynatree widget to an existing <div id="tree"> element
+        // and pass the tree options as an argument to the dynatree() function:
+        $("#tree").dynatree({
+            //onActivate: function(node) {
+                // A DynaTreeNode object is passed to the activation handler
+                // Note: we also get this event, if persistence is on, and the page is reloaded.
+                //alert("You activated " + node.data.title);
+            //},
+            persist: true,
+            children: [ // Pass an array of nodes.
+                {title: "Item 1 <input type='radio' name='group2' value='1' /> 1", noLink: true},
+                {title: "Folder 2", isFolder: true,
+                    children: [
+                        {title: "Sub-item 2.1 <input type='radio' name='group1' value='1' /> 1  <input type='radio' name='group1' value='2' /> 2", noLink: true},
+                        {title: "Sub-item 2.2"}
+                    ]
+                },
+                {title: "Item 3 <input type='radio' name='group2' value='2' /> 2", noLink: true}
+            ]
+        });
+    });
+    //]]>
+    </script>
+    
+    <form>
+    	<div id="tree">dummy</div>
+	</form>
+
+	<script type="text/javascript">
+	//<![CDATA[
+    $(function(){
+        $("#tree2").dynatree({
+          checkbox: true,
+          // Override class name for checkbox icon, so radio buttons are displayed:
+          //classNames: {checkbox: "dynatree-radio"},
+          // Select mode 3: multi-tier
+          selectMode: 3,
+          children: [
+            {title: "Languages <span style='font-weight: bold; margin-left: 30em'>Language status</span>", hideCheckbox: true, isFolder: true,
+            	children: [
+            	   {title: "all", key: "languages_all", isFolder: true,
+            		   children: [
+            		       {title: "English", key: "language_eng"},
+            		       {title: "european", key: "language_european", isFolder: true,
+            		    	   children: [
+            		    	      {title: "French", key: "language_fre"},
+            		    	      {title: "German", key: "language_deu"}
+            		    	   ]
+            		    	},
+            		       {title: "asian", key: "language_asian", isFolder: true,
+            		    		children: [
+            		    			{title: "Chinese", key: "language_zho"},
+            		    			{title: "Japanese", key: "language_jpa"}
+            		    		]
+            		    	}
+            		   ]
+            		}
+            	]
+            },
+            {title: "Print Run <span style='font-weight: bold; margin-left: 30em'>Print Run status</span.", hideCheckbox: true, isFolder: true,
+            	children: [
+            		{title: "print <input type='text' name='print_run_print' />", hideCheckbox: true, noLink: true},
+            		{title: "ebook <input type='text' name='print_run_ebook' />", hideCheckbox: true, noLink: true}
+            	]
+            }
+          ]
+        });
+        $("#form2").submit(function() {
+          // Serialize standard form fields:
+          var formData = $(this).serializeArray();
+
+          // then append Dynatree selected 'checkboxes':
+          var tree = $("#tree2").dynatree("getTree");
+          formData = formData.concat(tree.serializeArray());
+
+          // and/or add the active node as 'radio button':
+          if (tree.getActiveNode()) {
+            formData.push({name: "activeNode", value: tree.getActiveNode().data.key});
+          }
+
+          alert("POSTing this:\n" + jQuery.param(formData));
+
+          $.post("${postUrl}",
+               formData,
+               function(response, textStatus, xhr){
+                 alert("POST returned " + response + ", " + textStatus);
+               }
+          );
+          return false;
+        });
+      });
+    //]]>
+    </script>
+
+  <form id="form2" style="margin-top: 1em">
+    Username: <input type="text" name="userName" />
+    <br />
+    <input type="submit" name="submit" value="Send data" />
+
+    <!-- The name attribute is used by tree.serializeArray()  -->
+    <div id="tree2" name="selNodes">
+    </div>
+  </form>
+
+</jsp:root>

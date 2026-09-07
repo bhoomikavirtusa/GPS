@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="nextUrl" value="/sapp/landing/source/submit_previous_edition_asset_save" />
+	<c:url var="prevUrl" value="/sapp/landing/source/main" />
+
+	<!--include as jspx so the jsp variable are recognized-->
+	<jsp:directive.include file="js/wizard.buttons.js.jspx" />
+
+	<h3>${sourceWizardForm.assetUse.asset.description}</h3>
+	<div class="requiredtxt">* indicates required field</div>
+
+	<c:if test="${null == sourceWizardForm.editions}">
+		<span class="error">Sorry, there are no previous editions currently coded in the System.<br/>
+		Please enter information about the edition and original asset.</span>
+	</c:if>
+	
+	<c:if test="${null != sourceWizardForm.editions}">
+		<c:if test="${null == sourceWizardForm.assetsFound}">
+			<span class="error">Sorry, there are no assets in the system for this edition. <br/>
+			Please enter the information and click on next button.</span>
+		</c:if>
+	</c:if>
+	<form:form modelAttribute="sourceWizardForm" action="${submitUrl}">
+		<table>
+			<c:if test="${null != sourceWizardForm.editions}">
+			<tr>
+				<td class="label">
+					From Previous Edition:
+				</td>
+				<td class="value" colspan="3">
+					<form:select path="edition">
+						<form:options items="${sourceWizardForm.editions}" itemValue="value" itemLabel="label" />
+					</form:select>
+				</td>
+			</tr>
+			</c:if>
+			
+			<tr>
+				<td class="label">
+					<form:label path="assetUse.asset.originalPublicationIsbn" cssClass="required" cssErrorClass="error">Previous Edition ISBN:</form:label>
+				</td>
+				<td class="value" colspan="3">
+					<form:input path="assetUse.asset.originalPublicationIsbn" size="13" maxlength="13"  class="required"/>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="label">
+					<form:label path="assetUse.asset.mediaType" cssClass="required" cssErrorClass="error">Previous Edition Media Type:</form:label>
+				</td>
+				<td class="value" colspan="3">
+					<form:select path="assetUse.asset.mediaType">
+						<form:options items="${mediaTypes}" itemValue="code" itemLabel="description" />
+					</form:select>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="label">
+					<form:label path="assetUse.asset.originalPageNumber" cssClass="required" cssErrorClass="error">Previous Edition Page #:</form:label>
+				</td>
+				<td class="value">
+					<form:input path="assetUse.asset.originalPageNumber" size="5" maxlength="5"  class="required"/>
+				</td>
+				
+				<td class="label">
+					<form:label path="assetUse.asset.originalFigureNumber" cssClass="required" cssErrorClass="error">Previous Edition Identifier:</form:label>
+				</td>
+				<td class="value">
+					<form:input path="assetUse.asset.originalFigureNumber" size="10" maxlength="10"  class="required"/>
+				</td>
+			</tr>
+			<tr>
+				<td>Comments or special instructions: </td>
+				<td colspan="3">
+					<form:textarea path="assetUse.permissionComment" htmlEscape="true" cols="100" rows="3" />
+				</td>
+			</tr>
+		</table>
+	</form:form>
+
+	<div class="buttonset">
+	<input type="button" id="prevB" value="Previous"/>	
+		<c:if test="${null != sourceWizardForm.assetsFound}">	
+			<input type="submit" id="finishB" value="Finish"/>
+		</c:if>
+		<c:if test="${null == sourceWizardForm.assetsFound}">	
+			<input type="submit" id="nextB" value="Next"/>
+		</c:if>
+		<a href="#" id="cancelLink" class="button">Cancel</a> 	
+	</div>	
+	 
+	<script type="text/javascript">
+//<![CDATA[
+//]]>		
+	</script>
+</jsp:root>

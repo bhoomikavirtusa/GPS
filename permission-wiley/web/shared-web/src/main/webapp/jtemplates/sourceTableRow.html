@@ -1,0 +1,38 @@
+<td>
+	<input type="checkbox" name="sList" id="sList" value="{ $P.aData.sourceId }" {oSSelector.fnIsChecked ($P.aData.sourceId) } />
+</td>
+<td>
+	{#if $P.aData.disabled }
+		<span class="disabled">{ $P.aData.name }</span>
+	{#else}
+		{ $P.aData.name }
+	{#/if}	
+</td>
+<td>{ $P.aData.contactName }</td>
+<td>{ $P.aData.contactEmail }</td>
+<td>{ $P.aData.totalCount }</td>
+<td>
+	{#if $P.aData.requestedCount > 0 }
+		<a href="#" id="{ $P.aData.sourceId }" class="viewPermissions">{ $P.aData.requestedCount }</a>
+		<a href="#" id="{ $P.aData.sourceId }" class="contractDetails">Enter grant details</a>
+	{#/if} 
+	{#if $P.aData.requestedCount == 0 }
+	0
+	{#/if} 
+	
+</td>
+<td>
+	{ $P.aData.enteredCount }
+	{#if $P.aData.enteredCount > 0 }
+		<a href="#" id="{ $P.aData.sourceId }" class="editContractDetails">View</a>
+	{#/if}
+	{#if $P.aData.needPaymentCount > 0 }
+		| <a href="#" id="{ $P.aData.sourceId }" class="pay">Pay</a>
+	{#/if}
+</td>
+<td>
+	{ $P.aData.unrequestedCount }
+	{#if $P.aData.unrequestedCount > 0 }
+		<a href="#" id="{ $P.aData.sourceId }" class="permissions">Get Permissions</a>
+	{#/if} 	
+</td>

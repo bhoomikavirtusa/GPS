@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="nextUrl" value="/sapp/permissions/contract/submit_request" />
+	<c:url var="prevUrl" value="/sapp/permissions/contract/assets?commonwid=${commonwid}" />
+	<c:url var="uploadUrl" value="/sapp/permissions/contract/wizard_upload_file" />
+	<c:url var="deleteFileUrl" value="/sapp/permissions/contract/delete_file" />
+	
+	<!--include as jspx so the jsp variable are recognized-->
+	<jsp:directive.include file="js/wizard.buttons.js.jspx" />
+
+	<script type="text/javascript">
+	//<![CDATA[
+	           
+	//Start -- Added for implementing Build DM-364
+	function fnDeleteFileOnID(id) {
+		var r = confirm("Are you sure you want to delete this file?");
+		if (r == true) {
+			fnDeleteFile(id);
+		} else {
+		    return false;
+		}
+	}	
+	//End -- Added for implementing Build DM-364
+	
+	
+	function fnDeleteFile (id) {
+		// id can be undefined (if new file) - so we set the empty string that way null is received in the controller
+		if (!id) {
+			id = '';
+		}	
+		$.ajax({
+            async: true,
+            type: 'post',
+            url: '${deleteFileUrl}',
+            data: 'fileId=' + id,
+            success: function (response) {
+            	$('#file' + id).empty().html(response);
+            }
+        });
+        return false;
+	}
+
+	$(document).ready(function() {
+	    $("#file").change(function() {
+	        var fileName = $(this).val();
+	        $('#uploadForm').ajaxSubmit({
+		        success: function(data) {
+		            var $out = $('#agreement');
+		            $out.html(data);
+		        }
+		    });
+	    });
+	});
+	
+	//]]>		
+	</script>	
+	
+	<h3>Source ${contractWizardForm.source.name}</h3>	
+	<hr/>
+	Would like to upload a returned form/invoice file ?
+
+	<div id="agreement" style="margin-left: 2em">
+	<form method="post" action="${uploadUrl}" enctype="multipart/form-data" id="uploadForm">
+		<input type="file" name="file" id="file" size="40" class="required"/>
+	</form>
+	
+	<c:if test="${not empty contractWizardForm.contract.files}">
+		<tr><td></td></tr>
+		<tr>
+			<td>
+				<b>Returned form(s)/invoice(s):</b>
+			</td>
+			<td></td>
+		</tr>
+		<tr><td></td></tr>
+		<tr>
+			<td colspan="2">
+				<table>
+					<c:forEach items="${contractWizardForm.contract.files}" var="file">
+						<tr>
+							<td>
+								<div id="file${file.id}">
+									<c:url var="downloadUrl" value="/sapp/permissions/contract/download_file?fileId=${file.id}" />
+									<c:url var="deleteIconUrl" value="/images/buttons/delete-icon.png" />
+									<a href="${downloadUrl}"> ${file.fileName}</a> (${wileyfn:filesize(file.fileData)}) uploaded on 
+									<fmt:formatDate type="date" value="${file.lastUpdatedDate}" />
+									<a href="#" onClick="fnDeleteFileOnID (${file.id})"><img src="${deleteIconUrl}" /></a>
+								</div>
+							</td>
+						</tr>
+					</c:forEach>
+				</table>
+			</td>
+		</tr>
+	</c:if>
+	
+	</div>
+
+	<c:if test="${param.isEdit == 1}">
+		<br/>	
+		Records indicate that there is a signed permission form for this/these assets. You can make changes below or just close this dialog box.
+		<br/>
+	</c:if>
+	
+	<p>Was permission form signed without conditions or restriction aside from credit line change: </p>
+	<form:form modelAttribute="contractWizardForm">
+	
+	<!-- form:input type="radio" path="noRestrictions" value="true" class="required"/>Yes
+	<form:input type="radio" path="noRestrictions" value="false" />No-->
+	<form:radiobutton path="noRestrictions" value="true" class="required"/>Yes
+	<form:radiobutton path="noRestrictions" value="false" />No
+
+	</form:form>
+
+	<div class="buttonset">
+		<input type="button" id="selectB1" value="Next" /> 
+		<a href="#" id="cancelLink" class="button">Cancel</a>
+	</div>
+	
+	<script type="text/javascript">
+	//<![CDATA[
+	$(document).ready(function() {
+
+		//Bind this keypress function to all of the input tags
+		$("input").keypress(function (event) {
+			if ( event.which == 13 ) {
+				event.preventDefault();
+				if ($.exists("#selectB1")) {
+					//alert ("selectB1");
+					$('#selectB1').click();
+				}
+			}
+		});
+
+		$('#selectB1').click (function() {
+			if ($("#contractWizardForm").validate({
+				errorPlacement: function(error, element) {
+					 if ( element.is(":radio") ) {
+					    error.insertAfter( element.parent().last() );
+					 } else { 
+					    error.insertAfter( element);
+					 }				
+			    }
+			}).form() == true) {
+				next('post');
+			}
+		});
+		
+	    $('#uploadForm').ajaxForm({
+	    	beforeSubmit: function () {
+	    		return ($("#uploadForm").validate().form());
+	    	},	    
+	        success: function(data) {
+	            var $out = $('#agreement');
+	            $out.html(data);
+	        }
+	    });
+    
+	});
+	
+	//]]>		
+	</script>
+</jsp:root>

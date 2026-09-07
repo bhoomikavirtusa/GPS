@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="doNextUrl" value="${nextUrl}" />
+	<c:url var="doPrevUrl" value="${prevUrl}" />
+
+	<script type="text/javascript">
+	//<![CDATA[
+	$(document).ready(function() {
+
+		$('#nextB').click (function() {
+			$.ajax({
+	            async: true,
+	            type: 'post',
+	            url: '${doNextUrl}',
+	            data: $('#assetRenumberForm').serialize(),
+	            success: function (response){
+	            	$('#modalDiv').empty().html(response);
+	            	repositionDialog();
+	            }
+	        });
+		});
+	
+		$('#prevB').click (function() {
+			$.ajax({
+	            async: true,
+	            type: 'get',
+	            url: '${doPrevUrl}',
+	            success: function (response){
+	            	$('#modalDiv').empty().html(response);
+	            	repositionDialog();
+	            }
+	        });
+		});	
+	});
+	//]]>		
+	</script>	
+
+	<form:form modelAttribute="assetRenumberForm">	
+	
+	<c:if test="${step == 'gettingComponents'}">
+		<table>
+		<tr>
+			<td>Choose component to renumber: </td>
+			<td>
+				<form:select path="selectedComponent">
+					<form:options items="${components}" itemValue="id" itemLabel="name" />
+				</form:select>
+			</td>
+		</tr>
+		</table>
+	</c:if>
+	
+	<c:if test="${step == 'selectusage'}">
+		<table>
+		<tr>
+			<td>Choose usage types to renumber: </td>
+			<td>
+				<c:forEach items="${usages}" var="usage" varStatus="vs">
+					<tr class="${(vs.index mod 2 == 0) ? 'even' : 'odd'}">	
+						<td>
+							<form:checkbox path="usageCodes" value="${usage.code}" />
+							<c:out value="${usage.description}" />
+						</td>
+					</tr>
+				</c:forEach>
+			</td>
+		</tr>
+		</table>		
+	</c:if>
+	
+	<c:if test="${step == 'assets'}">
+	<table class="display">	
+		<c:if test="${null != assetRenumberForm.renumList}">
+		  	<tr>
+				<th>Component</th>
+				<th>Type of Asset</th>
+				<th>Description of Asset</th>
+				<th>Asset to be used as</th>
+				<th>Current Position</th>
+ 				<th>New Position</th>
+			</tr>
+
+			<c:forEach items="${assetRenumberForm.renumList}" var="auv"  varStatus="vs">
+				<tr class="${(vs.index mod 2 == 0) ? 'even' : 'odd'}">	
+					<td>${auv.component}</td>
+					<td>${auv.mediaType}</td>
+					<td>${auv.assetDescription}</td>
+					<td>${auv.usage}</td>
+					<td>${auv.position}</td>
+ 					<td>
+ 						<form:input path="renumList[${vs.index}].newPosition" size="20" maxlength="50"/>
+					</td>
+				</tr>
+			</c:forEach>
+		</c:if>		
+	</table>
+	<div class="buttonset">				
+		<input type="button" id="prevB" value="Previous"/>
+		<input type="submit" id="nextB" value="Finish"/>
+		<a href="#" id="cancelLink" class="button">Cancel</a> 	
+	</div>
+	 <c:if test="${null == assetRenumberForm.renumList}">
+	 		NO assets found to renumber -  Please click on previous button and change selection criteria
+	 </c:if>
+</c:if>
+</form:form>
+
+<c:if test="${step != 'assets'}">
+	<div class="buttonset">
+		<input type="button" id="prevB" value="Previous"/>
+		<input type="submit" id="nextB" value="Next"/>
+		<a href="#" id="cancelLink" class="button">Cancel</a> 	
+	</div>
+</c:if>
+</jsp:root>

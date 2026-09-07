@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+
+	<jsp:directive.page pageEncoding="UTF-8" />
+	
+	<c:url var="startImageUrl" value="/sapp/report/compliance/placeHolderImage" />
+	<c:url var="editorCodeUrl" value="/sapp/report/compliance/getEditorCodeSelect" />
+	<c:url var="loadImageUrl" value="/images/please_wait.gif" />
+	<c:url var="chartUrl" value="/sapp/report/compliance/chart" />
+	<c:url var="listUrl" value="/sapp/report/compliance/list" />
+	
+	<script type="text/javascript">
+	//<![CDATA[
+	$(document).ready(function() {
+		$.datepicker.setDefaults({
+		     dateFormat: '${dateFormat}'
+		});
+
+		$("#fromDate").datepicker();
+		$("#d_fromDate").datepicker();
+		var d1 = $.datepicker.parseDate('mm/dd/yy', $("#fromDate").val());
+		var d2 = $.datepicker.formatDate('${dateFormat}', d1);
+    	$("#d_fromDate").val(d2);
+		
+		$("#toDate").datepicker();
+		$("#d_toDate").datepicker();
+		var d1 = $.datepicker.parseDate('mm/dd/yy', $("#toDate").val());
+		var d2 = $.datepicker.formatDate('${dateFormat}', d1);
+    	$("#d_toDate").val(d2);
+
+		$("#d_fromDate").change(function() {
+			var d1 = $.datepicker.parseDate('${dateFormat}', $("#d_fromDate").val());
+			var d2 = $.datepicker.formatDate('mm/dd/yy', d1);
+			$("#fromDate").val(d2);
+		});
+
+		$("#d_toDate").change(function() {
+			var d1 = $.datepicker.parseDate('${dateFormat}', $("#d_toDate").val());
+			var d2 = $.datepicker.formatDate('mm/dd/yy', d1);
+			$("#toDate").val(d2);
+		});
+		
+		$("#dateCriterion").change(function() {
+			var value = $("#dateCriterion").val();  // CRD, transmittalDate, copyrightYear
+			if (value == "copyrightYear") {
+				convertDateToYear($("#d_fromDate"), $("#fromDate"));
+				convertDateToYear($("#d_toDate"), $("#toDate"));
+			}
+			else {
+				blankOutPartial($("#d_fromDate"), $("#fromDate"));
+				blankOutPartial($("#d_toDate"), $("#toDate"));
+			}
+		});
+	});
+	
+	function validateYear(field, fieldName) {
+		var value = $.trim(field.val());
+		if (value.length == 0)  return true;
+		if (isNaN(value)) {
+			alert(fieldName + " must be a number.");
+			return false;
+		}
+		if (value.length != 4) {
+			alert(fieldName + " must be 4 digits.");
+			return false;
+		}
+		if (value < 1980 || value > 2050) {
+			alert(fieldName + " must be in the range (1980 - 2050)");
+			return false;
+		}
+		return true;
+	}
+	
+	function submitForm() {
+		// first check if Copyright year date criterion selected and if so do some validation
+		var dateCriterionValue = $("#dateCriterion").val();  // CRD, transmittalDate, copyrightYear
+		if (dateCriterionValue == "copyrightYear") {
+			// since datepicker not hooked up right now, first copy showing fields to hidden
+			$("#fromDate").val($("#d_fromDate").val());
+			$("#toDate").val($("#d_toDate").val());
+			
+			if (!validateYear($("#fromDate"), "Copyright year [from]")) return false;
+			if (!validateYear($("#toDate"), "Copyright year [to]")) return false;
+			
+			var fromYear = $("#fromDate").val();
+			var toYear = $("#toDate").val();
+			if (toYear < fromYear) {
+				alert("To year must be greater or equal than From year.");
+				return false;
+			}
+		}
+		else {
+			var fromDate = $("#fromDate").val();
+			var toDate = $("#toDate").val();
+			if (Date.parse(toDate) < Date.parse(fromDate)) {
+				alert("To date must be greater than From date");
+				return false;
+			}
+		}
+		
+		$("#combinedChart").attr("src", "${loadImageUrl}");
+		//$("#preProductionChart").attr("src", "${loadImageUrl}");
+		//$("#inProductionChart").attr("src", "${loadImageUrl}");
+		
+		$("#inProductionId").attr("value", "false");
+		var fullUrl = "${chartUrl}" + "?" + $("#complianceForm").serialize();
+		//alert("fullUrl = " + fullUrl);
+		//$("#preProductionChart").attr("src", fullUrl);
+		$("#combinedChart").attr("src", fullUrl);
+		
+		$.ajax({
+			async: true,
+			type: 'get',
+			url: '${listUrl}',
+			data: $('#complianceForm').serialize(),
+			success: function (response) {
+				$('#preProductionList').empty().html(response);
+			    //repositionGuideDialog();
+			}
+		});
+		
+		$("#inProductionId").attr("value", "true");
+		
+		fullUrl = "${chartUrl}" + "?" + $("#complianceForm").serialize();
+		//alert("fullUrl = " + fullUrl);
+		//$("#inProductionChart").attr("src", fullUrl);
+
+		$.ajax({
+			async: true,
+			type: 'get',
+			url: '${listUrl}',
+			data: $('#complianceForm').serialize(),
+			success: function (response) {
+				$('#inProductionList').empty().html(response);
+			    //repositionGuideDialog();
+			}
+		});
+		
+		return false;
+	}
+	
+	function convertDateToYear(field, hiddenField) {
+		if (field.val().length > 3) {
+			field.val(field.val().substr(field.val().length - 4));
+			hiddenField.val(field.val());
+		}
+		
+		// for some reason this causes an error when this function is called
+		// AFTER having called submitForm() above.
+		// error in Firefox is: TypeError: c is undefined : jquery-1.7.2.min.js
+		try {
+			// Can't use "disable" because also prevents user from typing into field
+			// field.datepicker("disable");
+			field.datepicker("destroy");
+		}
+		catch (err) {
+			//alert("caught error from destroy");
+		}
+		// extra cleanup (important or else 2nd time destroy picker doesn't seem to work at all)
+		field.removeClass('hasDatepicker');
+	}
+	
+	function blankOutPartial(field, hiddenField) {
+		if (field.val().length < 10) {
+			field.val("");
+			hiddenField.val("");
+		}
+		//field.datepicker("enable");
+		field.datepicker();
+	}
+	
+	function productLineChanged() {
+		$("#editorCode").prop('selectedIndex', 0);
+
+		// IE8 does not have string.trim fuction so define as needed
+		if (typeof String.prototype.trim !== 'function') {
+  			String.prototype.trim = function() {
+    			return this.replace(/^\s+|\s+$/g, ''); 
+  			}
+		}
+
+		if ($("#productLineCode").val().trim().length == 0) {
+			$("#editorCode").empty();
+			return;
+		}
+
+		$.ajax({
+            type: "get",
+            url: "${editorCodeUrl}",
+            data: $('#complianceForm').serialize(),
+            success: function (response) {
+                $("#editorCode").html(response);
+            }
+        });
+	}
+	//]]>
+	</script>
+
+    <form:form modelAttribute="complianceForm" onsubmit="return submitForm()">
+    	<form:hidden path="inProduction" id="inProductionId" />
+    	
+		<form:select path="dateCriterion">
+			<form:option value="CRD" label="CRD" />
+			<form:option value="transmittalDate" label="Transmittal Date" />
+			<form:option value="copyrightYear" label="Copyright year" />
+		</form:select>
+		
+		 From date <input type="text" id="d_fromDate" name="d_fromDate" size="10" maxlength="10"/>(${dateFormat})
+		 <form:hidden path="fromDate"/>
+		 
+		 To date <input type="text" id="d_toDate" name="d_toDate" size="10" maxlength="10"/>(${dateFormat})
+		 <form:hidden path="toDate"/>
+		
+		Division
+		<form:select path="businessUnitCode">
+			<option value="2">PD</option>
+			<option value="1">GE</option>
+			<option value="3">STMS</option>
+		</form:select>
+		
+		Product Line
+		<form:input path="productLineCode" onchange="productLineChanged()" />
+		
+		Editor code
+		<form:select path="editorCode">
+		</form:select>
+		
+		<input type="submit" value="Run" />
+		
+		<c:if test="${isSuper}">
+			<form:checkbox path="useFilter" />
+			useFilter (defaults to true and not shown for non-Super users)
+		</c:if>
+		
+		<c:if test="${not isSuper}">
+			<form:hidden path="useFilter" />
+		</c:if>
+	</form:form>
+
+	<table>
+		<tr>
+			<td colspan="2">
+				<img id="combinedChart" src="${startImageUrl}" alt="Combined Chart" />
+			</td>
+		</tr>
+		<tr>
+			<td><span id="preProductionList"></span></td>
+			<td><span id="inProductionList"></span></td>
+		</tr>
+	</table>
+</jsp:root>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+		http://www.springframework.org/schema/util
+		http://www.springframework.org/schema/util/spring-util-4.3.xsd
+	">
+	
+	<context:annotation-config />
+	
+	<!-- Atomikos -->
+	<bean id="WintouchDS" class="com.atomikos.jdbc.AtomikosDataSourceBean"
+    	init-method="init" destroy-method="close">
+
+    	<property name="uniqueResourceName" value="XAWINTOUCH"/>
+    	<property name="xaDataSourceClassName" value="${wintouch.db.xadriver}" />
+    	<property name="minPoolSize" value="${wintouch.db.minPoolSize}" />
+		<property name="maxPoolSize" value="${wintouch.db.maxPoolSize}" />
+		<!-- maxIdleTime is in seconds -->
+		<property name="maxIdleTime" value="60"/>
+		<property name="testQuery" value="${wintouch.db.testQuery}"/>
+		<!-- 1 is READ_UNCOMMITTED, 2 is READ_COMMITTED -->
+		<property name="defaultIsolationLevel" value="2"/>
+		<property name="xaProperties">
+			<props>
+				<prop key="serverName">${wintouch.db.server}</prop>
+				<prop key="databaseName">${wintouch.db.databaseName}</prop>
+				<prop key="user">${wintouch.db.user}</prop>
+				<prop key="password">${wintouch.db.password}</prop>
+				
+				<prop key="${wintouch.db.extra.name1}">${wintouch.db.extra.value1}</prop>
+				<prop key="${wintouch.db.extra.name2}">${wintouch.db.extra.value2}</prop>
+				<prop key="${wintouch.db.extra.name3}">${wintouch.db.extra.value3}</prop>
+			</props>
+		</property>     
+   </bean>
+
+	<!--a non Transactional Data Source that can be used in the reports -->	   
+	<bean id="WintouchReportDS" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="driverClassName" value="${wintouch.db.driver}"/>
+        <property name="url" value="${wintouch.db.url}"/>
+        <property name="username" value="${wintouch.db.user}"/>
+        <property name="password" value="${wintouch.db.password}"/>
+        <property name="defaultAutoCommit" value="true" />
+        <property name="minIdle" value="${wintouch.db.minPoolSize}" />
+        <property name="maxActive" value="${wintouch.db.maxPoolSize}" />
+        <property name="validationQuery" value="${wintouch.db.testQuery}" />
+        <!-- 1 is READ_UNCOMMITTED, 2 is READ_COMMITTED -->
+        <property name="defaultTransactionIsolation" value="2" />
+    </bean>
+
+   <!-- Bitronix -->
+   <!--
+   <bean
+		id="WintouchDS"
+		class="bitronix.tm.resource.jdbc.PoolingDataSource"
+		init-method="init" destroy-method="close">
+
+		<property name="className" value="${wintouch.db.xadriver}" />
+		<property name="uniqueName" value="WINTOUCH" />
+		<property name="minPoolSize" value="${wintouch.db.minPoolSize}" />
+		<property name="maxPoolSize" value="${wintouch.db.maxPoolSize}" />
+		<property name="allowLocalTransactions" value="true" />
+		<property name="maxIdleTime" value="60"/>
+		<property name="testQuery" value="${wintouch.db.testQuery}"/>
+		<property name="isolationLevel" value="READ_COMMITTED"/>
+		<property name="driverProperties">
+			<props>
+				<prop key="serverName">${wintouch.db.server}</prop>
+				<prop key="databaseName">${wintouch.db.databaseName}</prop>
+				<prop key="user">${wintouch.db.user}</prop>
+				<prop key="password">${wintouch.db.password}</prop>
+				
+				<prop key="${wintouch.db.extra.name1}">${wintouch.db.extra.value1}</prop>
+				<prop key="${wintouch.db.extra.name2}">${wintouch.db.extra.value2}</prop>
+				<prop key="${wintouch.db.extra.name3}">${wintouch.db.extra.value3}</prop>
+			</props>
+		</property>
+	</bean>
+	-->
+</beans>

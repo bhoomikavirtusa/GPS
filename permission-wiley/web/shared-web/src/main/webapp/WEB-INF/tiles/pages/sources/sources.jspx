@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8" />
+
+	<c:url value="/sapp/sources/sources/list" var="actionURL" />
+	<c:url value="/sapp/sources/sources/list?activateMode=1" var="actionActivateModeURL" />
+
+	<tiles:insertDefinition name="tiles.sources.list">
+		<c:if test="${not empty param.activateMode}">
+			<tiles:putAttribute name="action" value="${actionActivateModeURL}"/>
+			<tiles:putAttribute name="activateMode" value="1"/>
+			<tiles:putAttribute name="editMode" value="0"/>
+		</c:if>
+		<c:if test="${empty param.activateMode}">
+			<tiles:putAttribute name="action" value="${actionURL}"/>
+			<tiles:putAttribute name="activateMode" value="0"/>
+			<tiles:putAttribute name="editMode" value="1"/>
+		</c:if>
+				
+		<tiles:putAttribute name="selectMode" value="0"/>
+	</tiles:insertDefinition>
+</jsp:root>

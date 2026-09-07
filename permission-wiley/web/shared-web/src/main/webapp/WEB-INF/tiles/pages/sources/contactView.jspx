@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+
+	<jsp:directive.page pageEncoding="UTF-8" />
+
+	<tiles:importAttribute name="contact"/>
+
+	<jsp:body>
+		<table>
+			<tr>
+				<td colspan="2"><h1>${contact.firstName} ${contact.lastName}</h1></td>
+			</tr>
+
+			<tr>
+				<td>
+					<table>
+						<tr>
+							<td class="label">First Name:</td>
+							<td class="value">${contact.firstName}</td>
+						</tr>
+
+						<tr>
+							<td class="label">Middle Name:</td>
+							<td class="value">${contact.middleName}</td>
+						</tr>
+
+						<tr>
+							<td class="label">Last Name:</td>
+							<td class="value">${contact.lastName}</td>
+						</tr>
+
+						<tr>
+							<td class="label">Job Title:</td>
+							<td class="value">${contact.jobTitle}</td>
+						</tr>
+
+						<tr>
+							<td class="label">Gender:</td>
+							<td class="value">${contact.gender}</td>
+						</tr>
+
+						<tr>
+							<td class="label">E-Mail:</td>
+							<td class="value">${contact.email}</td>
+						</tr>
+			
+						<tr>
+							<td class="label">Office Phone Number:</td>
+							<td class="value">${contact.phone}</td>
+						</tr>
+			
+						<tr>
+							<td class="label">Fax Number:</td>
+							<td class="value">${contact.fax}</td>
+						</tr>
+						
+						<tr>
+							<td class="label">Home Phone Number:</td>
+							<td class="value">${contact.homePhoneNumber}</td>
+						</tr>
+			
+						<tr>
+							<td class="label">Mobile Phone Number:</td>
+							<td class="value">${contact.mobilePhoneNumber}</td>
+						</tr>
+					</table>
+				</td>
+				<td valign="top">
+					<table>
+						<tr>
+						<td>
+							<table>
+								<c:choose>
+									<c:when test="${contact.address == null}">
+										<tr>
+											<td>
+												No Address for this Contact
+											</td>
+										</tr>
+									</c:when>
+
+									<c:otherwise>
+										<tr>
+											<td>
+												<tiles:insertDefinition name="tiles.sources.address">
+													<tiles:putAttribute name="address" value="${contact.address}" type="object"/>
+												</tiles:insertDefinition>
+											</td>
+										</tr>
+									</c:otherwise>
+								</c:choose>
+							</table>
+						</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+	</jsp:body>
+</jsp:root>

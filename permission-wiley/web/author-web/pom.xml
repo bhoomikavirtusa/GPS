@@ -1,0 +1,499 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.wiley.permissions.web</groupId>
+		<artifactId>web-parent</artifactId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+
+	<!-- When groupId and version tags omitted here, same as parent -->
+	<artifactId>author-web</artifactId>
+	<packaging>war</packaging>
+	<name>Author Web Application</name>
+
+	<properties>
+		<tomcat-webapp>${env.CATALINA_HOME}\webapps</tomcat-webapp>
+	</properties>
+	
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>p6spy</groupId>
+			<artifactId>p6spy</artifactId>
+			<version>1.3</version>
+		</dependency>
+			
+		<dependency>
+			<groupId>com.irongrid</groupId>
+			<artifactId>irongrid</artifactId>
+			<version>1.3</version>
+		</dependency>
+					
+		<dependency>
+			<groupId>net.sf.jasperreports</groupId>
+			<artifactId>jasperreports</artifactId>
+			<version>${jasper.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jfree</groupId>
+			<artifactId>jfreechart</artifactId>
+			<version>${jfreechart.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.servlet.jsp</groupId>
+			<artifactId>jsp-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>taglibs</groupId>
+			<artifactId>standard</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.tiles</groupId>
+			<artifactId>tiles-api</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.tiles</groupId>
+			<artifactId>tiles-core</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.tiles</groupId>
+			<artifactId>tiles-jsp</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+		</dependency>
+
+		<dependency>
+		    <groupId>org.springframework.security</groupId>
+		    <artifactId>spring-security-web</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>org.springframework.security</groupId>
+		    <artifactId>spring-security-config</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>org.springframework.security</groupId>
+		    <artifactId>spring-security-taglibs</artifactId>
+		</dependency>
+		    
+		<dependency>
+			<groupId>org.springmodules</groupId>
+			<artifactId>spring-modules-validation</artifactId>
+			<version>0.8a</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-validator</groupId>
+			<artifactId>commons-validator</artifactId>
+			<version>1.3.1</version>
+		</dependency>
+        
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>${httpclient.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.wiley.permissions.common</groupId>
+			<artifactId>permission-common-utils</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.wiley.permissions.common</groupId>
+			<artifactId>permission-persistence</artifactId>
+			<version>1.0-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>geronimo-j2ee-connector_1.5_spec.osgi</artifactId>
+					<groupId>org.apache.geronimo.specs</groupId>
+				</exclusion>
+				
+				<!-- Mule 2 exclusions -->
+				<exclusion>
+					<artifactId>geronimo-j2ee-management_1.0_spec.osgi</artifactId>
+					<groupId>org.apache.geronimo.specs</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>geronimo-jms_1.1_spec.osgi</artifactId>
+					<groupId>org.apache.geronimo.specs</groupId>
+				</exclusion>
+				
+				<!-- Mule 3 exclusions -->
+				<exclusion>
+					<artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
+					<groupId>org.apache.geronimo.specs</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>geronimo-jms_1.1_spec</artifactId>
+					<groupId>org.apache.geronimo.specs</groupId>
+				</exclusion>
+				
+				<exclusion>
+					<artifactId>geronimo-jta_1.0.1B_spec.osgi</artifactId>
+					<groupId>org.apache.geronimo.specs</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>hibernate-core</artifactId>
+					<groupId>org.hibernate</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+       
+		<dependency>
+			<groupId>org.restlet</groupId>
+			<artifactId>org.restlet</artifactId>
+			<version>1.0b12</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.restlet</groupId>
+			<artifactId>com.noelios.restlet</artifactId>
+			<version>1.0b12</version>
+		</dependency>
+        
+		<dependency>
+			<groupId>com.wiley.permissions.services</groupId>
+			<artifactId>permission-services</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.wiley.permissions.common</groupId>
+			<artifactId>permission-configuration</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.wiley.permissions.services</groupId>
+			<artifactId>permission-validator</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.wiley.permissions.common</groupId>
+			<artifactId>permission-security-lib</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.wiley.permissions.web</groupId>
+			<artifactId>shared-web</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.resource</groupId>
+			<artifactId>connector-api</artifactId>
+			<version>1.5</version>
+		</dependency>
+<!-- Take this out for Mule 3 -->
+		<dependency>
+			<groupId>org.mule.transports</groupId>
+			<artifactId>mule-transport-http</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>geronimo-servlet_2.4_spec</artifactId>
+					<groupId>org.apache.geronimo.specs</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>geronimo-jta_1.0.1B_spec</artifactId>
+					<groupId>org.apache.geronimo.specs</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
+					<groupId>org.apache.geronimo.specs</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+<!-- (end remove for Mule 3) -->
+
+		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+			<version>${commons-fileupload.version}</version>
+			<!--  fileupload 1.2.1 depends on commons-io 1.3.2 but we include 2.4 below -->
+			<exclusions>
+				<exclusion>
+					<groupId>commons-io</groupId>
+					<artifactId>commons-io</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>${commons-io.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jmesa</groupId>
+			<artifactId>jmesa</artifactId>
+			<version>${jmesa.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<version>1.7.21</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>net.sf.jxls</groupId>
+		    <artifactId>jxls-core</artifactId>
+		    <version>${jxls.version}</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>net.sf.jxls</groupId>
+		    <artifactId>jxls-reader</artifactId>
+		    <version>${jxls-reader.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.alexnederlof</groupId>
+			<artifactId>jasperreports-plugin</artifactId>
+			<version>2.1</version>
+			<scope>compile</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.lowagie</groupId>
+			<artifactId>itext</artifactId>
+			<version>4.2.2</version>
+			<scope>compile</scope>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/org.codehaus.plexus/plexus-compiler-manager -->
+<dependency>
+    <groupId>org.codehaus.plexus</groupId>
+    <artifactId>plexus-compiler-manager</artifactId>
+    <version>2.7</version>
+</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/org.codehaus.plexus/plexus-utils -->
+<dependency>
+    <groupId>org.codehaus.plexus</groupId>
+    <artifactId>plexus-utils</artifactId>
+    <version>3.0.15</version>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/org.codehaus.plexus/plexus-compiler-api -->
+<dependency>
+    <groupId>org.codehaus.plexus</groupId>
+    <artifactId>plexus-compiler-api</artifactId>
+    <version>2.6</version>
+</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/com.itextpdf/itextpdf -->
+<dependency>
+    <groupId>com.itextpdf</groupId>
+    <artifactId>itextpdf</artifactId>
+    <version>5.5.6</version>
+</dependency>
+<!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-core -->
+<dependency>
+    <groupId>org.apache.lucene</groupId>
+    <artifactId>lucene-core</artifactId>
+    <version>4.7.2</version>
+</dependency>
+<!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-analyzers-common -->
+<dependency>
+    <groupId>org.apache.lucene</groupId>
+    <artifactId>lucene-analyzers-common</artifactId>
+    <version>4.7.2</version>
+</dependency>
+<!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-queryparser -->
+<dependency>
+    <groupId>org.apache.lucene</groupId>
+    <artifactId>lucene-queryparser</artifactId>
+    <version>4.7.2</version>
+</dependency>
+<!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-queries -->
+<dependency>
+    <groupId>org.apache.lucene</groupId>
+    <artifactId>lucene-queries</artifactId>
+    <version>4.7.2</version>
+</dependency>
+<!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-sandbox -->
+<dependency>
+    <groupId>org.apache.lucene</groupId>
+    <artifactId>lucene-sandbox</artifactId>
+    <version>4.7.2</version>
+</dependency>		
+	</dependencies>
+
+	<build>
+		<finalName>author-web</finalName>
+
+		<plugins>
+<!--		
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>jasperreports-maven-plugin</artifactId>
+				<version>1.0-beta-2</version>
+				<configuration>
+					<sourceDirectory>src/main/webapp/WEB-INF/reports</sourceDirectory>
+					<outputDirectory>${project.build.directory}/${project.build.finalName}/WEB-INF/reports/compiled</outputDirectory>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>compile-reports</goal>
+						</goals>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>net.sf.jasperreports</groupId>
+						<artifactId>jasperreports</artifactId>
+						<version>${jasper.version}</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+-->
+			<plugin>
+	            <groupId>com.alexnederlof</groupId>
+	            <artifactId>jasperreports-plugin</artifactId>
+	            <version>${jasperreports.plugin.version}</version>
+	            <dependencies>
+                <dependency>
+                    <groupId>org.codehaus.plexus</groupId>
+                    <artifactId>plexus-utils</artifactId>
+                    <version>3.0.15</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.codehaus.plexus</groupId>
+                    <artifactId>plexus-compiler-api</artifactId>
+                    <version>2.6</version>
+                </dependency>
+                <dependency>
+			<groupId>net.sf.jasperreports</groupId>
+			<artifactId>jasperreports</artifactId>
+			<version>${jasper.version}</version>
+		</dependency>
+		<dependency>
+    <groupId>org.olap4j</groupId>
+    <artifactId>olap4j</artifactId>
+    <version>1.2.0</version>
+</dependency>
+<!-- https://mvnrepository.com/artifact/commons-lang/commons-lang -->
+<dependency>
+    <groupId>commons-lang</groupId>
+    <artifactId>commons-lang</artifactId>
+    <version>2.6</version>
+</dependency>
+
+		
+            </dependencies>
+	            
+	            <executions>
+	                <execution>
+	                    <phase>process-sources</phase>
+	                    <goals>
+	                    	<goal>jasper</goal>
+	                    </goals>
+	                </execution>
+	            </executions>
+	            <configuration>
+	            	<sourceDirectory>src/main/webapp/WEB-INF/reports</sourceDirectory>
+	                <outputDirectory>${project.build.directory}/${project.build.finalName}/WEB-INF/reports/compiled</outputDirectory>                    
+	            </configuration>
+	        </plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>${maven.war.version}</version>
+				<configuration>
+					<outputDirectory>${perm.tomcat.apps.dir}</outputDirectory>
+					<warName>${project.artifactId}</warName>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>${maven.antrun.version}</version>
+				<executions>
+					<execution>
+						<phase>process-resources</phase>
+						
+						<configuration>
+							<target>
+								<echo>Copying from shared-web to ${project.artifactId}...</echo>
+
+								<!-- The compilation phase is unpredictable, we have to copy before compilation-->
+								<copy todir="${project.build.directory}/${project.build.finalName}" >
+  									<!-- for some reason "${project.parent.basedir}/shared-web/copy" does not work -->
+  									<fileset dir="${basedir}/../shared-web/src/main/webapp">
+    									<include name="**/*.*" />
+  									</fileset>
+								</copy>
+							</target>
+						</configuration>
+
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

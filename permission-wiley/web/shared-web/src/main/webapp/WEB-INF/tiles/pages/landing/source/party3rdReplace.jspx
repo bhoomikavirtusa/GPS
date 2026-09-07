@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="prevUrl" value="/sapp/landing/source/3rdparty_search?ownerType=3rd_Party_Institution" />
+	<c:url var="nextUrl" value="/sapp/landing/source/replace" />
+
+	<!--include as jspx so the jsp variable are recognized-->
+	<jsp:directive.include file="js/wizard.buttons.js.jspx" />
+
+	<h3>${sourceWizardForm.assetUse.asset.description}</h3>
+
+	<form:form modelAttribute="sourceWizardForm">
+		 Reselect source or add a new one ?
+	</form:form>
+	
+	<div class="buttonset">
+		<input type="button" id="prevB" value="Add"/>
+		<input type="button" id="nextB" value="Reselect"/>
+		<a href="#" id="cancelLink" class="button">Cancel</a> 	
+	</div>
+
+</jsp:root>

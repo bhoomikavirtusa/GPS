@@ -1,0 +1,10 @@
+/* This is css I just made up */
+/* You might look more at the jquery validation plugin examples to see
+  what other kinds of style they use. */
+
+#formToValidate label.error {
+	color: red;
+}
+#formToValidate input.error {
+	background-color: pink;
+}

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root 
+	version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page pageEncoding="UTF-8"/>
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('#tomcatTable').dataTable( {
+				"aoColumns": [
+					{ "sWidth" : "60%" }, // key
+					{ "sWidth" : "10%", "bSearchable" : false }, // count
+					{ "sWidth" : "10%", "bSearchable" : false }, // avg
+					{ "sWidth" : "10%", "bSearchable" : false }, // min
+					{ "sWidth" : "10%", "bSearchable" : false } // max
+				],
+				"aaSorting": [[0, "asc" ]],
+
+				"bAutoWidth": false,
+				"bProcessing": true,
+				"bStateSave": true,
+				"sPaginationType": "full_numbers",
+				"aLengthMenu": [10, 15, 25, 50, 100],  // override default of [10, 25, 50, 100]
+				"iDisplayLength": 25 // override default of 10
+			} );
+		} );
+		
+		$(document).ready(function() {
+			$('#muleTable').dataTable( {
+				"aoColumns": [
+					{ "sWidth" : "60%" }, // key
+					{ "sWidth" : "10%", "bSearchable" : false }, // count
+					{ "sWidth" : "10%", "bSearchable" : false }, // avg
+					{ "sWidth" : "10%", "bSearchable" : false }, // min
+					{ "sWidth" : "10%", "bSearchable" : false } // max
+				],
+				"aaSorting": [[0, "asc" ]],
+
+				"bAutoWidth": false,
+				"bProcessing": true,
+				"bStateSave": true,
+				"sPaginationType": "full_numbers",
+				"aLengthMenu": [10, 15, 25, 50, 100],  // override default of [10, 25, 50, 100]
+				"iDisplayLength": 25 // override default of 10
+			} );
+		} );
+	</script>
+	
+	<table class="display" id="tomcatTable" style="margin-top: 1em">
+		<thead>
+			<tr>
+				<th colspan="5">Performance Stats - Tomcat</th>
+			</tr>
+			<tr>
+				<th>key</th>
+				<th>count</th>
+				<th>avg</th>
+				<th>min</th>
+				<th>max</th>
+			</tr>
+		</thead>
+		<tbody>
+			<c:forEach items="${tomcatList}" var="snap">
+				<tr>
+  					<td><c:out value="${snap.key}"/></td>
+  					<td>${snap.count}</td>
+  					<td>${snap.avg}</td>
+  					<td>${snap.min}</td>
+  					<td>${snap.max}</td>
+  				</tr>
+			</c:forEach>
+		</tbody>
+	</table>
+	
+	<table class="display" id="muleTable">
+		<thead>
+			<tr>
+				<th colspan="5">Performance Stats - Mule</th>
+			</tr>
+			<tr>
+				<th>key</th>
+				<th>count</th>
+				<th>avg</th>
+				<th>min</th>
+				<th>max</th>
+			</tr>
+		</thead>
+		<tbody>
+			<c:forEach items="${muleList}" var="snap">
+				<tr>
+  					<td><c:out value="${snap.key}"/></td>
+  					<td>${snap.count}</td>
+  					<td>${snap.avg}</td>
+  					<td>${snap.min}</td>
+  					<td>${snap.max}</td>
+  				</tr>
+			</c:forEach>
+		</tbody>
+	</table>
+
+</jsp:root>

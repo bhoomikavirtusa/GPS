@@ -1,0 +1,590 @@
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context" xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx" xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+		http://www.springframework.org/schema/util
+		http://www.springframework.org/schema/util/spring-util-4.3.xsd
+	">
+
+	<import resource="shared-web-context.xml"/>
+	
+	<bean id="tilesConfigurer" class="org.springframework.web.servlet.view.tiles3.TilesConfigurer">
+		<property name="definitions">
+			<list>
+				<value>/WEB-INF/tiles/definitions/shared-tiles.xml</value>
+				<value>/WEB-INF/tiles/definitions/internal-tiles.xml</value>
+				<value>/WEB-INF/tiles/definitions/errors.xml</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="ArtLogPdfReport" class="com.wiley.permissions.web.shared.controllers.reports.PdfReportView">
+		<property name="url" value="/WEB-INF/reports/compiled/ArtLog.jasper" />
+		<property name="jdbcDataSource" ref="PermReportDS" />
+		<property name="subReportUrls">
+			<map>
+				<entry key="artLogSubReport" value="/WEB-INF/reports/compiled/ArtLogSubReport2.jasper">
+				</entry>
+				<entry key="artLogTotalsSubReport"
+					value="/WEB-INF/reports/compiled/ArtLogTotalsSubReport2.jasper">
+				</entry>
+			</map>
+		</property>
+	</bean>
+	
+	<bean id="InternalPermissionRequestPdfReport" class="com.wiley.permissions.web.shared.controllers.reports.PdfReportView">
+		<property name="url" value="/WEB-INF/reports/compiled/MultiReport.jasper" />
+		<property name="jdbcDataSource" ref="PermReportDS" />
+		<property name="subReportUrls">
+			<map>
+				<entry key="poSubReport" value="/WEB-INF/reports/compiled/InternalPermissionRequestReport2.jasper">
+				</entry>
+				<entry key="sourceSubReport" value="/WEB-INF/reports/compiled/POSourceReport2.jasper">
+				</entry>
+				<entry key="assetsSubReport" value="/WEB-INF/reports/compiled/POAssetsReport2.jasper">
+				</entry>
+			</map>
+		</property>
+	</bean>
+
+	<bean id="InternalPermissionRequestWMPdfReport" class="com.wiley.permissions.web.shared.controllers.reports.PdfReportView">
+		<property name="url" value="/WEB-INF/reports/compiled/MultiReport.jasper" />
+		<property name="jdbcDataSource" ref="PermReportDS" />
+		<property name="subReportUrls">
+			<map>
+				<entry key="poSubReport" value="/WEB-INF/reports/compiled/InternalPermissionRequestReport3.jasper">
+				</entry>
+				<entry key="sourceSubReport" value="/WEB-INF/reports/compiled/POSourceReport2.jasper">
+				</entry>
+				<entry key="assetsSubReport" value="/WEB-INF/reports/compiled/RequestAssetsReport2.jasper">
+				</entry>
+			</map>
+		</property>
+	</bean>
+
+	<bean id="PermissionRequestPdfForm" class="com.wiley.permissions.web.shared.controllers.reports.PdfReportView">
+		<property name="url" value="/WEB-INF/reports/compiled/MultiReport.jasper" />
+		<property name="jdbcDataSource" ref="PermReportDS" />
+		<property name="subReportUrls">
+			<map>
+				<entry key="poSubReport" value="/WEB-INF/reports/compiled/PermissionRequestReport3.jasper">
+				</entry>
+				<entry key="sourceSubReport" value="/WEB-INF/reports/compiled/POSourceReport2.jasper">
+				</entry>
+				<entry key="assetsSubReport" value="/WEB-INF/reports/compiled/RequestAssetsReport2.jasper">
+				</entry>
+			</map>
+		</property>
+	</bean>
+
+	
+	<bean name="/app/product/prform.pdf"
+		class="com.wiley.permissions.web.shared.controllers.reports.GenerateRequestFormPdfController">
+		<property name="pdfView" ref="PermissionRequestPdfForm" />
+		<property name="sourceDataSource" ref="PermReportDS" />
+		<property name="poRepository" ref="repository.PurchaseOrderRepository" />
+	</bean>
+	
+	
+	
+	<bean id="summaryExcelView" class="com.wiley.permissions.web.shared.controllers.reports.ExcelViewUsingResource">
+		<!-- In this case the url is really a resource path. -->
+		<property name="url" value="/PermissionSummaryBlank.xls" />
+	</bean>
+
+	<!--  Start : Added for DM-284 -->
+	<bean id="newPermissionSummaryExcelView" class="com.wiley.permissions.web.shared.controllers.reports.ExcelViewUsingResource">
+		<!-- In this case the url is really a resource path. -->
+		<property name="url" value="/NewPermissionSummaryBlank.xls" />
+	</bean>
+	<!-- End : Added for DM-284 -->
+
+	<bean id="sourceSummaryExcelView" class="com.wiley.permissions.web.shared.controllers.reports.ExcelViewUsingResource">
+		<!-- In this case the url is really a resource path. -->
+		<property name="url" value="/SourceSummaryBlank.xls" />
+	</bean>
+
+	<bean id="commonWorkDetailExcelView" class="com.wiley.permissions.web.shared.controllers.reports.ExcelViewUsingResource">
+		<!-- In this case the url is really a resource path. -->
+		<property name="url" value="/SourceSummaryBlank.xls" />
+	</bean>
+
+	<bean id="photocopyrightExcelView" class="com.wiley.permissions.web.shared.controllers.reports.ExcelViewUsingResource">
+		<!-- In this case the url is really a resource path. -->
+		<property name="url" value="/photocopyrightReport.xls" />
+	</bean>
+	
+	<bean id="photoEditorStatusExcelView" class="com.wiley.permissions.web.shared.controllers.reports.ExcelViewUsingResource">
+		<!-- In this case the url is really a resource path. -->
+		<property name="url" value="/photoEditorStatusReport.xls" />
+	</bean>
+	
+	<!-- Added for 'Report For Legal' - Start -->
+	<bean id="reportLegalExcelView" class="com.wiley.permissions.web.shared.controllers.reports.ExcelViewUsingResource">
+		<!-- In this case the url is really a resource path. -->
+		<property name="url" value="/reportForLegalBlank.xls" />
+	</bean>
+	<!-- Added for 'Report For Legal' - End -->
+	
+	<!-- Added for DM-534 -->
+	<bean id="assetExportExcelView" class="com.wiley.permissions.web.shared.controllers.reports.ExcelViewUsingResourceNew">
+		<!-- In this case the url is really a resource path. -->
+		<property name="url" value="/AssetExportBlank.xlsm" />
+		<property name="commonWorkService" ref="services.CommonWorkService" />
+		<property name="saveExcelFilesUrl" value="${PERMISSIONS_HOME}/excelFiles"/>
+	</bean>
+	<!-- Added for DM-534 -->
+	
+	<bean name="/sapp/panels/*"
+			class="com.wiley.permissions.web.internal.controllers.landing.PanelsController"
+		parent="controllers.BaseAnnotatedController">
+		<property name="commonWorkRepository" ref="repository.CommonWorkRepository" />
+		<property name="productService" ref="services.ProductService" />
+		<property name="userRepository" ref="repository.UserRepository" />
+	</bean>
+
+	<bean name="/sapp/commonwork/report/*"
+		class="com.wiley.permissions.web.internal.controllers.reports.ReportsController"
+		parent="controllers.BaseAnnotatedController">
+
+		<property name="commonWorkRepository" ref="repository.CommonWorkRepository" />
+		<property name="productRepository" ref="repository.ProductRepository" />
+		<property name="assetUseRepository" ref="repository.AssetUseRepository" />
+		<property name="userRepository" ref="repository.UserRepository" />
+		<property name="contractRepository" ref="repository.ContractRepository" />
+		<property name="sourceRepository" ref="repository.SourceRepository" />
+
+		<property name="assetUseIndexService" ref="services.AssetUseIndexService" />
+		<property name="productService" ref="services.ProductService" />
+		<property name="commonWorkService" ref="services.CommonWorkService" />
+		
+		<property name="productIndexService" ref="services.ProductIndexService" />
+
+		<property name="excelView" ref="excelView" />
+		<property name="summaryExcelView" ref="summaryExcelView" />
+		<!--  Start : Added for DM-284 -->
+		<property name="newPermissionSummaryExcelView" ref="newPermissionSummaryExcelView" />
+		<!--  End : Added for DM-284 -->
+		<property name="sourceSummaryExcelView" ref="sourceSummaryExcelView" />
+		<property name="commonWorkDetailExcelView" ref="commonWorkDetailExcelView" />
+		<property name="permissionSummaryView" value="pages.product.permission.summary" />
+		<property name="photocopyrightExcelView" ref="photocopyrightExcelView" />
+		<property name="viewPhotoEditorStatusExcelView" value="pages.product.viewPhotoEditorStatusExcelView" />
+		<property name="userLandingViewName" value="redirect:/sapp/product/userLanding/main" />
+		<property name="viewDivestmentReportExcelView" value="pages.product.viewDivestmentReportExcelView" />
+		<!-- Added for 'Report For Legal' - Start -->
+		<property name="reportLegalExcelView" ref="reportLegalExcelView" />
+		<!-- Added for 'Report For Legal' - End -->
+		<!-- Added for DM-534 - Start -->
+		<property name="assetExportExcelView" ref="assetExportExcelView" />
+		<!-- Added for DNM-534 - End -->
+		<property name="assetRepository" ref="repository.AssetRepository" />
+	</bean>
+
+	<bean name="/sapp/commonwork/report/viewPhotocopyrightReport.xls"
+		class="org.springframework.web.servlet.mvc.ParameterizableViewController">
+		<property name="viewName" value="pages.product.viewPhotocopyrightExcelView" />
+	</bean>
+	
+	<bean name="/sapp/commonwork/report/artLog.pdf"
+		class="com.wiley.permissions.web.internal.controllers.reports.ReportsController"
+		parent="controllers.BaseAnnotatedController">
+		<property name="commonWorkRepository" ref="repository.CommonWorkRepository" />
+		<property name="userRepository" ref="repository.UserRepository" />
+		<property name="pdfView" ref="ArtLogPdfReport" />
+	</bean>
+
+	<bean name="/sapp/commonwork/report/viewExcludedAssets"
+		class="com.wiley.permissions.web.internal.controllers.reports.ReportsController"
+		parent="controllers.BaseAnnotatedController">
+		<property name="assetUseRepository" ref="repository.AssetUseRepository" />
+		<property name="commonWorkRepository" ref="repository.CommonWorkRepository" />
+		<property name="userRepository" ref="repository.UserRepository" />
+		<property name="productRepository" ref="repository.ProductRepository" />
+
+		<property name="excludedAssetsView" value="pages.product.list.excludedAssetUse" />
+		<property name="userLandingViewName" value="redirect:/sapp/product/userLanding" />
+	</bean>
+		
+	<bean name="/app/product/internalpr.pdf"
+		class="com.wiley.permissions.web.shared.controllers.reports.GeneratePOPdfController">
+		<property name="pdfView" ref="InternalPermissionRequestPdfReport" />
+		<property name="sourceDataSource" ref="PermReportDS" />
+		<property name="poRepository" ref="repository.PurchaseOrderRepository" />		
+	</bean>
+
+	<bean name="/app/product/internalpr3.pdf"
+		class="com.wiley.permissions.web.shared.controllers.reports.GeneratePOPdfController">
+		<property name="pdfView" ref="InternalPermissionRequestWMPdfReport" />
+		<property name="sourceDataSource" ref="PermReportDS" />
+		<property name="poRepository" ref="repository.PurchaseOrderRepository" />		
+	</bean>
+	
+	<bean id="excelView" class="com.wiley.permissions.web.shared.controllers.reports.ExcelView">
+	</bean>
+	
+	<bean name="/sapp/report/compliance/*"
+		class="com.wiley.permissions.web.internal.controllers.reports.ComplianceController"
+		parent="controllers.BaseAnnotatedController">
+		
+		<property name="productIndexService" ref="services.ProductIndexService" />
+		<property name="productRepository" ref="repository.ProductRepository" />
+		<property name="excelView" ref="excelView" />
+		<property name="internalUrl" value="${internal.url}" />
+	</bean>
+
+	<!-- /Product / -->
+	<bean name="/sapp/product/userLanding/*"
+			class="com.wiley.permissions.web.internal.controllers.landing.UserLandingController"
+		parent="controllers.BaseAnnotatedController">
+		<property name="userRepository" ref="repository.UserRepository" />
+		<property name="commonWorkRepository" ref="repository.CommonWorkRepository" />
+		<property name="productRepository" ref="repository.ProductRepository" />
+		<property name="systemNotificationRepository" ref="repository.SystemNotificationRepository" />
+		<property name="commonWorkService" ref="services.CommonWorkService" />
+		<property name="productService" ref="services.ProductService" />
+	</bean>
+	
+	<bean name="/sapp/product/product/*"
+		class="com.wiley.permissions.web.internal.controllers.product.MainProductController"
+		parent="controllers.BaseAnnotatedController">
+
+		<property name="searchViewName" value="searchProduct" />
+		<property name="advancedSearchViewName" value="advancedSearch" />
+		<property name="landingViewName" value="redirect:/sapp/cwlanding/scroll" />
+		<property name="userLandingViewName" value="redirect:/sapp/product/userLanding" />
+		<property name="adminUserViewName"
+			value="redirect:/sapp/admin/manageUser/submit?page=1" />
+		<property name="adminViewName" value="redirect:/sapp/admin/main" />
+
+		<property name="productRepository" ref="repository.ProductRepository" />
+		<property name="productService" ref="services.ProductService" />
+		<property name="localProductService" ref="services.LocalProductService" />
+		<property name="commonWorkService" ref="services.CommonWorkService" />
+	</bean>
+ 
+ 	<bean name="/app/security/login/*"
+		class="com.wiley.permissions.web.internal.controllers.myaccount.LoginController"
+		parent="controllers.BaseLoginController">
+		
+		<property name="ssoUserLookupUtility" ref="utility.InternalSSOUserLookupUtility" />
+	</bean>
+	
+ 	<bean name="/sapp/myaccount/*"
+		class="com.wiley.permissions.web.internal.controllers.myaccount.MyAccountController"
+		parent="controllers.BaseAnnotatedController">
+
+		<property name="securityService" ref="services.SecurityService" />
+		<property name="userRepository" ref="repository.UserRepository" />
+		<property name="conditionRepository" ref="repository.ConditionRepository" />
+
+		<property name="pages">
+			<list>
+				<value>pages.myaccount.view</value>
+				<value>pages.myaccount.changePassword</value>
+				<value>pages.myaccount.managePODefaults</value>
+				<value>pages.myaccount.managePaymentRequestDefaults</value>
+				<value>pages.myaccount.manageProductLandingDefaults</value>
+				<value>pages.myaccount.manageUserDefaults</value>
+				<value>pages.myaccount.manageUserSources</value>
+			</list>
+		</property>
+
+		<!-- formView is not used -->
+		<property name="formView" value="pages.myaccount.view" />
+		<property name="successView" value="redirect:/sapp/myaccount/form" />
+	</bean>
+	
+	<bean name="/sapp/landing/authorAccess/*"
+		class="com.wiley.permissions.web.internal.controllers.landing.AuthorAccessController"
+		parent="controllers.BaseAnnotatedController">
+
+		<property name="formView" value="pages.landing.authorAccess" />
+		<property name="successView" value="redirect:/sapp/landing/authorAccess/save" />
+		<property name="privilegeView" value="redirect:/sapp/landing/authorAccess/privileges" />
+		
+		<property name="commonWorkService" ref="services.CommonWorkService" />
+		<property name="commonWorkRepository" ref="repository.CommonWorkRepository" />
+		<property name="userRepository" ref="repository.UserRepository" />
+		<property name="securityService" ref="services.SecurityService" />
+		<property name="externalUserLdapClient" ref="utility.ExternalUserLdapClient" />
+		<property name="externalSSOUserLookupUtility" ref="utility.ExternalSSOUserLookupUtility" />
+	</bean>
+
+	<!-- This is all security administration stuff -->
+	<bean name="/sapp/admin/main"
+		class="org.springframework.web.servlet.mvc.ParameterizableViewController">
+
+		<property name="viewName" value="pages.admin.main" />
+	</bean>
+
+	<bean name="/sapp/admin/users/*"
+		class="com.wiley.permissions.web.internal.controllers.admin.UserMainController"
+		parent="controllers.BaseAnnotatedController">
+
+		<property name="userRepository" ref="repository.UserRepository" />
+
+		<property name="successView" value="pages.admin.users.main" />
+
+		<property name="manageUserURL" value="/sapp/admin/manageUser/formNew" />
+	</bean>
+
+	<bean name="/sapp/admin/manageUser/*"
+		class="com.wiley.permissions.web.internal.controllers.admin.ManageUserController"
+		parent="controllers.BaseAnnotatedController">
+
+		<property name="securityService" ref="services.SecurityService" />
+
+		<property name="searchView"
+			value="redirect:/sapp/product/product/search?target=adminUserViewName" />
+		<property name="userProductView" value="pages.admin.user.manageUserProduct" />
+
+		<property name="formView" value="pages.admin.user.manage" />
+		<property name="successView" value="redirect:/sapp/admin/users/handle" />
+		<property name="productRepository" ref="repository.ProductRepository" />
+		<property name="userRepository" ref="repository.UserRepository" />
+		<property name="commonWorkService" ref="services.CommonWorkService" />
+		<property name="externalSSOUserLookupUtility" ref="utility.ExternalSSOUserLookupUtility" />
+		<property name="externalUserLdapClient" ref="utility.ExternalUserLdapClient" />
+	</bean>
+	
+	<bean name="/sapp/admin/sourceGroups"
+		class="com.wiley.permissions.web.internal.controllers.admin.SourceGroupMainController"
+		parent="controllers.BaseAnnotatedController">
+
+		<property name="successView" value="pages.admin.sourceGroups.main" />
+		<property name="userRepository" ref="repository.UserRepository" />
+		<property name="sourceRepository" ref="repository.SourceRepository" />
+		<property name="manageSourceGroupURL" value="/sapp/admin/manageSourceGroup/form" />
+	</bean>
+	
+	<bean name="/sapp/admin/manageSourceGroup/*"
+		class="com.wiley.permissions.web.internal.controllers.admin.ManageSourceGroupController"
+		parent="controllers.BaseAnnotatedController">
+
+		<property name="userRepository" ref="repository.UserRepository" />
+		<property name="sourceRepository" ref="repository.SourceRepository" />
+
+		<property name="pages">
+			<list>
+				<value>pages.admin.source.group.manage</value>
+				<value>pages.admin.source.group.findSource</value>
+				<value>pages.admin.source.group.manageRoyaltyFreeDeal</value>
+			</list>
+		</property>
+
+		<property name="finishViewName" value="redirect:/sapp/admin/sourceGroups" />
+	</bean>
+
+	<bean name="/sapp/admin/userGroups"
+		class="com.wiley.permissions.web.internal.controllers.admin.UserGroupMainController"
+		parent="controllers.BaseAnnotatedController">
+
+		<property name="successView" value="pages.admin.userGroups.main" />
+		<property name="userRepository" ref="repository.UserRepository" />
+		<property name="manageUserGroupURL" value="/sapp/admin/manageUserGroup/form" />
+	</bean>
+
+	<bean name="/sapp/admin/guidelines/*"
+		class="com.wiley.permissions.web.shared.controllers.landing.ManageGuidelinesController"
+		parent="controllers.BaseAnnotatedController">
+
+		<property name="successView" value="pages.admin.guidelines.main" />
+	</bean>
+
+	<bean name="/sapp/admin/manageUserGroup/*"
+		class="com.wiley.permissions.web.internal.controllers.admin.ManageUserGroupController"
+		parent="controllers.BaseAnnotatedController">
+
+		<property name="securityService" ref="services.SecurityService" />
+		<property name="userRepository" ref="repository.UserRepository" />
+
+		<property name="formView" value="pages.admin.userGroup.manage" />
+		<property name="manageView" value="pages.admin.userGroup.manage" />
+		<property name="findUserView" value="pages.admin.userGroup.findUser" />
+
+		<property name="finishView" value="redirect:/sapp/admin/userGroups" />
+	</bean>
+
+	<bean name="/sapp/admin/testMessages"
+		class="com.wiley.permissions.web.internal.controllers.admin.ManageMessageController"
+		parent="controllers.BaseAnnotatedController">
+
+		<property name="formView" value="pages.admin.testMessages" />
+		<property name="successView" value="pages.admin.testMessages" />
+		<property name="outgoingMessageService" ref="services.message.CmsMessageService" />
+		<property name="productService" ref="services.ProductService" />
+		<property name="PEMessageService" ref="services.message.PEMessageService" />
+	</bean>
+
+	<bean name="/sapp/admin/manageCachedMessageList"
+		class="com.wiley.permissions.web.internal.controllers.admin.ManageCachedMessageListController"
+		parent="controllers.BaseAnnotatedController">
+
+		<property name="formView" value="pages.admin.manageCachedMessageList" />
+		<property name="successView" value="pages.admin.manageCachedMessageList" />
+		<property name="cachedMessageRepository" ref="repository.CachedMessageRepository" />
+	</bean>
+
+	<bean name="/sapp/admin/manageCachedMessageObject"
+		class="com.wiley.permissions.web.internal.controllers.admin.ManageCachedMessageController"
+		parent="controllers.BaseAnnotatedController">
+
+		<property name="formView" value="pages.admin.manageCachedMessageObject" />
+		<property name="successView" value="redirect:/sapp/admin/manageCachedMessageList" />
+		<property name="cachedMessageRepository" ref="repository.CachedMessageRepository" />
+	</bean>
+
+	<bean name="/sapp/admin/sourcegroup/madeal/*"
+		class="com.wiley.permissions.web.internal.controllers.admin.MasterAgreementDealController"
+		parent="controllers.BaseAnnotatedController">
+
+		<property name="formView" value="pages.admin.madeal.manage" />
+		<property name="successView" value="redirect:/sapp/admin/sourceGroups?mode=MODIFY_CHILD" />
+
+		<property name="sourceService" ref="services.SourceService" />
+		<property name="conditionRepository" ref="repository.ConditionRepository" />
+		<property name="sourceRepository" ref="repository.SourceRepository" />
+		<property name="contractRepository" ref="repository.ContractRepository" />
+	</bean>
+
+	<bean name="/sapp/admin/assetUseIndex/*"
+		class="com.wiley.permissions.web.internal.controllers.admin.AssetUseIndexController"
+		parent="controllers.BaseAnnotatedController">
+
+		<property name="formView" value="pages.admin.assetUseIndex" />
+		<property name="successView" value="redirect:/sapp/admin/assetUseIndex/load" />
+
+		<property name="assetUseIndexService" ref="services.AssetUseIndexService" />
+	</bean>
+	
+	 <bean name="/sapp/assetUseIndex/*"
+		class="com.wiley.permissions.web.internal.controllers.landing.AssetUseIndexController"
+		parent="controllers.BaseAnnotatedController">
+
+		<property name="formView" value="pages.landing.assetUseIndex" />
+		<property name="successView" value="redirect:/sapp/assetUseIndex/load" />
+		
+
+		<property name="assetUseIndexService" ref="services.AssetUseIndexService" />
+	</bean>
+	
+	<bean name="/sapp/admin/productIndex/*"
+		class="com.wiley.permissions.web.internal.controllers.admin.ProductIndexController"
+		parent="controllers.BaseAnnotatedController">
+
+		<property name="formView" value="pages.admin.productIndex" />
+		<property name="successView" value="redirect:/sapp/admin/productIndex/load" />
+
+		<property name="productIndexService" ref="services.ProductIndexService" />
+	</bean>
+		
+	<bean name="/sapp/admin/devMisc/*"
+		class="com.wiley.permissions.web.internal.controllers.admin.DevMiscController"
+		parent="controllers.BaseAnnotatedController">
+
+		<property name="formView" value="pages.admin.devMisc" />
+		<property name="successView" value="redirect:/sapp/admin/devMisc/load" />
+
+		<property name="productService" ref="services.ProductService" />
+		<property name="assetRepository" ref="repository.AssetRepository" />
+		<property name="securityService" ref="services.SecurityService" />
+		<property name="commonWorkService" ref="services.CommonWorkService" />
+		<!-- Commented because the change in DevMiscController is not tagged and deployed yet -->
+		<!-- <property name="commonWorkRepository" ref="repository.CommonWorkRepository" /> -->
+		<property name="devMiscService" ref="services.DevMiscService" />
+	</bean>
+	
+	<bean name="/sapp/admin/performance/*"
+		class="com.wiley.permissions.web.internal.controllers.admin.PerformanceController"
+		parent="controllers.BaseAnnotatedController">
+
+		<property name="formView" value="pages.admin.performance" />
+		<property name="successView" value="redirect:/sapp/admin/performance/load" />
+		
+		<property name="assetUseService" ref="services.AssetUseService" />
+	</bean>
+	
+	<bean name="/sapp/admin/testTree/*"
+		class="com.wiley.permissions.web.internal.controllers.admin.TestTreeController"
+		parent="controllers.BaseAnnotatedController">
+
+		<property name="formView" value="pages.admin.testTree" />
+		<property name="successView" value="redirect:/sapp/admin/testTree/view" />
+		
+		<property name="conditionRepository" ref="repository.ConditionRepository" />
+	</bean>
+	
+	<bean name="/sapp/admin/manageSystemNotification/*"
+		class="com.wiley.permissions.web.internal.controllers.admin.ManageNotificationController"
+		parent="controllers.BaseAnnotatedController">
+
+		<property name="securityService" ref="services.SecurityService" />
+		<property name="formView" value="pages.admin.system.notification.manage" />
+		<property name="successView" value="redirect:/sapp/product/userLanding/main" />
+		<property name="systemNotificationRepository" ref="repository.SystemNotificationRepository" />
+		<property name="userRepository" ref="repository.UserRepository" />
+	</bean>
+	
+	<bean name="/sapp/admin/mergeSource/*"
+		class="com.wiley.permissions.web.internal.controllers.admin.SourceMergeController"
+		parent="controllers.BaseAnnotatedController">
+
+		<property name="formView" value="pages.admin.source.merge" />
+		<property name="successView" value="pages.admin.source.merge" />
+		<property name="sourceRepository" ref="repository.SourceRepository" />
+		<property name="assetUseIndexService" ref="services.AssetUseIndexService" />
+	</bean>
+		
+	<bean name="/sapp/admin/multiSourceSelection/*"
+		class="com.wiley.permissions.web.internal.controllers.admin.MultiSourceSelectionController"
+		parent="controllers.BaseAnnotatedController">
+		
+		<property name="successView" value="pages.admin.sourceGroups.main" />
+		<property name="sourceRepository" ref="repository.SourceRepository" />
+	</bean>
+	
+	<bean name="/sapp/admin/manageComplianceEmails/*"
+		class="com.wiley.permissions.web.internal.controllers.admin.ManageComplianceEmailsController"
+		parent="controllers.BaseAnnotatedController">
+
+		<property name="formView" value="pages.admin.complience.email" />
+		<property name="successView" value="redirect:/sapp/cwlanding/main" />
+		<property name="productRepository" ref="repository.ProductRepository" />
+		<property name="contractService" ref="services.ContractService" />
+	</bean>	
+	
+	<bean name="/sapp/admin/manageFavoriteGroup/*"
+		class="com.wiley.permissions.web.internal.controllers.admin.ManageFavoriteSourceGroupsController"
+		parent="controllers.BaseAnnotatedController">
+
+		<property name="formView" value="pages.admin.manage.favorite.source.groups" />
+		<property name="successView" value="pages.admin.manage.favorite.source.groups" />
+		<property name="sourceRepository" ref="repository.SourceRepository" />
+	</bean>
+
+	<bean name="/sapp/cwlanding/*"
+		class="com.wiley.permissions.web.internal.controllers.landing.CwLandingController"
+		parent="LandingController">
+	</bean>
+
+	<bean name="/sapp/landing/cwConditions/*"
+		class="com.wiley.permissions.web.internal.controllers.landing.CWConditionController"
+		parent="controllers.BaseAnnotatedController">
+
+		<property name="formView" value="pages.landing.cw.conditions" />
+		<property name="successView" value="redirect:/sapp/cwlanding/main" />
+
+		<property name="commonWorkService" ref="services.CommonWorkService" />
+		<property name="commonWorkRepository" ref="repository.CommonWorkRepository" />
+		<property name="conditionRepository" ref="repository.ConditionRepository" />
+	</bean>
+</beans>

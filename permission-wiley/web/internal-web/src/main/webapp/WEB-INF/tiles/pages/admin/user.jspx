@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root 
+	version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+>
+	
+	<jsp:directive.page pageEncoding="UTF-8" />
+	
+	<tiles:importAttribute name="user"/>
+	
+	<jsp:body>
+		<table>
+			<tr>
+				<td class="label">
+					Name:
+				</td>			
+				<td class="value">
+					${user.firstName} ${user.lastName}
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="label">
+					Type:
+				</td>
+				
+				<td class="value">
+					${user.type}
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="label">
+					Enabled:
+				</td>
+				
+				<td class="value">
+					${wileyfn:formatBoolean(user.enabled)}
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="label">
+					First Name:
+				</td>
+				
+				<td class="value">
+					${user.firstName}
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="label">
+					Last Name:
+				</td>
+				
+				<td class="value">
+					${user.lastName}
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="label">
+					E-mail:
+				</td>
+				
+				<td class="value">
+					${user.email}
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="label">
+					Synchronization Code:
+				</td>
+				
+				<td class="value">
+					${user.code != null ? user.code : "&amp;nbsp;"}
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="label">
+					LDAP DN:
+				</td>
+				
+				<td class="value">
+					${user.code != null ? user.code : "&amp;nbsp;"}
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="label">
+					Username:
+				</td>
+				
+				<td class="value">
+					${user.code != null ? user.code : "&amp;nbsp;"}
+				</td>
+			</tr>
+			
+			<c:if test="${not empty user.userDefaults}">
+				<tr>
+					<td colspan="3">
+						<h2>Functionality Defaults</h2>
+					</td>
+				</tr>
+				
+				<tr>
+					<td class="label">
+						P.O. Address
+					</td>
+					
+					<td class="value">
+						${user.userDefaults.returnAddress != null ? user.userDefaults.returnAddress : "&amp;nbsp;"}
+					</td>
+				</tr>
+				
+				<tr>
+					<td class="label">
+						P.O. User Signature
+					</td>
+					
+					<td class="value">
+						${user.userDefaults.userSignature != null ? user.userDefaults.userSignature : "&amp;nbsp;"}
+					</td>
+				</tr>
+				
+				<tr>
+					<td class="label">
+						Cost Center:
+					</td>
+					
+					<td class="value">
+						${user.userDefaults.costCenter != null ? user.userDefaults.costCenter : "&amp;nbsp;"}
+					</td>
+				</tr>
+				
+				<tr>
+					<td class="label">
+						Account Number and Sub Code:
+					</td>
+					
+					<td class="value">
+						${user.userDefaults.account == null ? "&amp;nbsp;" : user.userDefaults.account.accountNumberSubCodeDescription}
+					</td>
+				</tr>
+			</c:if>
+		</table>
+	</jsp:body>
+</jsp:root>

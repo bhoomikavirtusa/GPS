@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+		http://www.springframework.org/schema/util
+		http://www.springframework.org/schema/util/spring-util-4.3.xsd
+	">
+
+	<bean id="services.RuleBaseFacade"
+		class="com.wiley.permissions.validator.rules.base.RuleBaseFacadeImpl">
+		<property name="resources" value="classpath:rules/**/*.drl" />
+	</bean>
+
+	<bean id="services.ValidatorService"
+		class="com.wiley.permissions.validator.service.ValidationServiceImpl">
+		<property name="ruleBaseFacade" ref="services.RuleBaseFacade" />
+	</bean>
+
+	<bean id="com.wiley.permissions.sampleRuleService"
+		class="com.wiley.permissions.validator.service.SampleRuleService">
+		<property name="ruleBaseFacade" ref="services.RuleBaseFacade" />
+	</bean>
+
+	<bean id="services.RuleService"
+		class="com.wiley.permissions.validator.rules.service.BaseRuleService">
+		<property name="ruleBaseFacade" ref="services.RuleBaseFacade" />
+	</bean>
+
+	<bean id="services.PermissionStatusValidationService"
+		class="com.wiley.permissions.validator.service.permissionstatus.PermissionStatusValidationServiceImpl">
+		<property name="ruleService" ref="services.RuleService" />		
+		<property name="newTransactionService" ref="services.PermissionStatusValidationServiceRequiresNew"/>
+		
+		<property name="assetUseRepository" ref="repository.AssetUseRepository"/>
+		<property name="commonWorkRepository" ref="repository.CommonWorkRepository"/>
+		<property name="outgoingMessageService" ref="services.message.CmsMessageService" />
+		<property name="monitor" ref="utility.PerformanceMonitor" />
+	</bean>
+
+	<bean id="services.PermissionStatusValidationServiceRequiresNew"
+		class="com.wiley.permissions.validator.service.permissionstatus.PermissionStatusRequiresNew">
+		<property name="ruleService" ref="services.RuleService" />		
+		
+		<property name="assetUseRepository" ref="repository.AssetUseRepository" />
+		<property name="purchaseOrderService" ref="services.PurchaseOrderService" />
+		<property name="contractService" ref="services.ContractService" />
+		<property name="conditionRepository" ref="repository.ConditionRepository" />
+		<property name="monitor" ref="utility.PerformanceMonitor" />
+	</bean>
+
+</beans>

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+
+	<c:url var="invoiceListUrl" value="/sapp/landing/invoiceList" />
+	<c:url var="viewContractUrl" value="/sapp/permissions/contract/view_start" />
+	<c:url var="viewPoFormUrl" value="/sapp/permissions/po/download_po_start" />
+	<c:url var="payContractUrl" value="/sapp/permissions/paymentrequest/select_contract_create_form?contractId=" />
+	<c:url var="viewContractPaymentUrl" value="/sapp/permissions/paymentrequest/paid_view_contract?contractId=" />
+
+	<c:url var="invoiceTableRowTemplateUrl" value="/jtemplates/invoiceTableRow.html" />
+
+	<script type="text/javascript">
+	//<![CDATA[
+
+	var invoiceTable;
+
+	/*
+	 * creates the main dataTable
+	 */
+	function createinvoiceTable ( id, placeHolder ) {
+		invoiceTable = $(placeHolder).dataTable( {
+			"aoColumnDefs" : [
+				{"mDataProp" : "source", 		"sTitle" : "Source", 		"aTargets": [ 0 ], "sWidth" : "15%", "bSortable": true},
+				{"mDataProp" : "poId",			"sTitle" : "PO #", 			"aTargets": [ 1 ], "sWidth" : "5%",  "bSortable": false},
+				{"mDataProp" : "contractNumber","sTitle" : "Invoice #", 	"aTargets": [ 2 ], "sWidth" : "5%",  "bSortable": false},
+				{"mDataProp" : "contractDate", 	"sTitle" : "Invoice Date", 	"aTargets": [ 3 ], "sWidth" : "10%", "bSortable": false},
+				{"mDataProp" : "description", 	"sTitle" : "Description",	"aTargets": [ 4 ], "sWidth" : "20%", "bSortable": false},
+				{"mDataProp" : "mediaType",  	"sTitle" : "Type", 			"aTargets": [ 5 ], "sWidth" : "10%", "bSortable": false},
+				{"mDataProp" : "usage", 	  	"sTitle" : "Usage", 		"aTargets": [ 6 ], "sWidth" : "10%", "bSortable": false},
+				{"mDataProp" : "position",		"sTitle" : "Position", 		"aTargets": [ 7 ], "sWidth" : "10%", "bSortable": false},
+				{"mDataProp" : "status", 		"sTitle" : "Status", 		"aTargets": [ 8 ], "sWidth" : "15%", "bSortable": false}
+							
+			],
+			"fnRowCallback": function( nRow, aData, iDisplayIndex ) {
+				$(nRow).setTemplateURL('${invoiceTableRowTemplateUrl}');
+		        $(nRow).setParam('aData', aData);
+		        $(nRow).setParam('cwId', ${param.cwId});
+		        $(nRow).processTemplate();
+
+		       	// bind events
+				$('a.viewInvoice', nRow).unbind('click').bind('click', fnClickViewContractDetailsHandler);
+				$('a.viewPermissions', nRow).unbind('click').bind ('click', fnClickViewPermissionsHandler);
+				$('a.pay', nRow).unbind('click').bind('click', fnClickPayContractHandler);
+				$('a.paid', nRow).unbind('click').bind('click', fnClickViewContractPaymentHandler);
+
+				// allow row to be disabled 
+				$(nRow).addClass('disable');
+				$('td', nRow).addClass('disable');
+				return nRow;
+			},			
+			"sAjaxSource": '${invoiceListUrl}?cwId=' + id,
+			"sScrollY": "500px",
+			"sDom": "rti",
+			"bPaginate": false,
+			"bDeferRender": true,
+			"bStateSave": true,
+			"fnInitComplete": function() {
+				fnDisablePage();
+			}			
+		});
+
+		return invoiceTable;
+	}
+	//]]>		
+	</script>
+
+	<script type="text/javascript">
+	//<![CDATA[
+		function fnClickViewContractDetailsHandler (event) {
+			var invoiceId = this.id;
+			$("#modalDiv").load('${viewContractUrl}?cId=' + invoiceId, function() {
+				openModalDialog('View contract');
+	        });
+		}
+		
+		function fnClickViewPermissionsHandler (event) {
+			var poId = this.id;
+			$("#modalDiv").load('${viewPoFormUrl}?poId=' + poId, function() {
+				openModalDialog('View form');
+	        });
+		}
+		
+		function fnClickPayContractHandler (event) {
+			var invoiceId = this.id;
+			$("#modalDiv").load('${payContractUrl}' + invoiceId, function() {
+				openModalDialog('Pay Contract');
+	        });
+		}
+		
+		function fnClickViewContractPaymentHandler (event) {
+			var invoiceId = this.id;
+			$("#modalDiv").load('${viewContractPaymentUrl}' + invoiceId, function() {
+				openModalDialog('View Payment');
+	        });
+		}
+		
+		$(document).ready(function() {
+			createinvoiceTable (${param.cwId}, '#invoiceTable');
+		} );
+	//]]>
+	</script>
+	
+	<table class="display" id="invoiceTable" style="width: 100%; font-size: 9pt">
+		<thead>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+</jsp:root>

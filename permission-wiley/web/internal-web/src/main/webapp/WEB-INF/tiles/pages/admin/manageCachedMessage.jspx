@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+>
+
+	<script type="text/javascript">
+	function resendMsg() {
+		var form = document.getElementById('cachedMessage');
+		form.elements['deliveryAttempts'].value = 0;
+		form.elements['status'].value = 'FAILED';
+	}
+	</script>
+
+	<form:form modelAttribute="cachedMessage">
+	<table class="width100">
+		<tr>
+		    <th>Cached Message General Information</th>
+			<th></th>
+        </tr>
+	
+		<tr>
+		    <td class="label">Id</td>
+			<td>
+                ${cachedMessage.id}
+                <form:hidden path="id" />
+            </td>
+        </tr>
+        <tr>
+            <td class="label">Message id</td>
+		    <td>
+		        ${cachedMessage.messageId}
+		    </td>
+		</tr>
+		<tr>
+		    <td class="label">Status</td>
+            <td>
+            <form:select path="status">
+				<form:options items="${messageStatusArray}" itemValue="code" itemLabel="code" />
+			</form:select>
+		    </td>
+		</tr>
+		<tr>
+            <td class="label">Direction</td>
+		    <td>
+		        ${cachedMessage.direction}
+		    </td>
+		</tr>
+		<tr>
+		    <td class="label">Type</td>
+            <td>
+		        ${cachedMessage.type}
+		    </td>
+		</tr>
+		<tr>
+		    <td class="label"># Delivery Attempts</td>
+            <td>
+                <form:input path="deliveryAttempts" size="3" maxlength="3" />
+            </td>
+        </tr>
+		<tr>
+		    <td class="label">Last Delivery Attempt</td>
+            <td>
+                ${cachedMessage.lastDeliveryAttempt}
+            </td>
+        </tr>
+        <tr>
+            <td class="label">Last Updated Date</td>
+            <td>
+                ${cachedMessage.lastUpdatedDate}
+            </td>
+        </tr>
+        <tr>
+            <td class="label">Message</td>
+            <td>
+                <form:textarea path="message" rows="15" cols="100" />
+            </td>
+        </tr>
+        <tr>
+            <td class="label">External XML</td>
+            <td>
+                <form:textarea path="externalXml" rows="15" cols="100" />
+            </td>
+        </tr>
+        <tr>
+            <td class="label">Last Failure Message</td>
+            <td>
+			    ${cachedMessage.lastFailureMessage}
+			</td>
+	    </tr>
+	</table>
+	<div class="buttonset">		
+	<input type="submit" value="Modify" />
+	<input type="button" value="Resend Message" onclick="resendMsg();" />
+    (Resets Delivery Attempts to 0 and status to FAILED.)
+    </div>
+	</form:form>
+
+</jsp:root>

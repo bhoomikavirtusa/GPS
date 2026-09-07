@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="nextUrl" value="/sapp/landing/source/load_previous_edition_asset_save" />
+	<c:url var="prevUrl" value="/sapp/landing/source/submit_previous_edition_select_edition" />
+
+	<!--include as jspx so the jsp variable are recognized-->
+	<jsp:directive.include file="js/wizard.buttons.js.jspx" />
+
+	<h3>${sourceWizardForm.assetUse.asset.description}</h3>
+
+	<form:form modelAttribute="sourceWizardForm" action="${submitUrl}">
+		<form:hidden path="assetSelected" />
+		<table>
+			<tr>
+				<td>
+					From Previous Edition:
+				</td>
+				<td colspan="3">
+				
+					<c:if test="${null != sourceWizardForm.editions}">
+						<form:select path="edition">
+							<form:options items="${sourceWizardForm.editions}" itemValue="value" itemLabel="label" />
+						</form:select>
+					</c:if>
+				</td>
+			</tr>
+			
+			<tr>
+				<td> </td>
+				<td colspan="3">
+				<c:if test="${null != sourceWizardForm.assetsFound}">
+					Select the asset you want to copy and click next
+				</c:if>
+				<c:if test="${null == sourceWizardForm.assetsFound}">
+					No Assets Found for given search - press "Previous" and try a new search
+				</c:if>
+				</td>
+			</tr>
+		</table>
+		<table>			
+			<c:if test="${null != sourceWizardForm.assetsFound}">
+				<tr>
+				<td>Select</td>
+					<td>
+						Component 
+					</td>
+					<td>
+						Type of Asset 
+					</td>
+					<td>
+						Description of Asset 
+					</td>
+					<td>
+						Asset To be used as 
+					</td>
+					<td>
+						Position 
+					</td>
+				</tr>
+		
+				<c:forEach items="${sourceWizardForm.assetsFound}" var="asset" varStatus="status">
+					<tr class="${(status.index mod 2 == 0) ? 'even' : 'odd'}">				
+							<td>
+								<INPUT TYPE="radio" VALUE=" " onClick="this.form.assetSelected.value='${asset.assetId}';" />
+							</td>
+							<td>
+							 	${asset.component} 
+							</td>
+							<td>
+							 	${asset.mediaType} 
+							</td>
+							<td>
+							 	${asset.assetDescription} 
+							</td>
+							<td>
+							 	${asset.usage} 
+							</td>
+							<td>
+							 	${asset.pagePosition} 
+							</td>
+					</tr>
+				</c:forEach>
+			</c:if>
+				
+		</table>
+	</form:form>
+
+	<div class="buttonset">
+		<input type="button" id="prevB" value="Previous"/>
+		<input type="submit" id="nextB" value="Next" /> 
+		<a href="#" id="cancelLink" class="button">Cancel</a> 	
+	</div>	
+
+</jsp:root>

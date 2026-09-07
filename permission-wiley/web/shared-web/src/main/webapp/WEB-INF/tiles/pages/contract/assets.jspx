@@ -1,0 +1,528 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="nextUrl" value="/sapp/permissions/contract/submit_assets" />
+	<c:url var="prevUrl" value="${contractWizardForm.prevUrl}" />
+	<c:url var="uploadUrl" value="/sapp/permissions/contract/wizard_upload_file" />
+	<c:url var="deleteFileUrl" value="/sapp/permissions/contract/delete_file" />
+	<c:url var="thumbURL" value="/sapp/product/assetThumbnail" />
+	
+	<!--include as jspx so the jsp variable are recognized-->
+	<jsp:directive.include file="js/wizard.buttons.js.jspx" />
+
+	<div id="errorMessage" class="custom1">
+		<jsp:directive.include file="/WEB-INF/tiles/pages/include/generalMessage.jspx" />
+	</div>
+
+	<h3>Source ${contractWizardForm.source.name}</h3>
+	<table>
+		<tr>
+			<td>Source ID:</td>
+			<td>
+				<b>${contractWizardForm.source.jdeVendorNumber}</b>
+			</td>
+		</tr>
+		<c:if test="${not empty contact}">
+		<tr>
+			<td>Source contact:</td>
+			<td>
+				<b>${contact.name}</b>
+			</td>			
+		</tr>
+		</c:if>
+	</table>
+	
+	<hr/>
+	
+	Would like to upload a returned form/invoice file ?
+	<div id="agreement" style="margin-left: 2em;">
+	<form method="post" action="${uploadUrl}" enctype="multipart/form-data" id="uploadForm">
+		<input type="file" name="file" id="file" size="40" />
+		<!-- Instead of having submit button here we have JavaScript that auto-submits when file is changed -->
+	</form>
+	
+	<c:if test="${not empty contractWizardForm.contract.files}">
+		<tr><td> </td></tr>
+		<tr>
+			<td>
+				<b>Returned form(s)/invoice(s):</b>
+			</td>
+			<td>
+			</td>
+		</tr>
+		<tr>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<table>
+					<c:forEach items="${contractWizardForm.contract.files}" var="file">
+						<tr><td>
+							<div id="file${file.id}">
+								<c:url var="downloadUrl" value="/sapp/permissions/contract/download_file?fileId=${file.id}" />
+								<c:url var="deleteIconUrl" value="/images/buttons/delete-icon.png" />
+								<a href="${downloadUrl}"> ${file.fileName}</a> (${wileyfn:filesize(file.fileData)}) uploaded on 
+								<fmt:formatDate type="date" value="${file.lastUpdatedDate}" />
+								<a href="#" onClick="fnDeleteFileOnID (${file.id})"><img src="${deleteIconUrl}" /></a>
+							</div>
+						</td></tr>
+					</c:forEach>
+				</table>
+			</td>
+		</tr>
+	</c:if>	
+	
+	</div>
+	
+	<hr/>
+	
+	Select the assets from this request to be included:<br/>
+	
+	<form:form modelAttribute="contractWizardForm">
+	<form:hidden path="data" />
+	<c:if test="${!contractWizardForm.noRestrictions}">
+		<span class="right"><b>Currency </b>
+			<form:select path="contract.currency">
+				<form:options items="${currencies}" itemValue="code" itemLabel="description" />
+			</form:select>
+		</span>
+	</c:if>
+	<br/>
+	<table>
+		<tr>
+			<th><input type="checkbox" id="all" /> All</th>
+		</tr>
+		<c:set var="componentId" value="0"/>
+		<c:forEach items="${assets}" var="asset">
+<!--		
+			<c:if test="${componentId != asset.componentId}">
+				<tr>
+					<td><hr/></td>
+				</tr>
+				<tr>
+					<td><input type="checkbox" id="cmp-${asset.componentId}" value="${asset.componentId}"/><b> All ${asset.componentName}</b></td>
+				</tr>
+				<c:set var="componentId" value="${asset.componentId}"/>
+			</c:if>
+-->			
+			<tr>
+				<td>
+					<span style="margin-left: 2em;">
+						<table class="width100 asset-table">
+							<tr>
+								<td>
+									<table>
+										<tr>
+											<td colspan="4">
+												<div>
+													<c:if test="${asset.hasAssetFiles}">
+														<span class="ctooltip" id="tooltip${asset.assetId}" style="display:none;">Loading...</span>
+													</c:if>
+												</div>
+												<c:choose>
+													<c:when test="${asset.selected}">							
+														<input type="checkbox" id="ast-${asset.componentId}-${asset.assetId}" value="${asset.assetId}" class="asset-checkbox" checked="checked"/>
+													</c:when>
+													<c:otherwise>
+														<input type="checkbox" id="ast-${asset.componentId}-${asset.assetId}" value="${asset.assetId}" class="asset-checkbox"/>
+													</c:otherwise>
+												</c:choose>
+												<c:if test="${asset.hasAssetFiles}">
+													<img onmouseover="showAssetImage(${asset.assetId})" onmouseout="hideAssetImage(${asset.assetId})" src="../../images/thumbnail_thumbnail.png" />
+												</c:if>
+												${asset.assetDescription} - ref#: ${asset.vendorId}, ${asset.creditLine}, ${asset.componentName}
+											</td>
+										</tr>
+										<tr>
+											<td colspan="4">
+												<!-- Fix for SS Task 1 -->
+												Credit line specified
+												<!-- Fix for Credit Line Display Issue - Start -->
+												<input type="hidden" id="assetCreditline-${asset.assetId}" name="assetCreditline-${asset.assetId}" value="${asset.creditLine}" />
+												<!-- Fix for Credit Line Display Issue - End -->
+												<c:choose> 
+													<c:when test="${asset.conditionCreditLine != null}">
+														<input type="text" id="creditline-${asset.assetId}" name="creditline-${asset.assetId}" class="credit-input" size="90" maxlength="1000" value="${asset.conditionCreditLine}"/>
+													</c:when>
+													<c:otherwise>
+														<input type="text" id="creditline-${asset.assetId}" name="creditline-${asset.assetId}" class="credit-input" size="90" maxlength="1000" value="${asset.creditLine}"/>
+													</c:otherwise>
+												</c:choose>
+											</td>
+										</tr>
+										<c:if test="${!contractWizardForm.noRestrictions}">
+											<tr>
+												<td><b>Permission Type</b></td>
+												<td>
+													<select name="rights-${asset.assetId}" id="rights-${asset.assetId}" class="ptype-select" onchange="changeButton(this)">
+														<!-- <c:if test="${not asset.royaltyFree}"> Commented this to implement DM-123 -->
+															<option value="0">Rights Managed</option>
+														<!-- </c:if> Commented to implement DM-123 -->
+														<!-- Start - Added to implement DM-122 -->
+														<c:if test="${not contractWizardForm.sourceGroupHasMasterAgreements or not contractWizardForm.hasRFDealsForSouceGroup or asset.hasAssetLevelRFDeal}">
+															<c:choose>
+																<c:when test="${asset.hasAssetLevelRFDeal}">
+																	<option value="-1" selected="selected">${contractWizardForm.source.name} Royalty Free</option>
+																</c:when>
+																<c:otherwise>
+																	<option value="-1">${contractWizardForm.source.name} Royalty Free</option>
+																</c:otherwise>
+															</c:choose>
+														</c:if>
+														<!-- End - Added to implement DM-123 -->
+														<c:forEach items="${royaltyFreeDeals}" var="royaltyFreeDeal">
+															<c:choose>
+																<c:when test="${asset.rfDealId == royaltyFreeDeal.id}">
+																	<option value="${royaltyFreeDeal.id}" selected="selected">${royaltyFreeDeal.description}</option>
+																</c:when>
+																<c:otherwise>
+																	<option value="${royaltyFreeDeal.id}">${royaltyFreeDeal.description}</option>
+																</c:otherwise>
+															</c:choose>
+														</c:forEach>
+													</select>
+												</td>
+												<td><b>Cost</b></td>
+												<td><input type="text" id="price-${asset.assetId}" class="cost-input" name="price-${asset.assetId}" size="10" value="${asset.price}"/></td>
+											</tr>
+										</c:if>
+									</table>
+								</td>
+								<td>
+									<c:if test="${!contractWizardForm.noRestrictions}">
+										<table>
+											<tr>
+												<td colspan="3">
+													<c:if test="${asset.noCrop}">
+														<input type="checkbox" id="nocrop-${asset.assetId}" name="nocrop-${asset.assetId}" class="nocrop-input" checked="checked" />
+													</c:if>
+													<c:if test="${not asset.noCrop}">
+														<input type="checkbox" id="nocrop-${asset.assetId}" name="nocrop-${asset.assetId}" class="nocrop-input" />
+													</c:if>
+													<span style="margin-right: 2em"> no crop</span>
+
+													<c:if test="${asset.noBleed}">
+														<input type="checkbox" id="nobleed-${asset.assetId}" name="nobleed-${asset.assetId}" class="nobleed-input" checked="checked" />
+													</c:if>
+													<c:if test="${not asset.noCrop}">
+														<input type="checkbox" id="nobleed-${asset.assetId}" name="nobleed-${asset.assetId}" class="nobleed-input" />
+													</c:if>
+													no bleed
+												</td>
+												<td> 
+													<input type="button" value="Add Another" class="tr_clone_add" />
+												</td>
+											</tr>
+											<c:forEach items="${contractWizardForm.usageSizeMap[asset.assetId]}" var="currentPair" varStatus="status">
+												<tr class="tr_clone">
+													<td><b>Usage</b></td>
+													<td>
+														<select name="usage-${asset.assetId}" class="usage-select">
+															<option value="N/A">N/A</option>
+															<c:forEach items="${usageConditions}" var="usage">
+																<c:choose>
+																<c:when test="${currentPair.usageCondition != null and usage.code == currentPair.usageCondition.code}">
+																	<option value="${usage.code}" selected="selected"><c:out value="${usage.description}" /></option>
+																</c:when>
+																<c:otherwise>
+																	<option value="${usage.code}"><c:out value="${usage.description}" /></option>
+																</c:otherwise>
+																</c:choose>
+															</c:forEach>
+														</select>
+													</td>
+			        								
+													<td><b>Size</b></td>
+													<td>
+														<select name="size-${asset.assetId}" class="size-select">
+															<c:forEach items="${sizes}" var="size">
+																<c:if test="${size.code == currentPair.size.code}">
+																	<option value="${size.code}" selected="selected"><c:out value="${size.description}" /></option>
+																</c:if>
+																<c:if test="${size.code != currentPair.size.code}">
+																	<option value="${size.code}"><c:out value="${size.description}" /></option>
+																</c:if>
+															</c:forEach>
+														</select>
+													</td>
+												</tr>
+											</c:forEach>
+										</table>
+									</c:if>
+								</td>
+							</tr>
+						</table>
+					</span>
+					<br />
+					<hr/>
+					<br />
+				</td>				
+			</tr>			
+		</c:forEach>	
+	</table>
+	</form:form>
+
+	<div class="buttonset">
+		<c:if test="${not empty contractWizardForm.prevUrl}">
+			<input type="button" id="prevB" value="Previous" /> 
+		</c:if>
+		<!-- <c:choose>
+			<c:when test="${contractWizardForm.assetLevelRF or (contractWizardForm.maDealId == null and !contractWizardForm.noRestrictions)}">
+				<span id="nextButtonId"><input type="button" id="anextB" value="Next" /></span>
+			</c:when>
+			<c:otherwise>
+				<span id="finishButtonId"><input type="button" id="afinishB" value="Finish" /></span>
+			</c:otherwise>
+		</c:choose> -->
+		<span id="nextButtonId"><input type="button" id="anextB" value="Next" /></span>
+		<span id="finishButtonId"><input type="button" id="afinishB" value="Finish" /></span>
+		<a href="#" id="cancelLink" class="button">Cancel</a>
+	</div>
+	
+	<script type="text/javascript">
+	//<![CDATA[
+
+	//Start -- Added for implementing Build DM-364
+	function fnDeleteFileOnID(id) {
+		var r = confirm("Are you sure you want to delete this file?");
+		if (r == true) {
+			fnDeleteFile(id);
+		} else {
+		    return false;
+		}
+	}
+	//End -- Added for implementing Build DM-364
+	//Start -- Added for implementing Build DM-117
+	function showAssetImage(assetId) {
+		$('#tooltip'+assetId).html("<img src='${thumbURL}?assetId=" + assetId + "&size=medium' alt='Thumbnail' />");
+        $('#tooltip'+assetId).show();
+	}
+	
+	function hideAssetImage(assetId) {
+		//Remove the appended tooltip template
+		$('#tooltip'+assetId).html('Loading...');
+        $('#tooltip'+assetId).hide(); 
+	}
+	//End -- Added for implementing Build DM-117
+	function fnDeleteFile (id) {
+		// id can be undefined (if new file) - so we set the empty string that way null is received in the controller
+		if (!id) {
+			id = '';
+		}
+		$.ajax({
+            async: true,
+            type: 'post',
+            url: '${deleteFileUrl}',
+            data: 'fileId=' + id,
+            success: function (response){
+            	$('#file' + id).empty().html(response);
+            }
+        });
+        return false;
+	}
+	
+	//Start: Added for DM-122
+	function changeButton(obj) {
+		var selBoxVal = $(obj).val();
+		//Updated the below if condition for DM-1185
+		if(${contractWizardForm.maExistForInvoiceDate} && !(${contractWizardForm.hasRFDealsForSouceGroup})) {
+			if(selBoxVal == -1) {
+				$('#finishButtonId').hide();
+				$('#nextButtonId').show();
+			} else {
+				$('#finishButtonId').show();
+				$('#nextButtonId').hide();
+			}
+		}
+	}
+	//End: Added for DM-122
+
+	$(document).ready(function() {
+
+		extraValidation = function () {
+			// First make sure the user has checked at least one asset
+			if ($(".asset-checkbox:checked").length == 0) {
+				alert("You must select at least one Asset.");
+				return false;
+			}
+	
+			var arr = [];
+			$.each ($("input[id|='ast']"), function () {
+				if ($(this).is(':checked')) {
+					var iIndex = $.inArray($(this).val(), arr);
+					if (iIndex == -1) {
+						arr.push ($(this).val());
+						var price = parseFloat($("#price-" + $(this).val()).val());
+						if (isNaN(price))
+							price = 0;
+						arr.push (price);
+						var rfreeId = $("#rights-" + $(this).val()).val();
+						if (isNaN(rfreeId))
+							rfreeId = 0;
+						arr.push (rfreeId);
+						var creditline = $("#creditline-" + $(this).val()).val();
+						//Fix for Credit Line Display Issue - Start
+						var assetCreditline = $("#assetCreditline-" + $(this).val()).val();
+						if(assetCreditline == creditline)
+							creditline = '';
+						//Fix for Credit Line Display Issue - End
+						if (creditline.isEmpty())
+							creditline = "n/a";
+						arr.push (creditline);
+						var nocrop = $('#nocrop-' + $(this).val()).prop('checked');
+						if (isNaN(nocrop))  // isNaN(true/false) is false
+							nocrop=false;
+						arr.push(nocrop);
+						var nobleed = $('#nobleed-' + $(this).val()).prop('checked');
+						if (isNaN(nobleed))
+							nobleed=false;
+						arr.push(nobleed);
+						
+						// just deal with usage and size params in ContractWizardController.assetsSubmit() instead
+						// - can't be done exactly the same way since multiple values per asset
+						/*
+						var usages = $(".usage-" + $(this).val()).map(function() {
+					        return this.value;
+					    	}).get().join("^");
+						usages = $(this).val() + usages;
+						var sizes = $(".size-" + $(this).val()).map(function() {
+					        return this.value;
+					    	}).get().join("^");
+						sizes = $(this).val() + sizes;
+						*/
+					}
+	            }
+	        });
+	        var sData = arr.join("|");  // do not use comma because credit line may contain a comma
+	        $('#data').val(sData);
+	        return true;
+		}
+		//Start: Added for DM-122
+		if((${contractWizardForm.loadedAssetLvlRF}) || (('${contractWizardForm.maDealId}' == '') && !(${contractWizardForm.noRestrictions})) 
+				|| (${contractWizardForm.noRestrictions})) {
+			$('#finishButtonId').hide();
+			$('#nextButtonId').show();
+		} else {
+			$('#finishButtonId').show();
+			$('#nextButtonId').hide();
+		}
+		//End: Added for DM-122
+
+		$('#anextB').click (function() {
+			if (!extraValidation())  return false;
+			next('post');
+		});
+
+		$('#afinishB').click (function() {
+			if (!extraValidation())  return false;
+			finish('post');
+		});
+	
+		//Bind this keypress function to all of the input tags
+		$("input").keypress(function (event) {
+			if ( event.which == 13 ) {
+				event.preventDefault();
+				if ($.exists("#assetsB")) {
+					//alert ("next");
+					$('#assetsB').click();
+				}
+			}
+		});
+
+	    $('#uploadForm').ajaxForm({
+	    	beforeSubmit: function () {
+	    		return ($("#uploadForm").validate().form());
+	    	},
+	        success: function(data) {
+	            var $out = $('#agreement');
+	            $out.html(data);
+	        }
+	    });
+    
+		$("input[id='all']" ).click(function() {
+			var checkbox = this;
+			if ($(this).is(':checked')) {
+		        $.each ($("input[id|='ast']"), function () {
+		            $(this).attr('checked', $(checkbox).is(':checked'));
+		        });			
+			} else {
+		        $.each ($("input[id|='ast']"), function () {
+		            $(this).attr('checked', false);
+		        });			
+			}
+		});
+		
+		$("input[id|='cmp']" ).click(function() {
+			var id = 'ast-' + $(this).val();
+			var input = "input[id|='" + id + "']";
+			var checkbox = this;
+			if ($(this).is(':checked')) {
+		        $.each ($(input), function () {
+		            $(this).attr('checked', $(checkbox).is(':checked'));
+		        });			
+			} else {
+		        $.each ($(input), function () {
+		            $(this).attr('checked', false);
+		        });			
+			}
+		});
+		
+		$(".credit-input").change(function() {
+			$(this).closest(".asset-table").find(".asset-checkbox").prop('checked', true);
+		});
+		
+		$(".cost-input").change(function() {
+			$(this).closest(".asset-table").find(".asset-checkbox").prop('checked', true);
+		});
+		
+		$(".ptype-select").change(function() {
+			$(this).closest(".asset-table").find(".asset-checkbox").prop('checked', true);
+		});
+		
+		$(".usage-select").change(function() {
+			$(this).closest(".asset-table").find(".asset-checkbox").prop('checked', true);
+		});
+		
+		$(".size-select").change(function() {
+			$(this).closest(".asset-table").find(".asset-checkbox").prop('checked', true);
+		});
+		
+		$(".nocrop-input").change(function() {
+			$(this).closest(".asset-table").find(".asset-checkbox").prop('checked', true);
+		});
+		
+		$(".nobleed-input").change(function() {
+			$(this).closest(".asset-table").find(".asset-checkbox").prop('checked', true);
+		});
+		
+		$("input.tr_clone_add").click(function() {
+			// make sure we get the first tr_clone row in the same table as the button that was clicked
+			var $tr = $(this).parent().parent().parent().find(".tr_clone").first();
+		    var $clone = $tr.clone();
+		    // this would be to blank out text inputs but don't have any
+		    //$clone.find(':text').val('');
+		    // We want the N/A value selected - for usage it's first, last for size
+		    //$clone.find("select option:first-child").attr("selected", true);
+		    $clone.find(".usage-select option:first-child").attr("selected", true);
+		    $clone.find(".size-select option:last-child").attr("selected", true);
+		    // no longer need to remove extra button since not in row anymore
+		    //$clone.find(".tr_clone_add").remove();
+		    $tr.after($clone);
+		});
+		
+	    $("#file").change(function() {
+	        var fileName = $(this).val();
+	        $("#uploadForm").submit();
+	    });
+	});
+	//]]>		
+	</script>
+</jsp:root>

@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+
+    <jsp:directive.page contentType="text/html" pageEncoding="UTF-8" />
+	
+	<c:url var="nextUrl" value="/sapp/landing/authorAccess/userDetails" />
+	<c:url var="authorSearchUrl" value="${wileyfn:getRestUrl(pageContext.request)}/service/user/searchAuthor" />
+	<c:url var="deleteIconUrl" value="/images/buttons/delete-icon.png" />
+	<c:url var="readOnlyUrl" value="/sapp/landing/authorAccess/readOnly" />
+	
+	<jsp:body>
+		<script type="text/javascript">
+			$('#nextB').click (function() {
+				// because we are dealing with radio buttons, selectedCount should be 0 or 1
+				var selectedCount = $("#selectUserForm input[type='radio']:checked").length;
+				if (selectedCount == 0) {
+					alert("You must select one of the radio buttons before hitting Next.");
+					return false;
+				}
+				
+				$.ajax({
+		            async: true,
+		            type: 'get',
+		            url: '${nextUrl}',
+		            data: $('#selectUserForm').serialize(),
+		            success: function (response) {
+		            	$('#modalDiv').empty().html(response);
+		            }
+		        });
+			});	
+
+			$('#disableLink').click (function() {
+				$.ajax({
+		            async: false,
+		            type: 'get',
+		            url:  $(this).attr('href'),
+		            success: function (response) {
+					 	$('#modalDiv').empty().html(response);
+		            }
+		        });
+
+		        return false;
+			});		
+			
+			$( "#authorName" ).autocomplete({
+				source: function(request, response) {
+					$.jsonp({
+						"url": '${authorSearchUrl}/' + request.term + '?callback=?', 
+						"success": function(json) {
+							response( $.map( json, function( item ) {
+								return {
+									value: item.lastName + ', ' + item.firstName,					
+									id: item.id
+								}
+							}));
+						},
+						"error": function() {
+				        	alert ("Error: failed to search authors");
+				        }
+			        });				
+				},
+				minLength: 3,
+				select: function( event, ui ) {
+					$("#searched").val (ui.item.id);
+					$("#searched").attr("checked", true);
+					
+				},
+				open: function() {
+					$(this).removeClass("ui-corner-all").addClass("ui-corner-top");
+				},
+				close: function() {
+					$(this).removeClass("ui-corner-top").addClass("ui-corner-all");
+				}
+			});
+
+			function readOnlyLink(selectedAuthor, cwId) {
+				$.ajax({
+		            async: false,
+		            type: 'get',
+		            url: '${readOnlyUrl}?cwId=' + cwId + '&amp;authorId=' + selectedAuthor ,
+		            success: function (response) {
+					 	$('#modalDiv').empty().html(response);
+		            }
+		        });
+			}
+			
+		</script>
+
+		<c:if test="${not isPreProduction}">
+			<span class="error">WARNING: This product is ${publicationStatus.description}</span>
+			<br/><br/>
+		</c:if>
+
+		<form id="selectUserForm" method="get" action="${nextUrl}">
+			<div style="display: none">
+				<input type="hidden" name="cwId" value="${param.cwId}" />
+			</div>
+		
+			<table class="width100">
+				<tr>
+					<th colspan="4">GBPM Authors</th>
+				</tr>
+				<c:forEach items="${peAuthorList}" var="author">
+					<tr>
+						<td><input type="radio" name="userId" value="${author.id}" /></td>
+						<td><c:out value="${author.lastName}" />, <c:out value="${author.firstName}" /></td>
+					</tr>
+				</c:forEach>
+				
+				<tr>
+					<th colspan="4">Create additional author/freelancer</th>
+				</tr>
+				<tr>
+					<td><input type="radio" name="userId" id="searched" value="0" /></td>
+					<td>
+						Last Name: <input type="text" name="lastName" id="authorName" size="40" maxlength="40"/>
+					</td>
+				</tr>
+				<tr>
+					<th colspan="2">Authors/freelancers already given access</th>
+					<th>Marked Complete?</th>
+					<th>Read Only</th>
+					<th>remove</th>
+				</tr>
+				<c:forEach items="${accessAuthorList}" var="author">
+					<tr>
+						<td><input type="radio" name="userId" value="${author.id}" /></td>
+						<td><c:out value="${author.lastName}" />, <c:out value="${author.firstName}" /> (<c:out value="${author.type}" />)</td>
+						<td>
+						   <c:if test="${author.permissionFlag}">
+						   			<input type="checkbox" value="${author.id}" checked="checked" disabled="true"/>
+						   </c:if>
+						   <c:if test="${!author.permissionFlag}">
+						   			<input type="checkbox" value="${author.id}" disabled="true"/>
+						   </c:if>
+						</td>
+						<td>
+						   <c:if test="${author.cwReadOnly}">
+						   			<input type="checkbox" value="${autor.id}" checked="checked"
+											onclick="readOnlyLink('${author.id}', '${param.cwId}')" />
+						   </c:if>
+						   <c:if test="${!author.cwReadOnly}">
+						   			<input type="checkbox" value="${autor.id}"
+											onclick="readOnlyLink('${author.id}', '${param.cwId}')" />
+						   </c:if>
+						</td>
+						<td>
+							<c:url var="disableAssociationUrl" value="/sapp/landing/authorAccess/disable?cwId=${param.cwId}&amp;authorId=${author.id}" />
+							<a href="${disableAssociationUrl}" id="disableLink"><img src="${deleteIconUrl}" /></a> 
+						</td>						
+					</tr>
+				</c:forEach>
+			</table>
+		</form>
+		
+		<div class="buttonset">
+			<input type="submit" id="nextB" value="Next" />
+			<a href="#" id="cancelLink" class="button">Cancel</a>
+		</div>
+		
+	</jsp:body>	
+</jsp:root>

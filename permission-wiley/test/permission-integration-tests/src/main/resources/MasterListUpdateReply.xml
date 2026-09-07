@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="sysmsg_20120402.xsd"
+	id="PE001.1866723" type="reply" replyID="PERM.3717033634.1334459261405.1" sent="1334459264352" source="PE001" protocolVersion="1.0">
+   <target>
+      <system>PERM001</system>
+   </target>
+   <reply>
+      <masterListUpdate>
+         <masterListObject name="TargetMedium" dataSource="SG" updateTime="1300906121584" completeRecordSet="no" recordCount="2">
+            <targetMedium code="A">
+               <name>Audio*</name>
+            </targetMedium>
+            <targetMedium code="B">
+               <name>Binders, 3-ring</name>
+            </targetMedium>
+         </masterListObject>
+      </masterListUpdate>
+   </reply>
+</message>
+
+<!-- We want to turn this into: -->
+<!--
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<message protocolVersion="1.0" sent="1334459264352" direction="INCOMING" type="reply" source="PE001" id="PE001.1866723">
+    <targets>
+        <target>PERM001</target>
+    </targets>
+    <operations>
+        <operation operationType="masterListUpdate">
+            <parameters>
+            	<parameter name="name" value="TargetMedium" />
+            	<parameter name="dataSource" value="SG" />
+            	<parameter name="updateTime" value="1300906121584" />
+            	<parameter name="completeRecordSet" value="no" />
+            	<parameter name="recordCount" value="2" />
+            </parameters>
+            <items/>
+        </operation>
+    </operations>
+    <metadata>
+        <medium>
+            <code>A</code>
+            <name>Audio*</name>
+        </medium>
+        <medium>
+            <code>B</code>
+            <name>Binders, 3-ring</name>
+        </medium>
+    </metadata>
+</message>
+-->

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page" 
+	xmlns:tiles="http://tiles.apache.org/tags-tiles" 
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions" 
+	xmlns:c="http://java.sun.com/jsp/jstl/core" 
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt" 
+	xmlns:spring="http://www.springframework.org/tags" 
+	xmlns:form="http://www.springframework.org/tags/form">
+
+	<jsp:directive.page pageEncoding="UTF-8" />
+
+	<c:set var="titleLabel">
+		<fmt:message key="product.label.title" />
+	</c:set>
+	<c:set var="authorsLabel">
+		<fmt:message key="product.label.authors" />
+	</c:set>
+	<c:set var="isbnLabel">
+		<fmt:message key="product.label.isbn13" />
+	</c:set>
+
+	<c:url var="copyFromProductUrl" value="/sapp/landing/copyAssets/selectProductByWid" />
+	<c:url var="searchProductUrl" value="/sapp/landing/copyAssets/searchProduct" />
+
+	<style type="text/css">
+		.footerBar { display: none; }
+	</style>
+
+	<script type="text/javascript">
+	$(document).ready(function() {
+		$('#productSearchResultTable2').dataTable( {
+			"aoColumns" : [
+				{}, // Title
+				{"bSortable" : false }, // Authors
+				{}, // ISBN
+				{"sClass" : "center" } // Pub. Status
+			],
+			"aaSorting": [[0, "asc" ]],
+
+			"bAutoWidth": false,
+			"bProcessing": true,
+			"bStateSave": true,
+			"sPaginationType": "full_numbers",
+			"aLengthMenu": [10, 15, 25, 50, 100],  // override default of [10, 25, 50, 100]
+			"iDisplayLength": 15 // override default of 10
+		} );
+	} );
+	
+	$(document).ready(function() {
+		$('#copyAssetsFromProductForm').submit(function() {
+			//Added the below modalDiv css update code for Build RN Ticket 151026-002014
+			$("#modalDiv").css({'max-height': '700px', 'max-width': '1300px', 'overflow-y': 'auto', 'overflow-x': 'auto'});
+			$.ajax({
+	            type: 'get',
+	            url: '${searchProductUrl}',
+	            data: $('#copyAssetsFromProductForm').serialize(),
+	            success: function (response){
+	                $('#modalDiv').empty().html(response);
+	                repositionDialog();
+	            }
+	        });
+			return false;
+		});
+		
+		$(".selectProductLink").click(function() {
+			//Added the below modalDiv css update code for Build RN Ticket 151026-002014
+			$("#modalDiv").css({'max-height': '700px', 'max-width': '1300px', 'overflow-y': 'auto', 'overflow-x': 'auto'});
+			//$("#modalDiv").load($(this).attr("href"));
+			//repositionDialog();
+			//return false;			//Commented these code and added below 10 lines of code for Build RN Ticket 151026-002014
+			$.ajax({
+	            type: 'get',
+	            url: $(this).attr("href"),
+	            data: '',
+	            success: function (response){
+	                $('#modalDiv').empty().html(response);
+	                repositionDialog();
+	            }
+	        });
+			return false;
+		});
+
+		$('#errorDiv').hide();
+		if("${ERROR}" != "") {
+			$('#errorDiv').show();
+		}
+	});
+	</script>
+
+	<jsp:directive.include file="/WEB-INF/tiles/pages/include/generalMessage.jspx" />
+	
+	<form:form modelAttribute="copyAssetsFromProductForm" action="${searchProductUrl}">
+		Search product by ISBN:
+		<input type="text" name="searchProduct" value="" />
+		<input type="submit" value="Search" />
+	</form:form>
+
+	<br/>
+	<h3>Product Search Results</h3>
+	<div id="errorDiv">
+	<h3 class="error">${ERROR}</h3>
+	</div>
+	
+	<table class="display" id="productSearchResultTable2">
+		<thead>
+			<tr>
+				<th>${titleLabel}</th>
+				<th>${authorsLabel}</th>
+				<th>${isbnLabel}</th>
+				<th>Pub. Status</th>
+			</tr>
+		</thead>
+		<tbody>
+			<c:forEach items="${results}" var="product">
+				<tr>
+					<td>
+						<a class="selectProductLink" href="${copyFromProductUrl}?wid=${product.wid}"><c:out value="${product.title}" /></a>
+					</td>
+
+					<td>
+						<ul>
+							<c:forEach items="${product.authors}" var="author">
+								<li>${author}</li>
+							</c:forEach>
+						</ul>
+					</td>
+
+					<td>${product.isbn}</td>
+					<td>${product.status}</td>
+				</tr>
+			</c:forEach>
+		</tbody>
+	</table>
+
+</jsp:root>

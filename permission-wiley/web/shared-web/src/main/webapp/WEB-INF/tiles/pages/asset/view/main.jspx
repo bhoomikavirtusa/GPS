@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="assetUsageDetailsUrl" value="/sapp/asset/details/form?usage=true&amp;auId=${assetUse.id}&amp;readOnly=true" />
+	<c:url var="assetDetailsUrl" value="/sapp/asset/details/form?auId=${assetUse.id}&amp;readOnly=true" />
+	<c:url var="assetPermissionsUrl" value="/sapp/asset/usageandpermissions/start?auId=${assetUse.id}&amp;readOnly=true" />
+
+	<c:url var="nextUrl" value="/sapp/asset/main/view/next" />
+	<c:url var="prevUrl" value="/sapp/asset/main/view/prev" />
+	
+	<style type="text/css">
+	.greybox {
+		padding: 0px;
+		border: 0px;
+		background: transparent;
+	}
+	
+	.ui-widget {
+		background: #EEE;
+	}
+	
+	#main {
+		margin: 0px;
+	}	
+	</style>
+	
+	<script type="text/javascript">
+//<![CDATA[
+	$(document).ready(function() {
+		$( "#tabs" ).tabs();
+		
+		$('#nextB').click (function() {
+			$.ajax({
+	            async: true,
+	            type: 'get',
+	            url: '${nextUrl}',
+	            success: function (response){
+	                $('#modalDiv').empty().html(response);
+	                repositionDialog();
+	            }
+	        });
+		});
+	
+		$('#prevB').click (function() {
+			$.ajax({
+	            async: true,
+	            type: 'get',
+	            url: '${prevUrl}',
+	            success: function (response){
+	                $('#modalDiv').empty().html(response);
+	                repositionDialog();
+	            }
+	        });
+		});
+	});
+//]]>		
+	</script>
+	
+	<h1> ${assetUse.asset.description} </h1>
+	<div id="tabs">
+		<ul>
+			<li><a href="${assetDetailsUrl}">Asset Details</a></li>
+			<li><a href="${assetUsageDetailsUrl}">Usage Details</a></li>
+			<li><a href="${assetPermissionsUrl}">Permissions</a></li>
+		</ul>
+	</div>
+
+	<br/>
+	<div class="buttonset">		
+	<c:if test="${!isFirst}">
+		<input type="button" id="prevB" value="Previous" />
+	</c:if>
+	<c:if test="${!isLast}">
+		<input type="button" id="nextB" value="Next" />
+	</c:if>
+	<a href="#" id="cancelLink" class="button">Cancel</a>
+	</div>
+
+</jsp:root>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:security="http://www.springframework.org/security/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="assetSubmitUrl" value="/sapp/asset/main/wizard_upload_file" />
+	
+	
+
+	<script type="text/javascript">
+	$(document).ready(function() {
+		// Added for Thumbnail Display - Start 
+		var assetuseID = $("#assetuseID").val();
+		// Added for Thumbnail Display - End
+	    $("#file").change(function() {
+	        var fileName = $(this).val();
+	        $('#uploadForm').ajaxSubmit({
+		        success: function(data) {
+		        	// Added for Thumbnail Display - Start 
+		        	fnRefreshRows (assetuseID);
+		        	// Added for Thumbnail Display - End
+		        	var $out = $('#agreement');
+		            $out.html(data);
+		        }
+		    });
+	    });
+	});
+	</script>
+		
+		<security:authorize access="hasAnyRole('upload_asset_file', 'EMPLOYEE_DEFAULT')">
+		
+		<div id="agreement" style="margin-left: 2em">
+		<form method="post" action="${assetSubmitUrl}" enctype="multipart/form-data" id="uploadForm">
+			<!-- Added for Thumbnail Display - Start  -->
+			<input type="hidden" id="assetuseID" name="assetuseID" value="${auIds}" />
+			<!-- Added for Thumbnail Display - End  -->
+			<input type="file" name="file" id="file" size="40" class="required"/>
+		</form>		
+		</div>
+		
+		</security:authorize>		
+	
+
+</jsp:root>

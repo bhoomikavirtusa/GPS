@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+>
+
+<!--REST URLs-->
+<c:url var="cwSummaryPanelUrl" value="/sapp/panels/summaryPanel?cwId=${cwId}" />
+<c:url var="countsPanelUrl" value="/sapp/landing/cw/countsPanel?cwId=${cwId}" />
+
+<script type="text/javascript">
+	//<![CDATA[
+	
+	function refreshPanels (cwId) {
+		refreshSummaryPanel(cwId);
+		refreshCountsPanel(cwId);
+	}
+
+	function refreshSummaryPanel (cwId) {
+		$("#summaryPanel_${cwId}").load("${cwSummaryPanelUrl}");	
+	}
+	
+	function refreshCountsPanel (cwId) {
+		$("#countsPanel_${cwId}").load("${countsPanelUrl}");
+	}
+
+	//]]>
+</script>
+	 
+</jsp:root>

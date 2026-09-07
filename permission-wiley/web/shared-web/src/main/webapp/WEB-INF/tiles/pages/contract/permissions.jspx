@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- smarkoff: Now this is the only details screen (not just for custom workflow). Later might rename to just details.jspx -->
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+
+	<c:url var="nextUrl" value="/sapp/permissions/contract/rights_summary" />
+	<!-- Always show the assets page -->
+	<c:url var="prevUrl" value="/sapp/permissions/contract/assets?commonwid=${commonwid}" />
+	<c:url var="loadConditionsUrl" value="/sapp/permissions/contract/conditions" />
+	<c:url var="waitUrl" value="/images/animated_progress_bar.gif" />
+	
+	<!--include as jspx so the jsp variable are recognized-->
+	<jsp:directive.include file="js/wizard.buttons.js.jspx" />
+
+	<style type="text/css">
+		/* hide icon */
+		.custom1 {
+			background-color: #BAD0EF;
+			color: black;
+		}
+	</style>
+
+	<jsp:element name="script">
+		<jsp:attribute name="type">text/javascript</jsp:attribute>
+		<jsp:attribute name="src">
+			<c:url value="/js/jquery.blockUI-2.38.js"/>
+		</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+   
+	<script type="text/javascript">
+	//<![CDATA[
+	var sourceId = new Number(${contractWizardForm.source.id});
+	
+	$(document).ajaxStop($.unblockUI);
+	
+	function loadAjaxConditions() {
+		$.ajax({
+            async: true,
+            type: 'get',
+            url: '${loadConditionsUrl}?sourceId=' + sourceId + 
+            	"&cwId=${contractWizardForm.cwId}&contractId=${contractWizardForm.contract.id}",
+            success: function (response) {
+            	$('#conditionDiv').html(response);
+            }
+        });
+	}
+
+	$(document).ready(function() {
+
+		extraValidation = function () {
+			return fnValidateTree ($("#conditionTree").dynatree("getTree").selectKey("_1"));
+		}
+		
+		loadAjaxConditions();
+		
+		$('#cancelLink').click (function() {
+			$modalDialog.dialog("close");
+		});
+		
+		$('#detailNextB').click (function() {
+			if (!extraValidation())  return false;
+			next('post');
+		});
+
+		$modalDialog.dialog('option', 'height', 'auto');
+		repositionDialog();
+	});
+	
+	//]]>
+	</script>
+
+	<div id="errorMessage" class="custom1">
+		<jsp:directive.include file="/WEB-INF/tiles/pages/include/generalMessage.jspx" />
+	</div>
+
+	<h3>
+		<!-- Start - Added to implement DM-122 -->
+		<c:choose> 
+			<c:when test="${contractWizardForm.assetLevelRF}">
+				Enter Royalty Free Deal
+			</c:when>
+			<c:otherwise>
+				Source ${contractWizardForm.source.name}
+			</c:otherwise>
+		</c:choose>
+		<!-- End - Added to implement DM-122 -->
+	</h3>
+	<div id="authorOwnedAlertMsg">
+		<c:if test="${isAuthorOwned}">
+			<span style="color: red">
+				The following fields will be pre-populated with the maximum grant usage. Please refer <br/>
+				to the author’s contract or author’s permission letter to confirm on the terms.
+			</span>
+		</c:if>
+	</div>
+	<div id="conditionDiv">
+	</div>
+	<div class="buttonset">
+		<c:if test="${not empty prevUrl}">
+			<input type="button" id="prevB" value="Previous" />
+		</c:if>
+		<input type="button" id="detailNextB" value="Next" />
+		<a href="#" id="cancelLink" class="button">Cancel</a>
+	</div>
+</jsp:root>

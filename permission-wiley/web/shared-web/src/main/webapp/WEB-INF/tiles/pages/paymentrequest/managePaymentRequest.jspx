@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+			 
+	<jsp:directive.page pageEncoding="UTF-8" />
+
+	<c:url var="assetSourceListUrl" value="/sapp/landing/sources?cwId=${generatePaymentRequestForm.cwId}" />
+	<c:url var="invoiceTabUrl" value="/sapp/landing/invoices?cwId=${generatePaymentRequestForm.cwId}" />
+	<c:url var="generateDisabledUrl" value="/images/buttons/generate_disabled.png" />
+	<c:url var="nextUrl" value="/sapp/permissions/paymentrequest/managePaymentRequest" />
+	
+	<script type="text/javascript">
+	//<![CDATA[	
+	$(document).ready(function() {		
+
+		$.datepicker.setDefaults({
+		     dateFormat: '${dateFormat}'
+		});
+		$("#ui-datepicker-div").css("z-index", "9999" );
+		$("input[id='paymentAuthorDate']").datepicker();	
+		$("input[id='paymentWileyDate']").datepicker();	
+		$("input[id='payment_AuthorDate']").datepicker();	
+		$("input[id='payment_WileyDate']").datepicker();	
+
+		var d1 = $.datepicker.parseDate('mm/dd/yy', $("input[id='paymentAuthorDate']").val());
+		var d2 = $.datepicker.formatDate('${dateFormat}', d1);
+    	$("input[id='payment_AuthorDate']").val(d2);
+
+		var dx1 = $.datepicker.parseDate('mm/dd/yy', $("input[id='payment_WileyDate']").val());
+		var dx2 = $.datepicker.formatDate('${dateFormat}', dx1);
+    	$("input[id='payment_WileyDate']").val(d2);
+
+	});	
+
+
+	$("input[id='payment_AuthorDate']").change(function() {
+		var d1 = $.datepicker.parseDate('${dateFormat}', $("input[id='payment_AuthorDate']").val());
+		var d2 = $.datepicker.formatDate('mm/dd/yy', d1);
+    	$("input[id='paymentAuthorDate']").val(d2);
+
+	});
+
+	$("input[id='payment_WileyDate']").change(function() {
+		var d1 = $.datepicker.parseDate('${dateFormat}', $("input[id='payment_WileyDate']").val());
+		var d2 = $.datepicker.formatDate('mm/dd/yy', d1);
+    	$("input[id='paymentWileyDate']").val(d2);
+
+	});
+	
+	$('#finishB').click (function() {
+		if ($('#paymentType1').is(':checked'))
+			//alert("paymentType1"+$("input[id='paymentDate']"));
+			$("input[id='paymentDate']").val ($("input[id='paymentAuthorDate']").val());
+		if ($('#paymentType2').is(':checked'))
+			//alert("paymentType2"+$("input[id='paymentDate']"));
+			$("input[id='paymentDate']").val ($("input[id='paymentWileyDate']").val());
+
+		if ($("#generatePaymentRequestForm").validate().form() == true) {	
+			$.ajax({
+	            async: true,
+	            type: 'post',
+	            url: '${nextUrl}',
+	            data: $('#generatePaymentRequestForm').serialize(),
+	            dataType: 'json',
+	            success: function (json){
+	            	var selected = $tabs.tabs( "option", "selected" );
+	            	// if asset table tab selected, refresh just selected rows
+	                if (selected == 0) {
+		            	var ids = "";
+	                	for ( var i=0, iLen=json.auids.length ; i<iLen ; i++ ) {
+		                	ids += json.auids[i] + ",";
+		                }
+		                fnRefreshRows (ids);
+		            // if source table tab selected, refresh the whole table
+		            } else if (selected == 1) {
+		            	$('#ltabs #ui-tabs-2').load('${assetSourceListUrl}');
+		            }
+	            	// if invoice tab selected, refresh the whole table
+		            else if (selected == 2) {
+		            	$('#ltabs #ui-tabs-3').load('${invoiceTabUrl}');
+		            }
+	                if (json.url != '') {
+	                	// not sure if a second is enough to refresh the rows, 
+	                	// otherwise the download does not work
+		                setTimeout("fnDownload('" + json.url + "')", 1000);
+		                $modalDialog.dialog("close");
+				    } else {                
+	            		$modalDialog.dialog("close");
+	            	}
+	            }
+	        });
+		}
+	});	
+	
+	function fnDownload(url) {
+		location.href=url;
+	}
+	//]]>		
+	</script>
+	
+	<h3>Payment request information for source ${generatePaymentRequestForm.source.name}</h3>
+	<form:form modelAttribute="generatePaymentRequestForm">
+	<form:input type="hidden" path="paymentDate" />
+	<table>
+		<!-- <tr>
+			<td>
+			<form:radiobutton path="paymentType" value="PAYMENT" class="required"/>Generate Payment Request
+			</td>
+		</tr>		
+		<tr>
+			<td>
+				<div id="paymentOptions" style="margin-left: 2em;display:none;">
+					<table>
+						<tr>
+							<td>
+								Cost Center:
+							</td>
+							<td>
+								<form:input path="costCenter" size="20" maxlength="20" />
+							</td>
+						</tr> 
+						<tr>
+							<td>
+								Account Number And SubCode: 
+							</td>
+							<td>
+								<form:select path="accountNumberAndSubCode">
+								    <fmt:message key="select.choose.one" var="chooseOneMsg" />
+									<form:option value="" label="${chooseOneMsg}" />
+									<form:options items="${accounts}" itemLabel="accountNumberSubCodeDescription" itemValue="accountNumberSubCode" />
+								</form:select>
+								
+							</td>
+						</tr>
+					</table> 
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<td><center><b>or</b></center></td>
+		</tr>-->
+		<tr>
+			<td><form:radiobutton path="paymentType" value="AUTHOR" class="required"/>Already paid by author on 				
+				<input type="text" class="datepicker" id="payment_AuthorDate" name="payment_AuthorDate" size="10" maxlength="10"/>  (${dateFormat})
+			    <input type="hidden" class="datepicker" id="paymentAuthorDate"/>
+			</td>
+		</tr>
+		<tr>
+			<td><form:radiobutton path="paymentType" value="WILEY" class="required"/>Already paid by Wiley
+				on	<input type="text" class="datepicker" id="payment_WileyDate" name="payment_WileyDate" size="10" maxlength="10"/> (${dateFormat})
+			    <input type="hidden" class="datepicker" id="paymentWileyDate"/>
+			</td>
+		</tr>		
+		<tr>
+			<td class="label">
+				<form:label path="checkNumber" cssErrorClass="error">  Wiley Check#</form:label>
+				<form:input path="checkNumber" size="30" class="digits"/></td>
+		</tr>		
+	</table>
+	<div class="buttonset">		
+	    <!-- onsubmit() above prevents user from clicking more than once -->
+		<input type="button" id="finishB" value="Finish" /> 
+		<button id="cancelButton" class="button">Close</button>
+	</div>
+	</form:form>
+</jsp:root>

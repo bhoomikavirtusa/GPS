@@ -1,0 +1,252 @@
+/*--------------------------------*/
+/*Header menu bar				  */
+/*--------------------------------*/
+.MenuBar { 
+	background-color: #072F59;
+	width: 100%;
+	height: 30px;
+	z-index: 0;
+	margin: 0px; 
+	color:white;
+}
+
+.MenuBar#menu a { 
+	display: block; float: left;
+	padding: 7px 20px;
+	text-decoration: none;
+}
+
+.MenuBar#menu a.mouseover, .MenuBar#menu input[type="button"]:hover { 
+	border-color: white;
+	color:#454545;
+	
+	/* fallback color */
+	background-color: #E0E0E0;
+	/* proposed standard, IE 10+, Firefox 16+, Chrome 26+, Safari 6.1+, Opera 12.1+ */
+	background-image: linear-gradient(to bottom, white, #E0E0E0);
+	/* Safari 5.1+ */
+	background-image: -webkit-linear-gradient(top, white, #E0E0E0);
+	/* IE 8/9 */
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorStr='white', endColorStr='#E0E0E0')";
+}
+                          
+.MenuBar#menu div a { 
+	float: none;
+	padding: 5px 20px; margin: 0px;
+	position: relative;
+}
+
+.MenuBar#menu div { 
+	border-color: white;
+	padding: 0px; margin: 0px;
+	visibility: hidden; position: absolute;
+	overflow: hidden; white-space: nowrap;
+	
+	/* fallback color */
+	background-color: #E0E0E0;
+	/* proposed standard, IE 10+, Firefox 16+, Chrome 26+, Safari 6.1+, Opera 12.1+ */
+	background-image: linear-gradient(to bottom, white, #E0E0E0);
+	/* Safari 5.1+ */
+	background-image: -webkit-linear-gradient(top, white, #E0E0E0);
+	/* IE 8/9 */
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorStr='white', endColorStr='#E0E0E0')";
+}
+
+.MenuBar#menu a, .MenuBar#menu input[type="button"], .MenuBar#menu .buttons button {
+	/* fallback color */
+	background-color: #0F5895;
+	/* proposed standard, IE 10+, Firefox 16+, Chrome 26+, Safari 6.1+, Opera 12.1+ */
+	background-image: linear-gradient(to bottom, #2473AF, #0F5895);
+	/* Safari 5.1+ */
+	background-image: -webkit-linear-gradient(top, #2473AF, #0F5895);
+	/* IE 8/9 */
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorStr='#2473AF', endColorStr='#0F5895')";
+
+	border-color: #BCCDDD;
+	position: relative;
+	top: 0px;
+	margin-left: -1px;
+	max-width: 300px;
+/*	border: 1px solid; */
+    display: block;
+    text-decoration: none;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    
+    /* overwrite the button layout */
+	border-radius: 0px; 
+}
+
+.MenuBar#menu input[type="button"] {
+	width:100%; 
+	height: 27px;
+	padding: 5px 20px;
+	border: 0px solid;
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 12px;	
+    text-align: left;
+}
+
+.MenuBar#menu input[disabled] {
+	color: #666;
+	
+	/* Still need gradient definitions even though there is no gradient here to override the parent class */
+	
+	/* fallback color */
+	background-color: #C8C8C8;
+	/* proposed standard, IE 10+, Firefox 16+, Chrome 26+, Safari 6.1+, Opera 12.1+ */
+	background-image: linear-gradient(to bottom, #C8C8C8, #C8C8C8);
+	/* Safari 5.1+ */
+	background-image: -webkit-linear-gradient(top, #C8C8C8, #C8C8C8);
+	/* IE 8/9 */
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorStr='#C8C8C8', endColorStr='#C8C8C8')";
+}
+
+/*--------------------------------*/
+/*Header menu bar				  */
+/*--------------------------------*/
+.ActionBar { 
+	margin-left: -30px;
+	width: 147px;
+	height: 0px;
+	z-index: 0;
+	color: white;
+	background-color: #E0E0E0;
+}
+
+.ActionBar#menu a { 
+	display: block; float: left;
+	padding: 4px 20px;
+	text-decoration: none;
+}
+
+.ActionBar#menu a.mouseover, .ActionBar#menu input[type="button"]:hover { 
+	border-color: white;
+	color: white;
+
+	/* fallback color */
+	background-color: #0F5895;
+	/* proposed standard, IE 10+, Firefox 16+, Chrome 26+, Safari 6.1+, Opera 12.1+ */
+	background-image: linear-gradient(to bottom, #2473AF, #0F5895);
+	/* Safari 5.1+ */
+	background-image: -webkit-linear-gradient(top, #2473AF, #0F5895);
+	/* IE 8/9 */
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorStr='#2473AF', endColorStr='#0F5895')";
+}
+                          
+.ActionBar#menu div a { 
+	float: none;
+	padding: 5px 20px; margin: 0px;
+	position: relative;
+}
+
+.ActionBar#menu div { 
+	border-color: white;
+	padding: 0px; margin: 0px;
+	visibility: hidden; position: absolute;
+	overflow: hidden; white-space: nowrap;
+	
+	/* fallback color */
+	background-color: #E0E0E0;
+	/* proposed standard, IE 10+, Firefox 16+, Chrome 26+, Safari 6.1+, Opera 12.1+ */
+	background-image: linear-gradient(to bottom, white, #E0E0E0);
+	/* Safari 5.1+ */
+	background-image: -webkit-linear-gradient(top, white, #E0E0E0);
+	/* IE 8/9 */
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorStr='white', endColorStr='#E0E0E0')";
+}
+
+.ActionBar#menu ul li ul {
+	z-index: 9999;
+	margin-top: 2%;
+	display: block;
+	position:absolute;	
+	-webkit-margin-before: 25px;	
+	left: -23px;
+}
+
+.ActionBar#menu ul {
+	list-style-type: none;
+}
+
+.ActionBar#menu a, .ActionBar#menu input[type="button"], .ActionBar#menu .buttons button {
+	/* fallback color */
+	background-color: #6B97BC;
+	/* proposed standard, IE 10+, Firefox 16+, Chrome 26+, Safari 6.1+, Opera 12.1+ */
+	background-image: linear-gradient(to bottom, #BCCDDD, #6B97BC);
+	/* Safari 5.1+ */
+	background-image: -webkit-linear-gradient(top, #BCCDDD, #6B97BC);
+	/* IE 8/9 */
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorStr='#BCCDDD', endColorStr='#6B97BC')";
+
+	position: relative;
+	top: 0px;
+	margin-left: -1px;
+	max-width: 250px;
+    display:block;
+    text-decoration:none;
+    font-weight:bold;
+    color:white;
+    cursor:pointer;
+    margin: 0px 2px;
+    
+    /* overwrite the button layout */
+	border-radius: 0px;    
+}
+
+.ActionBar#menu .right, .ActionBar#menu .right a {
+	-webkit-background-clip: padding-box;
+	border-bottom-right-radius: 4px;
+	border-top-right-radius: 4px;
+}
+
+.ActionBar#menu .left, .ActionBar#menu .left a {
+	-webkit-background-clip: padding-box;
+	border-bottom-left-radius: 4px;
+	border-top-left-radius: 4px;
+}
+
+.ActionBar#menu input[type="button"] {
+	width:100%; 
+	height: 27px;
+	padding: 5px 20px;
+	border: 0px solid;
+    text-align: left;	
+}
+
+.ActionBar#menu input[disabled] {
+	color: #666;
+	
+	/* Still need gradient definitions even though there is no gradient here to override the parent class */
+	
+	/* fallback color */
+	background-color: #C8C8C8;
+	/* proposed standard, IE 10+, Firefox 16+, Chrome 26+, Safari 6.1+, Opera 12.1+ */
+	background-image: linear-gradient(to bottom, #C8C8C8, #C8C8C8);
+	/* Safari 5.1+ */
+	background-image: -webkit-linear-gradient(top, #C8C8C8, #C8C8C8);
+	/* IE 8/9 */
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorStr='#C8C8C8', endColorStr='#C8C8C8')";
+}
+
+.cwSubmenu {
+	display: block;
+}
+
+.sourceSubmenu {
+	display: block;
+}
+
+.adminSubmenu {
+	display: block;
+}
+
+.addUsersSubmenu {
+	display: block;
+}
+
+.clear { /* generic container (i.e. div) for floating buttons */
+    overflow: hidden;
+    width: 100%;
+}

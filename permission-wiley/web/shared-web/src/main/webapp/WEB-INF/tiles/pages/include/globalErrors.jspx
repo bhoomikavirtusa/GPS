@@ -1,0 +1,28 @@
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:spring="http://www.springframework.org/tags"
+>
+
+<c:if test="${not empty globalErrors}">
+	<table style="margin-bottom: 1em">
+		<tr>
+			<td class="error">					
+					There are errors with your entry!
+				<br/><br/>
+				<c:forEach items="${globalErrors}" var="error">
+					<c:set var="size" value="${fn:length(error.codes)}" />
+					<!-- for typeMismatch use the second from the end -->
+					<c:if test="${error.code == 'typeMismatch'}">
+						<spring:message code="${error.codes[size-2]}" arguments="${error.arguments}" /><br/>
+					</c:if>
+					<c:if test="${error.code != 'typeMismatch'}">
+						<spring:message code="${error.code}" arguments="${error.arguments}" /><br/>
+					</c:if>
+				</c:forEach>
+			</td>
+		</tr>
+	</table>
+</c:if>
+</jsp:root>

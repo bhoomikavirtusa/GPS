@@ -1,0 +1,2 @@
+insert into user_profile (user_id,name,title,visible,required,sortable,editable,width,sort_order,sort_type) values (1,'artist','Photographer',0,0,1,0,10,max(sort_order)+1,'');
+ALTER TABLE contract ADD check_number int;

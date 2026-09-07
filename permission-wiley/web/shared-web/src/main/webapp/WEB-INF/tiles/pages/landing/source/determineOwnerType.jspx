@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="nextUrl" value="/sapp/landing/source/determine_owner_type" />	
+	<c:url var="prevUrl" value="/sapp/landing/source/pub_assets_details" />
+
+	<h3>Another Wiley Publication</h3>
+
+	<form:form modelAttribute="sourceWizardForm">
+		<table>		
+		<tr>
+			<td>Select Desired Owner Type:</td>
+			<td>
+				<form:select path="newOwnerType" class="required">
+					<form:option value="3rd Party">Third Party</form:option>
+					<form:option value="Author Owned">Author Owned</form:option>
+					<form:option value="Wiley Owned">Wiley Owned</form:option>
+				</form:select>	
+			</td>
+		</tr>
+		</table>
+		
+		<div class="buttonset">
+			<c:if test="${not empty sourceWizardForm.prevUrl}">
+				<input type="button" id="prevB" value="Previous" /> 
+			</c:if>
+			<input type="submit" id="assetsB" value="Next" /> 
+			<a href="#" id="cancelLink" class="button">Cancel</a>
+		</div>
+	</form:form>
+	
+	<script type="text/javascript">
+	//<![CDATA[	
+		$('#cancelLink').click (function() {
+			$modalDialog.dialog("close");
+		});
+
+		$('#prevB').click (function() {
+			$.ajax({
+	            async: true,
+	            type: 'get',
+	            url: '${prevUrl}',
+	            data: $('#sourceWizardForm').serialize(),
+	            success: function (response){
+	            	$('#modalDiv').empty().html(response);
+	            	repositionDialog();
+	            }
+	        });
+		});	
+
+
+		$('#sourceWizardForm').submit(function() {
+			$.ajax({
+	            type: 'post',
+	            url: '${nextUrl}',
+	            data: $('#sourceWizardForm').serialize(),
+	            success: function (response) {
+	                 $('#modalDiv').html(response);
+	            }
+	        });
+			return false;
+		});
+		
+	//]]>		
+	</script>
+
+</jsp:root>

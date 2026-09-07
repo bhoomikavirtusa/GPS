@@ -1,0 +1,26 @@
+<td title="{ $P.aData.source }" class="{ $P.aData.css }">{ $P.aData.source.truncate(30) }</td>
+<td class="{ $P.aData.css }">
+	{#if $P.aData.poId != 0 } 
+		<a href="#" id="{ $P.aData.poId }" class="viewPermissions enable">{ $P.aData.poId }</a>
+	{#/if}
+</td>
+<td class="{ $P.aData.css }">{ $P.aData.contractNumber }</td>
+<td class="{ $P.aData.css }">
+<a href="#" id="{ $P.aData.invoiceId }" class="viewInvoice enable">{ $P.aData.contractDate }</a>
+{#if $P.aData.paid}
+	<a href="#" id="{$P.aData.invoiceId}" class="paid">Paid</a>
+{#else}
+	<a href="#" id="{$P.aData.invoiceId}" class="pay">Pay</a>
+{#/if}
+</td>
+<td title="{ $P.aData.description }" class="{ $P.aData.css }">{ $P.aData.description.truncate(30) }</td>
+<td class="{ $P.aData.css }">{ $P.aData.mediaType }</td>
+<td class="{ $P.aData.css }">{ $P.aData.usage }</td>
+<td class="{ $P.aData.css }">{ $P.aData.position }</td>
+<td class="{ $P.aData.css }">
+{#if $P.aData.latest } 
+	{ $P.aData.status }
+{#else}
+	Contract replaced
+{#/if}
+</td>

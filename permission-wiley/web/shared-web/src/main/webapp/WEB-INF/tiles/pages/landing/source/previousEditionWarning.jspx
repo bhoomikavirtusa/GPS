@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+
+	<c:url var="prevUrl" value="/sapp/landing/source/main" />
+	
+	<jsp:directive.include file="js/wizard.buttons.js.jspx" />
+	
+	<h3>Previous Edition </h3>
+
+	<table>
+		<tr><td></td></tr>
+		<tr><td></td></tr>
+		<tr><td>Please cancel this asset and use the Import/Copy from Previous Edition option to select assets from </td></tr>
+		<tr><td>previous editions. If the asset you want is not found in the system then create it as you would any other </td></tr>
+		<tr><td>asset e.g. from a 3rd party source. You may optionally add information about the previous edition on the </td></tr>
+		<tr><td>Usage Details tab of View/Edit Asset Details after you have created the asset. </td></tr>
+		<tr><td></td></tr>
+		<tr><td></td></tr>
+		<tr>
+			<td></td>
+			<td><a href="#" id="cancelLink" class="button">Done</a></td>
+		</tr>
+	</table>
+
+</jsp:root>

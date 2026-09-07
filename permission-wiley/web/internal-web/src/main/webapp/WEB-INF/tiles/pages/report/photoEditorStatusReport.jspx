@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+
+	<c:url var="nextUrl"
+		value="/sapp/commonwork/report/viewPhotoEditorStatusReport.xls" />
+	<c:url var="prevUrl" value="/sapp/cwlanding/main?cwId=${cwId}" />
+	
+	<jsp:directive.page pageEncoding="UTF-8" />
+
+	<fmt:setBundle basename="messages" />
+
+	<jsp:body>
+		<c:url var="photoEditorStatusReportUrl" value="/sapp/commonwork/report/photoEditorStatusReport.xls" />
+		<h3>Photo Editor Status Report</h3>
+		<form method="post" action="${photoEditorStatusReportUrl}">
+			<table>
+			
+					<c:if test="${not empty editorsList}">
+					<tr>
+						<td>
+							Desired Photo Editor
+						    <select name="editorId" id="editorId">
+								<c:forEach items="${editorsList}" var="editor">
+							        <jsp:element name="option">
+										<jsp:attribute name="value"><c:out value="${editor.value}"/></jsp:attribute>
+										<jsp:attribute name="title"><c:out value="${editor.label}"/></jsp:attribute>
+										<c:out value="${editor.label}"/>
+									</jsp:element>
+								</c:forEach>
+							</select>
+						</td>
+					</tr>
+				</c:if>
+			</table>
+			
+			<div class="buttonset">
+				<input type="submit" id="generateB" value="Generate-Spreadsheet" />
+				<a href="#" id="cancelLink" class="button">Cancel</a>
+			</div>
+		</form>
+		
+	</jsp:body>
+	
+	<script type="text/javascript">
+	//<![CDATA[
+      $(document).ready(function() {
+           
+		$('#generateB').click (function() {
+			$.ajax({
+	            async: true,
+	            type: 'get',
+	            url: '${nextUrl}',
+	            success: function (response){
+	            	$modalDialog.dialog("close");
+	            }
+	        });
+		});
+	});
+	//]]>		
+	</script>
+</jsp:root>

@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<!--include as jspx so the jsp variable are recognized-->
+	<jsp:directive.include file="/WEB-INF/tiles/pages/include/js/toggleScript.js.jspx" />
+
+	<jsp:directive.include file="/WEB-INF/tiles/pages/include/generalMessage.jspx" />	
+		<table>
+			<tr>
+				<td>
+	    			Usage:
+				</td>
+				<td>
+					${usageDetailsForm.assetUse.usage.description}
+				</td>
+			</tr>
+			<tr>
+				<td>
+	    			Position:
+				</td>
+				<td>
+	    			${usageDetailsForm.assetUse.position}
+				</td>			
+			</tr>
+			<tr>
+				<td>
+				    Found On:
+				</td>
+				<td colspan="3">
+	    			${usageDetailsForm.assetUse.foundOn}
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+    				Component:
+				</td>
+				<td colspan="3">
+					${usageDetailsForm.assetUse.component.name}
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+	    			Manuscript Page:
+				</td>
+				<td>
+	    			${usageDetailsForm.assetUse.manuscriptPage}
+				</td>
+			</tr>
+			<tr>
+				<td>
+	    			Final Page:
+				</td>
+				<td>
+	    			${usageDetailsForm.assetUse.finalPage}
+				</td>			
+			</tr>
+			<tr>
+				<td>
+	    			Asset Order:
+				</td>
+				<td colspan="3">
+	    			${usageDetailsForm.assetUse.sortOrder}
+				</td>
+			</tr>
+			<tr>
+				<td>
+	    			Color:
+				</td>
+				<td colspan="3">
+	    			${wileyfn:formatBoolean(usageDetailsForm.assetUse.color)}
+				</td>
+			</tr>
+			<tr>
+				<td>
+				    Size:
+				</td>
+				<td>
+					${usageDetailsForm.assetUse.size.description}
+				</td>
+				<td>
+	    			Page Position:
+				</td>
+				<td>
+					${usageDetailsForm.assetUse.pagePosition.description}
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+    				Caption:
+				</td>
+				<td colspan="3">
+	    			${usageDetailsForm.assetUse.caption}
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Estimated cost:
+				</td>
+				<td colspan="3"> 
+					${usageDetailsForm.assetUse.estimatedCost}
+					${usageDetailsForm.assetUse.estimatedCurrency.description}
+				</td>				
+			</tr>
+			<tr>
+				<td>
+					Final cost:
+				</td>
+				<td colspan="3"> 
+					<fmt:formatNumber type="currency" currencyCode="USD" value="${assetFinalCost}" />
+				</td>
+			</tr>			
+			<tr>
+				<td>
+       				Permission<br/> Comment:
+    			</td>
+				<td colspan="3">
+	    			${usageDetailsForm.assetUse.permissionComment}
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+       				Production<br/> Comment:
+    			</td>
+				<td colspan="3">
+	    			${usageDetailsForm.assetUse.productionComment}
+				</td>
+			</tr>
+			
+			<c:if test="${assetDetailsForm.assetUse.reusedFromPreviousEdition}">
+				<c:set var="reusedStyle" value=""/>
+				<c:set var="nonreusedStyle" value="display: none;"/>
+			</c:if>
+			<c:if test="${not assetDetailsForm.assetUse.reusedFromPreviousEdition}">
+				<c:set var="reusedStyle" value="display: none;"/>
+				<c:set var="nonreusedStyle" value=""/>
+			</c:if>
+			<c:if test="${assetDetailsForm.assetUse.pickup}">
+				<c:set var="pickupStyle" value=""/>
+				<c:set var="nonpickupStyle" value="display: none;"/>
+			</c:if>
+			<c:if test="${not assetDetailsForm.assetUse.pickup}">
+				<c:set var="pickupStyle" value="display: none;"/>
+				<c:set var="nonpickupStyle" value=""/>
+			</c:if>
+		
+			<tbody id="details-nonpickup" style="${nonpickupStyle}">
+			<tr>
+				<td>
+				    Reused From<br/> Previous Edition:
+				</td>
+				<td colspan="3">
+				    ${wileyfn:formatBoolean(usageDetailsForm.assetUse.reusedFromPreviousEdition)}
+				</td>
+			</tr>
+			</tbody>
+
+			<tbody id="details-reused" style="${reusedStyle}">
+				<tr>
+					<td>
+					    Reused ISBN:
+					</td>
+					<td colspan="3">
+						${usageDetailsForm.assetUse.reusedISBN}
+					</td>
+				</tr>
+
+				<tr>
+					<td>
+					    Reused Comment:
+					</td>
+					<td colspan="3">${usageDetailsForm.assetUse.reusedComment}</td>
+				</tr>
+
+				<tr>
+					<td>
+					    Reused Position:
+					</td>
+					<td>${usageDetailsForm.assetUse.reusedPosition}</td>
+					<td>
+					    Reused Page:
+					</td>
+					<td>${usageDetailsForm.assetUse.reusedPage}</td>
+				</tr>
+			</tbody>
+
+			<tbody id="details-nonreused" style="${nonreusedStyle}">
+				<tr>
+					<td>
+					    Pickup From<br/> Another Title:
+					    <c:if test="${assetDetailsForm.assetUse.pickup}">
+					    	(${assetDetailsForm.assetUse.pickupTitle } by: ${assetDetailsForm.assetUse.pickupAuthor } )
+					    </c:if>
+					</td>
+					<td colspan="3">
+					    ${wileyfn:formatBoolean(usageDetailsForm.assetUse.pickup)}
+					</td>									
+				</tr>
+			</tbody>
+			
+			<tbody id="details-pickup" style="${pickupStyle}">
+				<tr>
+					<td>
+					    Pickup ISBN:
+					</td>
+					<td colspan="3">
+						${usageDetailsForm.assetUse.pickupISBN}
+					</td>
+				</tr>
+
+				<tr>
+					<td>
+					    Pickup Comment:
+					</td>
+					<td colspan="3">${usageDetailsForm.assetUse.pickupComment}</td>
+				</tr>
+
+				<tr>
+					<td>
+					    Pickup Position:
+					</td>
+					<td>
+					    ${usageDetailsForm.assetUse.pickupPosition}
+					</td>
+					<td>
+					    Pickup Page:
+					</td>
+					<td>
+					    ${usageDetailsForm.assetUse.pickupPage}
+					</td>
+				</tr>						
+			</tbody>
+			
+			<tr>
+				<td colspan="4">
+					<table>
+						<tr>
+							<td>
+				    			Camera Copy To Come:
+							</td>
+							<td>
+				    			${wileyfn:formatBoolean(usageDetailsForm.assetUse.cameraCopyToCome)}
+							</td>
+							<td>
+				    			Media Return Requested:
+							</td>
+							<td>
+				    			${wileyfn:formatBoolean(usageDetailsForm.assetUse.mediaReturnRequested)}
+							</td>
+						</tr>
+				
+						<tr>
+							<td>
+				    			New:
+							</td>
+							<td>
+				    			${wileyfn:formatBoolean(usageDetailsForm.assetUse.new)}
+							</td>
+							<td>
+				    			Needs Payment Request:
+							</td>
+							<td>
+				    			${wileyfn:formatBoolean(usageDetailsForm.assetUse.needPaymentRequest)}
+							</td>
+						</tr>
+						<tr>
+							<td>
+				    			Sent To Production:
+							</td>
+							<td>
+				    			${wileyfn:formatBoolean(usageDetailsForm.assetUse.sentToProduction)}
+							</td>
+							<td>
+				    			<!--empty-->
+							</td>
+							<td>
+				    			<!--empty-->
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			
+			<!-- This part until end of table is same as ../usagedetails.jspx (cut and paste). -->
+		
+	<c:if test="${assetDetailsForm.assetUse.importSource != null}">
+		<tr>
+			<td>Imported from</td>
+			<td><c:out value="${assetDetailsForm.assetUse.importSource.description}" /></td>
+		</tr>
+	</c:if>
+
+			<tr>
+				<td class="label">Group Created By</td>
+				<td class="value">
+					<c:out value="${assetDetailsForm.assetUse.userGroup == null ? '' : assetDetailsForm.assetUse.userGroup.name}" />
+				</td>
+			</tr>
+			<tr>
+				<td class="label">Cancelled</td>
+				${wileyfn:booleanTD(assetDetailsForm.assetUse.canceled)}
+			</tr>
+			<c:if test="${assetDetailsForm.assetUse.canceled}">
+				<tr>
+					<td class="label">Cancel Timestamp</td>
+					<td>
+						<!-- cancelTimestamp may be null due to cancellations that occurred before we had this field. -->
+						<c:choose>
+							<c:when test="${assetDetailsForm.assetUse.cancelTimestamp == null}">
+								Not recorded
+							</c:when>
+							<c:otherwise>
+								<fmt:formatDate type="both" value="${assetDetailsForm.assetUse.cancelTimestamp}" />
+							</c:otherwise>
+						</c:choose>
+					</td>
+				</tr>
+				<tr>
+					<td class="label">Cancel User</td>
+					<td>
+						<!-- cancelUser may be null due to cancellations that occurred before we had this field. -->
+						<c:choose>
+							<c:when test="${assetDetailsForm.assetUse.cancelUser == null}">
+								Not recorded
+							</c:when>
+							<c:otherwise>
+								<c:out value="${assetDetailsForm.assetUse.cancelUser.fullName}" />
+							</c:otherwise>
+						</c:choose>
+					</td>
+				</tr>
+				<tr>
+					<td class="label">Cancel Replacement</td>
+					<td>
+						<c:choose>
+							<c:when test="${assetDetailsForm.assetUse.cancelReplacement == null}">
+								None
+							</c:when>
+							<c:otherwise>
+								Description:
+								<c:out value="${assetDetailsForm.assetUse.cancelReplacement.asset.description}" />
+								<br />
+								Source(s): <c:out value="${assetDetailsForm.assetUse.cancelReplacement.asset.sourcesAsString}" />
+							</c:otherwise>
+						</c:choose>
+					</td>
+				</tr>
+				<tr>
+					<td class="label">Cancel Comment</td>
+					<td>
+						<c:out value="${assetDetailsForm.assetUse.cancelComment}" />
+					</td>
+				</tr>
+			</c:if>
+			<tr>
+				<td class="label">Replacement for:</td>
+				<td class="value"><c:out value="${replacementForDescriptions}" /></td>
+			</tr>
+		</table>
+</jsp:root>

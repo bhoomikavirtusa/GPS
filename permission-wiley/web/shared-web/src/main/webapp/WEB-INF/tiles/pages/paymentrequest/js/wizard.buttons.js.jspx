@@ -1,0 +1,56 @@
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+	<script type="text/javascript">
+	//<![CDATA[
+
+	// ------------------ BUTTONS ----------------
+	$('#nextB').click (function() {
+		next('post');
+	});
+	
+	$('#selectB').click (function() {
+		next ('get');
+	});
+		
+	$('#finishB').click (function() {
+		finish('post');
+	});
+	
+	$('#prevB').click (function() {
+		prev('get');
+	});
+
+	// set focus on first input
+	$('#generatePaymentRequestForm *:input[type!=hidden]:first').focus();		
+	
+	function next (rtype) {
+		if ($("#generatePaymentRequestForm").validate().form() == true) {	
+			$.ajax({
+	            async: true,
+	            type: rtype,
+	            url: '${nextUrl}',
+	            data: $('#generatePaymentRequestForm').serialize(),
+	            success: function (response){
+	            	$('#modalDiv').empty().html(response);
+	            	repositionDialog();
+	            }
+	        });
+		}
+	}
+	
+	function prev (rtype) {
+		$.ajax({
+            async: true,
+            type: rtype,
+            url: '${prevUrl}',
+            success: function (response){
+                $('#modalDiv').empty().html(response);
+                repositionDialog();
+            }
+        });
+	}
+	//]]>		
+	</script>
+</jsp:root>	

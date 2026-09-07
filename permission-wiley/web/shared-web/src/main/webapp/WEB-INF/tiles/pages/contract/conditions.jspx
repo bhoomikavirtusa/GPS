@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:form="http://www.springframework.org/tags/form">
+
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="loadUrl" value="/sapp/permissions/contract/load_conditions_frame" />
+	<c:url var="saveUrl" value="/sapp/permissions/contract/submit_conditions" />
+
+	<style type="text/css">
+		.greyout { color: gray; }
+		.normal { color: black; }
+	</style>
+
+	<b>Please answer the following questions in order to transcribe the restrictions and conditions from the invoice,<br/>
+	then click FINISH to save and continue. Answers for ALL questions are REQUIRED</b><br/>
+	
+	<!-- Start - Added to implement DM-122 -->
+	<c:if test="${contractWizardForm.assetLevelRF}">
+		<br/>*Deal Name: <span style="color: red">${contractWizardForm.source.name} Royalty Free</span>
+	</c:if>
+	<!-- End - Added to implement DM-122 -->
+
+	<table>
+		<tr>
+			<td valign="top">
+				<form:form modelAttribute="contractWizardForm">
+					<div id="conditions" style="width: 700px">
+					</div>
+				</form:form>	
+				<!--
+				<div class="buttonset">
+					<input type="submit" id="saveB" value="Save" /> 
+				</div>
+				-->
+			</td>
+		</tr>
+	</table>
+	
+	<script type="text/javascript">
+	//<![CDATA[
+	
+	// this could be cleaned up since always called with null now (no more asset-level conditions)
+	function loadConditions(aids) {
+		isDirty = false;
+
+		var data = (null != aids) ? "caids=" + aids : null;
+		$.ajax({
+            async: true,
+            type: 'get',
+            url: '${loadUrl}',
+            data: data,
+            success: function (response) {
+            	$('#conditions').empty().html(response);
+				$("#conditions").live("change", function() { 
+			        isDirty = true;
+			     });
+				$("#price").live("change", function() { 
+					isDirty = true;
+				});
+            }
+        });
+	}
+
+	$(document).ready(function() {
+		loadConditions(null);
+	});
+   	//]]>
+	</script>
+</jsp:root>

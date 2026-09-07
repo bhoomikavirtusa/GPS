@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root 
+	version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8" />
+
+			<table class="width100">
+				<tr>
+					<th>
+						CMS Get Messages
+					</th>
+				</tr>
+				<tr>
+					<td>
+						<table>
+							<tr>
+								<td>
+									<form:form modelAttribute="manageMessageForm" method="POST">
+									    <jsp:attribute name="action">
+				                            <c:url value="/sapp/admin/testMessages"/>
+			                            </jsp:attribute>
+			                            
+									    <form:select path="messageName" size="4">
+									        <form:option label="GetAsset" value="GetAsset" />
+									        <form:option label="GetAssetUse" value="GetAssetUse" />
+									        <form:option label="GetSource" value="GetSource" />
+									        <form:option label="GetComponent" value="GetComponent" />
+									    </form:select>
+
+									    <form:label path="externalId" cssClass="required" cssErrorClass="error" cssStyle="margin-left: 1em">External Id</form:label>
+									    <form:input path="externalId" size="50" maxlength="50" />
+
+                                        <input type="submit" value="Send" />
+                                    </form:form>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+
+				<tr>
+					<th>
+						CMS Delete Messages
+					</th>
+				</tr>
+				<tr>
+					<td>
+						<table>
+							<tr>
+								<td>
+									<form:form modelAttribute="manageMessageForm" method="POST">
+									    <jsp:attribute name="action">
+				                            <c:url value="/sapp/admin/testMessages"/>
+			                            </jsp:attribute>
+			                            
+									    <form:select path="messageName" size="4">
+									        <form:option label="DeleteAsset" value="DeleteAsset" />
+									        <form:option label="DeleteAssetUse" value="DeleteAssetUse" />
+									        <form:option label="DeleteSource" value="DeleteSource" />
+									        <form:option label="DeleteComponent" value="DeleteComponent" />
+									    </form:select>
+
+									    <form:label path="externalId" cssClass="required" cssErrorClass="error" cssStyle="margin-left: 1em">External Id</form:label>
+									    <form:input path="externalId" size="50" maxlength="50" />
+
+                                        <input type="submit" value="Send" />
+                                    </form:form>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				
+				<tr>
+					<th>
+						CMS Error Messages
+					</th>
+				</tr>
+				<tr>
+					<td>
+						<table>
+							<tr>
+								<td>
+									<form:form modelAttribute="manageMessageForm" method="POST">
+									    <jsp:attribute name="action">
+				                            <c:url value="/sapp/admin/testMessages"/>
+			                            </jsp:attribute>
+			                            
+									    <form:select path="messageName" size="4">
+									        <form:option label="(dummy error)" value="Error" />
+									    </form:select>
+
+                                        <input type="submit" value="Send" />
+                                    </form:form>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				
+				<tr>
+					<th>
+						PE Product Update Messages
+					</th>
+				</tr>
+				<tr>
+					<td>
+						<table>
+							<tr>
+								<td>
+									<form:form modelAttribute="manageMessageForm" method="POST">
+									    <jsp:attribute name="action">
+				                            <c:url value="/sapp/admin/testMessages"/>
+			                            </jsp:attribute>
+			                            
+			                            RefreshProduct (WebService)
+			                            <form:hidden path="messageName" value="RefreshProduct" />
+									    
+									    <form:label path="externalId" cssClass="required" cssErrorClass="error" cssStyle="margin-left: 1em">External Id</form:label>
+									    <form:input path="externalId" size="50" maxlength="50" />
+									    
+									    <form:label path="dataSourceCode" cssClass="required" cssErrorClass="error" cssStyle="margin-left: 1em">Data Source</form:label>
+									    <form:select path="dataSourceCode">
+									    	<form:option value="Auto" label="Auto" />
+									    	<form:options items="${manageMessageForm.dataSourceArray}" itemLabel="code" itemValue="code"/>
+									    </form:select>
+
+                                        <input type="submit" value="Send" />
+                                    </form:form>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<form:form modelAttribute="manageMessageForm" method="POST">
+									    <jsp:attribute name="action">
+				                            <c:url value="/sapp/admin/testMessages"/>
+			                            </jsp:attribute>
+			                            
+			                            RequestProductUpdate (MQ)
+			                            <form:hidden path="messageName" value="RequestProductUpdate" />
+									    
+									    <form:label path="externalId" cssClass="required" cssErrorClass="error" cssStyle="margin-left: 1em">External Id(s)</form:label>
+									    <form:textarea path="externalId" rows="4" cols="40" />
+									    
+									    <form:label path="dataSourceCode" cssClass="required" cssErrorClass="error" cssStyle="margin-left: 1em">Data Source</form:label>
+									    <form:select path="dataSourceCode">
+									    	<form:option value="Auto" label="Auto" />
+									    	<form:options items="${manageMessageForm.dataSourceArray}" itemLabel="code" itemValue="code"/>
+									    </form:select>
+									    
+									    Bunch limit
+									    <form:input path="bunchLimit" size="3" /> (0 = unlimited)
+
+                                        <input type="submit" value="Send" />
+                                    </form:form>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<form:form modelAttribute="manageMessageForm" method="POST">
+									    <jsp:attribute name="action">
+				                            <c:url value="/sapp/admin/testMessages"/>
+			                            </jsp:attribute>
+			                            
+			                            RequestProductUpdateSince (MQ)
+			                            <form:hidden path="messageName" value="RequestProductUpdateSince" />
+									    
+									    Updated Since
+									    <form:label path="updatedSinceMins" cssClass="required" cssErrorClass="error" cssStyle="margin-left: 1em">Mins</form:label>
+									    <form:input path="updatedSinceMins" size="2" value="1" />
+									    <form:label path="updatedSinceHours" cssClass="required" cssErrorClass="error" cssStyle="margin-left: 1em">Hours</form:label>
+									    <form:input path="updatedSinceHours" size="2" value="1" />
+										<form:label path="updatedSinceDays" cssClass="required" cssErrorClass="error" cssStyle="margin-left: 1em">Days</form:label>
+									    <form:input path="updatedSinceDays" size="2" value="0" />
+
+                                        <input type="submit" value="Send" />
+                                    </form:form>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<form:form modelAttribute="manageMessageForm" method="POST">
+									    <jsp:attribute name="action">
+				                            <c:url value="/sapp/admin/testMessages"/>
+			                            </jsp:attribute>
+			                            
+			                            RequestProductUpdateSinceLastCheck (cron job)
+			                            <form:hidden path="messageName" value="RequestProductUpdateSinceLastCheck" />
+
+                                        <input type="submit" value="Send" />
+                                    </form:form>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<th>
+						PE Master Table Messages
+					</th>
+				</tr>
+				<tr>
+					<td>
+						<table>
+							<tr>
+								<td>
+									<form:form modelAttribute="manageMessageForm" method="POST">
+									    <jsp:attribute name="action">
+				                            <c:url value="/sapp/admin/testMessages"/>
+			                            </jsp:attribute>
+			                            
+			                            <spring:hasBindErrors name="manageMessageForm">
+											<jsp:directive.include file="/WEB-INF/tiles/pages/include/formErrors.jspx" />
+										</spring:hasBindErrors>
+			                            
+			                            RequestMasterListUpdate (MQ)
+									    <form:hidden path="messageName" value="RequestMasterListUpdate" />
+									    
+									    <form:label path="masterListName" cssClass="required" cssErrorClass="error" cssStyle="margin-left: 1em">Name</form:label>
+
+									    <form:select path="masterListName" size="1">
+									    	<c:forEach items="${masterListsToPickFrom}" var="ml">
+									    		<form:option label="${ml.name}" value="${ml.name}" />
+									    	</c:forEach>
+									    </form:select>
+									    
+									    Updated Since
+									    <form:hidden path="updatedSinceMins" value="0" />
+									    <form:label path="updatedSinceHours" cssClass="required" cssErrorClass="error" cssStyle="margin-left: 1em">Hours</form:label>
+									    <form:input path="updatedSinceHours" size="2" value="1" /> (-1 means 1970)
+									    <form:label path="updatedSinceDays" cssClass="required" cssErrorClass="error" cssStyle="margin-left: 1em">Days</form:label>
+									    <form:input path="updatedSinceDays" size="2" value="0" />
+									    
+									    <form:label path="dataSourceCode" cssClass="required" cssErrorClass="error" cssStyle="margin-left: 1em">Data Source</form:label>
+									    <form:select path="dataSourceCode">
+									    	<form:options items="${manageMessageForm.dataSourceArray}" itemLabel="code" itemValue="code"/>
+									    	<form:option label="(Unspecified)" value="" />
+									    </form:select>
+
+                                        <input type="submit" value="Send" />
+                                    </form:form>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<form:form modelAttribute="manageMessageForm" method="POST">
+									    <jsp:attribute name="action">
+				                            <c:url value="/sapp/admin/testMessages"/>
+			                            </jsp:attribute>
+			                            
+			                            RequestMasterListUpdateSinceLastCheck (cron job)
+			                            <form:hidden path="messageName" value="RequestMasterListUpdateSinceLastCheck" />
+
+                                        <input type="submit" value="Send" />
+                                    </form:form>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			</table>
+</jsp:root>

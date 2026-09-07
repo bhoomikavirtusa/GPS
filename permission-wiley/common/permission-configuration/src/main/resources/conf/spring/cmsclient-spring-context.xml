@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+		http://www.springframework.org/schema/util
+		http://www.springframework.org/schema/util/spring-util-4.3.xsd
+	">
+	
+	<bean name="connector.CMSJMSConnector" class="com.ibm.mq.jms.MQQueueConnectionFactory">
+		<property name="hostName" value="${messaging.jms.cms.host}" />
+		<property name="port" value="${messaging.jms.cms.port}" />
+		<property name="queueManager" value="${messaging.jms.cms.queueManager}" />
+		<property name="channel" value="${messaging.jms.cms.channel}" />
+		<property name="transportType" value="${messaging.jms.cms.transportType}" />
+	</bean>
+	
+	<bean name="resources.sourceDetailResource"
+        class="com.wiley.permissions.cmsclient.SourceDetailResource">
+        <property name="restMessageService" ref="services.message.RestMessageService"/>
+    </bean>
+    
+    <bean name="resources.sourceAddressResource"
+        class="com.wiley.permissions.cmsclient.SourceAddressResource">
+        <property name="restMessageService" ref="services.message.RestMessageService"/>
+		<property name="sourceService" ref="services.SourceService" />
+    </bean>
+    
+    <bean name="resources.sourceResource"
+        class="com.wiley.permissions.cmsclient.SourceResource">
+        <property name="restMessageService" ref="services.message.RestMessageService"/>
+		<property name="sourceService" ref="services.SourceService" />
+    </bean>
+    
+    <bean name="resources.sourceContactResource"
+        class="com.wiley.permissions.cmsclient.SourceContactResource">
+        <property name="restMessageService" ref="services.message.RestMessageService"/>
+		<property name="sourceService" ref="services.SourceService" />
+    </bean>
+    
+	<bean name="resources.countryResource"
+        class="com.wiley.permissions.cmsclient.CountryResource">
+        <property name="restMessageService" ref="services.message.RestMessageService"/>
+    </bean>
+    
+    <bean name="resources.contactTypeResource"
+		class="com.wiley.permissions.cmsclient.ContactTypeResource">
+        <property name="restMessageService" ref="services.message.RestMessageService"/>
+    </bean>
+    
+    <bean name="resources.addressTypeResource"
+		class="com.wiley.permissions.cmsclient.AddressTypeResource">
+        <property name="restMessageService" ref="services.message.RestMessageService"/>
+	</bean>
+    
+    <bean name="resources.deliveryMethodResource"
+		class="com.wiley.permissions.cmsclient.DeliveryMethodResource">
+        <property name="restMessageService" ref="services.message.RestMessageService"/>
+		<property name="sourceRepository" ref="repository.SourceRepository"/>	
+    </bean>
+    
+    <!-- this instance is used for receiving messages -->
+	<bean id="inbound.message.CmsMessageService" class="com.wiley.permissions.services.message.CMSMessageService" 
+		parent="genericMessageService">
+		<property name="sessionFactory" ref="sessionFactory"/>
+		<property name="entityManagerFactory" ref="permissions"/>
+	</bean>
+
+</beans>

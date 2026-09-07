@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	
+	<parent>
+		<artifactId>test-parent</artifactId>
+		<groupId>com.wiley.permissions.test</groupId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+	
+	<!-- When groupId and version tags omitted here, same as parent -->
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>permission-integration-tests</artifactId>
+	<name>Permissions Integration Tests</name>
+	<url>http://san-ds-dev.wiley.com</url>
+	<dependencies>
+	
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mule</groupId>
+			<artifactId>mule-core</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
+					<groupId>org.apache.geronimo.specs</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>geronimo-jta_1.0.1B_spec</artifactId>
+					<groupId>org.apache.geronimo.specs</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mule.modules</groupId>
+			<artifactId>mule-module-client</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mule.transports</groupId>
+			<artifactId>mule-transport-http</artifactId>
+			<exclusions>
+                <exclusion>
+                    <artifactId>geronimo-servlet_2.4_spec</artifactId>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                </exclusion>
+            </exclusions>
+		</dependency>
+		
+		<dependency>
+    		<groupId>org.apache.lucene</groupId>
+    		<artifactId>lucene-core</artifactId>
+    		<version>4.8.1</version>
+		</dependency>
+		
+		<dependency>
+    		<groupId>org.apache.lucene</groupId>
+    		<artifactId>lucene-queryparser</artifactId>
+    		<version>4.8.1</version>
+		</dependency>
+		
+		<dependency>
+    		<groupId>org.apache.lucene</groupId>
+    		<artifactId>lucene-analyzers-common</artifactId>
+    		<version>4.8.1</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.wiley.permissions.common</groupId>
+			<artifactId>permission-common-utils</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.wiley.permissions.common</groupId>
+			<artifactId>permission-persistence</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.wiley.permissions.services</groupId>
+			<artifactId>permission-services</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.wiley.permissions.services</groupId>
+			<artifactId>permission-validator</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>net.sf.jxls</groupId>
+		    <artifactId>jxls-core</artifactId>
+		    <version>${jxls.version}</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>net.sf.jxls</groupId>
+		    <artifactId>jxls-reader</artifactId>
+		    <version>${jxls.version}</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>commons-digester</groupId>
+		    <artifactId>commons-digester</artifactId>
+		    <version>2.0</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-jexl</artifactId>
+			<version>${commons-jexl.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+		</dependency>
+	</dependencies>
+</project>

@@ -1,0 +1,102 @@
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+	<c:url var="assetSourceListUrl" value="/sapp/landing/sources?cwId=${amendmentWizardForm.cwId}" />
+
+	<script type="text/javascript">
+	//<![CDATA[
+
+	// ------------------ BUTTONS ----------------
+	$('#nextB').click (function() {
+		next('post');
+	});
+
+	$('#selectB').click (function() {
+		next ('get');
+	});
+		
+	$('#finishB').click (function() {
+		finish('post');
+	});
+	
+	$('#prevB').click (function() {
+		prev('get');
+	});
+	
+	// set focus on first input
+	$('#amendmentWizardForm *:input[type!=hidden]:first').focus();
+
+	function next (rtype) {
+		if ($("#amendmentWizardForm").validate().form() == true) {	
+			$.ajax({
+	            async: true,
+	            type: rtype,
+	            url: '${nextUrl}',
+	            data: $('#amendmentWizardForm').serialize(),
+	            success: function (response){
+	            	$('#modalDiv').empty().html(response);
+	            	repositionDialog();
+	            }
+	        });
+		}
+	}
+
+	function finish (rtype) {
+		if ($("#amendmentWizardForm").validate().form() == true) {
+			$.ajax({
+	            async: true,
+	            type: rtype,
+	            url: '${nextUrl}',
+	            data: $('#amendmentWizardForm').serialize(),
+	            dataType: 'json',
+	            success: function (json){
+	            	var selected = $tabs.tabs( "option", "selected" );
+	            	// if asset table tab selected, refresh just selected rows
+	                if (selected == 0) {
+	                	for ( var i=0, iLen=json.auids.length ; i<iLen ; i++ ) {
+		                	fnRefreshRows (json.auids[i]);
+		                }
+		            // if source table tab selected, refresh the whole table
+		            } else {
+		            	$('#ltabs #ui-tabs-2').load('${assetSourceListUrl}');
+		            }
+		            refreshPanels (${amendmentWizardForm.cwId});
+		            // redirect to preview
+		            if (json.url != '') {
+		                $.ajax({
+				            async: true,
+				            type: 'get',
+				            url: json.url,
+				            success: function (resp){
+				            	$('#modalDiv').empty().html(resp);
+				            }
+				        });
+	                    repositionDialog();
+	                } else {
+	                	// alert ("No amendments forms created");
+	                	$modalDialog.dialog("close");
+	                }
+	            },
+	            error: function(request,error) {
+	                $('#modalDiv').empty().html(error);
+	                repositionDialog();
+	            }
+	        });
+		}
+	}
+
+	function prev (rtype) {
+		$.ajax({
+            async: true,
+            type: rtype,
+            url: '${prevUrl}',
+            success: function (response){
+                $('#modalDiv').empty().html(response);
+                repositionDialog();
+            }
+        });
+	}
+	//]]>		
+	</script>
+</jsp:root>	

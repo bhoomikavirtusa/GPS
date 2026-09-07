@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="permmsg_20080829.xsd"
+    type="failure" replyId="perm.updateAsset.9932"  id="CMS_error9939" sent="1183481115542" source="CMS001" protocolVersion="1.0">
+    <target>
+        <system>PERM001</system>
+    </target>
+    <operation name="Error">
+        <error>
+            <code>412</code>
+            <text>Could not find Source with the given wid</text>
+            <reference wid="CMS002.97877883" />
+        </error>
+    </operation>
+</message>

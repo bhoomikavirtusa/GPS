@@ -1,0 +1,983 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+
+	<c:url var="landingUrl" value="/sapp/cwlanding/main" />
+
+	<form:form modelAttribute="assetSearchForm">
+		<spring:hasBindErrors name="assetSearchForm">
+			<jsp:directive.include file="/WEB-INF/tiles/pages/include/formErrors.jspx" />
+		</spring:hasBindErrors>
+
+		<script type="text/javascript">
+			function isWhitespace(string) {
+				var pattern = /^\s*$/;
+				return pattern.test(string);
+			}
+
+			function syncCheckbox(textField, checkboxId) {
+				var checkbox = document.getElementById(checkboxId);
+				checkbox.checked = !isWhitespace(textField.value);
+			}
+
+			/** Called below when the page is first loaded. */
+			function checkSearchType() {
+            	var radioCurrent = document.getElementById("searchByCurrentCommonWork1");
+            	changeSearchType(radioCurrent.checked);
+			}
+
+			/** Called when the radio value is changed. */
+			function changeSearchType(current) {
+		    	
+		    
+		    	/** Removed as this DM-280 requirement is both for current product as well as multiple products */
+		    	
+				 var productDetails = document.getElementById("productDetails");
+				productDetails.style.display = current ? "none" : "block";
+
+				var includeCommonWorkId = document.getElementById("includeCommonWorkId");
+		    	includeCommonWorkId.value = current;
+		    	
+		    	var includeEnteredCwID = document.getElementById("includeEnteredCwID1");
+		    	includeEnteredCwID.disabled = current;
+		    	
+				// display: none does not affect form submission, so also disable
+				// all the product details include checkboxes, which will affect
+				// form submission
+			
+				var includeAuthor = document.getElementById("includeAuthor1");
+				var includeTitle = document.getElementById("includeTitle1");
+				//var includeIsbn13 = document.getElementById("includeIsbn131");//updated for DM-280
+				//var includeIsbn10 = document.getElementById("includeIsbn101");//Added for DM-280
+				var includeCopyrightYear = document.getElementById("includeCopyrightYear1");
+
+				includeAuthor.disabled = current;
+				includeTitle.disabled = current;
+				//includeIsbn13.disabled = current; 
+				//includeIsbn10.disabled = current; 
+				includeCopyrightYear.disabled = current;
+				
+				//Start: Added for DM-280
+				var includeProductNumber = document.getElementById("includeProductNumber1");
+				var includeEditionNumber = document.getElementById("includeEditionNumber1");
+				var includeBusinessUnit = document.getElementById("includeBusinessUnit1");
+				var includeProductPriorit = document.getElementById("includeProductPriority1");
+				var includeMedium = document.getElementById("includeMedium1");
+				var includeDataSource = document.getElementById("includeDataSource1");
+				var includeComplianceStatus = document.getElementById("includeComplianceStatus1");
+				var includeEditorCode = document.getElementById("includeEditorCode1");
+				var includeEditorName = document.getElementById("includeEditorName1");
+				var includeAUNotCancelCount = document.getElementById("includeAUNotCancelCount1");
+				var includeCoverCountNotCanceled = document.getElementById("includeCoverCountNotCanceled1");
+				var includeStatusNotOkCount = document.getElementById("includeStatusNotOkCount1");
+				var includePhotoIllusTotalCount = document.getElementById("includePhotoIllusTotalCount1");
+				var includePhotoEditorLastName = document.getElementById("includePhotoEditorLastName1");
+				var includePhotoEditorFirstName = document.getElementById("includePhotoEditorFirstName1");
+				var includeLastUpdatedDate = document.getElementById("includeLastUpdatedDate1");
+				var includeConsolidatedReleaseDate = document.getElementById("includeConsolidatedReleaseDate1");
+				var includeTransmittalDate = document.getElementById("includeTransmittalDate1");
+				
+				
+				includeProductNumber.disabled = current;
+				includeEditionNumber.disabled = current;
+				includeBusinessUnit.disabled = current;
+				includeProductPriority.disabled = current;
+				includeMedium.disabled = current;
+				includeDataSource.disabled = current;
+				includeComplianceStatus.disabled = current;
+				includeEditorCode.disabled = current;
+				includeEditorName.disabled = current;
+				includeAUNotCancelCount.disabled = current;
+				includeCoverCountNotCanceled.disabled = current;
+				includeStatusNotOkCount.disabled = current;
+				includePhotoIllusTotalCount.disabled = current;
+				includePhotoEditorLastName.disabled = current;
+				includePhotoEditorFirstName.disabled = current;
+				includeLastUpdatedDate.disabled = current;
+				includeConsolidatedReleaseDate.disabled = current;
+				includeTransmittalDate.disabled = current;  
+				//End: Added for DM-280
+
+			}
+
+			function resetForm() {
+				var form = document.getElementById("assetSearchForm");
+				form.reset();
+				checkSearchType();
+			}
+
+			function clearForm() {
+				var form = document.getElementById("assetSearchForm");
+
+				for (i = 0; i &lt; form.elements.length; i++) {
+    	            var e = form.elements[i];
+
+					switch (e.type) {
+					    case "text":
+					    case "textarea":
+				    	case "password":
+					    	e.value = ""; break;
+				    	case "radio":
+					    	// do nothing
+					    	break;
+				    	case "checkbox":
+					    	e.checked = "";  break;
+				    	case "select-one":
+				    	case "select-multiple":
+				    	case "hidden":
+					    	// do nothing
+					    	break;
+						default:
+							// do nothing
+							break;
+					}
+				}
+			}
+		</script>
+		
+		<table class="width100">
+			<tr>
+				<th>
+					Assets Advanced Search
+				</th>
+				<th></th>
+			</tr>		
+			<tr>
+				<td colspan="2">
+				    <table>
+				        <tr>
+				            <td>Search across:</td>
+				            <td><form:radiobutton path="searchByCurrentCommonWork" value="true" onclick="changeSearchType(true)" />Current product</td>
+				            <td><form:radiobutton path="searchByCurrentCommonWork" value="false" onclick="changeSearchType(false)" />Multiple products</td>
+				        </tr>
+				    </table>
+				</td>
+			</tr>
+		    <tr>
+		        <td>
+		            <table id="productDetails">
+		                <tr>
+		                	<td colspan="3"><h2>Product Details</h2></td>
+		                </tr>
+		                <tr style="font-weight: bold">
+							<td colspan="2">Check to search on</td>
+							<td>Search Value</td>
+						</tr>
+						<tr>
+		                	<td class="label">
+			        			<form:checkbox path="includeEnteredCwID" />
+			    			</td>
+			    			<td>
+			        			<form:label path="enteredCwID" cssClass="optional" cssErrorClass="error">Common Work ID</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="enteredCwID" size="50" maxlength="50" onchange="syncCheckbox(this, 'includeEnteredCwID1')" />
+			    			</td>
+		                </tr>
+		                <tr>
+		                    <!-- Use class label only where we want right-aligned. -->
+		                	<td class="label">
+			        			<form:checkbox path="includeAuthor" />
+			        			<form:hidden path="includeCommonWorkId" />
+			        			<form:hidden path="commonWorkId" />
+			    			</td>
+			    			<td>
+			        			<form:label path="author" cssClass="optional" cssErrorClass="error">Author Name</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="author" size="50" maxlength="50" onchange="syncCheckbox(this, 'includeAuthor1')" />
+			    			</td>
+		                </tr>
+		                <tr>
+		                	<td class="label">
+			        			<form:checkbox path="includeTitle" />
+			    			</td>
+			    			<td>
+			        			<form:label path="title" cssClass="optional" cssErrorClass="error">Title Name</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="title" size="50" maxlength="50" onchange="syncCheckbox(this, 'includeTitle1')" />
+			    			</td>
+		                </tr>
+		           <!--   Removed ISBN13 and ISBN10 as Tim suggested not a sho-stopper but confusing  --> 
+		           
+		                <tr>
+		                	<td class="label">
+			        			<form:checkbox path="includeCopyrightYear" />
+			    			</td>
+			    			<td>
+			        			<form:label path="copyrightYear" cssClass="optional" cssErrorClass="error">Copyright Year</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="copyrightYear" size="4" maxlength="4" onchange="syncCheckbox(this, 'includeCopyrightYear1')" />
+			    			</td>
+		                </tr>
+		                <tr>
+		                	<td class="label">
+			        			<form:checkbox path="includeUserName" />
+			    			</td>
+			    			<td>
+			        			<form:label path="userName" cssClass="optional" cssErrorClass="error">User Name</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="userName" size="50" maxlength="50" onchange="syncCheckbox(this, 'includeUserName1')" />
+			    			</td>
+		                </tr>
+		                <tr>
+			    			<td class="label">
+			        			<form:checkbox path="includePublicationStatus" />
+			    			</td>
+			    			<td>
+			        			<form:label path="publicationStatus" cssClass="optional" cssErrorClass="error">Publication Status</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:select path="publicationStatus" onchange="syncCheckbox(this, 'includePublicationStatus1')">
+			        				<form:options items="${publicationStatusList}" itemValue="code" itemLabel="codeAndDescription" />
+			        			</form:select>
+			    			</td>
+						</tr>
+						<!-- Start: Added for DM-280 -->
+		                <tr>
+		                	<td class="label">
+			        			<form:checkbox path="includeProductNumber" />
+			    			</td>
+			    			<td>
+			        			<form:label path="productNumber" cssClass="optional" cssErrorClass="error">Product Number</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="productNumber" size="20" maxlength="20" onchange="syncCheckbox(this, 'includeProductNumber1')" />
+			    			</td>
+		                </tr>
+		                <tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeBusinessUnit" />
+			    			</td>
+			    			<td>
+			        			<form:label path="businessUnit" cssClass="optional" cssErrorClass="error">Business Unit Name</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:select path="businessUnit" onchange="syncCheckbox(this, 'includeBusinessUnit1')">
+			        				<form:options items="${businessUnits}" itemValue="code" itemLabel="name" />
+			        			</form:select>
+			    			</td>
+						</tr>
+						 <tr>
+		                	<td class="label">
+			        			<form:checkbox path="includeBunitCode" />
+			    			</td>
+			    			<td>
+			        			<form:label path="bunitCode" cssClass="optional" cssErrorClass="error">Business Unit Code</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="bunitCode" size="2" maxlength="2" onchange="syncCheckbox(this, 'includeBunitCode1')" />
+			    			</td>
+		                </tr>
+						<tr>
+		                	<td class="label">
+			        			<form:checkbox path="includeEditionNumber" />
+			    			</td>
+			    			<td>
+			        			<form:label path="editionNumber" cssClass="optional" cssErrorClass="error">Edition Number</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="editionNumber" size="20" maxlength="20" onchange="syncCheckbox(this, 'includeEditionNumber1')" />
+			    			</td>
+		                </tr>
+		                <tr>
+		                	<td class="label">
+			        			<form:checkbox path="includeProductPriority" />
+			    			</td>
+			    			<td>
+			        			<form:label path="productPriority" cssClass="optional" cssErrorClass="error">Product Priority</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="productPriority" size="20" maxlength="20" onchange="syncCheckbox(this, 'includeProductPriority1')" />
+			    			</td>
+		                </tr>
+		                <tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeMedium" />
+			    			</td>
+			    			<td>
+			        			<form:label path="medium" cssClass="optional" cssErrorClass="error">Medium Code</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:select path="medium" onchange="syncCheckbox(this, 'includeMedium1')">
+			        				<form:options items="${mediums}" itemValue="code" itemLabel="name" />
+			        			</form:select>
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeDataSource" />
+			    			</td>
+			    			<td>
+			        			<form:label path="dataSource" cssClass="optional" cssErrorClass="error">Data Source</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:select path="dataSource" onchange="syncCheckbox(this, 'includeDataSource1')">
+			        				<form:option value="AU" label="AU" />
+			        				<form:option value="CA" label="CA" />
+			        				<form:option value="DE" label="DE" />
+			        				<form:option value="SG" label="SG" />
+			        				<form:option value="UK" label="UK" />
+			        				<form:option value="US" label="US" />
+			        			</form:select>
+			    			</td>
+						</tr>
+						<tr>
+		                	<td class="label">
+			        			<form:checkbox path="includeShortAuthorName" />
+			    			</td>
+			    			<td>
+			        			<form:label path="shortAuthorName" cssClass="optional" cssErrorClass="error">Short Author Name</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="shortAuthorName" size="50" maxlength="50" onchange="syncCheckbox(this, 'includeShortAuthorName1')" />
+			    			</td>
+		                </tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeComplianceStatus" />
+			    			</td>
+			    			<td>
+			        			<form:label path="complianceStatus" cssClass="optional" cssErrorClass="error">Compliance Status</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:select path="complianceStatus" onchange="syncCheckbox(this, 'includeComplianceStatus1')">
+			        				<form:option value="inProgress" label="In Progress" />
+			        				<form:option value="noPermReq" label="No Permissions Req." />
+			        				<form:option value="complete" label="Complete" />
+			        				<form:option value="completeNo3rdPrty" label="Complete: No Third-Party Assets" />
+			        			</form:select>
+			    			</td>
+						</tr>
+						<tr>
+		                	<td class="label">
+			        			<form:checkbox path="includeEditorCode" />
+			    			</td>
+			    			<td>
+			        			<form:label path="editorCode" cssClass="optional" cssErrorClass="error">Editor Code</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="editorCode" size="20" maxlength="20" onchange="syncCheckbox(this, 'includeEditorCode1')" />
+			    			</td>
+		                </tr>
+		                <tr>
+		                	<td class="label">
+			        			<form:checkbox path="includeEditorName" />
+			    			</td>
+			    			<td>
+			        			<form:label path="editorName" cssClass="optional" cssErrorClass="error">Editor Name</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="editorName" size="60" maxlength="60" onchange="syncCheckbox(this, 'includeEditorName1')" />
+			    			</td>
+		                </tr>
+		                <tr>
+		                	<td class="label">
+			        			<form:checkbox path="includeAUNotCancelCount" />
+			    			</td>
+			    			<td>
+			        			<form:label path="auCountNotCanceledCnt" cssClass="optional" cssErrorClass="error">Asset Use Not Cancelled Count</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="auCountNotCanceledCnt" size="20" maxlength="20" onchange="syncCheckbox(this, 'includeAUNotCancelCount1')" />
+			    			</td>
+		                </tr>
+		                <tr>
+		                	<td class="label">
+			        			<form:checkbox path="includeCoverCountNotCanceled" />
+			    			</td>
+			    			<td>
+			        			<form:label path="coverCountNotCanceled" cssClass="optional" cssErrorClass="error">Cover Count Not Cancelled</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="coverCountNotCanceled" size="20" maxlength="20" onchange="syncCheckbox(this, 'includeCoverCountNotCanceled1')" />
+			    			</td>
+		                </tr>
+		                <tr>
+		                	<td class="label">
+			        			<form:checkbox path="includeStatusNotOkCount" />
+			    			</td>
+			    			<td>
+			        			<form:label path="statusNotOkCount" cssClass="optional" cssErrorClass="error">Status Not Ok Count</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="statusNotOkCount" size="20" maxlength="20" onchange="syncCheckbox(this, 'includeStatusNotOkCount1')" />
+			    			</td>
+		                </tr>
+		                <tr>
+		                	<td class="label">
+			        			<form:checkbox path="includePhotoIllusTotalCount" />
+			    			</td>
+			    			<td>
+			        			<form:label path="photoIllusTotalCount" cssClass="optional" cssErrorClass="error">Photo Illustration Total Count</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="photoIllusTotalCount" size="20" maxlength="20" onchange="syncCheckbox(this, 'includePhotoIllusTotalCount1')" />
+			    			</td>
+		                </tr>
+		                <tr>
+		                	<td class="label">
+			        			<form:checkbox path="includePhotoEditorLastName" />
+			    			</td>
+			    			<td>
+			        			<form:label path="photoEditorLastName" cssClass="optional" cssErrorClass="error">Photo Editor Last Name</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="photoEditorLastName" size="50" maxlength="50" onchange="syncCheckbox(this, 'includePhotoEditorLastName1')" />
+			    			</td>
+		                </tr>
+		                <tr>
+		                	<td class="label">
+			        			<form:checkbox path="includePhotoEditorFirstName" />
+			    			</td>
+			    			<td>
+			        			<form:label path="photoEditorFirstName" cssClass="optional" cssErrorClass="error">Photo Editor First Name</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="photoEditorFirstName" size="50" maxlength="50" onchange="syncCheckbox(this, 'includePhotoEditorFirstName1')" />
+			    			</td>
+		                </tr>
+		                <tr>
+		                	<td class="label">
+			        			<form:checkbox path="includeLastUpdatedDate" />
+			    			</td>
+			    			<td>
+			        			<form:label path="lastUpdatedDate" cssClass="optional" cssErrorClass="error">Last Updated Date</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="lastUpdatedDate" size="20" maxlength="20" onchange="syncCheckbox(this, 'includeLastUpdatedDate1')" /> (MMddyyyy)
+			    			</td>
+		                </tr>
+		                <tr>
+		                	<td class="label">
+			        			<form:checkbox path="includeConsolidatedReleaseDate" />
+			    			</td>
+			    			<td>
+			        			<form:label path="consolidatedReleaseDate" cssClass="optional" cssErrorClass="error">Consolidated Release Date</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="consolidatedReleaseDate" size="20" maxlength="20" onchange="syncCheckbox(this, 'includeConsolidatedReleaseDate1')" /> (MMddyyyy)
+			    			</td>
+		                </tr>
+		                <tr>
+		                	<td class="label">
+			        			<form:checkbox path="includeTransmittalDate" />
+			    			</td>
+			    			<td>
+			        			<form:label path="transmittalDate" cssClass="optional" cssErrorClass="error">Transmittal Date</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="transmittalDate" size="20" maxlength="20" onchange="syncCheckbox(this, 'includeTransmittalDate1')" /> (MMddyyyy)
+			    			</td>
+		                </tr>
+		                <!-- End: Added for DM-280 -->
+		            </table>
+		        </td>
+		    </tr>
+			<tr>
+				<td style="vertical-align: top">
+					<table>
+						<tr>
+							<td colspan="3"><h2>Asset Details</h2></td>
+						</tr>
+						<tr style="font-weight: bold">
+							<td colspan="2">Check to search on</td>
+							<td>Search Value</td>
+						</tr>
+						<!-- 
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeActive" />
+			    			</td>
+			    			<td>
+			        			<form:label path="active" cssClass="optional" cssErrorClass="error">Active</form:label>
+			    			</td>
+			    			<td class="value">
+			    			    <form:radiobutton path="active" value="true" onchange="syncCheckbox(this, 'includeActive1')" /> yes
+			    			    <form:radiobutton path="active" value="false" onchange="syncCheckbox(this, 'includeActive1')" cssStyle="margin-left: 1em" /> no
+			    			</td>
+						</tr>
+						-->
+						<tr>
+							<!-- Use class label only where we want right-aligned. -->
+			   				<td class="label">
+			        			<form:checkbox path="includeSourceName" />
+			    			</td>
+			    			<td>
+			        			<form:label path="sourceName" cssClass="optional" cssErrorClass="error">Source Name</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="sourceName" size="50" maxlength="50" onchange="syncCheckbox(this, 'includeSourceName1')" />
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeMediaType" />
+			    			</td>
+			    			<td>
+			        			<form:label path="mediaType" cssClass="optional" cssErrorClass="error">Media Type</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:select path="mediaType" onchange="syncCheckbox(this, 'includeMediaType1')">
+			        				<form:options items="${mediaTypes}" itemValue="code" itemLabel="description" />
+			        			</form:select>
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeDescription" />
+			    			</td>
+			    			<td>
+			        			<form:label path="description" cssClass="optional" cssErrorClass="error">Description</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="description" size="50" maxlength="50" onchange="syncCheckbox(this, 'includeDescription1')" />
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeKeywords" />
+			    			</td>
+			    			<td>
+			        			<form:label path="keywords" cssClass="optional" cssErrorClass="error">Keywords</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="keywords" size="50" maxlength="50" onchange="syncCheckbox(this, 'includeKeywords1')" />
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeWorkForHire" />
+			    			</td>
+			    			<td>
+			        			<form:label path="workForHire" cssClass="optional" cssErrorClass="error">Work For Hire</form:label>
+			    			</td>
+			    			<!-- Use radio button instead of checkbox because seems more intuitive for user. -->
+			    			<!--
+			    			<td class="value">
+			        			<form:checkbox path="workForHire" onchange="syncCheckbox(this, 'includeWorkForHire1')" />
+			    			</td>
+			    			-->
+			    			<td class="value">
+			    			    <form:radiobutton path="workForHire" value="true" onchange="syncCheckbox(this, 'includeWorkForHire1')" /> yes
+			    			    <form:radiobutton path="workForHire" value="false" onchange="syncCheckbox(this, 'includeWorkForHire1')" cssStyle="margin-left: 1em" /> no
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeOwnerType" />
+			    			</td>
+			    			<td>
+			        			<form:label path="ownerType" cssClass="optional" cssErrorClass="error">Owner Type</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:select path="ownerType" onchange="syncCheckbox(this, 'includeOwnerType1')">
+			        				<form:options items="${ownerTypes}" itemValue="code" itemLabel="description" />
+			        			</form:select>
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeSourceRef" />
+			    			</td>
+			    			<td>
+			        			<form:label path="sourceRef" cssClass="optional" cssErrorClass="error">Source Ref#</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="sourceRef" size="50" maxlength="50" onchange="syncCheckbox(this, 'includeSourceRef1')" />
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeArtist" />
+			    			</td>
+			    			<td>
+			        			<form:label path="artist" cssClass="optional" cssErrorClass="error">Artist/Photographer</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="artist" size="50" maxlength="50" onchange="syncCheckbox(this, 'includeArtist1')" />
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeModelRelease" />
+			    			</td>
+			    			<td>
+			        			<form:label path="modelRelease" cssClass="optional" cssErrorClass="error">Model Release</form:label>
+			    			</td>
+			    			<td class="value">
+			    			    <form:select path="modelRelease" onchange="syncCheckbox(this, 'includeModelRelease1')">
+			        				<form:options items="${modelReleases}" itemValue="code" itemLabel="name" />
+			        			</form:select>
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeManaged" />
+			    			</td>
+			    			<td>
+			        			<form:label path="managed" cssClass="optional" cssErrorClass="error">Rights Managed</form:label>
+			    			</td>
+			    			<td class="value">
+			    			    <form:radiobutton path="managed" value="true" onchange="syncCheckbox(this, 'includeManaged1')" /> yes
+			    			    <form:radiobutton path="managed" value="false" onchange="syncCheckbox(this, 'includeManaged1')" cssStyle="margin-left: 1em" /> no
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeFeeRequired" />
+			    			</td>
+			    			<td>
+			        			<form:label path="feeRequired" cssClass="optional" cssErrorClass="error">Fee Required</form:label>
+			    			</td>
+			    			<td class="value">
+			    			    <form:radiobutton path="feeRequired" value="true" onchange="syncCheckbox(this, 'includeFeeRequired1')" /> yes
+			    			    <form:radiobutton path="feeRequired" value="false" onchange="syncCheckbox(this, 'includeFeeRequired1')" cssStyle="margin-left: 1em" /> no
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeRoyaltyFree" />
+			    			</td>
+			    			<td>
+			        			<form:label path="royaltyFree" cssClass="optional" cssErrorClass="error">Royalty Free</form:label>
+			    			</td>
+			    			<td class="value">
+			    			    <form:radiobutton path="royaltyFree" value="true" onchange="syncCheckbox(this, 'includeRoyaltyFree1')" /> yes
+			    			    <form:radiobutton path="royaltyFree" value="false" onchange="syncCheckbox(this, 'includeRoyaltyFree1')" cssStyle="margin-left: 1em" /> no
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeRestrictedUse" />
+			    			</td>
+			    			<td>
+			        			<form:label path="restrictedUse" cssClass="optional" cssErrorClass="error">Restricted Use</form:label>
+			    			</td>
+			    			<td class="value">
+			    			    <form:radiobutton path="restrictedUse" value="true" onchange="syncCheckbox(this, 'includeRestrictedUse1')" /> yes
+			    			    <form:radiobutton path="restrictedUse" value="false" onchange="syncCheckbox(this, 'includeRestrictedUse1')" cssStyle="margin-left: 1em" /> no
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeMustDisplayCredit" />
+			    			</td>
+			    			<td>
+			        			<form:label path="mustDisplayCredit" cssClass="optional" cssErrorClass="error">Must Display Credit</form:label>
+			    			</td>
+			    			<td class="value">
+			    			    <form:radiobutton path="mustDisplayCredit" value="true" onchange="syncCheckbox(this, 'includeMustDisplayCredit1')" /> yes
+			    			    <form:radiobutton path="mustDisplayCredit" value="false" onchange="syncCheckbox(this, 'includeMustDisplayCredit1')" cssStyle="margin-left: 1em" /> no
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeObtainedByAuthor" />
+			    			</td>
+			    			<td>
+			        			<form:label path="obtainedByAuthor" cssClass="optional" cssErrorClass="error">Obtained By Author</form:label>
+			    			</td>
+			    			<td class="value">
+			    			    <form:radiobutton path="obtainedByAuthor" value="true" onchange="syncCheckbox(this, 'includeObtainedByAuthor1')" /> yes
+			    			    <form:radiobutton path="obtainedByAuthor" value="false" onchange="syncCheckbox(this, 'includeObtainedByAuthor1')" cssStyle="margin-left: 1em" /> no
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includePropertyRelease" />
+			    			</td>
+			    			<td>
+			        			<form:label path="propertyRelease" cssClass="optional" cssErrorClass="error">Property Release</form:label>
+			    			</td>
+			    			<td class="value">
+			    			    <form:radiobutton path="propertyRelease" value="true" onchange="syncCheckbox(this, 'includePropertyRelease1')" /> yes
+			    			    <form:radiobutton path="propertyRelease" value="false" onchange="syncCheckbox(this, 'includePropertyRelease1')" cssStyle="margin-left: 1em" /> no
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeArchive" />
+			    			</td>
+			    			<td>
+			        			<form:label path="archive" cssClass="optional" cssErrorClass="error">Archive</form:label>
+			    			</td>
+			    			<td class="value">
+			    			    <form:radiobutton path="archive" value="true" onchange="syncCheckbox(this, 'includeArchive1')" /> yes
+			    			    <form:radiobutton path="archive" value="false" onchange="syncCheckbox(this, 'includeArchive1')" cssStyle="margin-left: 1em" /> no
+			    			</td>
+						</tr>
+					</table>
+				</td>
+				<td style="vertical-align: top">
+					<table>
+						<tr>
+							<td colspan="3"><h2>Usage Details</h2></td>
+						</tr>
+						<tr style="font-weight: bold">
+							<td colspan="2">Check to search on</td>
+							<td>Search Value</td>
+						</tr>
+						<tr>
+			    			<!-- Use class label only where we want right-aligned. -->
+			    			<td class="label">
+			        			<form:checkbox path="includePermissionStatus" />
+			    			</td>
+			    			<td>
+			        			<form:label path="permissionStatus" cssClass="optional" cssErrorClass="error">Permission Status</form:label>
+			  				</td>
+			    			<td class="value">
+			        			<form:select path="permissionStatus" onchange="syncCheckbox(this, 'includePermissionStatus1')">
+			        				<form:options items="${statuses}" itemValue="code" itemLabel="description" />
+			        			</form:select>
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeCanceled" />
+			    			</td>
+			    			<td>
+			        			<form:label path="canceled" cssClass="optional" cssErrorClass="error">Cancelled</form:label>
+			    			</td>
+			    			<td class="value">
+			    			    <form:radiobutton path="canceled" value="true" onchange="syncCheckbox(this, 'includeCanceled1')" /> yes
+			    			    <form:radiobutton path="canceled" value="false" onchange="syncCheckbox(this, 'includeCanceled1')" cssStyle="margin-left: 1em" /> no
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeReplaced" />
+			    			</td>
+			    			<td>
+			        			<form:label path="replaced" cssClass="optional" cssErrorClass="error">Replaced</form:label>
+			    			</td>
+			    			<td class="value">
+			    			    <form:radiobutton path="replaced" value="true" onchange="syncCheckbox(this, 'includeReplaced1')" /> yes
+			    			    <form:radiobutton path="replaced" value="false" onchange="syncCheckbox(this, 'includeReplaced1')" cssStyle="margin-left: 1em" /> no
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeCreditLine" />
+			    			</td>
+			    			<td>
+			        			<form:label path="creditLine" cssClass="optional" cssErrorClass="error">Credit Line</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="creditLine" size="50" maxlength="50" onchange="syncCheckbox(this, 'includeCreditLine1')" />
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeUsage" />
+			    			</td>
+			    			<td>
+			        			<form:label path="usage" cssClass="optional" cssErrorClass="error">Usage</form:label>
+			  				</td>
+			    			<td class="value">
+			        			<form:select path="usage" onchange="syncCheckbox(this, 'includeUsage1')">
+			        				<form:options items="${usages}" itemValue="code" itemLabel="description" />
+			        			</form:select>
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includePosition" />
+			    			</td>
+			    			<td>
+			        			<form:label path="position" cssClass="optional" cssErrorClass="error">Position</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="position" size="50" maxlength="50" onchange="syncCheckbox(this, 'includePosition1')" />
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeFoundOn" />
+			    			</td>
+			    			<td>
+			        			<form:label path="foundOn" cssClass="optional" cssErrorClass="error">Found On</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="foundOn" size="50" maxlength="50" onchange="syncCheckbox(this, 'includeFoundOn1')" />
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeComponentName" />
+			    			</td>
+			    			<td>
+			        			<form:label path="componentName" cssClass="optional" cssErrorClass="error">Component Name</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="componentName" size="50" maxlength="50" onchange="syncCheckbox(this, 'includeComponentName1')" />
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeManuscriptPage" />
+			    			</td>
+			    			<td>
+			        			<form:label path="manuscriptPage" cssClass="optional" cssErrorClass="error">Manuscript Page</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="manuscriptPage" size="50" maxlength="50" onchange="syncCheckbox(this, 'includeManuscriptPage1')" />
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeFinalPage" />
+			    			</td>
+			    			<td>
+			        			<form:label path="finalPage" cssClass="optional" cssErrorClass="error">Final Page</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="finalPage" size="50" maxlength="50" onchange="syncCheckbox(this, 'includeFinalPage1')" />
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeColor" />
+			    			</td>
+			    			<td>
+			        			<form:label path="color" cssClass="optional" cssErrorClass="error">Color or B&amp;W</form:label>
+			    			</td>
+			    			<td class="value">
+			    			    <form:radiobutton path="color" value="true" onchange="syncCheckbox(this, 'includeColor1')" /> color
+			    			    <form:radiobutton path="color" value="false" onchange="syncCheckbox(this, 'includeColor1')" cssStyle="margin-left: 1em" /> black &amp; white
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeSize" />
+			    			</td>
+			    			<td>
+			        			<form:label path="size" cssClass="optional" cssErrorClass="error">Size</form:label>
+			  				</td>
+			    			<td class="value">
+			        			<form:select path="size" onchange="syncCheckbox(this, 'includeSize1')">
+			        				<form:options items="${sizes}" itemValue="code" itemLabel="description" />
+			        			</form:select>
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeCaption" />
+			    			</td>
+			    			<td>
+			        			<form:label path="caption" cssClass="optional" cssErrorClass="error">Caption</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="caption" size="50" maxlength="50" onchange="syncCheckbox(this, 'includeCaption1')" />
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includePermissionComment" />
+			    			</td>
+			    			<td>
+			        			<form:label path="permissionComment" cssClass="optional" cssErrorClass="error">Permission Comment</form:label>
+			    			</td>
+			    			<td class="value">
+			        			<form:input path="permissionComment" size="50" maxlength="5000" onchange="syncCheckbox(this, 'includePermissionComment1')" />
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeReuse" />
+			    			</td>
+			    			<td>
+			        			<form:label path="reuse" cssClass="optional" cssErrorClass="error">Reused From Previous Edition</form:label>
+			    			</td>
+			    			<td class="value">
+			    			    <form:radiobutton path="reuse" value="true" onchange="syncCheckbox(this, 'includeReuse1')" /> yes
+			    			    <form:radiobutton path="reuse" value="false" onchange="syncCheckbox(this, 'includeReuse1')" cssStyle="margin-left: 1em" /> no
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includePickup" />
+			    			</td>
+			    			<td>
+			        			<form:label path="pickup" cssClass="optional" cssErrorClass="error">Pickup from Another Title</form:label>
+			    			</td>
+			    			<td class="value">
+			    			    <form:radiobutton path="pickup" value="true" onchange="syncCheckbox(this, 'includePickup1')" /> yes
+			    			    <form:radiobutton path="pickup" value="false" onchange="syncCheckbox(this, 'includePickup1')" cssStyle="margin-left: 1em" /> no
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeCameraCopyToCome" />
+			    			</td>
+			    			<td>
+			        			<form:label path="cameraCopyToCome" cssClass="optional" cssErrorClass="error">Camera Copy To Come</form:label>
+			    			</td>
+			    			<td class="value">
+			    			    <form:radiobutton path="cameraCopyToCome" value="true" onchange="syncCheckbox(this, 'includeCameraCopyToCome1')" /> yes
+			    			    <form:radiobutton path="cameraCopyToCome" value="false" onchange="syncCheckbox(this, 'includeCameraCopyToCome1')" cssStyle="margin-left: 1em" /> no
+			    			</td>
+						</tr>
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeSentToProduction" />
+			    			</td>
+			    			<td>
+			        			<form:label path="sentToProduction" cssClass="optional" cssErrorClass="error">Sent To Production</form:label>
+			    			</td>
+			    			<td class="value">
+			    			    <form:radiobutton path="sentToProduction" value="true" onchange="syncCheckbox(this, 'includeSentToProduction1')" /> yes
+			    			    <form:radiobutton path="sentToProduction" value="false" onchange="syncCheckbox(this, 'includeSentToProduction1')" cssStyle="margin-left: 1em" /> no
+			    			</td>
+						</tr>						
+						<tr>
+			    			<td class="label">
+			        			<form:checkbox path="includeMediaReturnRequest" />
+			    			</td>
+			    			<td>
+			        			<form:label path="mediaReturnRequest" cssClass="optional" cssErrorClass="error">Media Return Request</form:label>
+			    			</td>
+			    			<td class="value">
+			    			    <form:radiobutton path="mediaReturnRequest" value="true" onchange="syncCheckbox(this, 'includeMediaReturnRequest1')" /> yes
+			    			    <form:radiobutton path="mediaReturnRequest" value="false" onchange="syncCheckbox(this, 'includeMediaReturnRequest1')" cssStyle="margin-left: 1em" /> no
+			    			</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+	<div class="buttonset">			
+		<jsp:element name="input">
+			<jsp:attribute name="type">submit</jsp:attribute>
+			<jsp:attribute name="value">Search</jsp:attribute>
+		</jsp:element>
+
+		<jsp:element name="input">
+			<jsp:attribute name="type">button</jsp:attribute>
+			<jsp:attribute name="value">Reset</jsp:attribute>
+			<jsp:attribute name="onclick">resetForm(); return false;</jsp:attribute>
+		</jsp:element>
+
+		<jsp:element name="input">
+			<jsp:attribute name="type">button</jsp:attribute>
+			<jsp:attribute name="value">Clear</jsp:attribute>
+			<jsp:attribute name="onclick">clearForm(); return false;</jsp:attribute>
+		</jsp:element>
+		<a class="button" href="${landingUrl}">Back to product details</a>
+	</div>
+	</form:form>
+	
+	<script type="text/javascript">
+		checkSearchType();
+	</script>
+</jsp:root>

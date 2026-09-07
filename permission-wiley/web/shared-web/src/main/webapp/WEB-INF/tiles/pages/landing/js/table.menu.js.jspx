@@ -1,0 +1,320 @@
+<script type="text/javascript">
+//<![CDATA[
+	
+	/*
+	 * menu action - inserts a blank row at the selected row position
+	 */ 
+	 function fnInsertAtSelection (aData, offset) 
+	 {
+		var sValue = oSelector.fnPreMenuAction (false);
+		if (null == sValue) {
+			alert ("Please make your selection");
+			return;
+		}
+
+		if (offset == null) {
+			offset = 1;
+		}
+
+		aSelected = CustomTableRow.getInstance (dataTable, parseInt(sValue));
+		fnInsertRowAtPosition (aSelected, aData, dataTable.fnGetIndexOfDisplayRow (0,aSelected.fnGetId()), offset);
+
+		oSelector.fnPostMenuAction ();
+	 }
+
+	 function fnInsertBeforeLast (aData, bReadOnly)
+	 {
+	 	var aRow = new CustomTableRow (aData, null, dataTable, profile);
+	 	var aNewRow = fnInsertRowAtPosition (aRow, aData, dataTable.fnGetData().length-1, 0, bReadOnly);
+	 	return aNewRow;
+	 }
+
+	/*
+	 * menu action - inserts a blank row at the end
+	 */ 
+	 function fnInsertLast (aData, bReadOnly) 
+	 {
+	 	// no preMenuAction conditions 
+	 	var aRow = new CustomTableRow (aData, null, dataTable, profile);
+	 	var aNewRow = fnInsertRowAtPosition (aRow, aData, dataTable.fnGetData().length, 0, bReadOnly);
+		oSelector.fnPostMenuAction ();
+	 }
+	 
+	 function fnInsertRowAtPosition (aRow, aData, iPos, offset, bReadOnly) 
+	 {
+	 	var aNewRow = aRow.fnInsertRow (aData, iPos, offset);
+		
+		// load it in edit mode
+		if ( typeof bReadOnly == 'undefined' || !bReadOnly ) 
+		{
+			//oSelector.fnSetSelectedRow (aNewRow);
+			aNewRow.fnLoadForm ($('#form'));		
+			oSelector.fnClearAllChecked ();
+			oSelector.fnAdd (aNewRow.fnGetId());
+		}
+		return aNewRow;
+	 }
+	 
+	 
+	 function fnInternalCancelRows() {
+	 	var sValues = oSelector.fnPreMenuAction (true);
+ 		// normally the cancel menu is disabled unless something is selected
+ 		// but check anyway that we have some selected rows
+	 	if (null == sValues || "" == sValues) {
+			alert("Please make your selection");
+			return;
+		}
+	 	var single = sValues.indexOf(",") == -1;
+	 	var cancelUrl = single ? '${assetCancelUrl}' : '${assetCancelMultiUrl}';
+	 	
+	 	if (!single) {
+	 		// Show dialog with Wait message first because if many assets
+	 		// are selected can take a long time to load
+	 		openModalDialog('Please Wait...');
+	 		$("#modalDiv").html("<p style='font-size: 16pt'>Please Wait...</p>");
+	 	}
+	 	
+		$("#modalDiv").load(cancelUrl + '?auIds=' + sValues, function() {
+			openModalDialog ('Cancel Asset(s)');
+       	});
+	 }
+
+	/*
+	 * lnagy - keep this method because it might be as is for author interface
+	 * menu action - cancel selected rows
+	 * will send a request to the server, the server will return an array of objects
+	 * 		[id, isCanceled, isDeleted]
+	 */
+	function fnCancelRows() {
+	 	var sValues = oSelector.fnPreMenuAction (true);
+		if (null == sValues) {
+			alert ("Please make your selection");
+			return;
+		}
+		
+		$.jsonp({
+			"url": '${assetCancelUrl}' + '?callback=?', 
+			"data": 'ids=' + sValues, 
+			"success": function(json) {
+				for ( var i=0, iLen=json.length ; i<iLen ; i++ ) {
+					var nIndex = dataTable.fnGetPositionByColumn (0, parseInt (json[i].auId));
+					// if asset deleted
+					if (json[i].deleted) {
+						dataTable.fnDeleteRow (nIndex);
+						// remove values from selector - we do it at the end
+						// oSelector.fnRemove (json[i].auId);
+					}
+					// for cancel/uncancel - just refresh the row to display the new status
+					else {
+						dataTable.fnUpdate (dataTable.fnGetDataForProfile (json[i].aData, profile), nIndex, 0, false);
+						var aCustomRow = new CustomTableRow (
+							dataTable.fnSettings().aoData[nIndex]._aData, 
+							dataTable.fnSettings().aoData[nIndex].nTr, dataTable, profile);						
+						aCustomRow.fnDisplayRow ();
+					}
+				}
+			},
+			"error": function() {
+	        	showErrorMessage ("Error: failed to cancel the selected rows");
+	        }
+        });	
+        
+		oSelector.fnPostMenuAction ();
+	}
+
+	/*
+	 * menu action - cancel selected rows
+	 * will send a request to the server, the server will return an array of objects
+	 * 		[id, isCanceled, isDeleted]
+	 */
+	function fnUnCancelRows() {
+		var sValues = oSelector.fnPreMenuAction (true);
+		if (null == sValues) {
+			alert ("Please make your selection");
+			return;
+		}
+		// alert("doing fnUncancel ${assetUnCancelUrl}");
+		$.jsonp({
+			"url": '${assetUnCancelUrl}' + '?callback=?', 
+			"data": 'ids=' + sValues, 
+			"success": function(json) {
+				var selCan = 0;
+				var selUncan = 0;
+			
+				
+				for ( var i=0, iLen=json.length ; i<iLen ; i++ ) {
+					var nIndex = dataTable.fnGetPositionByColumn (0, parseInt (json[i].auId));
+					// if asset deleted
+					if (json[i].deleted) {				
+						 dataTable.fnDeleteRow (nIndex);
+						// remove values from selector - we do it at the end by calling fnPostMenuAction()
+						// oSelector.fnRemove (json[i].auId);
+					}
+					// for cancel/uncancel - just refresh the row to display the new status
+					else {
+						dataTable.fnUpdate (dataTable.fnGetDataForProfile (json[i].aData, profile), nIndex, 0, false);
+						var aCustomRow = new CustomTableRow (
+							dataTable.fnSettings().aoData[nIndex]._aData, 
+							dataTable.fnSettings().aoData[nIndex].nTr, dataTable, profile);						
+						aCustomRow.fnDisplayRow ();
+					}
+				}
+			},
+			"error": function() {
+	        	showErrorMessage ("Error: failed to cancel the selected rows");
+	        }
+        });	
+        
+		oSelector.fnPostMenuAction();
+	}
+
+	
+	function fnDuplicateRows () {
+	 	var sValues = oSelector.fnPreMenuAction (true);
+	 	// select what is the last id here because the fnPostMenuAction removes the selection
+	 	var lastId = oSelector.fnGetLastCheckedValue ();
+		if (null == sValues) {
+			alert ("Please make your selection");
+			return;
+		}
+
+		// save will return back the new values, to not have to do another server request
+		$.jsonp({
+			"url": '${assetDuplicateUrl}' + '?callback=?', 
+			"data": "ids=" + sValues + "&userId=" + ${sessionScope.userSession.currentUser.id},   
+			"success": function(json) {
+				// will add all rows after the last selected row
+				var aSelected = CustomTableRow.getInstance (dataTable, lastId);
+				for ( var i=0, iLen=json.length ; i<iLen ; i++ ) {
+					fnInsertRowAtPosition (aSelected, dataTable.fnGetDataForProfile (json[i], profile), 
+						dataTable.fnGetIndexOfDisplayRow (0,aSelected.fnGetId()), 1, true);			
+				}
+				// showSuccessMessage ("Success");
+			},
+			"error": function() {
+	        	showErrorMessage ("Error: failed to duplicate selected rows");
+	        }
+        });	
+        
+		oSelector.fnPostMenuAction();
+	}
+
+	/*
+	 * refreshes the selected rows from server
+	 * will send a request to the server, the server will return an array of objects
+	 * 		[id, aData]
+	 */
+	function fnRefreshRows (sValues) {
+		$.jsonp({
+			"url": '${assetLoadUrl}' + '?callback=?', 
+			"data": 'ids=' + sValues, 
+			"success": function(json) {
+				for ( var i=0, iLen=json.length ; i<iLen ; i++ ) {
+					var nIndex = dataTable.fnGetPositionByColumn (0, parseInt (json[i].auId));
+					dataTable.fnUpdate (dataTable.fnGetDataForProfile (json[i].aData, profile), nIndex, 0, false);
+					var aCustomRow = new CustomTableRow (
+						dataTable.fnSettings().aoData[nIndex]._aData, 
+						dataTable.fnSettings().aoData[nIndex].nTr, dataTable, profile);						
+					aCustomRow.fnDisplayRow ();
+				}
+			},
+			"error": function() {
+	        	showErrorMessage ("Error: failed to refresh the selected rows");
+	        }
+        });
+	}
+
+	/*
+	 * refreshes the row identified by assetUseId from server
+	 * will send a request to the server, the server will return an array of objects
+	 * 		[id, aData]
+	 */
+	function fnRefreshRowById (id) {
+		var aRow = CustomTableRow.getInstance (dataTable, parseInt(id));
+		fnRefreshRowByPosition (aRow.fnGetId(), aRow.fnGetPos());
+	}
+	 
+	/*
+	 * refreshes the row identified by a CustomRow object from server (mostly used when inserting a new row)
+	 * will send a request to the server, the server will return an array of objects
+	 * 		[id, aData]
+	 */	 
+	function fnRefreshRow (aRow) {
+		fnRefreshRowByPosition (aRow.fnGetId(), aRow.fnGetPos());
+	}
+	 
+	function fnRefreshRowByPosition (id, iPos) {
+		$.jsonp({
+			"url": '${assetLoadUrl}' + '?callback=?', 
+			"data": 'ids=' + id, 
+			"success": function(json) {
+				for ( var i=0, iLen=json.length ; i<iLen ; i++ ) {
+					var nIndex = iPos;
+					dataTable.fnUpdate (dataTable.fnGetDataForProfile (json[i].aData, profile), nIndex, 0, false);
+					var aCustomRow = new CustomTableRow (
+						dataTable.fnSettings().aoData[nIndex]._aData, 
+						dataTable.fnSettings().aoData[nIndex].nTr, dataTable, profile);						
+					aCustomRow.fnDisplayRow ();
+				}
+			},
+			"error": function() {
+	        	showErrorMessage ("Error: failed to refresh the selected rows");
+	        }
+        });	
+	}
+
+	/*
+	 * menu action - view/edit selected rows
+	 * will send a request to the server, the server will return an array of objects
+	 * 		[id, isCanceled, isDeleted]
+	 */
+	function fnEditRows () {
+	 	var sValues = oSelector.fnPreMenuAction (true);
+		if (null == sValues) {
+			alert ("Please make your selection");
+			return;
+		}
+		
+		$("#modalDiv").load('${assetMainUrl}?auIds=' + sValues, function() {
+			openModalDialog ('Asset Details');
+        });
+	}
+
+	/*
+	 * menu action - create/edit selected rows in custom mode
+	 * will send a request to the server, the server will return an array of objects
+	 * 		[id, isCanceled, isDeleted]
+	 */
+	function fnCustomEditRows() {
+	 	var sValues = oSelector.fnPreMenuAction (true);
+	 	if (null == sValues || "" == sValues) {
+			sValues = 0;
+		}
+		$("#modalDiv").load('${assetCustomEditUrl}?auIds=' + sValues, function() {
+			openModalDialog ('Asset Details');
+        });
+	} 
+
+	function fnFlagAsReplacement() {
+		var sValues = oSelector.fnPreMenuAction (true);
+		if (null == sValues || "" == sValues) {
+			sValues = 0;
+		}
+		 var lastId = oSelector.fnGetLastCheckedValue ();
+		$("#modalDiv").load('${flagAsReplacementUrl}?auId=' + lastId, function() {
+			openModalDialog ('Flag As Replacements');
+		});	 
+	}
+
+	function fnClearAssets() {
+		 var sValues = oSelector.fnPreMenuAction (true);
+		 if (null == sValues || "" == sValues) {
+			sValues = 0;
+		}
+		$("#modalDiv").load('${clearAssetsUrl}?auIds=' + sValues, function() {
+			openModalDialog ('Clear Assets');
+	    });	 
+	}
+		
+//]]>
+	</script>

@@ -1,0 +1,209 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+		http://www.springframework.org/schema/util
+		http://www.springframework.org/schema/util/spring-util-4.3.xsd
+	">
+
+<!-- /////////////////////////////////////////////////////// -->
+
+	<bean id="app.ReferenceDataCache" class="com.wiley.permissions.repositories.ReferenceDataCache">
+		<property name="enumDataRepository" ref="repository.EnumDataRepository"/>
+
+		<property name="enumDataTypes">
+			<map>
+			    <!-- Properties after ? go on the where clause, except orderBy, which creates an order by clause. -->
+			    
+				<entry key="accounts" value="com.wiley.permissions.domain.persistence.permissions.Account"/>
+				<entry key="addressTypes" value="com.wiley.permissions.domain.persistence.permissions.AddressType"/>
+				<entry key="businessUnits" value="com.wiley.permissions.domain.persistence.permissions.BusinessUnit"/>
+				<entry key="cancelReasons" value="com.wiley.permissions.domain.persistence.permissions.EnumCancelReason"/>
+				<entry key="componentCategoryList" value="com.wiley.permissions.domain.persistence.permissions.ComponentCategory"/>
+				<entry key="currencies" value="com.wiley.permissions.domain.persistence.permissions.Currency?orderBy=sort_order"/>
+				<entry key="conditionTypes" value="com.wiley.permissions.domain.persistence.permissions.ConditionType?orderBy=sort_order"/>
+				<entry key="contractTypes" value="com.wiley.permissions.domain.persistence.permissions.ContractType"/>
+				<entry key="copyrightTypes" value="com.wiley.permissions.domain.persistence.permissions.CopyrightType"/>
+				<entry key="countries" value="com.wiley.permissions.domain.persistence.permissions.Country?orderBy=description"/>
+				<entry key="deliveryMethods" value="com.wiley.permissions.domain.persistence.permissions.DeliveryMethod?orderBy=sort_order"/>
+				<entry key="favoriteGroups" value="com.wiley.permissions.domain.persistence.permissions.FavoriteGroup"/>
+				<entry key="globalRoles" value="com.wiley.permissions.domain.persistence.permissions.Role?global=true"/>
+				<entry key="mediaTypes" value="com.wiley.permissions.domain.persistence.permissions.MediaType?orderBy=sort_order"/>
+				<entry key="mediums" value="com.wiley.permissions.domain.persistence.permissions.Medium"/>
+				<entry key="modelReleases" value="com.wiley.permissions.domain.persistence.permissions.ModelRelease"/>
+				<entry key="ownerTypes" value="com.wiley.permissions.domain.persistence.permissions.OwnerType?orderBy=sort_order"/>
+				<entry key="pagePositions" value="com.wiley.permissions.domain.persistence.permissions.PagePosition?orderBy=sort_order"/>
+				<entry key="photoEstimateTypes" value="com.wiley.permissions.domain.persistence.permissions.PhotoEstimateType?orderBy=sort_order"/>
+				<entry key="productRoles" value="com.wiley.permissions.domain.persistence.permissions.Role?global=false"/>
+				<entry key="privileges" value="com.wiley.permissions.domain.persistence.permissions.Privilege"/>
+				<entry key="publicationStatusList" value="com.wiley.permissions.domain.persistence.permissions.PublicationStatus"/>
+				<entry key="renditionTypes" value="com.wiley.permissions.domain.persistence.permissions.RenditionType?orderBy=sort_order" />
+				<entry key="roles" value="com.wiley.permissions.domain.persistence.permissions.Role"/>
+				<entry key="sizes" value="com.wiley.permissions.domain.persistence.permissions.Size?orderBy=sort_order"/>
+				<entry key="statuses" value="com.wiley.permissions.domain.persistence.permissions.PermissionStatus"/>
+				<entry key="userGroups" value="com.wiley.permissions.domain.persistence.permissions.UserGroup"/>
+				<entry key="usages" value="com.wiley.permissions.domain.persistence.permissions.Usage?orderBy=sort_order"/>
+				<entry key="usageConditions" value="com.wiley.permissions.domain.persistence.permissions.EnumUsageCondition?orderBy=sort_order"/>
+				<entry key="userLocations" value="com.wiley.permissions.domain.persistence.permissions.UserLocation"/>
+				<entry key="wileyEntities" value="com.wiley.permissions.domain.persistence.permissions.WileyEntity"/>
+				<entry key="languages" value="com.wiley.permissions.domain.persistence.permissions.EnumLanguage"/>
+				<entry key="gbpmCategories" value="com.wiley.permissions.domain.persistence.permissions.GbpmCategory"/>
+			</map>
+		</property>
+
+		<property name="binderPropertyNames">
+			<map>
+				<entry key="com.wiley.permissions.domain.persistence.permissions.Account" value="id"/>
+				<entry key="com.wiley.permissions.domain.persistence.permissions.AddressType" value="code"/>
+				<entry key="com.wiley.permissions.domain.persistence.permissions.BusinessUnit" value="code"/>
+				<entry key="com.wiley.permissions.domain.persistence.permissions.EnumCancelReason" value="code"/>
+				<entry key="com.wiley.permissions.domain.persistence.permissions.ComponentCategory" value="code"/>
+				<entry key="com.wiley.permissions.domain.persistence.permissions.CopyrightType" value="code"/>
+				<entry key="com.wiley.permissions.domain.persistence.permissions.ConditionType" value="code"/>
+				<entry key="com.wiley.permissions.domain.persistence.permissions.ContractType" value="code"/>
+				<entry key="com.wiley.permissions.domain.persistence.permissions.Country" value="code"/>
+				<entry key="com.wiley.permissions.domain.persistence.permissions.Currency" value="code"/>
+				<entry key="com.wiley.permissions.domain.persistence.permissions.DeliveryMethod" value="code"/>
+				<entry key="com.wiley.permissions.domain.persistence.permissions.FavoriteGroup" value="id"/>
+				<entry key="com.wiley.permissions.domain.persistence.permissions.MediaType" value="code"/>
+				<entry key="com.wiley.permissions.domain.persistence.permissions.Medium" value="code"/>
+				<entry key="com.wiley.permissions.domain.persistence.permissions.ModelRelease" value="code"/>
+				<entry key="com.wiley.permissions.domain.persistence.permissions.OwnerType" value="code"/>
+				<entry key="com.wiley.permissions.domain.persistence.permissions.PagePosition" value="code"/>
+				<entry key="com.wiley.permissions.domain.persistence.permissions.PermissionStatus" value="code"/>
+				<entry key="com.wiley.permissions.domain.persistence.permissions.PublicationStatus" value="code"/>
+				<entry key="com.wiley.permissions.domain.persistence.permissions.Privilege" value="code"/>
+				<entry key="com.wiley.permissions.domain.persistence.permissions.RenditionType" value="code"/>
+				<entry key="com.wiley.permissions.domain.persistence.permissions.Role" value="code"/>
+				<entry key="com.wiley.permissions.domain.persistence.permissions.Size" value="code"/>
+				<entry key="com.wiley.permissions.domain.persistence.permissions.Usage" value="code"/>
+				<entry key="com.wiley.permissions.domain.persistence.permissions.EnumUsageCondition" value="code"/>
+				<entry key="com.wiley.permissions.domain.persistence.permissions.UserGroup" value="id"/>
+				<entry key="com.wiley.permissions.domain.persistence.permissions.UserLocation" value="code"/>
+				<entry key="com.wiley.permissions.domain.persistence.permissions.WileyEntity" value="code"/>
+				<entry key="com.wiley.permissions.domain.persistence.permissions.EnumLanguage" value="code"/>
+				<entry key="com.wiley.permissions.domain.persistence.permissions.GbpmCategory" value="code"/>
+        	</map>
+		</property>
+	</bean>
+
+	<bean id="repository.JPARepository"
+		class=" com.wiley.permissions.persistence.repository.JPARepository">
+
+		<property name="monitor" ref="utility.PerformanceMonitor" />
+	</bean>
+	
+	<bean id="repository.ProductRepository"
+		class="com.wiley.permissions.repositories.ProductRepository"
+		parent="repository.JPARepository">
+
+		<property name="userRepository" ref="repository.UserRepository" />
+		<property name="userService" ref="services.UserService" />
+		<property name="commonWorkRepository" ref="repository.CommonWorkRepository" />
+		<property name="assetUseRepository" ref="repository.AssetUseRepository" />
+		<property name="productIndexService" ref="services.ProductIndexService" />
+	</bean>
+	
+	<bean id="repository.UserRepository"
+		class="com.wiley.permissions.repositories.UserRepository"
+		parent="repository.JPARepository">
+
+		<property name="internalSSOUserLookupUtility" ref="utility.InternalSSOUserLookupUtility"/>
+		<property name="dataSource" ref="PermissionsDS"/>
+	</bean>	
+	
+	<bean id="repository.CommonWorkRepository"
+		class="com.wiley.permissions.repositories.CommonWorkRepository"
+		parent="repository.JPARepository">
+
+		<property name="assetUseRepository" ref="repository.AssetUseRepository"/>
+		<property name="productRepository" ref="repository.ProductRepository"/>
+		<property name="dataSource" ref="PermissionsDS"/>
+	</bean>	
+	
+	<bean id="repository.ContractRepository"
+		class="com.wiley.permissions.repositories.ContractRepository"
+		parent="repository.JPARepository">
+
+		<property name="assetUseRepository" ref="repository.AssetUseRepository"/>
+		<property name="commonWorkRepository" ref="repository.CommonWorkRepository" />
+		<property name="productIndexService" ref="services.ProductIndexService" />
+		<property name="dataSource" ref="PermissionsDS"/>
+	</bean>	
+	
+	<bean id="repository.PurchaseOrderRepository"
+		class="com.wiley.permissions.repositories.PurchaseOrderRepository"
+		parent="repository.JPARepository">
+
+		<property name="assetUseRepository" ref="repository.AssetUseRepository"/>
+		<property name="dataSource" ref="PermissionsDS"/>
+	</bean>	
+	
+	<bean id="repository.ConditionRepository"
+		class="com.wiley.permissions.repositories.ConditionRepository"
+		parent="repository.JPARepository">
+		
+		<property name="userRepository" ref="repository.UserRepository" />
+		<property name="commonWorkRepository" ref="repository.CommonWorkRepository" />
+		<property name="commonWorkService" ref="services.CommonWorkService" />
+		<property name="purchaseOrderService" ref="services.PurchaseOrderService" />
+		<property name="contractService" ref="services.ContractService" />
+	</bean>
+	
+	<bean id="repository.AssetRepository"
+		class="com.wiley.permissions.repositories.AssetRepository"
+		parent="repository.JPARepository">
+
+		<property name="sourceRepository" ref="repository.SourceRepository"/>		
+	</bean>
+	
+	<bean id="repository.AssetUseRepository"
+		class="com.wiley.permissions.repositories.AssetUseRepository"
+		parent="repository.JPARepository">
+
+		<property name="dataSource" ref="PermissionsDS"/>
+		<property name="commonWorkRepository" ref="repository.CommonWorkRepository" />
+		<property name="commonWorkService" ref="services.CommonWorkService" />
+		<property name="assetRepository" ref="repository.AssetRepository" />
+	</bean>
+	
+	<bean id="repository.SourceRepository"
+		class="com.wiley.permissions.repositories.SourceRepository"
+		parent="repository.JPARepository">
+		<property name="dataSource" ref="PermissionsDS"/>		
+	</bean>
+	
+	<bean id="repository.CachedMessageRepository"
+		class="com.wiley.permissions.repositories.CachedMessageRepository"
+		parent="repository.JPARepository">
+		
+		<property name="commonWorkService" ref="services.CommonWorkService" />
+	</bean>
+	
+	<bean id="repository.EnumDataRepository"
+		class="com.wiley.permissions.repositories.EnumDataRepository"
+		parent="repository.JPARepository" />
+		
+	<bean id="repository.SystemNotificationRepository"
+		class="com.wiley.permissions.repositories.SystemNotificationRepository"
+		parent="repository.JPARepository">
+	</bean>	
+	
+	<bean id="repository.DevMiscRepository"
+		class="com.wiley.permissions.repositories.DevMiscRepository"
+		parent="repository.JPARepository">
+		
+		<property name="commonWorkService" ref="services.CommonWorkService" />
+	</bean>	
+</beans>

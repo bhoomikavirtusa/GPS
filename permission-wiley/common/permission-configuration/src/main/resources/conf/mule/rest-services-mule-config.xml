@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:jersey="http://www.mulesoft.org/schema/mule/jersey" 
+    xmlns:spring="http://www.springframework.org/schema/beans"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/jersey http://www.mulesoft.org/schema/mule/jersey/current/mule-jersey.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	">
+	<spring:beans>
+		<spring:import resource="classpath:conf/spring/resources-spring-context.xml"/>
+	</spring:beans>
+
+<!--
+!!!! does not work
+	<custom-transformer
+		name="ObjectToJson"
+		class="com.wiley.permissions.common.transformer.ObjectToJsonTransformer"
+		returnClass="java.lang.String" />
+-->
+	<model name="RestServices">
+		<default-service-exception-strategy enableNotifications="false">
+			<rollback-transaction exception-pattern="*"/>
+		</default-service-exception-strategy>
+		
+	    <service name="ProductServiceResource">
+			<inbound>
+			     <inbound-endpoint address="http://${mule.host.bind}:${rest.port.internal}/service/product"/>
+			</inbound>
+				 <jersey:resources>
+					<component>
+						<spring-object bean="resources.ProductResource" />
+					</component>
+				</jersey:resources>
+		</service>
+		
+		<!--  Mule 3 example (still using old tags) -->
+		<!--
+		<service name="ProductServiceResource">
+	    	<inbound>
+				<http:inbound-endpoint host="${mule.host.bind}" port="${rest.port.internal}" path="service/product" />
+			</inbound>
+			<jersey:resources>
+				<component>
+					<spring-object bean="resources.ProductResource" />
+				</component>
+			</jersey:resources>
+		</service>
+		-->
+		
+	    <service name="UserServiceResource">
+			<inbound>
+			     <inbound-endpoint address="http://${mule.host.bind}:${rest.port.internal}/service/user"/>
+			</inbound>	
+				 <jersey:resources>
+					<component>
+						<spring-object bean="resources.UserResource" />
+					</component>
+				</jersey:resources>			
+		</service>
+		
+	    <service name="AssetServiceResource">
+			<inbound>
+			     <inbound-endpoint address="http://${mule.host.bind}:${rest.port.internal}/service/asset"/>
+			</inbound>	
+				 <jersey:resources>
+					<component>
+						<spring-object bean="resources.AssetResource" />
+					</component>
+				</jersey:resources>			
+		</service>
+
+	    <service name="SourceServiceResource">
+			<inbound>
+			     <inbound-endpoint address="http://${mule.host.bind}:${rest.port.internal}/service/source"/>
+			</inbound>		
+				 <jersey:resources>
+					<component>
+						<spring-object bean="resources.SourceResource" />
+					</component>
+				</jersey:resources>			
+		</service>
+	</model>
+</mule>

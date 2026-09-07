@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:security="http://www.springframework.org/security/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="nextUrl" value="/sapp/landing/source/main" />
+	
+	<!--include as jspx so the jsp variable are recognized-->
+	<jsp:directive.include file="js/wizard.buttons.js.jspx" />
+
+	<h3>${sourceWizardForm.assetUse.asset.description}</h3>
+
+	<form:form modelAttribute="sourceWizardForm">
+	<table>
+		<tr>
+			<td>
+				Which type of source is this asset coming from: <br/><br/>				
+			</td>
+		</tr>
+		<tr>
+			<td>
+					a 3rd party source<br/>
+					<div id="3rdOptions" style="margin-left: 2em;display:visible;" >
+						<form:radiobutton path="ownerType" value="3rd_Party_Institution" class="required" title="Most 3rd parties fall into this category including individuals, photo houses, and museums"/> A photographer, vendor, academic institution, museum, website, etc. 
+						<form:radiobutton path="ownerType" value="3rd_Party_Publication" class="required" title="3rd party owner content found in a book, journal or other published material"/> a publication <br/>
+					</div>
+			<security:authorize access="hasAnyRole('EMPLOYEE_DEFAULT','copy_assets')">		
+				<c:if test="${!sourceWizardForm.multiAsset and !sourceWizardForm.editionUse}">
+					<form:radiobutton path="ownerType" value="Previous_Edition" class="required" title="The asset is being copied from a previous edition"/>previous edition of this title<br/>
+				</c:if>
+
+
+				<c:if test="${sourceWizardForm.multiAsset or sourceWizardForm.editionUse}">
+					<div style="margin-left: 2em;display:none;" >
+						<form:radiobutton path="ownerType" value="Previous_Edition" class="required" title="The asset is being copied from a previous edition"/>previous edition of this title<br/>
+					</div>
+				</c:if>
+			</security:authorize>
+			
+			<security:authorize access="hasAnyRole('EMPLOYEE_DEFAULT','copy_assets_product')">
+				<c:if test="${!sourceWizardForm.editionUse}">
+					<form:radiobutton path="ownerType" value="Wiley_Owned_Book" class="required"  title="The asset is being copied from another Wiley product"/>another Wiley publication<br/>
+					<!-- hide entire section -->
+					<!-- div id="wileyOptions" style="margin-left: 2em;display:none;"-->
+						<!-- form:radiobutton path="ownerType" value="Wiley_Owned_Book" class="required"/> Book -->
+						<!-- hide journal option for now -->
+						<!-- <form:radiobutton path="ownerType" value="Wiley_Owned_Journal" class="required"/> Journal <br/> -->					
+					<!-- /div>  -->
+				</c:if>
+				
+	
+				<c:if test="${sourceWizardForm.editionUse}">
+					<div style="margin-left: 2em;display:none;" >
+						<form:radiobutton path="ownerType" value="" title="The asset is being copied from another Wiley product" />another Wiley publication<br/>
+						<div id="wileyOptions" style="margin-left: 2em;display:none;">
+							<form:radiobutton path="ownerType" value="Wiley_Owned_Book" class="required"/> Book
+							<form:radiobutton path="ownerType" value="Wiley_Owned_Journal" class="required"/> Journal <br/>					
+						</div>
+					</div>
+				</c:if>
+			</security:authorize>
+				
+				<form:radiobutton path="ownerType" value="Wiley_Owned_Author" class="required" title="the author is the copyright owner of this asset"/>author created/owned<br/>
+				
+				<form:radiobutton path="ownerType" value="Wiley_Created" class="required" title="Any internally created asset which Wiley owns."/>Wiley created/owned<br/>
+				
+				<form:radiobutton path="ownerType" value="Rights_Link" class="required" title="Rightslink/Copyright Clearance Center."/>Rightslink/Copyright Clearance Center<br/>
+				
+				<security:authorize access="hasAnyRole('enable_request', 'EMPLOYEE_DEFAULT')">				
+					<c:if test="${!sourceWizardForm.editionUse}">
+						<c:if test="${sourceWizardForm.assetUse.asset.mediaType.code == 'Photo' and userSession.currentUser.showRequest}">
+							<form:radiobutton path="ownerType" value="Photo_Request" class="required" title="This asset will be researched for the author by the HE photo dept"/>Request for photo research<br/>
+						</c:if>
+						<c:if test="${sourceWizardForm.assetUse.asset.mediaType.code == 'Illustration' and userSession.currentUser.showRequest}">
+							<form:radiobutton path="ownerType" value="Illustration_Request" class="required" title="This asset will be created for the author by a Wiley illustrator"/>this is an illustration request<br/>
+						</c:if>
+					</c:if>
+	
+					<c:if test="${sourceWizardForm.editionUse}">
+						<div style="margin-left: 2em;display:none;" >
+							<form:radiobutton path="ownerType" value="Photo_Request" class="required" title="This asset will be researched for the author by the HE photo dept"/>Request for photo research<br/>
+							<form:radiobutton path="ownerType" value="Illustration_Request" class="required" title="This asset will be created for the author by a Wiley illustrator"/>this is an illustration request<br/>
+						</div>
+					</c:if>
+				</security:authorize>
+			
+			</td>
+		</tr>
+	</table>
+	</form:form>
+	
+	<div class="buttonset">	
+	<input type="submit" id="nextB" value="Next" />
+	<a href="#" id="cancelLink" class="button">Cancel</a>
+	</div>
+
+	<script type="text/javascript">
+//<![CDATA[
+	$(document).ready(function() {
+/*		$('#ownerType1').click (function() {
+			$(this).attr('checked', false);
+			$('#3rdOptions').toggle();
+		});
+*/	
+/*		$('#ownerType4').click (function() {
+			$(this).attr('checked', false);
+			$('#wileyOptions').toggle();
+		});
+*/
+	});
+//]]>		
+	</script>
+</jsp:root>

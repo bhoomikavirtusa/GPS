@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+
+	<jsp:directive.page pageEncoding="UTF-8" />
+
+	<tiles:importAttribute name="action" />
+	<tiles:importAttribute name="selectMode" />
+	<tiles:importAttribute name="editMode" />
+	<tiles:importAttribute name="activateMode" />
+
+	<c:url var="removeSourceURL" value="/sapp/sources/sources/remove" />
+	<c:url var="projectUrl" value="/sapp/cwlanding/main?cwId=${sessionCwId}" />
+
+	<jsp:body>
+		<script type="text/javascript">
+			function removeSource (externalId, name) {
+				if (externalId == "perm.source.1") {
+					alert("system defined source (" + externalId + ") cannot be deleted " );
+						return false;
+				}
+				if (confirm("Are you sure you want to remove source " + name + "?"))
+					document.location.href = "${removeSourceURL}?selectedSourceExtId=" + externalId;
+				else
+					return false;
+			}
+
+			$(document).ready(function() {
+				$('#sourceTable').dataTable( {
+					"bServerSide": true,
+					<c:url var="sourceTableUrl" value="/sapp/sources/sources/sourceTable" />
+					"sAjaxSource": "${sourceTableUrl}?selectMode=${selectMode}&amp;editMode=${editMode}&amp;activateMode=${activateMode}&amp;filter=${param.searchTerm}",
+
+					"aoColumns": [
+						<c:if test="${selectMode == '1'}">
+						{ "sWidth" : "5%", "bSortable" : false, "bSearchable" : false, "sClass" : "center" }, // Select
+						</c:if>
+						<c:if test="${editMode == '1'}">
+						{ "sWidth" : "5%", "bSortable" : false, "bSearchable" : false, "sClass" : "center"  }, // Edit
+						// disable delete
+						// { "sWidth" : "5%", "bSortable" : false, "bSearchable" : false, "sClass" : "center"}, // Remove
+						</c:if>
+						<c:if test="${activateMode == '1'}">
+						{ "sWidth" : "5%", "bSortable" : false, "bSearchable" : false, "sClass" : "center" }, // Activate/Deactivate
+						</c:if>
+						{ "sWidth" : "25%", "bSearchable" : true }, // Name
+						{ "sWidth" : "50%", "bSearchable" : false }, // Main Address
+						{ "sWidth" : "10%", "bSearchable" : false }, // #Contacts
+						{ "sWidth" : "10%", "bSearchable" : false }, // Nofly
+						{ "sWidth" : "10%", "bSearchable" : false }, // Master Agreements
+						{ "sWidth" : "10%", "bSearchable" : true  } // source group
+					],
+
+					<c:if test="${selectMode == '1' || activateMode == '1'}">
+					"aaSorting": [[1, "asc" ]],
+					</c:if>
+					<c:if test="${editMode == '1'}">
+					"aaSorting": [[1, "asc" ]],
+					</c:if>
+
+					<c:if test="${not empty param.searchTerm}">
+					"oSearch": {"sSearch": "${param.searchTerm}"}, 
+					</c:if>
+
+					"bAutoWidth": false,
+					"bProcessing": true,
+					"sDom" : "rt",
+					"bRegex": true,
+					// Don't save state for this table because the column indexes
+					// change depending on where it's shown - messes things up.
+					//"bStateSave": true,
+					//"sPaginationType": "full_numbers",
+					//"aLengthMenu": [10, 15, 25, 50, 100],  // override default of [10, 25, 50, 100]
+					<c:if test="${selectMode == '1'}">
+					"iDisplayLength": 10 // same as default
+					</c:if>
+					<c:if test="${selectMode != '1'}">
+					"iDisplayLength": 20 // override default of 10
+					</c:if>
+				} );
+			} );
+		</script>
+
+	<script type="text/javascript">	
+	$(document).ready(function() {
+		
+    	function filterResults(filter) {
+      		var oTable = $('#sourceTable').dataTable();
+    		var oSettings = oTable.fnSettings();
+    		oSettings.sSearch = "";
+    		oSettings._iDisplayLength = 50000;
+    		oSettings.aoPreSearchCols[ 1 ].sSearch = filter; 
+    		oSettings.aoPreSearchCols[ 1 ].bRegex = true; 
+    		oSettings.aoPreSearchCols[ 1 ].bSmart= false;     	
+    		oTable.fnDraw();
+    		oSettings.aoPreSearchCols[ 1 ].sSearch = "^[0-Z]";
+   		};
+    
+  		//  filterResults('A');
+    	$('a').on('click',function() {
+        	// look at all anchors to see if is a A, B, Z etc.  if it is shown only the rows that
+        	// begin with that letter.
+
+    		var letter ="";
+        	letter = $(this).html();   
+        
+    //    	if (letter == "Show All") {
+     //   		letter = "7";
+     //   	}   
+        	if (letter == "0-9") {
+        		letter = "0";
+        	}   
+       		if (letter.length > 1 ) return true;
+      
+      //  	if (letter == "7") {
+	//			letter = "[0-Z]";
+     //   	} 
+            
+        	var ss = "/^" + letter + "/";
+        	if (letter == "0") {
+				letter = "[0-9]";
+        	} 
+        	var filter = "";
+
+        	filter = "^"+letter;
+
+        	filterResults(filter);
+        	$("#searchBox").val("");
+    	}); 
+
+    	// initial load
+		filterResults("^[0-9]");
+
+
+		$("#searchBox").keypress(function (event) {
+			if ( event.which == 13 ) {
+				event.preventDefault();
+			}
+			var sterm = $("#searchBox").val();
+			if(sterm.length > 2) {
+				filterResults( sterm );
+			};
+		});
+	
+    
+    });
+	</script>
+
+	<form:form modelAttribute="sourceMainForm">
+		<jsp:attribute name="action">
+			<c:out value="${action}" />
+		</jsp:attribute>
+		
+		<jsp:directive.include file="/WEB-INF/tiles/pages/include/generalMessage.jspx" />
+		
+		<div style="display: none">
+			<!-- lnagy - no mode required for manageAsset page - it will throw an exception if declared
+			because multiple mode fields will be sent -->
+			<c:if test="${selectMode != '1'}">
+				<form:hidden path="mode" />
+			</c:if>
+			<form:hidden path="selectedSourceExtId" />
+			<form:hidden path="cameFrom" />
+			<input type="hidden" name="create" value="false" />
+		</div>
+
+		<table>
+			<tr>
+				<td><a href="#">0-9</a></td>  
+    			<td><a href="#">A</a></td>
+    			<td><a href="#">B</a></td>
+    			<td><a href="#">C</a></td>
+    			<td><a href="#">D</a></td>
+    			<td><a href="#">E</a></td>
+    			<td><a href="#">F</a></td>
+    			<td><a href="#">G</a></td>
+    			<td><a href="#">H</a></td>
+    			<td><a href="#">I</a></td>
+    			<td><a href="#">J</a></td>
+    			<td><a href="#">K</a></td>
+    			<td><a href="#">L</a></td>
+    			<td><a href="#">M</a></td>
+    			<td><a href="#">N</a></td>
+    			<td><a href="#">O</a></td>
+    			<td><a href="#">P</a></td>
+    			<td><a href="#">Q</a></td>
+    			<td><a href="#">R</a></td>
+    			<td><a href="#">S</a></td>
+    			<td><a href="#">T</a></td>
+    			<td><a href="#">U</a></td>
+    			<td><a href="#">V</a></td>
+    			<td><a href="#">W</a></td>
+    			<td><a href="#">X</a></td>
+    			<td><a href="#">Y</a></td>
+    			<td><a href="#">Z</a></td>
+     			<!--  <td><a href="#">Show All</a></td>   -->
+    		</tr>
+    		<tr>
+    			<td colspan="28">Search: <input type="text" name="searchBox" id="searchBox" /></td>
+    		</tr>
+		</table>
+		
+		<table class="width100">
+			<tr>
+				<th>
+					Sources
+				</th>
+			</tr>
+			<tr>
+				<td>
+		<!-- if just put standardWidth on table then actually takes up fullWidth due to DataTables logic (I think) -->
+	
+	<div style="height:400px; width:100%; overflow:auto">
+		<table class="display" id="sourceTable">
+			<thead>
+				<tr>
+					<c:if test="${selectMode == '1'}">
+						<th>Select</th>
+					</c:if>
+					<c:if test="${editMode == '1'}">
+						<th>Edit</th>
+						<!-- disable delete
+						<th>Remove</th>
+						-->
+					</c:if>
+					<c:if test="${activateMode == '1'}">
+						<th>Activate /<br />Deactivate</th>
+					</c:if>
+					<th>Name</th>
+					<th>Location</th>
+					<th>#Contacts</th>
+					<th>No Fly</th>
+					<th>MA</th>
+					<th>Source Group</th>
+				</tr>
+			</thead>
+			
+			<tbody>
+				<tr>
+					<!--disable delete-->
+					<!-- <td colspan="${editMode == '1' ? 5 : 4}">Loading...</td>-->
+					<td colspan="5">Loading...</td>
+				</tr>
+			</tbody>
+			
+		</table>
+	</div>
+		</td>
+	</tr>
+</table>
+	</form:form>
+	
+	<c:if test="${not empty sessionCwId}">
+		<div class="buttonset">	
+			<a href="${projectUrl}" id="return To Project" class="button">Return to product</a>		
+		</div>
+	</c:if>
+	</jsp:body>
+</jsp:root>

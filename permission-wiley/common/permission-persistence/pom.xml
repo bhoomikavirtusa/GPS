@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.wiley.permissions.common</groupId>
+		<artifactId>common</artifactId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+
+	<!-- When groupId and version tags omitted here, same as parent -->
+	<artifactId>permission-persistence</artifactId>
+	<packaging>jar</packaging>
+	<name>Permissions Persistence Layer Module</name>
+	<description>Permissions Persistence Layer Java Application</description>
+	<dependencies>
+
+		<dependency>
+			<groupId>org.eclipse.persistence</groupId>
+			<artifactId>org.eclipse.persistence.moxy</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.atomikos</groupId>
+			<artifactId>atomikos-util</artifactId>
+		</dependency>
+	
+		<dependency>
+			<groupId>com.atomikos</groupId>
+			<artifactId>transactions</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.atomikos</groupId>
+			<artifactId>transactions-api</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.atomikos</groupId>
+			<artifactId>transactions-jdbc</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.atomikos</groupId>
+			<artifactId>transactions-jta</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.atomikos</groupId>
+			<artifactId>transactions-hibernate3</artifactId>
+		</dependency>
+
+        <!-- Seems to be required by Atomikos -->
+        <dependency>
+    		<groupId>dom4j</groupId>
+   			<artifactId>dom4j</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+            <groupId>javax.resource</groupId>
+            <artifactId>connector-api</artifactId>
+            <version>1.5</version>
+        </dependency>
+        
+		<dependency>
+	    	<groupId>org.hibernate.javax.persistence</groupId>
+    		<artifactId>hibernate-jpa-2.0-api</artifactId>
+		</dependency>
+
+		<dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate3</artifactId>
+        </dependency>
+        <!-- For Hibernate 4
+		<dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-entitymanager</artifactId>
+        </dependency>
+        -->
+
+		<dependency>
+			<!-- for Hibernate -->
+        	<groupId>net.sf.ehcache</groupId>
+        	<artifactId>ehcache-core</artifactId>
+     	</dependency>
+		<!-- For Hibernate 4
+		<dependency>
+        	<groupId>org.hibernate</groupId>
+        	<artifactId>hibernate-ehcache</artifactId>
+     	</dependency>
+     	-->
+     	
+     	<dependency>
+     		<!-- Hibernate uses cglib to generate lazy proxies -->
+			<groupId>cglib</groupId>
+			<artifactId>cglib</artifactId>
+			<version>2.2</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>javax.validation</groupId>
+		    <artifactId>validation-api</artifactId>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.hibernate</groupId>
+		    <artifactId>hibernate-validator</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.wiley.permissions.common</groupId>
+			<artifactId>permission-common-utils</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.wiley.permissions.common</groupId>
+			<artifactId>permission-security-lib</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+ 
+		<dependency>
+			<groupId>com.wiley.sf</groupId>
+			<artifactId>sf-common2</artifactId>
+		</dependency>
+
+		<!-- Used by Hibernate and Mule -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
+		
+		<dependency>
+    		<groupId>mysql</groupId>
+    		<artifactId>mysql-connector-java</artifactId>
+		</dependency>
+		
+		<!-- Required to get Ebook sales data -->
+		<dependency>
+    		<groupId>com.ibm.as400.access</groupId>
+    		<artifactId>AS400JDBCDriver</artifactId>
+		</dependency>
+
+		<!-- FileMaker Pro JDBC driver -->
+		<dependency>
+			<groupId>com.ddtek</groupId>
+			<artifactId>sljc</artifactId>
+		</dependency>
+		
+		<!-- Needed for Instrument for Hibernate/maven-antrun-plugin below -->
+		<dependency>
+    		<groupId>org.javassist</groupId>
+    		<artifactId>javassist</artifactId>
+    		<version>3.14.0-GA</version>
+		</dependency>
+	</dependencies>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>${maven.jar.version}</version>
+				<configuration>
+					<outputDirectory>${perm.mule.dir}</outputDirectory>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${maven.surefire.version}</version>
+				<configuration>
+					<excludes>
+						<exclude>**/ContactManagerTest.java</exclude>
+						<exclude>**/AssetManagerTest.java</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+
+			<plugin>
+		        <artifactId>maven-antrun-plugin</artifactId>
+		        <version>${maven.antrun.version}</version>
+		        <executions>
+		          <execution>
+		            <phase>process-classes</phase>
+		            <goals>
+		              <goal>run</goal>
+		            </goals>
+		          </execution>
+		        </executions>
+		        <configuration>
+		          <target>
+		            <taskdef name="instrument" classname="org.hibernate.tool.instrument.javassist.InstrumentTask">
+		              <classpath>
+		                <path refid="maven.runtime.classpath" />
+		                <path refid="maven.plugin.classpath" />
+		              </classpath>
+		            </taskdef>
+		            <instrument verbose="false">
+		              <fileset dir="${project.build.outputDirectory}">
+		                <include name="**/domain/persistence/**/*.class" />
+		              </fileset>
+		            </instrument>
+		          </target>
+		        </configuration>
+		    </plugin>
+			
+		</plugins>
+	</build>
+
+	<!--
+	<profiles>
+			Note from Todd Tidwell:
+
+			The DB building mechanisms have been removed at the request of Steve Markoff at my suggestion.
+
+			When we were initially developing this system, it was a very powerful thing to have.  We could
+			rebuild the schema super fast without too much effort and it really helped our development
+			process.
+
+			However, now that the system is in a nearly completed state and we are dealing with multiple
+			environments, it's becoming obvious that this is a very dangerous tool.  If I set the wrong
+			profile in Maven, I could very easily wipe the database.  If that was a Production environment,
+			that could be catastrophic to Wiley.
+
+			So, it's commented out.  IF you want to build the database, use a SQL client.
+
+		<profile>
+			<id>Permissions DB Builder</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>properties-maven-plugin</artifactId>
+						<version>1.0-SNAPSHOT</version>
+						<executions>
+							<execution>
+								<phase>initialize</phase>
+								<goals>
+									<goal>read-project-properties</goal>
+								</goals>
+								<configuration>
+									<files>
+										<file>../permission-configuration/src/main/resources/conf/properties/profiles/${perm.build.profile}.properties</file>
+									</files>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>sql-maven-plugin</artifactId>
+						<dependencies>
+							<dependency>
+    							<groupId>mysql</groupId>
+    							<artifactId>mysql-connector-java</artifactId>
+    							<version>${mysql-jdbc.version}</version>
+							</dependency>
+						</dependencies>
+
+						<executions>
+							<execution>
+								<id>create-procedures</id>
+								<phase>process-resources</phase>
+								<goals>
+									<goal>execute</goal>
+								</goals>
+								<configuration>
+									<delimiter>$</delimiter>
+									<driver>${perm.db.driver}</driver>
+									<username>${perm.db.user}</username>
+									<password>${perm.db.password}</password>
+									<autocommit>true</autocommit>
+									<url>jdbc:${perm.db.jdbcType}://${perm.db.server}:${perm.db.port}/${perm.db.databaseName}</url>
+									<skip>${maven.test.skip}</skip>
+									<onError>continue</onError>
+									<srcFiles>
+										<srcFile>src/main/resources/sql/clean/drop-procedures.sql</srcFile>
+										<srcFile>src/main/resources/sql/clean/create-procedures.sql</srcFile>
+									</srcFiles>
+								</configuration>
+							</execution>
+
+							<execution>
+								<id>create-perm-schema</id>
+								<phase>process-resources</phase>
+								<goals>
+									<goal>execute</goal>
+								</goals>
+								<configuration>
+									<driver>${perm.db.driver}</driver>
+									<username>${perm.db.user}</username>
+									<password>${perm.db.password}</password>
+									<autocommit>true</autocommit>
+									<url>jdbc:${perm.db.jdbcType}://${perm.db.server}:${perm.db.port}/${perm.db.databaseName}</url>
+									<skip>${maven.test.skip}</skip>
+									<onError>continue</onError>
+									<srcFiles>
+										<srcFile>src/main/resources/sql/clean/drop.sql</srcFile>
+										<srcFile>src/main/resources/sql/clean/create.sql</srcFile>
+										<srcFile>src/main/resources/sql/clean/seed.sql</srcFile>
+									</srcFiles>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>Wintouch DB Builder</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>properties-maven-plugin</artifactId>
+						<version>1.0-SNAPSHOT</version>
+						<executions>
+							<execution>
+								<phase>initialize</phase>
+								<goals>
+									<goal>read-project-properties</goal>
+								</goals>
+								<configuration>
+									<files>
+										<file>../permission-configuration/src/main/resources/conf/properties/profiles/${perm.build.profile}.properties</file>
+									</files>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>sql-maven-plugin</artifactId>
+						<dependencies>
+							<dependency>
+    							<groupId>mysql</groupId>
+    							<artifactId>mysql-connector-java</artifactId>
+    							<version>${mysql-jdbc.version}</version>
+							</dependency>
+						</dependencies>
+
+						<executions>
+							<execution>
+								<id>create-wintouch-schema</id>
+								<phase>process-resources</phase>
+								<goals>
+									<goal>execute</goal>
+								</goals>
+								<configuration>
+									<driver>${wintouch.db.driver}</driver>
+									<username>${wintouch.db.user}</username>
+									<password>${wintouch.db.password}</password>
+									<autocommit>true</autocommit>
+									<url>jdbc:${wintouch.db.jdbcType}://${wintouch.db.server}:${wintouch.db.port}/${wintouch.db.database}</url>
+									<skip>${maven.test.skip}</skip>
+									<onError>continue</onError>
+									<srcFiles>
+										<srcFile>src/main/resources/sql/wintouch/drop.sql</srcFile>
+										<srcFile>src/main/resources/sql/wintouch/create.sql</srcFile>
+										<srcFile>src/main/resources/sql/wintouch/seed.sql</srcFile>
+									</srcFiles>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+	-->
+</project>

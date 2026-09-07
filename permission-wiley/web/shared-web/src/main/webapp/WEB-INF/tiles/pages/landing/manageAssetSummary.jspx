@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+
+	<c:url var="backUrl" value="/sapp/landing/cw/assetSummary" />
+
+	<script type="text/javascript">
+	//<![CDATA[
+	
+		$(document).ready(function() {
+	
+			$("input[id='d_photoResearchDue']").change(function() {
+				var d1 = $.datepicker.parseDate('${dateFormat}', $("input[id='d_photoResearchDue']").val());
+				var d2 = $.datepicker.formatDate('mm/dd/yy', d1);
+	    		$("input[id='photoResearchDue']").val(d2);
+
+			});
+
+			$("input[id='d_permissionsDue']").change(function() {
+				var d1 = $.datepicker.parseDate('${dateFormat}', $("input[id='d_permissionsDue']").val());
+				var d2 = $.datepicker.formatDate('mm/dd/yy', d1);
+	    		$("input[id='permissionsDue']").val(d2);
+
+			});
+
+			$("input[id='d_photoResearchDue']").change(function() {
+				var d1 = $.datepicker.parseDate('${dateFormat}', $("input[id='d_photoResearchDue']").val());
+				var d2 = $.datepicker.formatDate('mm/dd/yy', d1);
+	    		$("input[id='photoResearchDue']").val(d2);
+
+			});
+
+			$("input[id='d_pageProofScheduleDate']").change(function() {
+				var d1 = $.datepicker.parseDate('${dateFormat}', $("input[id='d_pageProofScheduleDate']").val());
+				var d2 = $.datepicker.formatDate('mm/dd/yy', d1);
+	    		$("input[id='pageProofScheduleDate']").val(d2);
+
+			});
+
+			$("input[id='d_releaseToPrinterDate']").change(function() {
+				var d1 = $.datepicker.parseDate('${dateFormat}', $("input[id='d_releaseToPrinterDate']").val());
+				var d2 = $.datepicker.formatDate('mm/dd/yy', d1);
+	    		$("input[id='releaseToPrinterDate']").val(d2);
+
+			});
+			
+		});
+		
+		$(function() {
+
+			$.datepicker.setDefaults({
+			     dateFormat: '${dateFormat}'
+			});
+			
+			$("#photoResearchDue").datepicker();
+			$("#d_photoResearchDue").datepicker();
+			var d1 = $.datepicker.parseDate('mm/dd/yy', $("input[id='photoResearchDue']").val());
+			var d2 = $.datepicker.formatDate('${dateFormat}', d1);
+	    	$("input[id='d_photoResearchDue']").val(d2);
+			
+
+			$("#permissionsDue").datepicker();
+			$("#d_permissionsDue").datepicker();
+			var d1 = $.datepicker.parseDate('mm/dd/yy', $("input[id='permissionsDue']").val());
+			var d2 = $.datepicker.formatDate('${dateFormat}', d1);
+	    	$("input[id='d_permissionsDue']").val(d2);
+
+			
+			$("#pageProofScheduleDate").datepicker();
+			$("#d_pageProofScheduleDate").datepicker();
+			var d1 = $.datepicker.parseDate('mm/dd/yy', $("input[id='pageProofScheduleDate']").val());
+			var d2 = $.datepicker.formatDate('${dateFormat}', d1);
+	    	$("input[id='d_pageProofScheduleDate']").val(d2);
+
+			
+			$("#releaseToPrinterDate").datepicker();
+			$("#d_releaseToPrinterDate").datepicker();
+			var d1 = $.datepicker.parseDate('mm/dd/yy', $("input[id='releaseToPrinterDate']").val());
+			var d2 = $.datepicker.formatDate('${dateFormat}', d1);
+	    	$("input[id='d_releaseToPrinterDate']").val(d2);
+			
+
+			$('#cwSummary').submit(function() {
+				$.ajax({
+		            type: 'post',
+		            url: $(this).attr("action"),
+		            data: $('#cwSummary').serialize(),
+		            success: function (response) {
+		                $('#modalDiv').html(response);
+		                repositionDialog();
+		            }
+		        });
+				return false;
+			});
+			
+			$('#backLink').click (function() {
+				$("#modalDiv").load("${backUrl}");
+				return false;
+			});
+		});
+	//]]>
+	</script>
+
+	<form:form modelAttribute="cwSummary">
+		<spring:hasBindErrors name="cwSummary">
+			<jsp:directive.include file="/WEB-INF/tiles/pages/include/formErrors.jspx" />
+		</spring:hasBindErrors>
+		
+		<h3>Asset Summary</h3>
+		<table>
+			<tr>
+			    <td class="label">
+			        <form:label path="researchStatus" cssClass="optional" cssErrorClass="error">Research Status</form:label>
+			    </td>
+			    <td class="value">
+			        <form:input path="researchStatus" size="3" maxlength="3" /> %
+			    </td>
+			</tr>
+			<tr>
+			    <td class="label">
+			        <form:label path="researchProgressNotes" cssClass="optional" cssErrorClass="error">Research Progress Notes</form:label>
+			    </td>
+			    <td class="value">
+			        <form:input path="researchProgressNotes" size="50" maxlength="250" />
+			    </td>
+			</tr>
+		    <tr>
+			    <td class="label">
+			        <form:label path="creditListSubmitted" cssClass="optional" cssErrorClass="error">Credit List Submitted</form:label>
+			    </td>
+			    <td class="value">
+			        <form:radiobutton path="creditListSubmitted" value="true" /> Yes
+					<form:radiobutton path="creditListSubmitted" value="false" cssStyle="margin-left: 1em" /> No
+				</td>
+			</tr>	
+			<tr>
+			    <td class="label">
+			        <form:label path="photoResearchDue" cssClass="optional" cssErrorClass="error">Photo Research Due</form:label>
+			    </td>
+			    <td class="value">
+			        <input type="text" class="datepicker required" id="d_photoResearchDue" name="d_photoResearchDue" size="10" maxlength="10" cssClass="optional" cssErrorClass="error"/> (${dateFormat})
+			    	<form:hidden path="photoResearchDue"/>
+			    </td>
+			</tr>
+			<tr>
+			    <td class="label">
+			        <form:label path="permissionsDue" cssClass="optional" cssErrorClass="error">Permissions Due</form:label>
+			    </td>
+			    <td class="value">        
+			         <input type="text" id="d_permissionsDue" name="d_permissionsDue" size="10" maxlength="10" cssClass="optional" cssErrorClass="error"/>(${dateFormat})
+			    	<form:hidden path="permissionsDue"/>
+			    </td>
+			</tr>
+			<tr>
+			    <td class="label">
+			        <form:label path="pageProofScheduleDate" cssClass="optional" cssErrorClass="error">Page Proof Schedule Date</form:label>
+			    </td>
+			    <td class="value">
+			        <input type="text" id="d_pageProofScheduleDate" name="d_pageProofScheduleDate" size="10" maxlength="10" cssClass="optional" cssErrorClass="error"/>(${dateFormat})
+			    	<form:hidden path="pageProofScheduleDate"/>
+			    </td>
+			</tr>
+			<tr>
+			    <td class="label">
+			        <form:label path="releaseToPrinterDate" cssClass="optional" cssErrorClass="error">Release to Printer Date</form:label>
+			    </td>
+			    <td class="value">			        
+			        <input type="text" id="d_releaseToPrinterDate" name="d_releaseToPrinterDate" size="10" maxlength="10" cssClass="optional" cssErrorClass="error"/>(${dateFormat})
+			    	<form:hidden path="releaseToPrinterDate"/>
+			    </td>
+			</tr>
+		</table>
+		<div class="buttonset">		
+			<jsp:element name="input">
+				<jsp:attribute name="type">submit</jsp:attribute>
+				<jsp:attribute name="value">Modify</jsp:attribute>
+			</jsp:element>
+			<button id="backLink" class="button">Cancel</button>
+		</div>									
+	</form:form>
+</jsp:root>

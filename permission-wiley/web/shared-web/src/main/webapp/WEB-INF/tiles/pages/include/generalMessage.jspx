@@ -1,0 +1,15 @@
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+
+	<c:if test="${not empty param.generalMessage}">
+	    <c:set var="generalMessage" value="${param.generalMessage}"/>
+	</c:if>
+	<c:if test="${not empty generalMessage}">
+		<p class="message">
+		    <c:out value="${generalMessage}" escapeXml="false"/>
+		</p>
+	</c:if>
+</jsp:root>

@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:security="http://www.springframework.org/security/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+
+	<script type="text/javascript">
+	//<![CDATA[
+	$(document).ready(function() {
+		//onChangeMediaType();
+	});
+	//]]>		
+	</script>
+
+	<jsp:directive.include file="/WEB-INF/tiles/pages/include/generalMessage.jspx" />
+
+	<table>
+		<tr>
+			<td>
+    			Description:
+			</td>
+			<td colspan="3">
+			    ${assetDetailsForm.assetUse.asset.description}
+			</td>
+		</tr>	
+		<tr>
+			<td>
+    			Active:
+			</td>
+			<td colspan="3">
+			    <!-- Use onclick instead of onchange because works better in IE. -->
+			    ${assetDetailsForm.assetUse.asset.active}
+			</td>
+		</tr>
+		<tr>
+			<td>
+				Owner Type:
+			</td>
+			<td> 
+				${assetDetailsForm.assetUse.asset.ownerType.description}			
+			</td>		
+		</tr>
+		<tr>
+			<td>
+   			    Media Type:
+			</td>
+			<td>
+				${assetDetailsForm.assetUse.asset.mediaType.description}	
+			</td>		
+		</tr>			
+        <c:if test="${not assetDetailsForm.takenFromAnotherPublication}">
+		<tr>
+	 		<td colspan="4">
+				Asset Taken From Another Publication: <b>No</b>
+			</td>
+		</tr>
+		</c:if>
+		  <tr>
+		      <td colspan="4" id="originalPubData" style="${assetDetailsForm.takenFromAnotherPublication ? '' : 'display: none'}">
+		      <table style="width: 100%"> 
+		            <tr>
+			            <td colspan="4">
+				      		Asset taken from another publication: <b>Yes</b>
+				      	</td>
+				    </tr>
+		            <tr>
+			            <td>
+							Publication title:
+						</td>
+						<td>
+			    			${assetDetailsForm.assetUse.asset.originalPublicationTitle}
+						</td>											
+						<td>
+			    			Publication author:
+						</td>
+						<td>
+			    			${assetDetailsForm.assetUse.asset.originalPublicationAuthor}
+						</td>											
+					</tr>
+		            <tr>
+			            <td>
+							Article title:
+						</td>
+						<td>
+			    			${assetDetailsForm.assetUse.asset.originalArticleTitle}
+						</td>											
+						<td>
+			    			Article author:
+						</td>
+						<td>
+			    			${assetDetailsForm.assetUse.asset.originalArticleAuthor}
+						</td>											
+					</tr>
+					<tr>
+						<td>
+			    			Publication ISBN:
+						</td>
+						<td>
+			    			${assetDetailsForm.assetUse.asset.originalPublicationIsbn}
+						</td>											
+					</tr>
+					<tr>
+						<td>
+			    			Asset identified as:
+						</td>
+						<td>
+			    			${assetDetailsForm.assetUse.asset.originalFigureNumber}
+						</td>											
+						<td>
+			    			Publication page#:
+						</td>
+						<td>
+			    			${assetDetailsForm.assetUse.asset.originalPageNumber}
+						</td>						
+					</tr>
+				</table>
+			</td>
+		</tr>
+
+		<tr>
+			<td colspan="4">
+				<div id="details-Media-Text" style="display: none;">
+					<table width="100%">
+						<tr>
+							<td>
+							    From 1:
+							</td>
+							<td>
+							    ${assetDetailsForm.assetUse.asset.from1}
+							</td>											
+							<td>
+							    To 1:
+							</td>
+							<td>
+							    ${assetDetailsForm.assetUse.asset.to1}
+							</td>											
+						</tr>
+						<tr>
+							<td>
+							    From 2:
+							</td>
+							<td>
+							    ${assetDetailsForm.assetUse.asset.from2}
+							</td>											
+							<td>
+							    To 2:
+							</td>
+							<td>
+							    ${assetDetailsForm.assetUse.asset.to2}
+							</td>											
+						</tr>
+						<tr>
+							<td>
+							    From 3:
+							</td>
+							<td>
+							    ${assetDetailsForm.assetUse.asset.from3}
+							</td>											
+							<td>
+							    To 3:
+							</td>
+							<td>
+							    ${assetDetailsForm.assetUse.asset.to3}
+							</td>											
+						</tr>
+					</table>										
+				</div>							
+			</td>
+		</tr>
+		<tr>
+			<td>
+				Keywords:
+			</td>
+			<td colspan="3">
+			    ${assetDetailsForm.assetUse.asset.keywords}
+			</td>
+		</tr>
+
+		<tr>
+			<td>
+    			File name:
+			</td>
+			<td colspan="3">
+    			${assetDetailsForm.assetUse.asset.filename}
+			</td>
+		</tr>
+		<c:if test="${not empty assetDetailsForm.assetUse.asset.originalFile}">
+			<tr>
+				<td>Original File</td>
+				<td colspan="3">
+					<c:url var="downloadUrl" value="/sapp/asset/details/download_file?fileId=${file.id}" />
+					
+					<jsp:element name="a">
+						<jsp:attribute name="href">
+							<c:url value="/sapp/asset/details/download_file?fileId=${assetDetailsForm.assetUse.asset.originalFile.id}"/>
+						</jsp:attribute>
+							(${assetDetailsForm.assetUse.asset.originalFile.objectName})
+							(${wileyfn:filesize(assetDetailsForm.assetUse.asset.originalFile.data)})
+							uploaded on <fmt:formatDate type="date" value="${assetDetailsForm.assetUse.asset.originalFile.lastUpdatedDate}" />	
+					</jsp:element>
+
+				</td>
+			</tr>
+		</c:if>	
+		<tr>
+			<td>
+    			Source Reference#:
+			</td>
+			<td colspan="3">
+    			${assetDetailsForm.assetUse.asset.vendorId}
+			</td>
+		</tr>
+    <c:if test="${assetDetailsForm.assetUse.needToIncludePhotographer}">	
+		<tr>
+			<td>
+    			Artist/Photographer:
+			</td>
+			<td colspan="3">
+    			${assetDetailsForm.assetUse.asset.artist}
+			</td>
+		</tr>
+	</c:if>
+		<tr>
+			<td>
+       			Credit Line<br/> for this Asset:
+			</td>
+			<td colspan="3">
+				${assetDetailsForm.assetUse.asset.creditLine}
+			</td>
+		</tr>
+		<tbody id="biblioDiv" style="margin-left: 2em;display:none;" >
+			<tr>
+				<td>
+					Citation:
+				</td>
+				<td colspan="3">
+					${assetDetailsForm.assetUse.asset.citation}				
+				</td>
+			</tr>	
+	
+			<tr>
+				<td>
+					Biblio ref.:
+				</td>
+				<td colspan="3">
+					${assetDetailsForm.assetUse.asset.biblio}				
+				</td>
+			</tr>
+		</tbody>		
+		<tr>
+			<td>
+			    Source Default<br/> Credit Line:
+			</td>
+			<td colspan="3">
+			    ${assetDetailsForm.assetUse.asset.sourceCreditLine}
+			</td>
+		</tr>
+		<tr>
+			<td>
+			    Source(s):
+			</td>
+			<td colspan="3">
+			    ${assetDetailsForm.assetUse.asset.sourcesAsString}
+			</td>
+		</tr>
+		<tr>
+			<td>
+   			   Model Release:
+			</td>
+			<td  colspan="3">
+			    ${assetDetailsForm.assetUse.asset.modelRelease.name}
+			</td>
+		</tr>
+
+		<tr>
+		    <td>
+		        <table>
+					<tr>
+						<td>
+			    			Rights Managed:
+						</td>
+						<td>
+							${wileyfn:formatBoolean(assetDetailsForm.assetUse.asset.managed)}
+						</td>
+					</tr>
+					<tr>
+						<td>
+			    			Fee Required:
+						</td>
+						<td>
+						    ${wileyfn:formatBoolean(assetDetailsForm.assetUse.asset.feeRequired)}
+						</td>
+					</tr>
+					<tr>
+						<td>
+			    			Royalty Free:
+						</td>
+						<td>
+						    ${wileyfn:formatBoolean(assetDetailsForm.assetUse.asset.royaltyFree)}
+						</td>
+					</tr>
+					<tr>
+						<td>
+			    			Restricted Use:
+						</td>
+						<td>
+						    ${wileyfn:formatBoolean(assetDetailsForm.assetUse.asset.restrictedUse)}
+						</td>
+					</tr>
+					<c:if test="${assetDetailsForm.assetUse.asset.ownerType.code == 'Wiley Owned'}">		
+			    	<tr>
+						<td>
+			    			Work For Hire:
+						</td>
+						<td>
+						    <!-- Use onclick instead of onchange because works better in IE. -->
+						    ${wileyfn:formatBoolean(assetDetailsForm.assetUse.asset.workForHire)}
+						</td>
+					</tr>
+					</c:if>
+					
+		        </table>
+            </td>
+            <td colspan="2">
+ 			   <table>
+ 			   		<tr>
+						<td>
+			    			Must Display Credit:
+						</td>
+						<td>
+						    ${wileyfn:formatBoolean(assetDetailsForm.assetUse.asset.mustDisplayCredit)}
+						</td>
+					</tr>
+ 			   		<tr>
+						<td>
+			    			Obtained By Author:
+						</td>
+						<td>
+						    ${wileyfn:formatBoolean(assetDetailsForm.assetUse.asset.obtainedByAuthor)}
+						</td>
+					</tr>
+					<tr>
+						<td>
+			    			Property Release:
+						</td>
+						<td>
+						    ${wileyfn:formatBoolean(assetDetailsForm.assetUse.asset.propertyRelease)}
+						</td>
+					</tr>					
+					<tr>
+						<td>
+			    			Archive:
+						</td>
+						<td>
+						    ${wileyfn:formatBoolean(assetDetailsForm.assetUse.asset.archive)}
+						</td>
+					</tr>
+	        	</table>
+	    	</td>
+	    </tr>
+		<tr>
+			<td colspan="4">
+				<div id="ruApprovedDiv" style="${assetDetailsForm.assetUse.asset.restrictedUse ? '' : 'display: none'}">
+					<table>
+						<tr>
+							<td>
+			    				Restricted Use Approved:
+							</td>
+							<td>
+			    				${wileyfn:formatBoolean(assetDetailsForm.assetUse.restrictedUseApproved)}
+							</td>
+						</tr>
+						<c:if test="${assetDetailsForm.assetUse.restrictedUseApproved}">
+						<tr>
+							<td>
+			    				Restricted Use Approved User:
+							</td>
+							<td>
+			    				${assetDetailsForm.assetUse.restrictedUseApprovedUser.fullName}
+							</td>
+							<td>
+			    				Restricted Use Approved Date:
+							</td>
+							<td>
+			    				<fmt:formatDate type="date" value="${assetDetailsForm.assetUse.restrictedUseApprovedDate}" />
+							</td>
+						</tr>
+						</c:if>
+		            </table>
+		        </div>
+		    </td>
+		</tr>					    
+		<tr id="restrictedUseDetailsRow" style="${assetDetailsForm.assetUse.asset.restrictedUse ? '' : 'display: none'}">
+			<td>
+               Restricted Use Details:
+            </td>
+			<td colspan="3">
+			    ${assetDetailsForm.assetUse.asset.restrictedUseDetails}
+			</td>
+		</tr>
+	</table>
+</jsp:root>

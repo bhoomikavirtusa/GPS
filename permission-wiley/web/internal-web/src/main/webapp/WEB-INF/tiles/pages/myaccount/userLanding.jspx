@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+
+	<jsp:directive.page pageEncoding="UTF-8" />
+
+	<style type="text/css">
+		.greybox { width: 97%; }
+	</style>
+
+	<c:url var="cwLandingUrl" value="/sapp/cwlanding/scroll" />
+	<c:url var="searchUserUrl" value="/sapp/product/searchUser" />
+	<c:url var="groupLandingUrl" value="/sapp/product/groupLanding" />
+
+	<!-- TODO: this tag doesn't make sense unless inside tiles:insertDefinition -->
+	<!-- Remove or fix? -->
+	<!--
+	<tiles:putAttribute name="titleParams" value="${user.firstName}, ${user.lastName}" />
+	-->
+
+	<c:set var="titleKey">title</c:set>
+	<c:set var="authorsKey">authors</c:set>
+	<c:set var="isbnKey">isbn13</c:set>
+	<c:set var="mediumKey">medium</c:set>
+	<c:set var="pubStatusKey">publication Status</c:set>
+
+	<jsp:body>
+		<script type="text/javascript">
+			$(document).ready(function() {
+				$('#associatedTable').dataTable( {
+					"aoColumns": [
+						{ "sWidth" : "45%" }, // Title
+						{ "sWidth" : "25%" }, // Author(s)
+						{ "sWidth" : "10%" }, // ISBN
+						{ "sWidth" : "10%" }, // Medium
+						{ "sWidth" : "10%" } // Publication Status
+					],
+					"aaSorting": [[1, "asc" ]],
+
+					"bAutoWidth": false,
+					"bProcessing": true,
+					"bStateSave": true,
+					"bPaginate" : false,
+					"sDom" : "rt"
+					//"sPaginationType": "full_numbers",
+					//"aLengthMenu": [10, 15, 25, 50, 100],  // override default of [10, 25, 50, 100]
+					//"iDisplayLength": 10 // same as default
+				} );
+			} );
+
+			$(document).ready(function() {
+				$('#watchedTable').dataTable( {
+					"aoColumns": [
+						<c:if test="${user.id == userSession.currentUser.id}">
+					    { "sWidth" : "5%", "bSortable" : false, "bSearchable" : false, "sClass" : "center" }, // Remove
+					    </c:if>
+						{ "sWidth" : "40%" }, // Title
+						{ "sWidth" : "25%" }, // Author(s)
+						{ "sWidth" : "10%" }, // ISBN
+						{ "sWidth" : "10%" }, // Medium
+						{ "sWidth" : "10%" } // Publication Status
+					],
+					"aaSorting": [[${user.id == userSession.currentUser.id ? 2 : 1}, "asc" ]],
+
+					"bAutoWidth": false,
+					"bProcessing": true,
+					"bPaginate" : false,
+					"sDom" : "rt"
+					// don't save state since column indexes can change and mess up sorting
+					//"bStateSave": true,
+					//"sPaginationType": "full_numbers",
+					//"aLengthMenu": [10, 15, 25, 50, 100],  // override default of [10, 25, 50, 100]
+					//"iDisplayLength": 10 // same as default
+				} );
+			} );
+
+			jQuery(document).ready(function () {
+
+				//for debugging purpose, so that you can see what is in the menu cookie
+				// alert ("cookie" + readCookie('menu'));
+
+				//if cookie menu exists
+				if (readCookie('menu')) {	
+					//loop through the menu item
+					jQuery('#menu a').each(function () {
+						//match the correct link and add selected class to it
+						if (jQuery(this).html() == readCookie('menu')) { 
+							jQuery(this).addClass('selected');
+							// do not keep the selection active
+							eraseCookie ('menu');
+						}
+					});	
+				}
+
+				jQuery('#menu a').click(function () {
+					//Set the cookie according to the text in the link
+					createCookie('menu', jQuery(this).html(),1);
+				});
+				
+			});
+			
+			/* Cookie Function */
+			function createCookie(name, value, days) {
+				jQuery.cookie (name, value, { path: '/', expires: days} );
+			}
+
+			function readCookie(name) {
+				return jQuery.cookie (name);
+			}
+
+			function eraseCookie(name) {
+				jQuery.cookie(name,null, { path: '/', expires: -1});
+			}
+
+			/* Menu Function */
+			function activateMenu (url, menu) {
+				createCookie('menu', menu,1);
+				document.location.href=url;
+			}
+
+			function deactivateMenu (url, menu) {
+				eraseCookie('menu');
+				document.location.href=url;
+			}
+
+		</script>
+<!-- Disabled until further notice
+		<a href="${searchUserUrl}">[Switch User]</a>
+		<a href="${groupLandingUrl}" style="margin-left: 1em">[Group Products]</a>
+--> 
+		<br/><br/>
+		
+		
+	<c:if test="${not empty generalMessage}">
+		<table>
+		<tr>
+		<td style="border: thick solid red">
+		<jsp:directive.include file="/WEB-INF/tiles/pages/include/generalMessage.jspx" />
+        </td>
+        </tr>
+        </table>
+    </c:if>        
+        <table class="width100">
+        	<c:if test="${notification != null and notification != '*'}">
+        		<tr>
+        			<td style="border: thick solid red">
+						${notification}
+					</td>
+				</tr>
+			</c:if>
+			<tr>
+				<td colspan="5">
+				Please select a product. You may search for products in the search bar above,
+				select from the products below for which you have been assigned a role in GBPM,
+				or select a product you have previously bookmarked.
+				</td>
+			</tr>
+			<tr>
+				<th>Products</th>
+			</tr>
+			<tr>
+				<td>		
+				<table class="display" id="associatedTable">
+				<thead>
+					<tr>
+						<th>${titleKey}</th>
+						<th>${authorsKey}</th>
+						<th>${isbnKey}</th>
+						<th>${mediumKey}</th>
+						<th>${pubStatusKey}</th>
+					</tr>
+				</thead>
+				<tbody>
+					<c:forEach items="${userLandingList}" var="up">
+						<tr>
+							<td>			
+								<a href="#" onclick="activateMenu ('${cwLandingUrl}?productId=${up.product.id}', 'Product Landing')">
+									<c:out value="${up.product.title}" />
+								</a>
+							</td>
+							<td><c:out value="${up.product.authorsAsString}" /></td>
+							<td><c:out value="${up.product.isbn13}" /></td>
+							<td><c:out value="${up.product.medium.name}" /></td>
+							<td><c:out value="${up.product.publicationStatus.description}" /></td>		
+						</tr>
+					</c:forEach>
+				</tbody>
+			</table>
+			</td>
+		</tr>
+	</table>
+
+		<table class="width100" style="margin-top: 1em">
+			<tr>
+				<th>Bookmarked Products</th>
+			</tr>
+			<tr>
+				<td>
+		<table class="display" id="watchedTable">
+			<thead>
+				<tr>
+					<c:if test="${user.id == userSession.currentUser.id}">
+						<th>Remove</th>
+					</c:if>
+					<th>${titleKey}</th>
+					<th>${authorsKey}</th>
+					<th>${isbnKey}</th>
+					<th>${mediumKey}</th>
+					<th>${pubStatusKey}</th>
+				</tr>
+			</thead>
+			<tbody>
+				<c:forEach items="${user.watchedCommonWorks}" var="commonWork">
+					<tr>
+						<c:if test="${user.id == userSession.currentUser.id}">
+							<td>
+								<jsp:element name="a">
+									<jsp:attribute name="href">
+										<c:url value="/sapp/product/userLanding/remove?cwId=${commonWork.id}&amp;userId=${user.id}"/>
+									</jsp:attribute>
+									<jsp:element name="img">
+										<jsp:attribute name="alt">Remove from Bookmarked Products</jsp:attribute>
+										<jsp:attribute name="src">
+											<c:url value="/images/buttons/delete-icon.png" />
+										</jsp:attribute>
+									</jsp:element>
+								</jsp:element>
+							</td>
+						</c:if>
+						<td>
+							<a href="#" onclick="activateMenu('${cwLandingUrl}?cwId=${commonWork.id}', 'Product Landing')">
+								<c:out value="${commonWork.primaryProduct.title}" />
+							</a>
+						</td>
+						<td><c:out value="${commonWork.primaryProduct.authorsAsString}" /></td>
+						<td><c:out value="${commonWork.primaryProduct.isbn13}" /></td>
+						<td><c:out value="${commonWork.primaryProduct.medium.name}" /></td>
+						<td><c:out value="${commonWork.primaryProduct.publicationStatus.description}" /></td>
+					</tr>
+				</c:forEach>
+			</tbody>
+		</table>
+			</td>
+		</tr>
+	</table>
+
+	</jsp:body>
+</jsp:root>

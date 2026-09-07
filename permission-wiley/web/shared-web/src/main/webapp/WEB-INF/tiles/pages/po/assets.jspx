@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="nextUrl" value="/sapp/permissions/po/submit_assets" />
+	<c:url var="prevUrl" value="/sapp/permissions/po/main" />
+	<c:url var="thumbURL" value="/sapp/product/assetThumbnail" />
+	
+	<!--include as jspx so the jsp variable are recognized-->
+	<jsp:directive.include file="js/wizard.buttons.js.jspx" />
+	
+	<h3>Source ${poWizardForm.source.name}</h3>
+	<table>
+		<tr>
+			<td>
+				Source ID:
+			</td>
+			<td>
+				<b>${poWizardForm.source.jdeVendorNumber}</b>
+			</td>
+		</tr>
+		<c:if test="${not empty contact}">
+		<tr>
+			<td>
+				Source contact:
+			</td>
+			<td>
+				<b>${contact.name}</b>
+			</td>			
+		</tr>
+		</c:if>
+	</table>
+	<hr/>
+	Select the assets from this source to be included in this request: 
+	<br/>
+	<jsp:directive.include file="/WEB-INF/tiles/pages/include/generalMessage.jspx" />
+	<br/>
+	
+	<input type="checkbox" id="all" /> All
+	
+	<form:form modelAttribute="poWizardForm">
+	<table>
+		<c:set var="componentId" value="0"/>
+		<c:forEach items="${assets}" var="asset">
+<!--		
+			<c:if test="${componentId != asset.componentId}">
+				<tr>
+					<td><hr/></td>
+				</tr>
+				<tr>
+					<td><input type="checkbox" id="cmp-${asset.componentId}" value="${asset.componentId}"/><b> All ${asset.componentName}</b></td>
+				</tr>
+				<c:set var="componentId" value="${asset.componentId}"/>
+			</c:if>
+-->			
+			<tr>
+				<td>
+					<div>
+						<c:if test="${asset.hasAssetFiles}">
+							<span class="ctooltip" id="tooltip${asset.assetId}" style="display:none;">Loading...</span>
+						</c:if>
+					</div>
+					<span style="margin-left: 2em;">
+						<c:choose>
+							<c:when test="${asset.selected}">							
+								<input type="checkbox" id="ast-${asset.componentId}-${asset.assetId}" value="${asset.assetId}" checked="checked"/>
+							</c:when>
+							<c:otherwise>
+								<input type="checkbox" id="ast-${asset.componentId}-${asset.assetId}" value="${asset.assetId}"/>
+							</c:otherwise>
+						</c:choose>
+						<c:if test="${asset.hasAssetFiles}">
+							<img onmouseover="showAssetImage(${asset.assetId})" onmouseout="hideAssetImage(${asset.assetId})" src="../../images/thumbnail_thumbnail.png" />
+						</c:if>
+						${asset.assetDescription} - ref#: ${asset.vendorId} : ${asset.usageTypeCode} - ${asset.componentName} - ${asset.position}
+						<c:if test="${asset.poId != 0}">
+							requested on <fmt:formatDate type="date" value="${asset.poDate}" />									
+						</c:if>
+					</span>
+				</td>
+			</tr>			
+		</c:forEach>	
+	</table>
+	</form:form>
+	<br />
+	<br />
+	<hr />
+	<br />
+	<br />
+
+	<div class="buttonset">
+	<input type="submit" id="prevB" value="Previous" /> 
+	<input type="button" id="assetsB" value="Next" /> 
+	<a href="#" id="cancelLink" class="button">Cancel</a>
+	</div>
+	<script type="text/javascript">
+//<![CDATA[
+	
+	function getSelectedAssetIds () {
+		var arr = [];
+		$.each ($("input[id|='ast']"), function () {
+			if ($(this).is(':checked')) {
+				var iIndex = $.inArray($(this).val(), arr);
+				if (iIndex == -1)
+					arr.push ($(this).val());
+            }
+        });
+        var sData = arr.join(",");
+        return sData;
+	}
+	
+	//Start -- Added for implementing Build DM-117
+	function showAssetImage(assetId) {
+		$('#tooltip'+assetId).html("<img src='${thumbURL}?assetId=" + assetId + "&size=medium' alt='Thumbnail' />");
+        $('#tooltip'+assetId).show();
+	}
+	
+	function hideAssetImage(assetId) {
+		//Remove the appended tooltip template
+		$('#tooltip'+assetId).html('Loading...');
+        $('#tooltip'+assetId).hide(); 
+	}
+	//End -- Added for implementing Build DM-117
+	
+	$(document).ready(function() {
+	
+		//Bind this keypress function to all of the input tags
+		$("input").keypress(function (event) {
+			if ( event.which == 13 ) {
+				event.preventDefault();
+				if ($.exists("#assetsB")) {
+					//alert ("assetsB");
+					$('#assetsB').click();
+				}
+			}
+		});
+
+		$('#assetsB').click (function() {
+			var sData = getSelectedAssetIds();
+	        //alert ("sData = " + sData);
+			if ($("#poWizardForm").validate().form() == true) {	
+				$.ajax({
+		            async: true,
+		            type: 'post',
+		            url: '${nextUrl}',
+		            data: "aids=" + sData,
+		            success: function (response){
+	                	$('#modalDiv').empty().html(response);
+	                	repositionDialog();
+		            }
+		        });
+			}
+		});
+		
+		$( "input[id='all']" ).click(function() {
+			var checkbox = this;
+			if ($(this).is(':checked')) {
+		        $.each ($("input[id|='ast']"), function () {
+		            $(this).attr('checked', $(checkbox).is(':checked'));
+		        });			
+			} else {
+		        $.each ($("input[id|='ast']"), function () {
+		            $(this).attr('checked', false);
+		        });			
+			}
+		});
+			
+		$( "input[id|='cmp']" ).click(function() {
+			var id = 'ast-' + $(this).val();
+			var input = "input[id|='" + id + "']";
+			var checkbox = this;
+			if ($(this).is(':checked')) {
+		        $.each ($(input), function () {
+		            $(this).attr('checked', $(checkbox).is(':checked'));
+		        });			
+			} else {
+		        $.each ($(input), function () {
+		            $(this).attr('checked', false);
+		        });			
+			}
+		});
+	});
+//]]>		
+	</script>
+</jsp:root>

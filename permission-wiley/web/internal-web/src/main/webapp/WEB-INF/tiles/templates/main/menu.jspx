@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+	xmlns:security="http://www.springframework.org/security/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+
+	<jsp:directive.page pageEncoding="UTF-8" />
+	<jsp:directive.page import="java.sql.DriverManager"/>
+	<jsp:directive.page import="java.sql.ResultSet"/>
+	<jsp:directive.page import="java.sql.Statement"/>
+	<jsp:directive.page import="java.sql.Connection"/>
+	<jsp:directive.page import="java.text.DateFormat"/>
+	<jsp:directive.page import="java.text.SimpleDateFormat"/>
+	<jsp:directive.page import="java.util.ArrayList"/>
+
+	<jsp:element name="link">
+		<jsp:attribute name="rel">stylesheet</jsp:attribute>
+		<jsp:attribute name="type">text/css</jsp:attribute>
+		<jsp:attribute name="href">
+			<c:url value="/css/menu.css" />
+		</jsp:attribute>
+	</jsp:element>
+
+	<jsp:element name="script">
+		<jsp:attribute name="type">text/javascript</jsp:attribute>
+		<jsp:attribute name="src">
+			<c:url value="/js/jquery.cookie.js" />
+		</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+
+	<jsp:element name="script">
+		<jsp:attribute name="type">text/javascript</jsp:attribute>
+		<jsp:attribute name="src">
+			<c:url value="/js/jquery.dmDropDownMenu.js" />
+		</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+
+	<script type="text/javascript">
+		//<![CDATA[
+		$(document).ready(function() {
+			createModalDialog();
+			$("div.MenuBar").dmDropDownMenu();
+			
+			$('#pcrReport').click(function() {
+				$("#modalDiv").load($(this).attr("href"), function() {
+					openModalDialog ('Reports');
+		        });
+				// prevent the default action, e.g., following a link
+				return false;
+			});
+			
+			$('#pesReport').click(function() {
+				$("#modalDiv").load($(this).attr("href"), function() {
+					openModalDialog ('Reports');
+		        });
+				// prevent the default action, e.g., following a link
+				return false;
+			});
+			
+			$('#euReport').click(function() {
+				$("#modalDiv").load($(this).attr("href"), function() {
+					openModalDialog('Reports');
+		        });
+				// prevent the default action, e.g., following a link
+				return false;
+			});
+			
+			$('#compliance').click(function() {
+				$("#modalDiv").load($(this).attr("href"), function() {
+					openModalDialog('Reports');
+		        });
+				// prevent the default action, e.g., following a link
+				return false;
+			});
+		});
+		//]]>
+	</script>
+
+	<jsp:body>
+	<jsp:scriptlet>
+	String driverName = "com.mysql.jdbc.Driver";
+	String connectionUrl = "jdbc:mysql://AUS-LNDBGPSP-01.wiley.com:3322/";
+	String dbName = "perm";
+	String userId = "permuser";
+	String password = "permuser";
+	String lastdate=null;
+	
+	try {
+	Class.forName(driverName);
+	} catch (ClassNotFoundException e) {
+	e.printStackTrace();
+	}
+
+	Connection connection = null;
+	Statement statement = null;
+	ResultSet resultSet = null;
+	try{ 
+	connection = DriverManager.getConnection(connectionUrl+dbName, userId, password);
+	statement=connection.createStatement();
+	String sql ="select max(last_updated_date) as lastdate from perm.source";
+
+	resultSet = statement.executeQuery(sql);
+	while(resultSet.next()){
+		DateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy");
+		lastdate=dateFormat.format(resultSet.getDate("lastdate"));
+		}
+	} catch (Exception e) {
+	e.printStackTrace();
+	}
+	finally{
+		resultSet.close();
+		connection.close();
+	}
+	</jsp:scriptlet>
+	
+		<c:url var="userLandingUrl" value="/sapp/product/userLanding/main" />
+
+	<div id="menu" class="MenuBar">
+		<a href="${userLandingUrl}">
+			<fmt:message key="product.title.userLandingNoArg" />
+		</a>
+		
+	 	<security:authorize access="hasAuthority('SERVICE_DESK')">
+		<a href="#"><fmt:message key="product.title.addUser" /> &#x25BC;</a>
+		<c:url var="addUsersUrl" value="/sapp/servicedesk/addUsers" />
+		<div id="addUsersSubmenu" class="addUsersSubmenu">
+			<a href="${addUsersUrl}">Add New User</a>
+		</div>
+		</security:authorize>
+		
+		 <security:authorize access="hasAuthority('EMPLOYEE_DEFAULT')">
+		 		<c:url var="sourcesUrl" value="/sapp/sources/sources/list?cameFrom=admin" />
+				<c:url var="noflyListUrl" value="/sapp/sources/manageSource/noflyList" />
+				<c:url var="activateSourceUrl" value="/sapp/sources/sources/list?cameFrom=admin&amp;activateMode=1" />
+				<c:url var="createSourceUrl" value="/sapp/sources/createSource" />		
+				<c:url var="adminUrl" value="/sapp/admin/main" />
+				<c:url var="adminSourceGroupsUrl" value="/sapp/admin/sourceGroups" />
+				<c:url var="adminUsersUrl" value="/sapp/admin/users/handle" />
+		<a href="#"><fmt:message key="title.sources.manage" /> &#x25BC;</a>
+
+		<div id="sourceSubmenu" class="sourceSubmenu">
+			<a href="${sourcesUrl}">Manage sources</a>
+			<a href="${noflyListUrl}">No Fly List (Last Updated:<jsp:expression>lastdate</jsp:expression>)</a>
+			<a href="${adminSourceGroupsUrl}">Master Agreements</a>
+		</div>
+				
+				
+		
+		
+		<c:url var="photoCopyrightUrl" value="/sapp/commonwork/report/viewPhotocopyrightReport.xls" />
+		<c:url var="photoEditorStatusUrl" value="/sapp/commonwork/report/viewPhotoEditorStatusReport.xls" />
+		<c:url var="assignedProjectsUrl" value="/sapp/commonwork/report/assignedProjects.xls" />
+		<c:url var="complianceUrl" value="/sapp/report/compliance/form" />
+		<c:url var="divestmentReportUrl" value="/sapp/commonwork/report/viewDivestmentReport.xls" />
+		<c:url var="downloadUrl" value="/static/2018_import_template-1.xlsm" />
+		<c:url var="sourceUsageReportUrl" value="/sapp/commonwork/report/sourceUsageReport" />	
+		<a href="#" class="left right">Reports &#x25BC;</a>
+		
+		<div id="cwSubmenu" class="cwSubmenu">
+			<a href="${photoCopyrightUrl}" id="pcrReport">Photo department by copyright year report</a>
+			<a href="${photoEditorStatusUrl}" id="pesReport">Photo editor status report</a>
+			<a href="${assignedProjectsUrl}" id="apReport">Assigned product(s) history report</a>
+			<a href="${sourceUsageReportUrl}">Source Usage Report</a>
+			<!-- <a href="${divestmentReportUrl}" id="divReport">Divestment report</a> -->
+		</div>
+		
+		<a href="#" class="left right">Download &#x25BC;</a>	
+		<div id="cwSubmenu" class="cwSubmenu">
+			<a href="${downloadUrl}">Download Asset Import Predefined Template</a>
+		</div>
+		
+		<a href="#" class="left right">Compliance Dashboard &#x25BC;</a>	
+		<div id="cwSubmenu" class="cwSubmenu">
+			<a href="${complianceUrl}" id="compliance">Compliance dashboard</a>
+		</div>
+
+		
+		<security:authorize access="hasAuthority('ADMIN')">
+			<a href="#">
+				<fmt:message key="title.admin.main" /> &#x25BC;
+			</a>
+			<c:url var="adminUsersUrl" value="/sapp/admin/users/handle" />
+			<c:url var="adminGroupsUrl" value="/sapp/admin/userGroups" />
+			<c:url var="adminTestMessagesUrl" value="/sapp/admin/testMessages" />
+			<c:url var="adminCachedMessagesUrl" value="/sapp/admin/manageCachedMessageList" />
+			<c:url var="adminAssetUseIndexUrl" value="/sapp/admin/assetUseIndex/load" />
+			<c:url var="adminProductIndexUrl" value="/sapp/admin/productIndex/load" />
+			<c:url var="adminPerformanceUrl" value="/sapp/admin/performance/load" />
+			<c:url var="adminSessionInfoUrl" value="/sapp/admin/productIndex/sessionInfo" />
+			<c:url var="adminMergeSourcesUrl" value="/sapp/admin/mergeSource/merge_search" />
+			<c:url var="adminComplianceEmailsUrl" value="/sapp/admin/manageComplianceEmails/load" />
+			<c:url var="adminTestTreeUrl" value="/sapp/admin/testTree/view" />
+			<c:url var="adminSystemNotificationUrl" value="/sapp/admin/manageSystemNotification/edit" />
+			<c:url var="devMiscUrl" value="/sapp/admin/devMisc/load" />
+			<c:url var="favoriteSourcesUrl" value="/sapp/admin/manageFavoriteGroup/manage_Group" />
+			<c:url var="guidelinesUrl" value="/sapp/admin/guidelines/list" />	
+			
+			<div id="adminSubmenu" class="adminSubmenu">				
+				<a href="${createSourceUrl}">Create new source</a>
+				<a href="${adminUrl}">Request product/Clear assets</a>	
+				<a href="${adminUsersUrl}">Manage users</a>
+				<a href="${guidelinesUrl}">Manage Guidelines</a>
+				<a href="${favoriteSourcesUrl}">Manage Favorite Source Groups</a>
+				<a href="${adminGroupsUrl}">Manage user groups</a>
+				<a href="${activateSourceUrl}">Activate/deactivate sources</a>
+				<a href="${adminMergeSourcesUrl}">Merge Sources</a>
+				<security:authorize access="hasAuthority('DEV')">
+					<a href="${devMiscUrl}">Dev Misc</a>
+					<a href="${adminTestMessagesUrl}"><fmt:message key="title.admin.testMessages"/></a>
+					<a href="${adminCachedMessagesUrl}"><fmt:message key="title.admin.cachedMessages"/></a>
+					<a href="${adminAssetUseIndexUrl}"><fmt:message key="title.admin.assetUseIndex"/></a>
+					<a href="${adminProductIndexUrl}"><fmt:message key="title.admin.productIndex"/></a>
+					<a href="${adminSessionInfoUrl}">Session Info</a>
+					<a href="${adminPerformanceUrl}">Performance</a>
+				</security:authorize>
+				<a href="${adminSystemNotificationUrl}">Manage System Notification</a>
+				<!--<a href="${adminTestTreeUrl}">Test Tree</a>-->
+				<a href="${adminComplianceEmailsUrl}">Manage Out of Compliance Emails</a>
+			</div>					
+		</security:authorize>
+		</security:authorize>
+	</div>
+
+	<div id="modalDiv" style="display: none">
+		<p style="font-size: 16pt">
+		Loading...
+		</p>
+	</div>
+
+	</jsp:body>
+</jsp:root>

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root 
+	version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+>
+	<jsp:directive.page pageEncoding="UTF-8"/>
+	
+	<c:url var="updateEbookSalesUrl" value="/sapp/admin/devMisc/updateEbookSales"/>
+
+	<div style="margin-top: 1em">
+		<form method="post" action="${updateEbookSalesUrl}">
+    		<input type="submit" value="Update Ebook Sales (see log for output)" />
+    		ISBN 13 (blank means all)<input type="text" name="isbn13" /><br />
+    		(ISBN's that are not medium E will be ignored)<br />
+    		(Normally cron/mule does this - 2nd of every month)<br />
+    	</form>
+    </div>
+
+    <hr />
+    <c:url var="updateStatusesUrl" value="${wileyfn:getRestUrl(pageContext.request)}/service/asset/recalculate/" />
+    
+    <!-- If cwId not set by controller, set to 1 (used in link below) -->
+    <!-- (Only time not set would be if we have not visited product page yet.) -->
+    <c:if test="${cwId == null}">
+    	<c:set var="cwId" value="1" />
+    </c:if>
+    
+    <p style="margin-top: 2em">
+    	Update Permission Status (0 for all CWs, cw_id for one CW, or comma-separated CW ids):<br />
+    	<a href="${updateStatusesUrl}cw/${cwId}">${updateStatusesUrl}cw/${cwId}</a><br />
+    	<br />
+    	Update Permission Status (0 for all AUs, auId for one AssetUse, or comma-separated AU ids):<br />
+    	<a href="${updateStatusesUrl}au/1">${updateStatusesUrl}au/1</a><br />
+    	<br />
+    	Update Permission Status (null for where status is null, or code for particular status):<br />
+    	<a href="${updateStatusesUrl}status/null">${updateStatusesUrl}status/null</a><br />
+    	<br />
+    	Update Permission Statuses older than a certain date (time can be omitted) :<br />
+    	<a href="${updateStatusesUrl}date/2014-01-01%2015:00:00">${updateStatusesUrl}date/2014-01-01%2015:00:00</a><br />
+    </p>
+    
+    <hr />
+    <c:url var="updateAssetSeatsAndPrintRun" value="/sapp/admin/devMisc/updateAssetSeatsAndPrintRun"/>
+    
+	<div style="margin-top: 1em">
+		<form method="post" id="updateSeatForm" action="${updateAssetSeatsAndPrintRun}">
+    		<input type="submit" value="Update Asset Seats and Print Run (see log for output)" />
+    		AssetId (0 means all)<input type="text" id="assetId" name="assetId" /><br />
+    	</form>
+    </div>
+    
+    <hr />
+    <!-- added by santhosh for pe_update -->
+    <c:url var="updatePEStatus" value="/sapp/admin/devMisc/updatePEStatus"/>
+    
+	<div style="margin-top: 1em">
+		<form method="post" id="updatePEStatus" action="${updatePEStatus}">
+    		<input type="submit" value="search ISBN from PE" />
+    		<!-- <input type="checkbox" id="peStatus" name="peStatus" value="1" />-->
+    		<select id="peStatus" name="peStatus">
+    			<option value="default">--Please select--</option>
+   				<option value="1">YES</option>
+   				<option value="0">NO</option>
+ 			</select><br />
+    	</form>
+    </div>
+    
+    <hr />
+    <!-- end added by santhosh -->
+    <c:url var="fixCommonWorksUrl" value="/sapp/admin/devMisc/fixCommonWorks"/>
+    
+    <p style="margin-top: 2em">
+    	<a href="${fixCommonWorksUrl}">Fix Common Works</a> (normally this runs daily via quartz - see cron-mule-config.xml)
+    </p>
+    
+    <hr />
+    <c:url var="assignUsersToGroupsUrl" value="/sapp/admin/devMisc/assignUsersToGroups"/>
+    
+    <p style="margin-top: 2em">
+    	<a href="${assignUsersToGroupsUrl}">Assign users to groups</a> (one time thing / consider removing)
+    </p>
+    
+    <hr />
+    <c:url var="rightsLinkTestUrl" value="/sapp/admin/devMisc/rightsLinkTest"/>
+    
+    <p style="margin-top: 2em">
+    	<a href="${rightsLinkTestUrl}">rightsLinkTest</a> (this might be out of date / consider revising or removing)
+    </p>
+    
+    <hr />
+    <c:url var="transactionTestUrl" value="/sapp/admin/devMisc/transactionTest"/>
+    
+    <table style="margin-top: 2em">
+    	<tr><th colspan="3">Transaction tests (see log for what happens)</th></tr>
+    	<tr><th>Url</th><th>Test</th><th>Result</th></tr>
+    	<tr>
+    		<td><a href="${transactionTestUrl}?testNumber=1">test 1</a></td>
+    		<td>Controller calls two REQUIRED methods</td>
+    		<td>commit after each method call</td>
+    	</tr>
+    	<tr>
+    		<td><a href="${transactionTestUrl}?testNumber=2">test 2</a></td>
+    		<td>Controller calls REQUIRED method once which calls another REQUIRED method twice</td>
+    		<td>one commit for both db calls</td>
+    	</tr>
+    	<tr>
+    		<td><a href="${transactionTestUrl}?testNumber=3">test 3</a></td>
+    		<td>Controller calls REQUIRED method once which calls REQUIRES_NEW method twice</td>
+    		<td>commit after each REQUIRES_NEW call (and suspend for REQUIRED method, and 3rd commit for REQUIRED method)</td>
+    	</tr>
+    	<tr>
+    		<td><a href="${transactionTestUrl}?testNumber=4">test 4</a></td>
+    		<td>Controller calls not annotated method once which calls REQUIRES_NEW method twice</td>
+    		<td>commit after each REQUIRES_NEW call (no 3rd commit for not annotated method but suspend is mentioned)</td>
+    	</tr>
+    	<tr>
+    		<td><a href="${transactionTestUrl}?testNumber=5">test 5</a></td>
+    		<td>Controller calls not annotated method once which calls not annotated method twice</td>
+    		<td>commit after each inner method call (no 3rd commit for calling method but suspend is mentioned)</td>
+    	</tr>
+    </table>
+    
+    <script type="text/javascript">
+	//<![CDATA[
+   	$(document).ready(function() {
+        $("#updateSeatForm").submit(function() {
+        	var value = $("#assetId").val();
+        	if ($.trim(value).length == 0) {
+        		alert("You must fill in an assetId or 0 for all.");
+				return false;
+        	}
+		});
+	});
+	//]]>
+	</script>
+
+</jsp:root>

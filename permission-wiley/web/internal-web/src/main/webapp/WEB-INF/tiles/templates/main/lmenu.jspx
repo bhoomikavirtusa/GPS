@@ -1,0 +1,606 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+	xmlns:security="http://www.springframework.org/security/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+
+	<jsp:directive.page pageEncoding="UTF-8" />
+	<jsp:directive.page import="java.sql.DriverManager"/>
+	<jsp:directive.page import="java.sql.ResultSet"/>
+	<jsp:directive.page import="java.sql.Statement"/>
+	<jsp:directive.page import="java.sql.Connection"/>
+	<jsp:directive.page import="java.text.DateFormat"/>
+	<jsp:directive.page import="java.text.SimpleDateFormat"/>
+	<jsp:directive.page import="java.util.ArrayList"/>
+
+	<jsp:element name="link">
+		<jsp:attribute name="rel">stylesheet</jsp:attribute>
+		<jsp:attribute name="type">text/css</jsp:attribute>
+		<jsp:attribute name="href">
+			<c:url value="/css/menu.css" />
+		</jsp:attribute>
+	</jsp:element>
+
+
+	<jsp:element name="script">
+		<jsp:attribute name="type">text/javascript</jsp:attribute>
+		<jsp:attribute name="src">
+			<c:url value="/js/jquery.cookie.js" />
+		</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+
+	<jsp:element name="script">
+		<jsp:attribute name="type">text/javascript</jsp:attribute>
+		<jsp:attribute name="src">
+			<c:url value="/js/jquery.dmDropDownMenu.js" />
+		</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+
+	<jsp:body>
+	<jsp:scriptlet>
+	String driverName = "com.mysql.jdbc.Driver";
+	String connectionUrl = "jdbc:mysql://AUS-LNDBGPSP-01.wiley.com:3322/";
+	String dbName = "perm";
+	String userId = "permuser";
+	String password = "permuser";
+	String lastdate=null;
+	try {
+	Class.forName(driverName);
+	} catch (ClassNotFoundException e) {
+	e.printStackTrace();
+	}
+
+	Connection connection = null;
+	Statement statement = null;
+	ResultSet resultSet = null;
+	try{ 
+	connection = DriverManager.getConnection(connectionUrl+dbName, userId, password);
+	statement=connection.createStatement();
+	String sql ="select max(last_updated_date) as lastdate from perm.source";
+
+	resultSet = statement.executeQuery(sql);
+	while(resultSet.next()){
+		DateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy");
+		lastdate=dateFormat.format(resultSet.getDate("lastdate"));
+		}
+	} catch (Exception e) {
+	e.printStackTrace();
+	}
+	finally{
+		resultSet.close();
+		connection.close();
+	}
+	</jsp:scriptlet>
+	
+		<c:url var="userLandingUrl" value="/sapp/product/userLanding/main" />
+		<!-- Added for 'Report For Legal' - End -->
+		
+	<div id="menu" class="MenuBar">
+		<a href="${userLandingUrl}">
+			<fmt:message key="product.title.userLandingNoArg" />
+		</a>
+		
+		<security:authorize access="hasAuthority('SERVICE_DESK')">
+		<a href="#"><fmt:message key="product.title.addUser" /> &#x25BC;</a>
+		<c:url var="addUsersUrl" value="/sapp/servicedesk/addUsers" />
+		<div id="addUsersSubmenu" class="addUsersSubmenu">
+			<a href="${addUsersUrl}">Add New User</a>
+		</div>
+		</security:authorize>
+		
+		<security:authorize access="hasAuthority('EMPLOYEE_DEFAULT')">
+		<c:url var="sourcesUrl" value="/sapp/sources/sources/list?cameFrom=admin" />
+		<c:url var="noflyListUrl" value="/sapp/sources/manageSource/noflyList?cameFrom=landing&amp;cwId=${cwId}" />
+		<c:url var="activateSourceUrl" value="/sapp/sources/sources/list?cameFrom=admin&amp;activateMode=1" />
+		<c:url var="createSourceUrl" value="/sapp/sources/createSource?cameFrom=landing" />		
+		<c:url var="adminUrl" value="/sapp/admin/main" />
+		<c:url var="adminSystemNotificationUrl" value="/sapp/admin/manageSystemNotification/edit" />
+		<!-- Code Change for SS Task 3 -->
+		<!--<c:url var="creditUrl" value="/sapp/commonwork/report/assetCredits.xls" />-->
+		<c:url var="creditUrl" value="/sapp/commonwork/report/assetCompliance.xls?reportType=assetCredits" />
+		<c:url var="summaryUrl" value="/sapp/commonwork/report/assetCompliance.xls?reportType=summaryPerm" />
+		<c:url var="photoDeptSummaryUrl" value="/sapp/commonwork/report/assetCompliance.xls?reportType=photoDept" />
+		<!-- Code Change for SS Task 3 -->
+		<c:url var="excludedAssetsUrl" value="/sapp/commonwork/report/viewExcludedAssets" />
+		<c:url var="artLogUrl" value="/sapp/commonwork/report/viewPhotoResearch.pdf" />
+		<c:url var="assetSummaryUrl" value="/sapp/landing/cw/assetSummary" />
+		<!-- Code Change for SS Task 3 -->
+		<c:url var="sourceSummaryUrl" value="/sapp/commonwork/report/assetCompliance.xls?reportType=sourceSum" />
+		<c:url var="commonWorkDetailUrl" value="/sapp/commonwork/report/assetCompliance.xls?reportType=commonWork" />
+		<!-- Code Change for SS Task 3 -->
+		<c:url var="assignedProjectsUrl" value="/sapp/commonwork/report/assignedProjects.xls" />
+		<c:url var="photoCopyrightUrl" value="/sapp/commonwork/report/viewPhotocopyrightReport.xls" />
+		<c:url var="sourceUsageReportUrl" value="/sapp/commonwork/report/sourceUsageReport" />
+		<c:url var="photoEditorStatusUrl" value="/sapp/commonwork/report/viewPhotoEditorStatusReport.xls" />
+		<c:url var="assetSearchUrl" value="/sapp/asset/assetSearch" />
+		<c:url var="paymentHistoryUrl" value="/sapp/permissions/paymentrequest/list" />
+		<c:url var="paymentRequestsUrl" value="/sapp/permissions/paymentrequest/listSourcesToPay" />
+		<c:url var="cwFilesUrl" value="/sapp/cw/files/view" />
+		<c:url var="assetIndexUrl" value="/sapp/assetUseIndex/load" />
+		<c:url var="cwConditionViewEditUrl" value="/sapp/landing/cwConditions/viewEdit?cwId=${cwId}" />
+		<c:url var="authorAccessUrl" value="/sapp/landing/authorAccess/viewEdit?cwId=${cwId}" />
+		<c:url var="sourcesToPayUrl" value="/sapp/permissions/paymentrequest/listSourcesToPay" />
+		<c:url var="componentUrl" value="/sapp/landing/component/manage?cwId=${cwId}" />
+		<c:url var="copyPreviousUrl" value="/sapp/landing/copyAssets/selectPreviousEdition?cwId=${cwId}" />
+		<c:url var="copyFromProductUrl" value="/sapp/landing/copyAssets/searchProduct" />
+		<c:url var="importAssetsUrl" value="/sapp/commonwork/importAssets/view" />	
+		<c:url var="importAssetsReplaceUrl" value="/sapp/commonwork/importAssetsReplace/view" />
+		<c:url var="renumUrl" value="/sapp/landing/renumber/selectcomponent?cwId=${cwId}" />
+		<c:url var="chapterMergeUrl" value="/sapp/landing/chapterMerge/selectchapter?cwId=${cwId}" />
+		<c:url var="chapterInsertUrl" value="/sapp/landing/chapterMerge/insertingChapter?cwId=${cwId}" />
+		<c:url var="createComponentUrl" value="/sapp/landing/component/create?cwId=${cwId}" />
+		<c:url var="complianceUrl" value="/sapp/report/compliance/form" />
+		<c:url var="divestmentReportUrl" value="/sapp/commonwork/report/viewDivestmentReport.xls" />
+		<c:url var="downloadUrl" value="/static/2018_import_template-1.xlsm" />	
+		<!-- Code Change for SS Task 3 -->
+		<c:url var="assetDetailUrl" value="/sapp/commonwork/report/assetCompliance.xls?reportType=assetDetails" />
+		<c:url var="sublicenseUrl" value="/sapp/commonwork/report/assetCompliance.xls?reportType=sublicense" />
+		<!-- Code Change for SS Task 3 -->
+		<c:url var="adminSourceGroupsUrl" value="/sapp/admin/sourceGroups?cwId=${cwId}" />
+		<c:url var="requestLicenseUrl" value="/sapp/landing/license/load?cwId=${cwId}" />
+		<c:url var="assetComplianceReport" value="/sapp/commonwork/report/assetCompliance.xls?reportType=assetCompliance"/>
+		<!-- Added for 'Report For Legal' - Start -->
+		<c:url var="reportForLegalUrl" value="/sapp/commonwork/report/insufficientApprovalReport.xls" />
+		<c:url var="exportToExcelUrl" value="/sapp/commonwork/report/exportExcelReport.xls?cwId=${cwId}" />
+		<c:url var="exportAssetPreUrl" value="/sapp/landing/exportAssetPre?uid=${userSession.currentUser.id}&amp;cwId=${cwId}" />
+		<c:url var="displayCount" value="/sapp/landing/displayCount?cwId=${cwId}" />		
+		<c:url var="landingMainUrl" value="/sapp/cwlanding/scroll?cwId=${cwId}" />
+		
+		<a href="#" class="left right">Setup &#x25BC;</a>
+		
+		<div id="cwSubmenu" class="cwSubmenu">
+			<a id="cwConditionViewEditLink" href="${cwConditionViewEditUrl}" class="disable">Edit Minimum Permissions Requirements</a>
+			<a id="authorAccessLink" href="${authorAccessUrl}">Configure author/freelancer access</a>
+			<!--<a href="#">Assign user roles in GBPM</a>-->
+			<a id="cwFilesLink" href="${cwFilesUrl}">Miscellaneous files</a>
+			<a id="assetIndexLink" href="${assetIndexUrl}">Asset Use Index</a>
+		</div>
+		
+		<a href="#" class="left right">Components &#x25BC;</a>
+		<div id="cwSubmenu" class="cwSubmenu">
+			<a id="componentLink" href="${componentUrl}" class="disable">Create/Edit components</a>
+			<!--lnagy - do not change button to "a" because "a" cannot be disabled -->
+		  	<input type="button" class="disable" id="renumberLink" value="Renumber Figures"/>
+		  	<input type="button" class="disable" id="chapterMergeLink" value="Merge chapters"/> 
+		    <input type="button" class="disable" id="chapterInsertLink" value="Insert new chapter(s)"/> 			
+		</div>
+		
+		<a href="#" class="left right">Imports &#x25BC;</a>
+		<div id="cwSubmenu" class="cwSubmenu">
+			<c:if test="${hasPreviousEdition}">
+				<input type="button" id="copyPreviousLink" href="${copyPreviousUrl}" class="disable"  value="Copy assets from previous edition" />
+			</c:if>
+			<c:if test="${not hasPreviousEdition}">
+				<input type="button" id="copyPreviousLink" href="${copyPreviousUrl}" class="disable" value="Copy assets from previous edition" disabled="disabled" />
+			</c:if>
+		  	<a id="copyFromProductLink" href="${copyFromProductUrl}" class="disable">Copy assets from another product</a>
+		  	<a id="importAssetsLink" href="${importAssetsUrl}" class="disable">Import assets from spreadsheet</a>
+		  	<a id="importAssetsReplaceLink" href="#" class="disable">Import from spreadsheet and replace all assets</a>
+		  	<a id="requestLicenseLink" href="${requestLicenseUrl}" class="disable">Request RightsLink license</a>
+		</div>
+		
+		<a href="#" class="left right">Reports &#x25BC;</a>
+		
+		<div id="cwSubmenu" class="cwSubmenu">
+			<a href="${creditUrl}" id="assetCreditReport">Credit lines export</a>
+			<a href="${summaryUrl}" id="permSummaryReport">Permission summary report</a>
+			<a href="${artLogUrl}" id="artLogReport">Assets to Production List</a>
+			<a href="${sourceSummaryUrl}" id="sourceSummaryReport">Source summary report</a>
+			<a href="${commonWorkDetailUrl}" id="commonWorkReport">Product detail report</a>
+			<a href="${photoCopyrightUrl}" id="pcrReport">Photo department by copyright year report</a>
+			<a href="${photoEditorStatusUrl}" id="pesReport">Photo editor status report</a>
+			<a href="${assignedProjectsUrl}" id="apReport">Assigned product(s) history report</a>
+			<a href="${photoDeptSummaryUrl}" id="photoDeptReport">Photo Dept. To Come Report</a>
+			<a href="${assetDetailUrl}" id="assetDetails">Asset Detail report</a>
+			<a href="${sublicenseUrl}" id="sublicense">Sublicense report</a>
+			<a href="${sourceUsageReportUrl}">Source Usage Report</a>
+			<a href="${assetComplianceReport}" id="assetComplianceReport">Asset Compliance report</a>
+			<!-- Added for 'Report For Legal' - Start -->
+			<a href="${reportForLegalUrl}">Insufficient Approval Report</a>
+			<!-- Added for 'Report For Legal' - End -->
+			<!-- <a href="${divestmentReportUrl}" id="divReport">Divestment report</a>-->
+		</div>
+		
+		<a href="#" class="left right">Download &#x25BC;</a>	
+		<div id="cwSubmenu" class="cwSubmenu">
+			<a href="${downloadUrl}">Download Asset Import Predefined Template</a>
+			
+			<c:choose>
+				<c:when test="${hasExportInProgress}">
+					<a href="#" id="exportInProgress" class="disable" disabled="disabled" onmouseover="fnDisplaycount()">Asset export in Progress</a>
+				</c:when>
+				<c:otherwise>
+      				<a href="#" id="exportAssetsLink" onClick="confirmExport()">Export Assets to Predefined Template</a>	
+				</c:otherwise>
+			</c:choose>
+			
+		</div>
+		
+		<a href="#" class="left right">Compliance Dashboard &#x25BC;</a>	
+		<div id="cwSubmenu" class="cwSubmenu">
+			<a href="${complianceUrl}" id="compliance">Compliance dashboard</a>
+		</div>
+		
+		<a href="#" class="left right">Views &#x25BC;</a>
+		
+		<div id="cwSubmenu" class="cwSubmenu">
+			<a id="assetSummaryLink" href="${assetSummaryUrl}">Asset summary, estimates and schedules</a>
+<!-- 			<a href="${excludedAssetsUrl}" id="excludedLink">Assets excluded by medium</a>    -->
+			<a href="${assetSearchUrl}" class="disable">Advanced asset search</a>
+		</div>
+				
+		<a href="#"><fmt:message key="title.sources.manage" /> &#x25BC;</a>
+
+		<div id="sourceSubmenu" class="sourceSubmenu">
+			<a href="${sourcesUrl}">Manage sources</a>
+			<a href="${noflyListUrl}">No Fly List (Last Updated:<jsp:expression>lastdate</jsp:expression>)</a>
+			<a href="${adminSourceGroupsUrl}">Master Agreements</a>	
+		</div>
+
+		<security:authorize access="hasAuthority('ADMIN')">
+			<a href="#">
+				<fmt:message key="title.admin.main" /> &#x25BC;
+			</a>
+			<c:url var="adminUsersUrl" value="/sapp/admin/users/handle" />
+			<c:url var="adminGroupsUrl" value="/sapp/admin/userGroups" />
+			<c:url var="adminTestMessagesUrl" value="/sapp/admin/testMessages" />
+			<c:url var="adminCachedMessagesUrl" value="/sapp/admin/manageCachedMessageList" />
+			<c:url var="adminAssetUseIndexUrl" value="/sapp/admin/assetUseIndex/load" />
+			<c:url var="adminProductIndexUrl" value="/sapp/admin/productIndex/load" />
+			<c:url var="adminPerformanceUrl" value="/sapp/admin/performance/load" />
+			<c:url var="adminSessionInfoUrl" value="/sapp/admin/productIndex/sessionInfo" />
+			<c:url var="adminMergeSourcesUrl" value="/sapp/admin/mergeSource/merge_search" />
+			<c:url var="adminComplianceEmailsUrl" value="/sapp/admin/manageComplianceEmails/load" />
+			<c:url var="devMiscUrl" value="/sapp/admin/devMisc/load" />
+			<c:url var="favoriteSourcesUrl" value="/sapp/admin/manageFavoriteGroup/manage_Group" />
+			<c:url var="guidelinesUrl" value="/sapp/admin/guidelines/list" />
+			
+			<div id="adminSubmenu" class="adminSubmenu">
+				<a href="${createSourceUrl}">Create new source</a>
+				<a href="${adminUrl}">Request product/Clear assets</a>
+				<a href="${adminUsersUrl}">Manage users</a>
+				<a href="${guidelinesUrl}">Manage Guidelines</a>
+				<a href="${favoriteSourcesUrl}">Manage Favorite Source Groups</a>
+				<a href="${adminGroupsUrl}">Manage user groups</a>
+				<a href="${activateSourceUrl}">Activate/deactivate sources</a>
+				<a href="${adminMergeSourcesUrl}">Merge Sources</a>
+				<security:authorize access="hasAuthority('DEV')">
+					<a href="${devMiscUrl}">Dev Misc</a>
+					<a href="${adminTestMessagesUrl}"><fmt:message key="title.admin.testMessages"/></a>
+					<a href="${adminCachedMessagesUrl}"><fmt:message key="title.admin.cachedMessages"/></a>
+					<a href="${adminAssetUseIndexUrl}"><fmt:message key="title.admin.assetUseIndex"/></a>
+					<a href="${adminProductIndexUrl}"><fmt:message key="title.admin.productIndex"/></a>
+					<a href="${adminSessionInfoUrl}">Session Info</a>
+					<a href="${adminPerformanceUrl}">Performance</a>
+				</security:authorize>
+				<a href="${adminSystemNotificationUrl}">Manage System Notification</a>
+				<a href="${adminComplianceEmailsUrl}">Manage Out of Compliance Emails</a>
+				
+			</div>					
+		</security:authorize>
+	</security:authorize>
+	</div>
+<script type="text/javascript">
+//<![CDATA[
+	
+	function openCWConditionViewEditDialog (bContinue) {
+		$("#modalDiv").load('${cwConditionViewEditUrl}', function() {
+			openModalDialog ('View/Edit Minimum Permissions Requirements');
+			if (bContinue) {
+				$modalDialog.dialog({
+					close: function(event, ui) {
+						openCreateComponentDialog ();
+					}
+				});
+			}
+        });
+	}
+
+	function openCreateComponentDialog() {
+		$("#modalDiv").load('${createComponentUrl}', function() {
+			openModalDialog ('Create components');
+			// reset the close
+			$modalDialog.dialog({
+				close: function(event, ui) {}
+			});										
+        });
+	}
+	
+	function openComponentDialog() {
+		$("#modalDiv").load('${componentUrl}', function() {
+			openModalDialog ('Create/Edit components');
+        });
+	}
+	
+	function fnDisplaycount() {
+		$.ajax({
+	        async: true,
+	        type: 'get',
+	        dataType: "text",
+	        url: '${displayCount}',
+	        success: function (response){
+	        	alert(response);
+	        }
+	    });
+		//alert("0 out of 10 done");
+	}
+	
+	function confirmExport() {
+		 $.ajax({
+			 async: false,
+			 type: 'post',
+			 url: '${exportAssetPreUrl}',
+			 success: function (response) {
+				 if (response == "msg1"){
+					 var r = confirm("Please note that users will not be able to make any changes to this product until the export process has completed.\n Do you want to continue with the export?");
+					 if (r == true) {
+						 fnStartExportProcess(cwId);
+						 return false;
+						} else {
+							 //$('a#exportAssetsLink').show();
+							 //$('#exportInProgress').hide();
+					 return false; 
+				 }
+			 }
+				 else{
+					 alert(response);
+					 return;
+				 }
+			 }
+		 })
+	}
+	
+	function fnStartExportProcess() {
+		$.ajax({
+	        async: true,
+	        type: 'get',
+	        url: '${exportToExcelUrl}',
+	        success: function (response){
+	        	window.open(response);
+	        	 setTimeout(
+							function(){ 
+							window.location.href="${landingMainUrl}";
+					}, 2000);
+	        	 $modalDialog.dialog("close");
+	        }
+	    });
+		
+	}
+
+	$(document).ready(function() {		
+		$("div.MenuBar").dmDropDownMenu();	
+
+		$('#renumberLink').click(function() {
+			$("#modalDiv").load('${renumUrl}', function() {
+				openModalDialog ('Renumber Assets');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+
+		$('#chapterMergeLink').click(function() {
+			$("#modalDiv").load('${chapterMergeUrl}', function() {
+				openModalDialog ('Merge Chapters/components');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+
+		$('#chapterInsertLink').click(function() {
+			$("#modalDiv").load('${chapterInsertUrl}', function() {
+				openModalDialog ('Insert new chapter');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+		
+		$('#cwConditionViewEditLink').click(function() {
+			openCWConditionViewEditDialog(false);
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+		
+		$('#authorAccessLink').click(function() {
+			$("#modalDiv").load($(this).attr("href"), function() {
+				openModalDialog ('Configure Author/freelancer Access');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+		
+		$('#componentLink').click(function() {
+			openComponentDialog();
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+		
+		$('#assetSummaryLink').click(function() {
+			$("#modalDiv").load($(this).attr("href"), function() {
+				openModalDialog ('Asset summary, estimates, schedules');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+
+		$('#cwFilesLink').click(function() {
+			$("#modalDiv").load($(this).attr("href"), function() {
+				openModalDialog ('Product Files');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+
+		$('#pcrReport').click(function() {
+			$("#modalDiv").load($(this).attr("href"), function() {
+				openModalDialog ('Reports');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+
+		$('#artLogReport').click(function() {
+			$("#modalDiv").load($(this).attr("href"), function() {
+				openModalDialog ('Reports');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+
+		$('#pesReport').click(function() {
+			$("#modalDiv").load($(this).attr("href"), function() {
+				openModalDialog ('Reports');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+		
+		$('#euReport').click(function() {
+			$("#modalDiv").load($(this).attr("href"), function() {
+				openModalDialog ('Reports');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+
+		$('#psReport').click(function() {
+			$("#modalDiv").load($(this).attr("href"), function() {
+				openModalDialog ('Reports');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+		
+		$('#compliance').click(function() {
+			$("#modalDiv").load($(this).attr("href"), function() {
+				openModalDialog('Reports');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+
+		$('#excludedLink').click(function() {
+			$("#modalDiv").load($(this).attr("href"), function() {
+				openModalDialog ('Assets excluded by medium');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+
+		$('#importAssetsLink').click(function() {
+			$("#modalDiv").load($(this).attr("href"), function() {
+				openModalDialog ('Import assets');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+		
+		$('#importAssetsReplaceLink').click(function() {
+			if(confirm("Please note that asset import using this option will delete all the existing assets and create new assets from spreadsheet. \n Do you want to continue with the import?"))
+			{
+				$("#modalDiv").load('${importAssetsReplaceUrl}', function() {
+				openModalDialog ('Confirm Asset Import');
+				return false;
+	        }); 
+				}
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+		
+		
+		$('#copyPreviousLink').click(function() {
+			$("#modalDiv").load($(this).attr("href"), function() {
+				openModalDialog ('Copy assets from previous edition');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+		
+		$('#copyFromProductLink').click(function() {
+			$("#modalDiv").load($(this).attr("href"), function() {
+				openModalDialog ('Copy assets from another product');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+		
+		$('#requestLicenseLink').click(function() {
+			$("#modalDiv").load($(this).attr("href"), function() {
+				openModalDialog ('Request RightsLink license');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+		
+		$('#assetComplianceReport').click(function() {
+			$("#modalDiv").load($(this).attr("href"), function() {
+				openModalDialog ('Reports');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+		//Code Change for SS Task 3
+		$('#assetCreditReport').click(function() {
+			$("#modalDiv").load($(this).attr("href"), function() {
+				openModalDialog ('Reports');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+		$('#permSummaryReport').click(function() {
+			$("#modalDiv").load($(this).attr("href"), function() {
+				openModalDialog ('Reports');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});	
+		$('#sourceSummaryReport').click(function() {
+			$("#modalDiv").load($(this).attr("href"), function() {
+				openModalDialog ('Reports');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});	
+		$('#commonWorkReport').click(function() {
+			$("#modalDiv").load($(this).attr("href"), function() {
+				openModalDialog ('Reports');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+		$('#photoDeptReport').click(function() {
+			$("#modalDiv").load($(this).attr("href"), function() {
+				openModalDialog ('Reports');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+		$('#assetDetails').click(function() {
+			$("#modalDiv").load($(this).attr("href"), function() {
+				openModalDialog ('Reports');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+		$('#sublicense').click(function() {
+			$("#modalDiv").load($(this).attr("href"), function() {
+				openModalDialog ('Reports');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+		//Code Change for SS Task 3
+		
+	});
+//]]>		
+</script>
+
+	</jsp:body>
+</jsp:root>

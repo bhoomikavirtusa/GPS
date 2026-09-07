@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+
+    <jsp:directive.include file="/WEB-INF/tiles/pages/include/generalMessage.jspx" />
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('#cachedMessageListTable').dataTable( {
+				"aoColumns": [
+					{ "sWidth" : "5%", "sClass" : "center", "bSearchable" : false, "bSortable": false }, // delete
+					{ "sWidth" : "5%", "sClass" : "center", "bSearchable" : false, "bSortable": false }, // edit
+					{ "sWidth" : "5%" }, // id
+					{ "sWidth" : "10%" }, // message id
+					{ "sWidth" : "10%" }, // status
+					{ "sWidth" : "5%" }, // direction
+					{ "sWidth" : "5%" }, // type
+					{ "sWidth" : "10%" }, // operation type
+					{ "sWidth" : "10%" }, // source
+					{ "sWidth" : "5%" }, // item count
+					{ "sWidth" : "5%" }, // metadata count
+					{ "sWidth" : "5%" }, // delivery attempts
+					{ "sWidth" : "10%" }, // last delivery attempt
+					{ "sWidth" : "10%" } // last updated date
+				],
+				"aaSorting": [[2, "asc" ]],
+
+				"bAutoWidth": false,
+				"bProcessing": true,
+				"bStateSave": true,
+				"sPaginationType": "full_numbers",
+				"aLengthMenu": [10, 15, 25, 50, 100],  // override default of [10, 25, 50, 100]
+				"iDisplayLength": 25 // override default of 10
+			} );
+		} );
+	</script>
+	
+	<table class="display" id="cachedMessageListTable">
+		<thead>
+			<tr>
+		    	<th colspan="14">Manage Cached Messages</th>
+        	</tr>
+        	<tr>
+        		<th>Delete</th>
+        		<th>Edit</th>
+        		<th>Id</th>
+        		<th>Message Id</th>
+        		<th>Status</th>
+        		<th>Direction</th>
+        		<th>Type</th>
+        		<th>OperationType</th>
+        		<th>Source</th>
+        		<th>Item Count</th>
+        		<th>Metadata Count</th>
+        		<th>Del. Attempts</th>
+        		<th>Last Delivery Attempt</th>
+        		<th>Last Updated Date</th>
+        	</tr>
+        </thead>
+        <tbody>
+        	<c:forEach items="${cachedMessageList}" var="msg">
+				<tr>
+					<td>
+						<jsp:element name="input">
+							<jsp:attribute name="type">image</jsp:attribute>
+							<jsp:attribute name="alt">Delete Message</jsp:attribute>
+							<jsp:attribute name="onclick">
+								var form = document.getElementById('deleteForm');
+								form.elements['deleteId'].value='${msg.id}';
+								form.submit();
+							</jsp:attribute>
+							<jsp:attribute name="src">
+								<c:url value="/images/buttons/delete-icon.png" />
+							</jsp:attribute>
+						</jsp:element>
+					</td>
+					<td>
+						<jsp:element name="input">
+							<jsp:attribute name="type">image</jsp:attribute>
+							<jsp:attribute name="alt">Edit Message</jsp:attribute>
+							<jsp:attribute name="onclick">
+							    var form = document.getElementById('editForm');
+								form.elements['cachedMessageId'].value='${msg.id}';
+								form.submit();
+								return false; <!-- prevent the current form from submitting also -->
+							</jsp:attribute>
+							<jsp:attribute name="src">
+								<c:url value="/images/buttons/edit-icon.png" />
+							</jsp:attribute>
+						</jsp:element>
+					</td>
+					<td>${msg.id}</td>
+					<td>${msg.messageId}</td>
+					<td>${msg.status}</td>
+					<td>${msg.direction}</td>
+					<td>${msg.type}</td>
+					<td>${msg.operationType}</td>
+					<td>${msg.source}</td>
+					<td>${msg.itemCount}</td>
+					<td>${msg.metadataCount}</td>
+					<td>${msg.deliveryAttempts}</td>
+					<td><fmt:formatDate pattern="yyyy-MM-dd HH:mm" value="${msg.lastDeliveryAttempt}" /></td>
+					<td><fmt:formatDate pattern="yyyy-MM-dd HH:mm" value="${msg.lastUpdatedDate}" /></td>
+				</tr>
+			</c:forEach>
+		</tbody>
+	</table>
+	
+	<!-- leave out action for deleteForm - go to same URL as this page -->
+	<form id="deleteForm" method="post">
+		<input type="hidden" name="deleteId" />
+	</form>
+	
+	<c:url var="editUrl" value="/sapp/admin/manageCachedMessageObject" />
+	<form id="editForm" action="${editUrl}" method="get">
+	    <input type="hidden" name="cachedMessageId" />
+	</form>
+</jsp:root>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:security="http://www.springframework.org/security/tags">
+
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+
+	<c:url var="saveContractUrl" value="/sapp/landing/license/saveContract" />
+
+	<form name="licenseContractForm" id="LicenseContractForm" action="${saveContractUrl}" method="POST">
+ 	<table class="width100">	
+						<tr>
+							<th colspan="4">Contract</th>
+						</tr>
+						<tr>
+							<td>invoice number</td>
+							<td><c:out value="${license.invoiceNumber}" /></td>
+							<td>contract type</td>
+							<td>
+								<select name="contractType" id="contractType">
+									<c:forEach items="${contractTypes}" var="contractType">
+										<c:choose>
+											<c:when test="${contractType.code == license.contractType}">
+												<option value="${contractType.code}" selected="selected">${contractType.description}</option>
+											</c:when>
+											<c:otherwise>
+												<option value="${contractType.code}">${contractType.description}</option>
+											</c:otherwise>
+										</c:choose>
+									</c:forEach>
+								</select>							
+							</td>
+						</tr>
+						<tr>
+							<td>source name</td>
+							<td><c:out value="${license.sourceName}" /></td>
+							<td>invoice date</td>
+							<td>
+								<input type="text" class="datepicker" id="invoiceDate_input" name="invoiceDate_input" size="10" maxlength="10"/>
+								<fmt:formatDate var="strInvoiceDate" type="date" pattern="MM/dd/yy" value="${license.invoiceDate}"/>
+								<input type="hidden" class="datepicker"  id="invoiceDate" name="invoiceDate" value="${strInvoiceDate}" /> 
+			     			</td>
+						</tr>
+						<tr>
+							<td>credit line</td>
+							<td><input type="text" name="creditLine" value="${license.creditLine}"/></td>
+							<td>grant start date</td>
+							<td>
+							<input type="text" class="datepicker" id="grantStartDate_input" name="grantStartDate_input" size="10" maxlength="10" />
+							<fmt:formatDate var="strStartDate" type="date" pattern="MM/dd/yy" value="${license.grantStartDate}" />
+							<input type="hidden" class="datepicker"  id="grantStartDate" name="grantStartDate" value="${strStartDate}" />
+							</td>
+						</tr>
+						<tr>
+							<td>currency</td>
+							<td>
+								<select name="currency" id="currency">
+									<c:forEach items="${currencies}" var="currency">
+										<c:choose>
+											<c:when test="${currency.code == license.currency}">
+												<option value="${currency.code}" selected="selected">${currency.description}</option>
+											</c:when>
+											<c:otherwise>
+												<option value="${currency.code}">${currency.description}</option>
+											</c:otherwise>
+										</c:choose>
+									</c:forEach>
+								</select>							
+							</td>
+							<td>grant end date</td>
+							<td>
+							<input type="text" class="datepicker" id="grantEndDate_input" name="grantEndDate_input" size="10" maxlength="10" /> 
+							<fmt:formatDate var="strEndDate" type="date" pattern="MM/dd/yy" value="${license.grantEndDate}" />
+							<input type="hidden" class="datepicker"  id="grantEndDate" name="grantEndDate" value="${strEndDate}" />
+			    			</td>
+						</tr>
+						<tr>
+							<td>total amount</td>
+							<td><input type="text" name="totalAmount" value="${license.totalAmount}"/></td>
+						</tr>
+	</table>						
+	</form>
+	
+	<div class="buttonset">
+		<input id="saveContractB" type="button" class="button" value="Save" />
+	</div>
+	
+	<script type="text/javascript">
+	//<![CDATA[
+	
+	$.initDatePicker('#invoiceDate' ,'#invoiceDate_input' , '${userSession.currentUser.dateFormat}');
+	$.initDatePicker('#grantStartDate' ,'#grantStartDate_input' ,'${userSession.currentUser.dateFormat}');
+	$.initDatePicker('#grantEndDate' ,'#grantEndDate_input', '${userSession.currentUser.dateFormat}');
+
+	$('#saveContractB').click(function() {
+		$.ajax({
+	    	async: false,
+	        type: "post",
+	        url: '${saveContractUrl}',
+	        data: $('#LicenseContractForm').serialize(),
+	        success: function (response) {
+	          	$('#contractBody').empty().html(response);
+	        	repositionDialog();
+	        }
+	    });		
+	});
+	//]]>
+	</script>
+</jsp:root>
+	

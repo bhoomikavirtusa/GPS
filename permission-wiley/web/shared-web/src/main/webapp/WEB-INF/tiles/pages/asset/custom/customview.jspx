@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+
+	<c:url var="deleteFileUrl" value="/sapp/permissions/contract/delete_file" />
+	
+	<script type="text/javascript">
+	//<![CDATA[
+	
+	function fnDeleteFile (id) {
+		$.ajax({
+            async: true,
+            type: 'post',
+            url: '${deleteFileUrl}',
+            data: 'fileId=' + id,
+            success: function (response) {
+            	$('#file' + id).empty().html(response);
+            }
+        });
+        return false;
+	}
+
+	//]]>		
+	</script>	
+	<jsp:directive.include file="/WEB-INF/tiles/pages/include/generalMessage.jspx" />
+	<table>
+		<jsp:directive.include file="/WEB-INF/tiles/pages/asset/custom/assetview.jspx" />	
+<!--				
+		<c:if test="${not empty customAssetForm.extendedAssetUse.contract}">		
+		<tr>
+			<td>
+			   Invoice #
+			</td>
+			<td colspan="3">${customAssetForm.extendedAssetUse.contract.number}
+			</td>
+		</tr>
+		<tr>
+			<td>
+			   Date
+			</td>
+			<td colspan="3"><fmt:formatDate type="date" value="${customAssetForm.extendedAssetUse.contract.date}" />
+			</td>
+		</tr>	
+		<tr>
+			<td>
+			   Price
+			</td>
+			<td>${customAssetForm.extendedAssetUse.contract.price}
+			</td>
+			<td>
+			   Currency
+			</td>
+			<td>${customAssetForm.extendedAssetUse.contract.currency.description}
+			</td>
+		</tr>			
+		<tr>
+			<td>
+			   Start date
+			</td>
+			<td><fmt:formatDate type="date" value="${customAssetForm.extendedAssetUse.contract.startDate}" />
+			</td>
+			<td>
+			   End date
+			</td>
+			<td><fmt:formatDate type="date" value="${customAssetForm.extendedAssetUse.contract.endDate}" />
+			</td>			
+		</tr>
+		</c:if>
+	<c:if test="${not empty customAssetForm.extendedAssetUse.contract.files}">
+		<tr>
+			<td>
+				Returned forms/invoices:
+			</td>
+			<td>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<table>
+					<c:forEach items="${customAssetForm.extendedAssetUse.contract.files}" var="file">
+						<tr><td>
+							<div id="file${file.id}">
+								<c:url var="downloadUrl" value="/sapp/permissions/contract/download_file?fileId=${file.id}" />
+								<c:url var="deleteIconUrl" value="/images/buttons/delete-icon.png" />
+								<a href="${downloadUrl}"> ${file.fileName}</a> (${wileyfn:filesize(file.fileData)}) uploaded on 
+								<fmt:formatDate type="date" value="${file.lastUpdatedDate}" />
+								<a href="#" onClick="fnDeleteFile (${file.id})"><img src="${deleteIconUrl}" /></a>
+							</div>
+						</td></tr>
+					</c:forEach>
+				</table>
+			</td>
+		</tr>
+	</c:if>	
+	-->
+	</table>	
+</jsp:root>

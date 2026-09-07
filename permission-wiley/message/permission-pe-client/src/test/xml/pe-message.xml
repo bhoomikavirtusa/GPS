@@ -1,0 +1,459 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="sysmsg_20071002.xsd" id="PE001.72831" type="reply" replyID="PERM001.R.4d01bd6f80004118" sent="1210781224349" source="PE001" protocolVersion="1.0">
+	<target>
+		<system>PERM001</system>
+	</target>
+	<reply>
+		<productUpdate>
+			<productData>
+				<product wid="CORE.001.PROD.0000003806" businessUnit="1" isbn10="0470086963" isbn13="9780470086964" pnumber="001104182" dataSource="US" volume="0" status="N" editionWid="CORE.001.EDTN.0000001199" updateTime="1198445347168" completeRecordSet="yes">
+					<title>Organizational Behavior, Tenth Edition</title>
+					<shortTitle>Organizational Behavior 10e</shortTitle>
+					<copyrightYear>2008</copyrightYear>
+					<sku>0470086963</sku>
+					<imprint>JW</imprint>
+					<photoResearchRequired>yes</photoResearchRequired>
+					<publisher>WILEY</publisher>
+					<audience>COL</audience>
+					<productionDate>2007-02-16</productionDate>
+					<printDate>2007-10-15</printDate>
+					<productFamily>01295</productFamily>
+					<subjectCode1>BA12</subjectCode1>
+					<productType>TX</productType>
+					<geographicalLocation>NY</geographicalLocation>
+					<productLine>D</productLine>
+					<targetMedium>C</targetMedium>
+					<trimSize>065</trimSize>
+					<author code="459" control="yes" includeOnTitlePage="yes" sequenceNumber="1">
+						<role>A</role>
+					</author>
+					<author code="2391" control="no" includeOnTitlePage="yes" sequenceNumber="2">
+						<role>A</role>
+					</author>
+					<author code="10933" control="no" includeOnTitlePage="yes" sequenceNumber="3">
+						<role>A</role>
+					</author>
+					<vendor code="18725">
+						<role>BND</role>
+						<role>CVR</role>
+						<role>PTR</role>
+					</vendor>
+					<vendor code="273267">
+						<role>FSV</role>
+					</vendor>
+					<vendor code="283066">
+						<role>TYP</role>
+					</vendor>
+					<employee code="AMELHORN">
+						<role>IC</role>
+					</employee>
+					<employee code="AMORRIS">
+						<role>MED</role>
+					</employee>
+					<employee code="DSINCLAI">
+						<role>MM</role>
+					</employee>
+					<employee code="MLESURE">
+						<role>DSN</role>
+					</employee>
+					<employee code="SDUMAS">
+						<role>PE</role>
+					</employee>
+					<employee code="TSANFORD">
+						<role>PHE</role>
+					</employee>
+					<seriesCode>0</seriesCode>
+					<marketCode>C</marketCode>
+					<courseCode>MG0200</courseCode>
+					<pageCount>680</pageCount>
+					<supplementFlag>no</supplementFlag>
+					<editor>021</editor>
+					<eisbn>EWTLP0466X</eisbn>
+					<eisbn>EWEBC0085X</eisbn>
+					<eisbn>EBLCK00835</eisbn>
+					<eisbn>EEGRP07151</eisbn>
+					<eisbn>EEGRP0716X</eisbn>
+					<eisbn>EEGRP07194</eisbn>
+					<eisbn>EWDTL00098</eisbn>
+					<eisbn>EANGL00099</eisbn>
+					<eisbn>EWDTE01597</eisbn>
+				</product>
+				<masterListUpdate>
+					<masterListObject name="AudienceType" updateTime="1190641196728" completeRecordSet="no" recordCount="1">
+						<audienceType code="COL">
+							<name>College</name>
+						</audienceType>
+					</masterListObject>
+					<masterListObject name="Author" updateTime="1210778598488" completeRecordSet="no" recordCount="3">
+						<author>
+							<authorInfo code="10933" updateTime="1190641199820">
+								<authorName>
+									<firstName>Richard</firstName>
+									<lastName>Osborn</lastName>
+								</authorName>
+								<authorAddress type="Office">
+									<address>Wayne Stae University</address>
+									<address>Dept. of Management</address>
+									<city>Detriot</city>
+									<state>MI</state>
+									<postalCode>48202</postalCode>
+								</authorAddress>
+								<contactInfo>
+									<telephoneNumber type="Office">(313) 577-4519
+									</telephoneNumber>
+									<telephoneNumber type="FaxOffice">(313) 577-4519
+									</telephoneNumber>
+								</contactInfo>
+							</authorInfo>
+							<authorInfo code="2391" updateTime="1190641199820">
+								<authorName>
+									<firstName>James</firstName>
+									<lastName>Hunt</lastName>
+								</authorName>
+								<authorAddress type="Office">
+									<address>Texas Tech Univ</address>
+									<address>15th &amp; Flint</address>
+									<city>Lubbock</city>
+									<state>TX</state>
+									<postalCode>79409</postalCode>
+								</authorAddress>
+								<contactInfo>
+									<telephoneNumber type="Office">(806)742-3175
+									</telephoneNumber>
+									<telephoneNumber type="FaxOffice">(806)742-3175
+									</telephoneNumber>
+								</contactInfo>
+							</authorInfo>
+							<authorInfo code="459" updateTime="1190641199820">
+								<authorName>
+									<firstName>John</firstName>
+									<lastName>Schermerhorn</lastName>
+								</authorName>
+								<authorAddress type="Office">
+									<address>Copeland Hall 316</address>
+									<address>Dept. of Management Systems</address>
+									<city>Athens</city>
+									<state>OH</state>
+									<postalCode>45701</postalCode>
+								</authorAddress>
+								<authorAddress type="Home">
+									<address>40 Strouds Run</address>
+									<city>Athens</city>
+									<state>OH</state>
+									<postalCode>45701</postalCode>
+								</authorAddress>
+								<contactInfo>
+									<telephoneNumber type="Office">(614) 593-1788
+									</telephoneNumber>
+									<telephoneNumber type="FaxOffice">(614) 593-1788
+									</telephoneNumber>
+									<telephoneNumber type="Home">(614) 594-8470
+									</telephoneNumber>
+									<email type="Office">schermer@oak.cats.ohio.edu
+									</email>
+								</contactInfo>
+							</authorInfo>
+						</author>
+					</masterListObject>
+					<masterListObject name="AuthorRole" updateTime="1190641273824" completeRecordSet="no" recordCount="1">
+						<authorRole code="A">
+							<name>Author</name>
+						</authorRole>
+					</masterListObject>
+					<masterListObject name="BusinessUnit" updateTime="1210616185430" completeRecordSet="no" recordCount="1">
+						<businessUnit code="1">
+							<name>2igher Education</name>
+						</businessUnit>
+					</masterListObject>
+					<masterListObject name="CourseCode" updateTime="1193331185740" completeRecordSet="no" recordCount="1">
+						<courseCode code="MG0200" field="BUS000" discipline="MG0000" subDiscipline="MGX200">
+							<name>Organizational Behavior - Management</name>
+						</courseCode>
+					</masterListObject>
+					<masterListObject name="Discipline" updateTime="1193331175147" completeRecordSet="no" recordCount="1">
+						<discipline code="MG0000" field="BUS000">
+							<name>Management</name>
+						</discipline>
+					</masterListObject>
+					<masterListObject name="Edition" updateTime="1210780582862" completeRecordSet="no" recordCount="1">
+						<edition wid="CORE.001.EDTN.0000001199" productFamily="01295">
+							<name>SCHERMERHORN OB EDITION 10</name>
+							<editionNumber>10</editionNumber>
+							<productLine>D</productLine>
+							<editor>021</editor>
+						</edition>
+					</masterListObject>
+					<masterListObject name="Editor" updateTime="1210015332722" completeRecordSet="no" recordCount="1">
+						<editor code="021">
+							<name>Open, .</name>
+						</editor>
+					</masterListObject>
+					<masterListObject name="Employee" updateTime="1210692071743" completeRecordSet="no" recordCount="6">
+						<employee>
+							<employeeInfo code="AMELHORN" updateTime="1190641282158">
+								<employeeName>
+									<firstName>Anna</firstName>
+									<lastName>Melhorn</lastName>
+								</employeeName>
+								<role>IC</role>
+							</employeeInfo>
+							<employeeInfo code="AMORRIS" updateTime="1190641282158">
+								<employeeName>
+									<firstName>Allie</firstName>
+									<lastName>Morris</lastName>
+								</employeeName>
+								<role>MED</role>
+								<role>PE</role>
+							</employeeInfo>
+							<employeeInfo code="DSINCLAI" updateTime="1190641282158">
+								<employeeName>
+									<firstName>Dorothy</firstName>
+									<lastName>Sinclair</lastName>
+								</employeeName>
+								<role>FL</role>
+								<role>MC</role>
+								<role>MM</role>
+								<role>PM</role>
+							</employeeInfo>
+							<employeeInfo code="MLESURE" updateTime="1190641282158">
+								<employeeName>
+									<firstName>Madelyn</firstName>
+									<lastName>Lesure</lastName>
+								</employeeName>
+								<role>DSN</role>
+								<role>PHE</role>
+							</employeeInfo>
+							<employeeInfo code="SDUMAS" updateTime="1190641282158">
+								<employeeName>
+									<firstName>Sandra</firstName>
+									<lastName>Dumas</lastName>
+								</employeeName>
+								<role>MC</role>
+								<role>PE</role>
+							</employeeInfo>
+							<employeeInfo code="TSANFORD" updateTime="1190641282158">
+								<employeeName>
+									<firstName>Tara</firstName>
+									<lastName>Sanford</lastName>
+								</employeeName>
+								<role>PHE</role>
+								<role>PHO</role>
+							</employeeInfo>
+						</employee>
+					</masterListObject>
+					<masterListObject name="EmployeeRole" updateTime="1207937405535" completeRecordSet="no" recordCount="10">
+						<employeeRole code="DSN">
+							<name>Designer        Higher Ed</name>
+						</employeeRole>
+						<employeeRole code="FL">
+							<name>Freelance Manager</name>
+						</employeeRole>
+						<employeeRole code="IC">
+							<name>Illust. Coord</name>
+						</employeeRole>
+						<employeeRole code="MC">
+							<name>Manufact. Coor</name>
+						</employeeRole>
+						<employeeRole code="MED">
+							<name>Media Editor    Higher Ed</name>
+						</employeeRole>
+						<employeeRole code="MM">
+							<name>Manufact. Mgr.</name>
+						</employeeRole>
+						<employeeRole code="PE">
+							<name>Production Ed.</name>
+						</employeeRole>
+						<employeeRole code="PHE">
+							<name>Photo Editor</name>
+						</employeeRole>
+						<employeeRole code="PHO">
+							<name>Photo Research</name>
+						</employeeRole>
+						<employeeRole code="PM">
+							<name>Production Mgr</name>
+						</employeeRole>
+					</masterListObject>
+					<masterListObject name="Field" updateTime="1193323879624" completeRecordSet="no" recordCount="1">
+						<field code="BUS000">
+							<name>Business</name>
+						</field>
+					</masterListObject>
+					<masterListObject name="GeographicalLocation" updateTime="1190641283981" completeRecordSet="no" recordCount="1">
+						<geographicalLocation code="NY">
+							<name>New York Product</name>
+						</geographicalLocation>
+					</masterListObject>
+					<masterListObject name="Imprint" updateTime="1203950144127" completeRecordSet="no" recordCount="1">
+						<imprint code="JW">
+							<name>Wiley</name>
+						</imprint>
+					</masterListObject>
+					<masterListObject name="Market" updateTime="1192552356995" completeRecordSet="no" recordCount="1">
+						<market code="C">
+							<name>Higher Education</name>
+						</market>
+					</masterListObject>
+					<masterListObject name="ProductFamily" updateTime="1210284242885" completeRecordSet="no" recordCount="1">
+						<productFamily familyCode="01295">
+							<name>SCHERMERHORN OB</name>
+						</productFamily>
+					</masterListObject>
+					<masterListObject name="ProductLine" updateTime="1203352398046" completeRecordSet="no" recordCount="1">
+						<productLine code="D" businessUnit="1">
+							<name>Business</name>
+						</productLine>
+					</masterListObject>
+					<masterListObject name="ProductType" updateTime="1207160481623" completeRecordSet="no" recordCount="1">
+						<productType code="TX">
+							<name>Higher Ed Text</name>
+						</productType>
+					</masterListObject>
+					<masterListObject name="Publisher" updateTime="1190641287644" completeRecordSet="no" recordCount="1">
+						<publisher code="WILEY">
+							<name>Wiley</name>
+						</publisher>
+					</masterListObject>
+					<masterListObject name="SeriesCode" updateTime="1210603636797" completeRecordSet="no" recordCount="1">
+						<seriesCode code="0">
+							<name></name>
+						</seriesCode>
+					</masterListObject>
+					<masterListObject name="SubDiscipline" updateTime="1193324185066" completeRecordSet="no" recordCount="1">
+						<subDiscipline code="MGX200" field="BUS000" discipline="MG0000">
+							<name>Organizational Behavior</name>
+						</subDiscipline>
+					</masterListObject>
+					<masterListObject name="SubjectCode" updateTime="1192133245503" completeRecordSet="no" recordCount="1">
+						<subjectCode code="BA12">
+							<name>  Organizational Behavior</name>
+						</subjectCode>
+					</masterListObject>
+					<masterListObject name="TargetMedium" updateTime="1207236910888" completeRecordSet="no" recordCount="1">
+						<targetMedium code="C">
+							<name>Cloth</name>
+						</targetMedium>
+					</masterListObject>
+					<masterListObject name="TrimSize" updateTime="1210251321689" completeRecordSet="no" recordCount="1">
+						<trimSize code="065">
+							<name>8 x 10</name>
+						</trimSize>
+					</masterListObject>
+					<masterListObject name="Vendor" updateTime="1210620141062" completeRecordSet="no" recordCount="3">
+						<vendor>
+							<vendorInfo code="18725" updateTime="1210619182726">
+								<vendorName>Donnelley/Von Hoffmann</vendorName>
+								<vendorAddress>
+									<attention>Ms. Theresa Hilbert</attention>
+									<address>321 Wilson Drive</address>
+									<city>Jefferson City</city>
+									<state>MO</state>
+									<postalCode>65109</postalCode>
+									<country>0000</country>
+								</vendorAddress>
+								<type>BND</type>
+								<type>CVR</type>
+								<type>INS</type>
+								<type>JKT</type>
+								<type>PPR</type>
+								<type>PTR</type>
+								<contact type="sales">
+									<contactName>
+										<fullName>Mel Cowher</fullName>
+									</contactName>
+									<contactInfo>
+										<telephoneNumber type="Office">973-812-0366
+										</telephoneNumber>
+									</contactInfo>
+								</contact>
+								<contact type="shipping">
+									<contactName>
+										<fullName>Bill Niekamp (Jeff City)</fullName>
+									</contactName>
+									<contactInfo>
+										<telephoneNumber type="Office">314-966-0909
+										</telephoneNumber>
+									</contactInfo>
+								</contact>
+							</vendorInfo>
+							<vendorInfo code="273267" updateTime="1190641291040">
+								<vendorName>Ingrao, Suzanne</vendorName>
+								<vendorAddress>
+									<attention>Suzanne Ingrao</attention>
+									<address>124 Highland Ave.</address>
+									<city>Rowayton</city>
+									<state>CT</state>
+									<postalCode>06853</postalCode>
+									<country>9998</country>
+								</vendorAddress>
+								<type>CPY</type>
+								<type>FSV</type>
+								<type>PRF</type>
+							</vendorInfo>
+							<vendorInfo code="283066" updateTime="1190641291040">
+								<vendorName>Prepare Inc</vendorName>
+								<vendorAddress>
+									<attention>Frank Weihenig</attention>
+									<address>EMILCOMP,SRL</address>
+									<address>Viale Spagna 26, (ZI)</address>
+									<city>Battipaglia, SA 84091</city>
+									<country>0661</country>
+								</vendorAddress>
+								<type>FSV</type>
+								<type>ILS</type>
+								<type>PRP</type>
+								<type>TYP</type>
+								<contact type="sales">
+									<contactName>
+										<fullName>Frank Weihenig</fullName>
+									</contactName>
+									<contactInfo>
+										<telephoneNumber type="Office">011390828305096
+										</telephoneNumber>
+									</contactInfo>
+								</contact>
+							</vendorInfo>
+						</vendor>
+					</masterListObject>
+					<masterListObject name="VendorType" updateTime="1199986624392" completeRecordSet="no" recordCount="12">
+						<vendorType code="BND">
+							<name>Book Binder</name>
+						</vendorType>
+						<vendorType code="CPY">
+							<name>Copyeditor</name>
+						</vendorType>
+						<vendorType code="CVR">
+							<name>Cover Printer</name>
+						</vendorType>
+						<vendorType code="FSV">
+							<name>Full-service Production</name>
+						</vendorType>
+						<vendorType code="ILS">
+							<name>Illustration Studio</name>
+						</vendorType>
+						<vendorType code="INS">
+							<name>Insert Printer</name>
+						</vendorType>
+						<vendorType code="JKT">
+							<name>Jacket Printer</name>
+						</vendorType>
+						<vendorType code="PPR">
+							<name>Paper receiver</name>
+						</vendorType>
+						<vendorType code="PRF">
+							<name>Proofreader</name>
+						</vendorType>
+						<vendorType code="PRP">
+							<name>Prepress House</name>
+						</vendorType>
+						<vendorType code="PTR">
+							<name>Printer</name>
+						</vendorType>
+						<vendorType code="TYP">
+							<name>Typesetter</name>
+						</vendorType>
+					</masterListObject>
+				</masterListUpdate>
+			</productData>
+		</productUpdate>
+	</reply>
+</message>

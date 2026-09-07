@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="POAssetsReport2" pageWidth="555" pageHeight="200" columnWidth="100" leftMargin="1" rightMargin="1" topMargin="1" bottomMargin="1" resourceBundle="ReportsBundle" uuid="83996507-23ea-41a6-952a-a412995535bc">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="PO_ID" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="CW_ID" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+     AU.USAGE_TYPE AS AU_USAGE,
+       CASE  WHEN (select name from component where id = AU.COMPONENT_ID) is null
+         THEN 'N/A'
+          ELSE (select name from component where id = AU.COMPONENT_ID)
+        END
+     AS AU_COMPONENT,
+     CASE  WHEN AU.POSITION is null
+         THEN ''
+          ELSE AU.POSITION
+        END
+     AS AU_POSITION,
+     CASE
+        WHEN (AU.SIZE = 'N/A')
+            THEN ''
+        WHEN (AU.SIZE = 'n/a')
+            THEN ''
+     ELSE
+        AU.SIZE
+     END AS AU_SIZE,
+     AU.MANUSCRIPT_PAGE AS AU_MANUSCRIPT_PAG,
+     AU.PERMISSION_STATUS AS AU_PERMISSION_STATUS,
+     AU.PERMISSION_COMMENT AS AU_PERMISSION_COMMENT,
+     AU.CAPTION AS AU_CAPTION,
+     AU.REUSED_FROM_PREV_ED AS AU_REUSED_FROM_PR,
+     AU.IS_PICKUP AS AU_IS_PICKUP,
+     AU.CAMERA_COPY_TO_COME AS AU_CAMERA_COPY_TO,
+     AU.IS_CANCELED AS AU_IS_CANCELED,
+     AU.MEDIA_RETURN_REQ AS AU_MEDIA_RETURN_R,
+     AU.PICKUP_ISBN AS AU_PICKUP_ISBN,
+     AU.PICKUP_COMMENT AS AU_PICKUP_COMMENT,
+     CASE  WHEN AU.IS_COLOR is null
+         THEN 0
+          ELSE AU.IS_COLOR
+     END AS AU_IS_COLOR,
+     A.ARTIST AS ASSET_ARTIST,
+       CASE  WHEN A.CREDIT_LINE is null
+         THEN ''
+          ELSE A.CREDIT_LINE
+        END
+     AS ASSET_CREDIT_LINE,
+     A.ID AS ASSET_ID,
+     A.IS_FEE_REQUIRED AS ASSET_IS_FEE_REQUIRED,
+     A.IS_RESTRICTED_USE AS ASSET_IS_RESTRICTED_USE,
+     A.IS_MANAGED AS ASSET_IS_MANAGED,
+     A.DESCRIPTION AS ASSET_DESCRIPTION,
+     A.ORIGINAL_PUBLICATION_TITLE AS ASSET_PUBLICATION_TITLE,
+     A.ORIGINAL_PUBLICATION_AUTHOR AS ASSET_PUBLICATION_AUTHOR,
+     A.ORIGINAL_PUBLICATION_ISBN AS ASSET_PUBLICATION_ISBN,
+     A.ORIGINAL_FIGURE_NUMBER AS ASSET_FIGURE_NUMBER,
+     A.ORIGINAL_PAGE_NUMBER AS ASSET_PAGE_NUMBER,
+     A.FROM_1 AS ASSET_FROM_1,
+     A.FROM_2 AS ASSET_FROM_2,
+     A.FROM_3 AS ASSET_FROM_3,
+     A.TO_1 AS ASSET_TO_1,
+     A.TO_2 AS ASSET_TO_2,
+     A.TO_3 AS ASSET_TO_3,
+     CASE  WHEN A.VENDOR_ID is null
+         THEN ''
+          ELSE A.VENDOR_ID
+        END
+     AS ASSET_VENDOR_ID,
+     A.MEDIA_TYPE AS ASSET_MEDIA_TYPE,
+       CASE  WHEN A.CITATION is null
+         THEN ''
+          ELSE A.CITATION
+        END
+     AS ASSET_CITATION,
+        CASE  WHEN A.BIBLIO is null
+         THEN ''
+          ELSE A.BIBLIO
+        END
+     AS ASSET_BIBLIO,
+     AU.EXTERNAL_ID AS AU_EXTERNAL_ID,
+     AU.ASSET_ID AS AU_ASSET_ID,
+     PO2A.PURCHASE_ORDER_ID AS PURCHASE_ORDER_2_ASSET_PURCHAS,
+     PO2A.ASSET_BASE_ID AS PURCHASE_ORDER_2_ASSET_ASSET_B,
+     PO.SHOW_ESTIMATED_COST AS SHOW_COST,
+     AU.ESTIMATED_COST AS AU_COST,
+     AF.DATA AS ASSET_IMAGE
+FROM
+      PURCHASE_ORDER_2_ASSET PO2A
+     INNER JOIN ASSET A ON A.ID = PO2A.ASSET_BASE_ID
+     INNER JOIN ASSET_USE AU ON A.ID = AU.ASSET_ID
+     INNER JOIN PURCHASE_ORDER PO ON PO.ID = $P{PO_ID}
+     LEFT JOIN ASSET_FILE AF on A.ID = AF.ASSET_ID AND RENDITION_TYPE = 'medium_th'
+WHERE
+	PO2A.PURCHASE_ORDER_ID = $P{PO_ID} AND
+    AU.IS_CANCELED <> 1 AND
+	AU.CW_ID = $P{CW_ID}
+	ORDER BY A.DESCRIPTION]]>
+	</queryString>
+	<field name="AU_USAGE" class="java.lang.String"/>
+	<field name="AU_COMPONENT" class="java.lang.String"/>
+	<field name="AU_POSITION" class="java.lang.String"/>
+	<field name="AU_SIZE" class="java.lang.String"/>
+	<field name="AU_MANUSCRIPT_PAG" class="java.lang.String"/>
+	<field name="AU_PERMISSION_STATUS" class="java.lang.String"/>
+	<field name="AU_PERMISSION_COMMENT" class="java.lang.String"/>
+	<field name="AU_CAPTION" class="java.lang.String"/>
+	<field name="AU_REUSED_FROM_PR" class="java.lang.Integer"/>
+	<field name="AU_IS_PICKUP" class="java.lang.Integer"/>
+	<field name="AU_CAMERA_COPY_TO" class="java.lang.Integer"/>
+	<field name="AU_IS_CANCELED" class="java.lang.Integer"/>
+	<field name="AU_MEDIA_RETURN_R" class="java.lang.Integer"/>
+	<field name="AU_PICKUP_ISBN" class="java.lang.String"/>
+	<field name="AU_PICKUP_COMMENT" class="java.lang.String"/>
+	<field name="AU_IS_COLOR" class="java.lang.Integer"/>
+	<field name="ASSET_ID" class="java.lang.Integer"/>
+	<field name="ASSET_ARTIST" class="java.lang.String"/>
+	<field name="ASSET_CREDIT_LINE" class="java.lang.String"/>
+	<field name="ASSET_IS_FEE_REQUIRED" class="java.lang.Integer"/>
+	<field name="ASSET_IS_RESTRICTED_USE" class="java.lang.Integer"/>
+	<field name="ASSET_IS_MANAGED" class="java.lang.Integer"/>
+	<field name="ASSET_DESCRIPTION" class="java.lang.String"/>
+	<field name="ASSET_PUBLICATION_TITLE" class="java.lang.String"/>
+	<field name="ASSET_PUBLICATION_AUTHOR" class="java.lang.String"/>
+	<field name="ASSET_PUBLICATION_ISBN" class="java.lang.String"/>
+	<field name="ASSET_FIGURE_NUMBER" class="java.lang.String"/>
+	<field name="ASSET_PAGE_NUMBER" class="java.lang.String"/>
+	<field name="ASSET_FROM_1" class="java.lang.String"/>
+	<field name="ASSET_FROM_2" class="java.lang.String"/>
+	<field name="ASSET_FROM_3" class="java.lang.String"/>
+	<field name="ASSET_TO_1" class="java.lang.String"/>
+	<field name="ASSET_TO_2" class="java.lang.String"/>
+	<field name="ASSET_TO_3" class="java.lang.String"/>
+	<field name="ASSET_VENDOR_ID" class="java.lang.String"/>
+	<field name="ASSET_MEDIA_TYPE" class="java.lang.String"/>
+	<field name="ASSET_CITATION" class="java.lang.String"/>
+	<field name="ASSET_BIBLIO" class="java.lang.String"/>
+	<field name="AU_EXTERNAL_ID" class="java.lang.String"/>
+	<field name="AU_ASSET_ID" class="java.lang.Integer"/>
+	<field name="AU_COST" class="java.math.BigDecimal"/>
+	<field name="PURCHASE_ORDER_2_ASSET_PURCHAS" class="java.lang.Integer"/>
+	<field name="PURCHASE_ORDER_2_ASSET_ASSET_B" class="java.lang.Integer"/>
+	<field name="SHOW_COST" class="java.lang.Integer"/>
+	<field name="ASSET_IMAGE" class="java.io.InputStream"/>
+	<variable name="OriginalPublisher1" class="java.lang.String">
+		<variableExpression><![CDATA[(    ($F{ASSET_PUBLICATION_TITLE} != null && !$F{ASSET_PUBLICATION_TITLE}.isEmpty()) ?
+        $R{po.asset.publisher.text1} + $F{ASSET_PUBLICATION_TITLE}
+        :
+        "")
+   +
+(    ($F{ASSET_PUBLICATION_ISBN} != null && !$F{ASSET_PUBLICATION_ISBN}.isEmpty()) ?
+        " (" + $F{ASSET_PUBLICATION_ISBN} + ")"
+        :
+        "")
+    +
+(    ($F{ASSET_PUBLICATION_AUTHOR} != null && !$F{ASSET_PUBLICATION_AUTHOR}.isEmpty()) ?
+        $R{po.asset.publisher.text2} + $F{ASSET_PUBLICATION_AUTHOR}
+        :
+        "")
+    +
+(    ($F{ASSET_PAGE_NUMBER} != null && !$F{ASSET_PAGE_NUMBER}.isEmpty()) ?
+        $R{po.asset.publisher.text3} + $F{ASSET_PAGE_NUMBER}
+        :
+        "")
+    +
+(    ($F{ASSET_FIGURE_NUMBER}!= null && !$F{ASSET_FIGURE_NUMBER}.isEmpty()) ?
+        $R{po.asset.publisher.text4} + $F{ASSET_FIGURE_NUMBER}
+        :
+        "")]]></variableExpression>
+	</variable>
+	<variable name="PhotoInfo" class="java.lang.String">
+		<variableExpression><![CDATA[((    ($F{ASSET_ARTIST} != null && !$F{ASSET_ARTIST}.isEmpty()) ?
+        $R{po.asset.photoinfo.text1} + $F{ASSET_ARTIST} + " "
+        :
+        "")
+)]]></variableExpression>
+	</variable>
+	<variable name="OriginalPublisher2" class="java.lang.String">
+		<variableExpression><![CDATA[(    ($F{ASSET_FROM_1} != null && !$F{ASSET_FROM_1}.isEmpty()) ?
+        $R{po.asset.publisher.from} +$F{ASSET_FROM_1}
+        :
+        "")
+    +
+(    ($F{ASSET_TO_1} != null && !$F{ASSET_TO_1}.isEmpty()) ?
+        $R{po.asset.publisher.to} +$F{ASSET_TO_1}
+        :
+        "")
+    +
+(    ($F{ASSET_FROM_2} != null & !$F{ASSET_FROM_2}.isEmpty()) ?
+        $R{po.asset.publisher.from} +$F{ASSET_FROM_2}
+        :
+        "")
+    +
+(    ($F{ASSET_FROM_2} != null && !$F{ASSET_TO_2}.isEmpty()) ?
+        $R{po.asset.publisher.to} +$F{ASSET_TO_2}
+        :
+        "")
+    +
+(    ($F{ASSET_FROM_3} != null && !$F{ASSET_FROM_3}.isEmpty()) ?
+        $R{po.asset.publisher.from} +$F{ASSET_FROM_3}
+        :
+        "")
+    +
+(    ($F{ASSET_TO_3} != null && !$F{ASSET_TO_3}.isEmpty()) ?
+       $R{po.asset.publisher.to} +$F{ASSET_TO_3}
+        :
+        "")]]></variableExpression>
+	</variable>
+	<variable name="Citations" class="java.lang.String">
+		<variableExpression><![CDATA[(    (!$F{ASSET_CREDIT_LINE}.isEmpty()) ?
+        $R{po.asset.citation.text1} +$F{ASSET_CREDIT_LINE}
+        :
+        "")
++
+(     (!$F{ASSET_CITATION}.isEmpty()) ?
+       $R{po.asset.citation.text2} +$F{ASSET_CITATION}
+        :
+        "")
+ +
+(    (!$F{ASSET_BIBLIO}.isEmpty()) ?
+        $R{po.asset.citation.text3} +$F{ASSET_BIBLIO}
+        :
+        "")]]></variableExpression>
+	</variable>
+	<variable name="Details" class="java.lang.String">
+		<variableExpression><![CDATA[(    (!$F{AU_POSITION}.isEmpty()) ?
+        $R{po.asset.details.text1} +$F{AU_POSITION} + "       "
+        :
+        "")
++
+(     (!$F{ASSET_VENDOR_ID}.isEmpty()) ?
+        $R{po.asset.details.text2} +$F{ASSET_VENDOR_ID}  + "       "
+        :
+        "")
++
+(     (!$F{AU_USAGE}.isEmpty()) ?
+        $R{po.asset.details.text3} +$F{AU_USAGE} + "       "
+        :
+        "")
+ +
+(    ($F{AU_REUSED_FROM_PR} == 1) ?
+        $R{po.asset.details.text4}
+        :
+        "")
++
+(    ($F{AU_SIZE} != null && !$F{AU_SIZE}.isEmpty()) ?
+        $R{po.asset.details.text5} + $F{AU_SIZE}  + "       "
+        :
+        "")
++
+(    ($F{AU_IS_COLOR} == 1 ) ?
+        $R{po.asset.details.text6} + "Color"  + "       "
+        :
+        $R{po.asset.details.text6} + "B&W")  + "       "
++
+(    ($F{SHOW_COST} == 1) ?
+       $R{po.asset.details.text7} + $F{AU_COST} + " "
+        :
+        "")]]></variableExpression>
+	</variable>
+	<group name="AssetDetailGroup" minHeightToStartNewPage="70" keepTogether="true">
+		<groupExpression><![CDATA[(!$F{ASSET_VENDOR_ID}.isEmpty()  && $F{ASSET_VENDOR_ID} != null )
+        										?
+        										$F{ASSET_VENDOR_ID}
+        										:
+        										$F{ASSET_DESCRIPTION}]]></groupExpression>
+		<groupHeader>
+			<band height="21" splitType="Stretch">
+				<line>
+					<reportElement positionType="Float" x="1" y="5" width="540" height="1" uuid="38203caa-2cc1-40d3-a6fa-a37780a695a1"/>
+				</line>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="61" y="8" width="288" height="12" uuid="fa96beca-4828-42fe-9a6d-8cf898531cca"/>
+					<textElement markup="styled">
+						<font fontName="SansSerif" size="11"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{ASSET_DESCRIPTION}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement x="6" y="8" width="55" height="13" uuid="8377d4c4-9b4d-4162-97cd-f5c82c27bb56"/>
+					<textElement>
+						<font fontName="SansSerif" size="11"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$R{po.asset.description}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="24" splitType="Stretch"/>
+		</groupFooter>
+	</group>
+	<detail>
+		<band height="121" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" isPrintRepeatedValues="false" x="7" y="2" width="534" height="34" isRemoveLineWhenBlank="true" uuid="6264942e-ff09-4dc9-b069-a4576c505725"/>
+				<textElement markup="none">
+					<font fontName="SansSerif" size="11"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{Details}]]></textFieldExpression>
+			</textField>
+			<image scaleImage="RetainShape" isLazy="true" onErrorType="Blank">
+				<reportElement x="473" y="36" width="68" height="64" isRemoveLineWhenBlank="true" uuid="430c1eda-918e-4285-a030-df37aa5acfc7">
+					<printWhenExpression><![CDATA[$F{ASSET_IMAGE} != null]]></printWhenExpression>
+				</reportElement>
+				<imageExpression><![CDATA[$F{ASSET_IMAGE}]]></imageExpression>
+			</image>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" isPrintRepeatedValues="false" x="10" y="47" width="426" height="16" isRemoveLineWhenBlank="true" uuid="9a32af4f-25d4-4ebe-9259-2941130e034f">
+					<printWhenExpression><![CDATA[$F{ASSET_MEDIA_TYPE}.equals("Photo") ||
+$F{ASSET_MEDIA_TYPE}.equals("Illustration") || $F{ASSET_MEDIA_TYPE}.equals("Map") || $F{ASSET_MEDIA_TYPE}.equals("Cartoon") || $F{ASSET_MEDIA_TYPE}.equals("Graph") || $F{ASSET_MEDIA_TYPE}.equals("Extract") || $F{ASSET_MEDIA_TYPE}.equals("Article") ||
+$F{ASSET_MEDIA_TYPE}.equals("Clip Art")]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font fontName="SansSerif" size="11"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{PhotoInfo}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" isPrintRepeatedValues="false" x="10" y="63" width="426" height="16" isRemoveLineWhenBlank="true" uuid="bb1962af-3186-4ad4-9786-2c836034837d"/>
+				<textElement>
+					<font fontName="SansSerif" size="11"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{OriginalPublisher1}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" isPrintRepeatedValues="false" x="10" y="79" width="429" height="16" isRemoveLineWhenBlank="true" uuid="73f9e122-0948-4d94-b9f6-8490841ee4ab"/>
+				<textElement>
+					<font fontName="SansSerif" size="11"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{OriginalPublisher2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" x="10" y="95" width="426" height="20" isRemoveLineWhenBlank="true" uuid="29928293-edfd-40ac-bfc1-54d39343d7dc"/>
+				<textElement>
+					<font fontName="SansSerif" size="11"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{Citations}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

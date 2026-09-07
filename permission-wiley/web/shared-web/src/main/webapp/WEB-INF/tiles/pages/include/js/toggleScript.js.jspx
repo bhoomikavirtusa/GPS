@@ -1,0 +1,52 @@
+	<!-- This is JavaScript needed to do the full/simple details trick -->
+	<script type="text/javascript">
+		var contextPath = "${pageContext.request.contextPath}";
+
+		var expandButtonSrc = contextPath + "/images/buttons/plus.png";
+		var collapseButtonSrc = contextPath + "/images/buttons/minus.png";
+
+		// This is a little hacky.  Especially the button image URL
+		// swap.  But it's the way to make sure that we're always in
+		// the same context path.
+		function toggleDetails(name, button) {
+			var ourDiv = document.getElementById("details-" + name);
+			var tDiv = $("#details-" + name);
+			
+			if (ourDiv == null) {
+				//alert("No Details Available");
+				// (for example, div will not exist when just adding another asset use for Manage Asset)
+				return;
+			}
+
+			if (ourDiv.style.display == "none") {
+				buttonSrc = collapseButtonSrc;
+			}
+			else {
+				buttonSrc = expandButtonSrc;
+			}
+			tDiv.toggle();
+
+			// button SHOULD be non-null but check just in case
+			if (button != null) {
+				button.src = buttonSrc;
+			}
+
+			// This just makes sure the form doesn't submit.
+			return false;
+		}
+
+		function toggleTBody(name, button) {
+			var ourDiv = $("#details-" + name);
+			
+			if (ourDiv == null) {
+				//alert("No Details Available");
+				// (for example, div will not exist when just adding another asset use for Manage Asset)
+				return;
+			}
+
+			ourDiv.toggle();
+
+			// This just makes sure the form doesn't submit.
+			return false;
+		}		
+	</script>

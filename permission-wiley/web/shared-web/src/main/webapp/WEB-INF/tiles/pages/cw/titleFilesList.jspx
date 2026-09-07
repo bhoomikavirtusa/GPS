@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<p>Click on the filename to download: </p>
+		
+	<table>
+		<tr>
+			<th>
+				Documents
+			</th>
+		</tr>
+		<c:forEach items="${files}" var="file">
+			<tr>
+				<td>
+					<c:url var="downloadUrl" value="/sapp/panels/download_file">
+						<c:param name="cwId" value="${cwId}" />
+						<c:param name="fileId" value="${file.id}" />
+					</c:url>
+					<a href="${downloadUrl}"> ${file.fileName}</a> (${wileyfn:filesize(file.data)}) uploaded on 
+					<fmt:formatDate type="date" value="${file.lastUpdatedDate}" />
+				</td>
+			</tr>
+		</c:forEach>
+	</table>
+	
+	<div class="buttonset">
+		<a href="#" id="cancelLink" class="button">Cancel</a>
+	</div>
+</jsp:root>

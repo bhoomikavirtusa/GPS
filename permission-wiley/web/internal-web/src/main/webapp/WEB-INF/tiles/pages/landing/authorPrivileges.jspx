@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+
+    <jsp:directive.page contentType="text/html" pageEncoding="UTF-8" />
+	
+	<c:url var="prevUrl" value="/sapp/landing/authorAccess/userDetails?cwId=${authorPrivilegeForm.cwId}&amp;userId=${authorPrivilegeForm.authorId}" />
+	<c:url var="submitUrl" value="/sapp/landing/authorAccess/privileges" />
+	
+	<jsp:body>
+		<script type="text/javascript">
+		$(document).ready(function() {
+
+			$.datepicker.setDefaults({
+			     dateFormat: '${dateFormat}'
+			});
+			
+			$("#dueDate").datepicker();
+			$("#d_dueDate").datepicker();
+			var d1 = $.datepicker.parseDate('mm/dd/yy', $("#dueDate").val());
+			var d2 = $.datepicker.formatDate('${dateFormat}', d1);
+	    	$("#d_dueDate").val(d2);
+
+
+			$("#d_dueDate").change(function() {
+				var d1 = $.datepicker.parseDate('${dateFormat}', $("#d_dueDate").val());
+				var d2 = $.datepicker.formatDate('mm/dd/yy', d1);
+	    		$("#dueDate").val(d2);
+
+			});
+			
+			$('#prevB').click (function() {
+				$.ajax({
+		        	async: true,
+		        	type: 'get',
+		        	url: '${prevUrl}',
+		        	success: function (response) {
+		            	$('#modalDiv').empty().html(response);
+		            	repositionDialog();
+		        	}
+		    	});
+			});
+		
+			$("#submitB").click (function() {
+				if ($("#authorPrivilegeForm").validate().form() == true) {
+					$.ajax({
+		           	 async: true,
+		            	type: "post",
+		            	url: "${submitUrl}",
+		            	data: $("#authorPrivilegeForm").serialize(),
+		            	success: function (response) {
+		            		var isChecked = $('#edit_chapters:checked').val() ? true : false;
+		            		if (isChecked) {
+			            		$modalDialog.dialog("close");
+		            		} else {
+		            			$("#modalDiv").empty().html(response);
+		            		}
+		            	}
+		        	});
+				}
+			});
+		});
+
+	
+		function checkSelections(selection) {
+			if (selection.getAttribute('value') == 'manage_components') {
+				updateCheckbox('edit_chapters', selection.checked);
+			}
+			
+			if (selection.getAttribute('value') == 'edit_chapters') {
+				updateCheckbox('manage_components', selection.checked);	
+			}
+
+			return true;
+		}
+
+		function updateCheckbox(selectedValue, newStatus) {
+			<!-- var checkboxes = document.getElementsByName('selectedPrivileges');  -->
+
+			  $("*[name='selectedPrivileges']").each( function() {   
+			        if ( $(this).val() == selectedValue) {
+			            $(this).attr('checked', newStatus);
+			        }    
+			});
+							 
+			return false;
+		}		
+			
+		</script>
+
+		<form:form modelAttribute="authorPrivilegeForm" method="post" action="${submitUrl}">
+			<table>
+				<tr>
+					<!--  James asked box to come before label since it's that way with the checkboxes -->
+					<td>
+						<form:hidden path="authorId" />
+						<form:hidden path="cwId" />
+						 <input type="text" id="d_dueDate" name="d_dueDate" size="10" maxlength="10" class="required"/>(${dateFormat})
+			    	 	<form:hidden path="dueDate" class="required"/>
+					</td>
+					<td>
+						<form:label path="dueDate" cssClass="required" cssErrorClass="error">Due Date</form:label>
+					</td>
+				</tr>
+				<tr>
+					<td><hr /></td>
+					<td><b>Privileges for this product</b></td>
+				</tr>
+				<c:forEach items="${completeCwPrivilegeList}" var="priv">
+					<tr>
+						<td><form:checkbox value="${priv.code}" path="selectedCwPrivileges" id="${priv.code}" onclick="checkSelections(this);"/></td>
+						<td><c:out value="${priv.description}" /></td>
+					</tr>
+				</c:forEach>
+				
+				<c:if test="${not empty completeGlobalPrivilegeList}">
+					<tr>
+						<td><hr /></td>
+						<td><b>Global Privileges</b></td>
+					</tr>
+					<c:forEach items="${completeGlobalPrivilegeList}" var="priv">
+						<tr>
+							<td><form:checkbox value="${priv.code}" path="selectedGlobalPrivileges" id="${priv.code}" onclick="checkSelections(this);"/></td>
+							<td><c:out value="${priv.description}" /></td>
+						</tr>
+					</c:forEach>
+				</c:if>
+				
+				<tr>
+					<td><hr /></td>
+					<td><hr /></td>
+				</tr>
+				
+				<tr>
+					<td><form:checkbox path="authorReadOnly"/></td>
+					<td>Product is Read Only for this Author</td>
+				</tr>
+				<tr>
+					<td><form:checkbox path="saveAsDefaults" /></td>
+					<td>Save As Defaults</td>
+				</tr>
+			</table>
+		</form:form>
+		
+		<div class="buttonset">
+			<input type="submit" id="prevB" value="Previous" />
+			<input type="submit" id="submitB" value="Save" />
+			<a href="#" id="cancelLink" class="button">Cancel</a>
+		</div>
+		
+	</jsp:body>	
+</jsp:root>

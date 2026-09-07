@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+
+	<jsp:directive.page pageEncoding="UTF-8" />
+
+	<tiles:importAttribute name="address"/>
+	
+	<jsp:body>
+		<table>
+			<tr>
+				<td class="label">Type:</td>
+				<td class="value"><c:out value="${address.type == null ? '' : address.type.description}" /></td>
+			</tr>
+
+			<tr>
+				<td class="label">Line 1:</td>
+				<td class="value"><c:out value="${address.lineOne}" /></td>
+			</tr>
+
+			<tr>
+				<td class="label">Line 2:</td>
+				<td class="value"><c:out value="${address.lineTwo}" /></td>
+			</tr>
+
+			<tr>
+				<td class="label">Line 3:</td>
+				<td class="value"><c:out value="${address.lineThree}" /></td>
+			</tr>
+
+			<tr>
+				<td class="label">City:</td>
+				<td class="value">${address.city}</td>
+			</tr>
+
+			<tr>
+				<td class="label">State / Province:</td>
+				<td class="value">${address.province}</td>
+			</tr>
+
+			<tr>
+				<td class="label">Postal Code:</td>
+				<td class="value">${address.postalCode}</td>
+			</tr>
+
+			<tr>
+				<td class="label">Country:</td>
+				<td class="value">${address.country == null ? "" : address.country.description}</td>
+			</tr>
+		</table>
+	</jsp:body>
+</jsp:root>

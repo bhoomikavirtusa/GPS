@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="nextUrl" value="/sapp/landing/createSource" />
+	<c:url var="prevUrl" value="/sapp/landing/source/3rdparty_search" />
+
+	<!--include as jspx so the jsp variable are recognized-->
+	<jsp:directive.include file="js/wizard.buttons.js.jspx" />
+
+	<h3>${sourceWizardForm.assetUse.asset.description}</h3>
+
+	<table>
+		<tr>
+			<td>
+				Source name:
+			</td>
+			<td>
+				${sourceWizardForm.sourceName}
+				<input type="button" id="searchB" value="Search" />
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<span class="error">Sorry, there are no details about this source in the system.<br/>
+				Please enter details bellow.</span>
+			</td>
+		</tr>
+	</table>
+
+	<jsp:include page="/sapp/landing/createSource"/>
+	
+	<div class="buttonset">	
+		<input type="button" id="prevB" value="Previous"/>	
+		<input type="submit" id="createB" value="Next"/> 
+		<a href="#" id="cancelLink" class="button">Cancel</a> 	
+	</div>
+
+	<script type="text/javascript">
+//<![CDATA[
+	$(document).ready(function() {	
+		// set source name
+		$("input[name='source.name']").val ("${sourceWizardForm.sourceName}");
+		$("input[name='source.displayName']").val ("${sourceWizardForm.sourceName}");
+		
+		$('#searchB').click (function() {
+			$.ajax({
+	            async: true,
+	            type: 'get',
+	            url: '${prevUrl}',
+	            success: function (response){
+	                $('#modalDiv').empty().html(response);
+	                repositionDialog();
+	            }
+	        });
+		});
+	
+		$('#createB').click (function() {
+			if ($("#createSourceForm").validate({
+			    rules: {
+			        'contact.lastName': {
+			            required: function() {
+			                return ($("input[name='contact.firstName']").val() != '');
+			            }
+			        },
+			        'contact.firstName': {
+			            required: function() {
+			                return ($("input[name='contact.lastName']").val() != '');
+			            }
+			        },
+			        'address.lineOne': {
+			            required: function() {
+			                return ($("input[name='address.city']").val() != '' ||
+			                		$("input[name='address.postalCode']").val() != '' ||
+			                		$("select[name='address.country']").val() != '') ;
+			            }
+			        },			        
+			        'address.city': {
+			            required: function() {
+			                return ($("input[name='address.lineOne']").val() != '' ||
+			                		$("input[name='address.postalCode']").val() != '' ||
+			                		$("select[name='address.country']").val() != '') ;
+			            }
+			        },	
+			        'address.postalCode': {
+			            required: function() {
+			                return ($("input[name='address.city']").val() != '' ||
+			                		$("input[name='address.lineOne']").val() != '' ||
+			                		$("select[name='address.country']").val() != '') ;
+			            }
+			        },	
+			        'address.country': {
+			            required: function() {
+			                return ($("input[name='address.city']").val() != '' ||
+			                		$("input[name='address.postalCode']").val() != '' ||
+			                		$("input[name='address.lineOne']").val() != '') ;
+			            }
+			        },
+			        'contactAddress.lineOne': {
+			            required: function() {
+			                return ($("input[name='contactAddress.city']").val() != '' ||
+			                		$("input[name='contactAddress.postalCode']").val() != '' ||
+			                		$("select[name='contactAddress.country']").val() != '') ;
+			            }
+			        },			        
+			        'contactAddress.city': {
+			            required: function() {
+			                return ($("input[name='contactAddress.lineOne']").val() != '' ||
+			                		$("input[name='contactAddress.postalCode']").val() != '' ||
+			                		$("select[name='contactAddress.country']").val() != '') ;
+			            }
+			        },	
+			        'contactAddress.postalCode': {
+			            required: function() {
+			                return ($("input[name='contactAddress.city']").val() != '' ||
+			                		$("input[name='contactAddress.lineOne']").val() != '' ||
+			                		$("select[name='contactAddress.country']").val() != '') ;
+			            }
+			        },	
+			        'contactAddress.country': {
+			            required: function() {
+			                return ($("input[name='contactAddress.city']").val() != '' ||
+			                		$("input[name='contactAddress.postalCode']").val() != '' ||
+			                		$("input[name='contactAddress.lineOne']").val() != '') ;
+			            }
+			        }		
+			    }
+			}).form() == true) {
+				$('#createSourceForm').ajaxSubmit({
+					type: 'post',
+		            url: '${nextUrl}',
+			        success: function(response) {
+			            $('#modalDiv').empty().html(response);
+		                repositionDialog();
+			        }
+	    		});
+		    }
+		});
+	});	
+//]]>		
+	</script>	
+</jsp:root>

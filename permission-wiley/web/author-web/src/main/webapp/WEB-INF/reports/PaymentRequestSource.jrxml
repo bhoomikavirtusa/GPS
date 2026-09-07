@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="PaymentRequestSource" pageWidth="555" pageHeight="100" columnWidth="535" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="inputbox" mode="Opaque" forecolor="#000000" backcolor="#FFFFCC" hAlign="Left" vAlign="Bottom" markup="styled" fontSize="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false">
+		<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+			<pen lineWidth="0.25"/>
+			<topPen lineWidth="0.25"/>
+			<leftPen lineWidth="0.25"/>
+			<bottomPen lineWidth="0.25"/>
+			<rightPen lineWidth="0.25"/>
+		</box>
+	</style>
+	<style name="label" hAlign="Right" vAlign="Bottom" fontSize="7"/>
+	<parameter name="SOURCE_EXTERNAL_ID" class="java.lang.String">
+		<defaultValueExpression><![CDATA[new String()]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+     SOURCE.ID AS SOURCE_EID,
+     SOURCE.EXTERNAL_id AS PERMISSION_ID,
+     SOURCE.name AS SOURCE_ENAME,
+     ADDRESS.ID AS ADDRESS_ADID,
+     ADDRESS.country_code AS ADDRESS_ADCNTR,
+     ADDRESS.city AS ADDRESS_ADCITY,
+     ADDRESS.LINE_ONE AS ADDRESS_ADDR1,
+     ADDRESS.LINE_TWO AS ADDRESS_ADDR2,
+     ADDRESS.LINE_THREE AS ADDRESS_ADDR3,
+      ADDRESS.state_province AS ADDRESS_ADPROV,
+      ADDRESS.postal_code AS ADDRESS_ADPCDE,
+      ' ' AS ADDRESS_ADDRS,
+       SOURCE.id AS SOURCE_ID,
+       JT.ADDRESS_ID AS ADDRESS_ID
+FROM
+     SOURCE SOURCE LEFT OUTER JOIN source_2_address JT ON SOURCE.id = JT.source_id
+     LEFT OUTER JOIN ADDRESS ADDRESS on address.id = JT.ADDRESS_ID
+     AND ADDRESS.address_type_code = 'A'
+WHERE SOURCE.EXTERNAL_id =$P{SOURCE_EXTERNAL_ID}
+]]>
+	</queryString>
+	<field name="SOURCE_EID" class="java.lang.Integer"/>
+	<field name="PERMISSION_ID" class="java.lang.String"/>
+	<field name="SOURCE_ENAME" class="java.lang.String"/>
+	<field name="ADDRESS_ADID" class="java.lang.Integer"/>
+	<field name="ADDRESS_ADCNTR" class="java.lang.String"/>
+	<field name="ADDRESS_ADCITY" class="java.lang.String"/>
+	<field name="ADDRESS_ADDR1" class="java.lang.String"/>
+	<field name="ADDRESS_ADDR2" class="java.lang.String"/>
+	<field name="ADDRESS_ADDR3" class="java.lang.String"/>
+	<field name="ADDRESS_ADPROV" class="java.lang.String"/>
+	<field name="ADDRESS_ADPCDE" class="java.lang.String"/>
+	<field name="ADDRESS_ADDRS" class="java.lang.String"/>
+	<field name="SOURCE_ID" class="java.lang.Integer"/>
+	<field name="ADDRESS_ID" class="java.lang.Integer"/>
+	<background>
+		<band/>
+	</background>
+	<columnHeader>
+		<band/>
+	</columnHeader>
+	<detail>
+		<band height="95">
+			<staticText>
+				<reportElement style="label" x="5" y="36" width="100" height="15"/>
+				<textElement/>
+				<text><![CDATA[ADDRESS]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement style="inputbox" x="110" y="50" width="197" height="15"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{ADDRESS_ADDR2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement style="inputbox" x="110" y="20" width="197" height="15"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{SOURCE_ENAME}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="label" x="5" y="21" width="100" height="15"/>
+				<textElement/>
+				<text><![CDATA[NAME]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="label" x="5" y="6" width="100" height="15"/>
+				<textElement/>
+				<text><![CDATA[NUMBER]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="inputbox" x="110" y="5" width="111" height="15"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{PERMISSION_ID}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement style="inputbox" x="110" y="64" width="197" height="15"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{ADDRESS_ADDR3}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement style="inputbox" x="110" y="35" width="197" height="15"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{ADDRESS_ADDR1}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement style="inputbox" x="110" y="79" width="74" height="15"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{ADDRESS_ADCITY}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement style="inputbox" x="184" y="79" width="59" height="15"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{ADDRESS_ADPROV}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement style="inputbox" x="243" y="79" width="59" height="15"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{ADDRESS_ADCNTR}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement style="inputbox" x="302" y="79" width="59" height="15"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{ADDRESS_ADPCDE}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band/>
+	</columnFooter>
+	<summary>
+		<band/>
+	</summary>
+</jasperReport>

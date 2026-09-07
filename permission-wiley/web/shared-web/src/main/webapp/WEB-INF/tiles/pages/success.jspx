@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="continueUrl" value="${redirectUrl}" />
+	
+	<br/>
+	${message}
+	<br/> 
+	<a href="${continueUrl}" id="continue">Continue</a>
+    <br/>
+
+	<script type="text/javascript">
+	//<![CDATA[
+	$(document).ready(function() {
+
+		
+		if("${message}" == "Done") {
+			$("#continue")[0].click();
+		}
+	});
+
+	//]]>		
+	</script>    
+</jsp:root>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- smarkoff: Now this is the only details screen (not just for custom workflow). Later might rename to just details.jspx -->
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+
+	<c:url var="nextUrl" value="/sapp/permissions/contract/save" />
+	<!-- Always show the assets page -->
+	<c:url var="prevUrl" value="/sapp/permissions/contract/permissions" />
+	<c:url var="waitUrl" value="/images/animated_progress_bar.gif" />
+	
+	<!--include as jspx so the jsp variable are recognized-->
+	<jsp:directive.include file="js/wizard.buttons.js.jspx" />
+
+	<style type="text/css">
+		/* hide icon */
+		.custom1 {
+			background-color: #BAD0EF;
+			color: black;
+		}
+	</style>
+
+	<jsp:element name="script">
+		<jsp:attribute name="type">text/javascript</jsp:attribute>
+		<jsp:attribute name="src">
+			<c:url value="/js/jquery.blockUI-2.38.js"/>
+		</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+   
+	<script type="text/javascript">
+	//<![CDATA[
+	var sourceId = new Number(${contractWizardForm.source.id});
+	
+	$(document).ajaxStop($.unblockUI);
+	
+	
+	$(document).ready(function() {
+		$("a:contains('Close')").hide();
+		
+		$('#detailCancelB').click (function() {
+			$modalDialog.dialog("close");
+		});
+		
+		$('#detailFinishB').click (function() {
+			finish('post');
+		});
+
+		$modalDialog.dialog('option', 'height', 'auto');
+		repositionDialog();
+	});
+	
+	//]]>
+	</script>
+
+	<div id="errorMessage" class="custom1">
+		<jsp:directive.include file="/WEB-INF/tiles/pages/include/generalMessage.jspx" />
+	</div>
+
+	<h3>
+		Source ${contractWizardForm.source.name}
+	</h3>
+
+	<form:form modelAttribute="contractWizardForm">
+		<jsp:directive.include file="view.jspx" />
+	</form:form>
+	
+	<!-- .../contract/js/wizard.buttons.js.jspx will hide this div and show waitDiv after validation -->
+	<div id="finishButtons" class="buttonset" style="margin-bottom: 1em">
+		<span id="nonCancelButtons">
+		<c:if test="${not empty prevUrl}">
+			<input type="button" id="prevB" value="Previous" />
+		</c:if>
+		<input type="button" id="detailFinishB" value="Finish" />
+		</span>
+		<a href="#" id="detailCancelB" class="button">Cancel</a>
+	</div>
+	<div id="waitDiv" class="buttonset" style="display: none">
+		<img src="${waitUrl}" alt="Please wait..." />
+	</div>
+
+</jsp:root>

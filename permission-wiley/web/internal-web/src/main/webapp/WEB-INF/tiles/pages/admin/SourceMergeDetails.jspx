@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ 
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<style type="text/css">
+		.redline { color: red; }
+	</style>
+	
+	<table border="1">
+		<tr><td colspan="3">Details to be Merged</td></tr>
+		<tr>
+			<td width="30%">
+				<table border="0">
+					<c:if test="${not empty fromSource}">
+						<tr><td><h1>From source:</h1></td> </tr>
+						<tr>
+							<td>Name:</td>
+							<td>
+								<c:out value="${fromSource.name}" />
+							</td>
+						</tr>
+						<tr> 
+							<td>No Fly:</td>
+							<td>
+								${wileyfn:formatBoolean(fromSource.nofly) }
+							</td>
+						</tr>
+						<tr>
+							<td>No Fly Photographer:</td>
+							<td>
+								<c:out value="${fromSource.noFlyPhotographerLastName}" />
+							</td>
+						</tr>
+						<tr>
+							<td>Sued Wiley:</td>
+							<td>
+								${wileyfn:formatBoolean(fromSource.suedWiley)}
+							</td>
+						</tr>
+						<tr>
+						<td>Comments:</td>
+							<td>
+								<c:out value="${fromSource.comment}" />
+							</td>
+						</tr>
+						<tr>
+							<td>Country:</td>
+							<td>
+								${fromSource.country.code}
+							</td>
+						</tr>
+						<tr>
+							<td>Phone:</td>
+							<td>
+								${fromSource.phoneNumber}
+							</td>
+						</tr>
+						<tr>
+							<td>Fax:</td>
+							<td>
+								${fromSource.faxNumber}
+							</td>
+						</tr>
+						<tr>
+							<td>Web Site URL:</td>
+							<td>
+								${fromSource.website}
+							</td>
+						</tr>
+						<tr>
+							<td>JDE Vendor Number:</td>
+							<td>
+								${fromSource.jdeVendorNumber}
+							</td>
+						</tr>
+						<tr>
+							<td>Permission Type:</td>
+							<td>
+								${fromSource.permissionType}
+							</td>
+						</tr>
+						<tr>
+							<td>Source Group:</td>
+							<td>
+								<c:out value="${fromSource.sourceGroup.name}" />
+							</td>
+						</tr>
+						<tr>
+							<td>Credit Line:</td>
+							<td>
+								<c:out value="${fromSource.creditLine}" />
+							</td>
+						</tr>
+						<tr>
+							<td>Number of Assets:</td>
+							<td>
+								<c:if test="${not empty fromSourceAssets}">
+									${fromSourceAssets}
+								</c:if>
+							</td>
+						</tr>
+						
+						<tr>
+							<td>Number of Contracts:</td>
+							<td>
+								<c:if test="${not empty fromSourceContracts}">
+									${fromSourceContracts}
+								</c:if>
+							</td>
+						</tr>
+						
+						<tr>
+							<td>Number of Contacts:</td>
+							<td>
+								<c:if test="${not empty fromSourceContacts}">
+									${fromSourceContacts}
+								</c:if>
+							</td>
+						</tr>
+					</c:if>
+				</table>
+			</td>
+			<td width="30%">
+				<table border="0">
+					<c:if test="${not empty toSource}">
+						<tr><td><h1>To source:</h1> </td> </tr>
+						<tr>
+							<td>Name:</td>
+							<td>
+								${toSource.name}
+							</td>
+						</tr>
+						<tr>
+							<td>No Fly:</td>
+							<td>
+								${wileyfn:formatBoolean(toSource.nofly) }
+							</td>
+						</tr>
+						<tr>
+							<td>No Fly Photographer:</td>
+							<td>
+								${toSource.noFlyPhotographerLastName}
+							</td>
+						</tr>
+						<tr>
+							<td>Sued Wiley:</td>
+							<td>
+								${wileyfn:formatBoolean(toSource.suedWiley) }
+							</td>
+						</tr>
+						<tr>
+							<td>Comments:</td>
+							<td>
+								<c:out value="${toSource.comment}" />
+							</td>
+						</tr>
+						<tr>
+							<td>Country:</td>
+							<td>
+								${toSource.country.code}
+							</td>
+						</tr>
+						<tr>
+							<td>Phone:</td>
+							<td>
+								${toSource.phoneNumber}
+							</td>
+						</tr>
+						<tr>
+							<td>Fax:</td>
+							<td>
+								${toSource.faxNumber}
+							</td>
+						</tr>
+						<tr>
+							<td>Web Site URL:</td>
+							<td>
+								${toSource.website}
+							</td>
+						</tr>
+						<tr>
+							<td>JDE Vendor Number:</td>
+							<td>
+								${toSource.jdeVendorNumber}
+							</td>
+						</tr>
+						<tr>
+							<td>Permission Type:</td>
+							<td>
+								${toSource.permissionType}
+							</td>
+						</tr>
+						<tr>
+							<td>Source Group:</td>
+							<td>
+								${toSource.sourceGroup.name}
+							</td>
+						</tr>
+						<tr>
+						<td>Credit Line:</td>
+							<td>
+								<c:out value="${toSource.creditLine}" />
+							</td>
+						</tr>
+						<tr>
+							<td>Number of Assets:</td>
+							<td>
+								<c:if test="${not empty toSourceAssets}">
+									${toSourceAssets}
+								</c:if>
+							</td>
+						</tr>
+			
+						<tr>
+							<td>Number of Contracts:</td>
+							<td>
+								<c:if test="${not empty toSourceContracts}">
+									${toSourceContracts}
+								</c:if>
+							</td>
+						</tr>
+						
+						<tr>
+							<td>Number of Contacts:</td>
+							<td>
+								<c:if test="${not empty toSourceContacts}">
+									${toSourceContacts}
+								</c:if>
+							</td>
+						</tr>
+						
+					</c:if>
+				</table>
+			</td>
+			
+			<td width="30%">
+				<table border="0">
+					<c:if test="${detailsError == '1'}">
+						<tr><td class="redline"><h1>${errorMessage}</h1></td></tr>
+					</c:if>
+					<c:if test="${not empty finalSource}">
+					<c:if test="${detailsError != '1'}">
+						<tr><td><h1>After Merging Source:</h1> </td> </tr>
+						<tr>
+							<td>Name:</td>
+							<td>
+								${finalSource.name}
+							</td>
+						</tr>
+						<tr>
+							<td>No Fly:</td>
+							<td>
+								${wileyfn:formatBoolean(finalSource.nofly) }
+							</td>
+						</tr>
+						<tr>
+							<td>No Fly Photographer:</td>
+							<td>
+								${finalSource.noFlyPhotographerLastName}
+							</td>
+						</tr>
+						<tr>
+							<td>Sued Wiley:</td>
+							<td>
+								${wileyfn:formatBoolean(finalSource.suedWiley) }
+							</td>
+						</tr>
+						<tr>
+							<td>Comments:</td>
+							<td>
+								<c:out value="${finalSource.comment}" />
+							</td>
+						</tr>
+						<tr>
+							<td>Country:</td>
+							<td>
+								${finalSource.country.code}
+							</td>
+						</tr>
+						<tr>
+							<td>Phone:</td>
+							<td>
+								${finalSource.phoneNumber}
+							</td>
+						</tr>
+						<tr>
+							<td>Fax:</td>
+							<td>
+								${finalSource.faxNumber}
+							</td>
+						</tr>
+						<tr>
+							<td>Web Site URL:</td>
+							<td>
+								${finalSource.website}
+							</td>
+						</tr>
+						<tr>
+							<td>JDE Vendor Number:</td>
+							<td>
+								${finalSource.jdeVendorNumber}
+							</td>
+						</tr>
+						<tr>
+							<td>Permission Type:</td>
+							<td>
+								${finalSource.permissionType}
+							</td>
+						</tr>
+						<tr>
+							<td>Source Group:</td>
+							<td>
+								${finalSource.sourceGroup.name}
+							</td>
+						</tr>
+						<tr>
+						<td>Credit Line:</td>
+							<td>
+								<c:out value="${finalSource.creditLine}" />
+							</td>
+						</tr>
+						<tr>
+							<td>Number of Assets:</td>
+							<td>
+								<c:if test="${not empty finalSourceAssets}">
+									${finalSourceAssets}
+								</c:if>
+							</td>
+						</tr>
+				
+						<tr>
+							<td>Number of Contracts:</td>
+							<td>
+								<c:if test="${not empty finalSourceContracts}">
+									${finalSourceContracts}
+								</c:if>
+							</td>
+						</tr>
+						
+						<tr>
+							<td>Number of Contacts:</td>
+							<td>
+								<c:if test="${not empty finalSourceContacts}">
+									${finalSourceContacts}
+								</c:if>
+							</td>
+						</tr>
+					</c:if>
+					</c:if>
+				</table>
+			</td>
+		</tr>
+	</table>
+
+	<script type="text/javascript">
+	//<![CDATA[
+	$(document).ready(function() {
+		if ("${detailsError}" == 1) {
+			$('#submitButtonDiv').hide();
+		}
+
+		if ("${detailsError}" != 1) {
+			if("${finalSource.name}" != "") {
+				$('#submitButtonDiv').show();
+			}
+		}
+	});
+	//]]>
+	</script>
+	
+</jsp:root>

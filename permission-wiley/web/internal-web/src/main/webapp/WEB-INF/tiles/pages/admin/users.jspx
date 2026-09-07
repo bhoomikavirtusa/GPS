@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+
+	<c:url var="dataUrl" value="/sapp/admin/users/tableData" />
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+			var oTable = $('#userTable').dataTable( {
+				"aoColumns": [
+					{ "sWidth" : "10%", "sClass" : "center", "bSearchable" : false, "bSortable" : false }, // edit
+					{ "sWidth" : "10%", "sClass" : "center", "bSearchable" : false }, // enable/disable
+					{ "sWidth" : "20%" }, // first name
+					{ "sWidth" : "20%" }, // last name
+					{ "sWidth" : "30%" }, // email
+					{ "sWidth" : "10%" } // type
+				],
+				"aaSorting": [[3, "asc" ]],
+
+				"bAutoWidth": false,
+				"bProcessing": true,
+				"bStateSave": true,
+				"sPaginationType": "full_numbers",
+				"aLengthMenu": [10, 15, 25, 50, 100],  // override default of [10, 25, 50, 100]
+				"iDisplayLength": 25, // override default of 10
+				
+				"sAjaxSource": '${dataUrl}',
+				"bServerSide": true
+			} );
+			
+			// Make it so that the filter "type ahead" functionality doesn't work and waits for user to hit Enter instead
+			$('#userTable_filter input').unbind();
+			$('#userTable_filter input').bind('keyup', function(e) {
+			    if (e.keyCode == 13) {
+			        oTable.fnFilter(this.value);   
+			    }
+			});
+			
+			//prevents form submissions if press ENTER in textbox
+		    $("#userTable_filter input").keydown(function (event) {
+		        if (event.keyCode == 13) {
+		        	// event.preventDefault() doesn't work in IE 8 (ok in IE 9)
+		        	if (event.preventDefault) {
+		        	    event.preventDefault();
+		        	} else {
+		        	    event.returnValue = false;
+		        	}
+		            return false;
+		        }
+		    });
+		} );
+	</script>
+	
+	<form:form modelAttribute="userMainForm">
+		<jsp:attribute name="action">
+			<c:url value="/sapp/admin/users/handle"/>
+		</jsp:attribute>
+
+		<div style="display: none">
+			<form:hidden path="mode"/>
+			<form:hidden path="userId"/>
+		</div>
+
+	<table class="display" id="userTable">
+		<thead>
+			<tr>
+				<th colspan="6">Manage Users</th>
+			</tr>
+			<tr>
+				<th>Edit</th>
+				<th>Enable/Disable</th>
+				<th>First Name</th>
+				<th>Last Name</th>
+				<th>Email</th>
+				<th>Type</th>
+			</tr>
+		</thead>
+	</table>
+	
+	</form:form>
+</jsp:root>

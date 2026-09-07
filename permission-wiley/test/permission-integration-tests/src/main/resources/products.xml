@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="sysmsg_20080612.xsd" id="PE001.224377" type="reply" replyID="2861645430.1231972409103.1" sent="1231972410422" source="PE001" protocolVersion="1.0">
+   <target>
+      <system>PERM001</system>
+   </target>
+   <reply>
+      <productSearchResults completeRecordSet="no" resultCount="50">
+         <product wid="CORE.001.PROD.0000211019" businessUnit="1" isbn10="0471718432" isbn13="9780471718437" pnumber="026910307" dataSource="US">
+            <title>(WCS)Activity Guide for Wiley Geography Textbooksand Microsoft Encarta Virtual Globe, Second Edition</title>
+            <author>Margaret Gripshover</author>
+            <productLine>8</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000027695" businessUnit="1" isbn10="0470380292" isbn13="9780470380291" pnumber="010005426" dataSource="US">
+            <title>70-236: Microsoft Exchange Server 2007 Configuration, Textbook</title>
+            <author>MOAC</author>
+            <productLine>MS</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000084668" businessUnit="1" isbn10="0470183659" isbn13="9780470183656" pnumber="010005170" dataSource="US">
+            <title>70-443: Microsoft SQL Server 2005 Optimization and Maintenance, Textbook</title>
+            <author>MOAC</author>
+            <productLine>MS</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000104169" businessUnit="1" isbn10="0470183675" isbn13="9780470183670" pnumber="010005180" dataSource="US">
+            <title>70-444: Microsoft SQL Server 2005 Database ServerInfrastructure, Textbook</title>
+            <author>MOAC</author>
+            <productLine>MS</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000128695" businessUnit="3" isbn10="0471742457" isbn13="9780471742456" pnumber="002541230" dataSource="US">
+            <title>A Comprehensive Textbook of Photodynamic Therapy:A Spectrum of Applications</title>
+            <author>Patrick Ross</author>
+            <productLine>Y</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000132179" businessUnit="3" isbn10="0471468975" isbn13="9780471468974" pnumber="000933727" dataSource="US">
+            <title>A Textbook of Biological Psychiatry</title>
+            <author>Jaak Panksepp</author>
+            <productLine>X</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000177098" businessUnit="3" isbn10="0471468983" isbn13="9780471468981" pnumber="000923727" dataSource="US">
+            <title>A Textbook of Biological Psychiatry</title>
+            <author>Jaak Panksepp</author>
+            <productLine>X</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000176622" businessUnit="1" isbn10="0471736937" isbn13="9780471736936" dataSource="US">
+            <title>A TEXTBOOK OF ENTOMOLOGYTHIRD EDITION</title>
+            <author>Herbert Ross</author>
+            <productLine>A</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000044991" businessUnit="3" isbn10="047046206X" isbn13="9780470462065" pnumber="010036117" dataSource="US">
+            <title>A Textbook of Modern Toxicology, Fourth Edition</title>
+            <author>Ernest Hodgson</author>
+            <productLine>3A</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000013171" businessUnit="3" isbn10="0470307684" isbn13="9780470307687" pnumber="010015651" dataSource="US">
+            <title>A Textbook of Modern Toxicology, Third Edition</title>
+            <author>Ernest Hodgson</author>
+            <productLine>3A</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000128858" businessUnit="3" isbn10="0471646768" isbn13="9780471646761" pnumber="000914283" dataSource="US">
+            <title>A Textbook of Modern Toxicology, Third Edition</title>
+            <author>Ernest Hodgson</author>
+            <productLine>3A</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000136166" businessUnit="3" isbn10="047126508X" isbn13="9780471265085" pnumber="000013805" dataSource="US">
+            <title>A Textbook of Modern Toxicology, Third Edition</title>
+            <author>Ernest Hodgson</author>
+            <productLine>3A</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000170627" businessUnit="3" isbn10="0471646776" isbn13="9780471646778" pnumber="000924283" dataSource="US">
+            <title>A Textbook of Modern Toxicology, Third Edition</title>
+            <author>Ernest Hodgson</author>
+            <productLine>3A</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000206637" businessUnit="3" isbn10="047116853X" isbn13="9780471168539" dataSource="US">
+            <title>A TEXTBOOK OF PHARMACEUTICAL ANALYSIS 2ND EDITION</title>
+            <author>Kenneth Connors</author>
+            <productLine>I</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000171770" businessUnit="1" isbn10="0555117944" isbn13="9780555117941" dataSource="US">
+            <title>Activity Guide for Wiley Geography Textbooks and Microsoft Encarta Virtual Globe 2eRegions 9e chapter</title>
+            <author>Margaret Gripshover</author>
+            <productLine>8</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000192295" businessUnit="1" isbn10="0471377953" isbn13="9780471377955" dataSource="US">
+            <title>Activity Guide for Wiley Geography Textbooks and Microsoft Encarta Virtual Globe, Second Edition</title>
+            <author>Margaret Gripshover</author>
+            <productLine>8</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000118078" businessUnit="3" isbn10="0471437328" isbn13="9780471437321" pnumber="000792737" dataSource="US">
+            <title>Applied Survival Analysis: Regression Modeling ofTime to Event Data, Textbook and Solutions ManualSet</title>
+            <author>David Hosmer</author>
+            <author>Stanley Lemeshow</author>
+            <productLine>I</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000052002" businessUnit="1" isbn10="0471781355" isbn13="9780471781356" pnumber="032440307" dataSource="US">
+            <title>BUAD 310 Textbook 2005/2006</title>
+            <author>Kittie Watson</author>
+            <productLine>D</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000040327" businessUnit="1" isbn10="0470424192" isbn13="9780470424193" pnumber="010032774" dataSource="US">
+            <title>BUAD 310 Textbook 2008/2009</title>
+            <author>Kittie Watson</author>
+            <productLine>D</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000129620" businessUnit="1" isbn10="0471781371" isbn13="9780471781370" pnumber="032430307" dataSource="US">
+            <title>BUAD 310 Textbook, Lecture Notes 2005/2006 and Minitab USC Edition SET</title>
+            <author>Mendel Fygenson</author>
+            <productLine>D</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000156157" businessUnit="1" isbn10="0471274038" isbn13="9780471274032" pnumber="000973905" dataSource="US">
+            <title>Business and Financial Accounting : A Textbook for Business 240 3e</title>
+            <author>Timothy Shaftel</author>
+            <productLine>4</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000180353" businessUnit="1" isbn10="0471455229" isbn13="9780471455226" pnumber="014500307" dataSource="US">
+            <title>Business and Financial Accounting : A Textbook for Business Sp/Su 2003</title>
+            <author>Timothy Shaftel</author>
+            <productLine>4</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000163461" businessUnit="3" isbn10="0471748609" isbn13="9780471748601" pnumber="004110942" dataSource="US">
+            <title>CANCEL Textbook of Biochemistry with Clinical Correlations, 6th edition</title>
+            <author>Thomas Devlin</author>
+            <productLine>3</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000061984" businessUnit="1" isbn10="0555007480" isbn13="9780555007488" pnumber="002091417" dataSource="US">
+            <title>CD to Accompany Getting Started: Multisim Textbook Edition to Accompany Fundamentals Electronic Circuit Design</title>
+            <author>David Comer</author>
+            <author>Donald Comer</author>
+            <productLine>W</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000208091" businessUnit="1" isbn10="0471345571" isbn13="9780471345572" dataSource="US">
+            <title>Child Psychology, 3rd Edition, Textbook and StudyGuide</title>
+            <author>Ross Vasta</author>
+            <productLine>8</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000209423" businessUnit="1" isbn10="0555017907" isbn13="9780555017906" pnumber="000274734" dataSource="US">
+            <title>Crystal Ball (R) v2000.5 Professional Textbook Edition</title>
+            <author>Samuel Mantel</author>
+            <author>Jack Meredith</author>
+            <author>Scott Shafer</author>
+            <author>Margaret Sutton</author>
+            <productLine>D</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000214105" businessUnit="1" isbn10="0471177121" isbn13="9780471177128" dataSource="US">
+            <title>De Perlas: Intermediate Spanish, Textbook/Tape</title>
+            <author>Olgaluc&#237;a Gonz&#225;lez</author>
+            <author>Angela Labarca</author>
+            <author>Elmer Rodr&#237;guez</author>
+            <productLine>8</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000067472" businessUnit="1" isbn10="047018373X" isbn13="9780470183731" pnumber="010005195" dataSource="US">
+            <title>Designing and Developing Web Applications by Using the Microsoft .NET Framework, Exam 70-547 Textbook</title>
+            <author>MOAC</author>
+            <productLine>MS</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000088393" businessUnit="1" isbn10="0470116072" isbn13="9780470116074" pnumber="001216513" dataSource="US">
+            <title>Designing Security for a Microsoft Windows Server 2003 Network (70-298) Textbook</title>
+            <author>MOAC</author>
+            <productLine>MS</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000006243" businessUnit="1" isbn10="0470285494" isbn13="9780470285497" pnumber="010013473" dataSource="US">
+            <title>Dicho y hecho 8e Audio CDs to accompany Student Textbook</title>
+            <author>Laila Dawson</author>
+            <author>Kim Potowski</author>
+            <author>Silvia Sobral</author>
+            <productLine>8</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000203245" businessUnit="3" isbn10="047156799X" isbn13="9780471567998" dataSource="US">
+            <title>GERIATRICS A TEXTBOOK</title>
+            <author>Pietro de Nicola</author>
+            <productLine>Y</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000206986" businessUnit="1" isbn10="0471429678" isbn13="9780471429678" pnumber="002081417" dataSource="US">
+            <title>Getting Started: MultiSim Textbook Edition to accompany Fundamentals of Electronic Circuit Design</title>
+            <author>David Comer</author>
+            <author>Donald Comer</author>
+            <author>Electronics Workbench</author>
+            <productLine>W</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000203036" businessUnit="3" isbn10="0471384151" isbn13="9780471384151" dataSource="US">
+            <title>Human Molecular Genetics, Second Edition: Textbookand Problems Set</title>
+            <author>Andrew Read</author>
+            <author>Tom Strachan</author>
+            <productLine>Y</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000113050" businessUnit="1" isbn10="0470116080" isbn13="9780470116081" pnumber="001226513" dataSource="US">
+            <title>Implementing and Administering Security in a Microsoft Windows Server 2003 Network (70-299) Textbook</title>
+            <author>MOAC</author>
+            <productLine>MS</productLine>
+         </product>
+         <product wid="CORE.003.PROD.0000002401" businessUnit="9" isbn10="0731405781" isbn13="9780731405787" dataSource="AU">
+            <title>INSIDE &amp; OUT A HEALTH AND PHYSICAL EDUCATION TEXTBOOK 4E</title>
+            <author>WAYNE JUDGE</author>
+            <author>PETER WRIGHT</author>
+            <productLine>26</productLine>
+         </product>
+         <product wid="CORE.003.PROD.0000005432" businessUnit="9" isbn10="0701634855" isbn13="9780701634858" dataSource="AU">
+            <title>INSIDE AND OUT A HEALTH AND PHYSICAL EDUCATION TEXTBOOK 3E</title>
+            <author>WAYNE JUDGE</author>
+            <author>PETER WRIGHT</author>
+            <productLine>26</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000162775" businessUnit="3" isbn10="EWINS03493" isbn13="9785WINS03493" pnumber="00641AGON" dataSource="US">
+            <title>Instructor BCS Site to accompany Textbook of Biochemistry with Clinical Correlations, Sixth Edition,</title>
+            <author>Thomas Devlin</author>
+            <productLine>3</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000216898" businessUnit="3" isbn10="0470211288" isbn13="9780470211281" dataSource="US">
+            <title>INSTRUMENTS AND AUTOMATIC TEST EQUIPMENT: INTRODUCTORY TEXTBOOK</title>
+            <author>K. Ibrahim</author>
+            <productLine>I</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000172917" businessUnit="1" pnumber="010007386" dataSource="US">
+            <title>ISV Microsoft Windows Vista&#153; Client: Configuration, Exam 70-620, Textbook, International Student Version</title>
+            <author>MOAC</author>
+            <productLine>MS</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000094859" businessUnit="1" isbn10="0471325805" isbn13="9780471325802" dataSource="US">
+            <title>Kimmel:Tools for Financial Accounting &amp; Kimmel:Student Textbook Survey SET</title>
+            <author>Paul Kimmel</author>
+            <productLine>4</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000055082" businessUnit="3" isbn10="0471785504" isbn13="9780471785507" pnumber="001263261" dataSource="US">
+            <title>Linear Algebra: Ideas and Applications, Second Edition, Textbook and Solutions Manual Set</title>
+            <author>Richard Penney</author>
+            <productLine>I</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000102731" businessUnit="1" isbn10="0470116099" isbn13="9780470116098" pnumber="001166513" dataSource="US">
+            <title>Managing and Maintaining a Microsoft Windows Server 2003 Environment for an MCSA Certified on Windows 2000 (70-292) Textbook</title>
+            <author>MOAC</author>
+            <productLine>MS</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000141579" businessUnit="1" pnumber="010005422" dataSource="US">
+            <title>MCAP: Budgeting and Forecasting, Exam 70-613 Textbook</title>
+            <author>MOAC</author>
+            <productLine>MS</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000148332" businessUnit="1" isbn10="0470183713" isbn13="9780470183717" pnumber="010005190" dataSource="US">
+            <title>Microsoft .NET Framework 2.0 - Web -Based Client Development, Exam 70-528 Textbook</title>
+            <author>MOAC</author>
+            <productLine>MS</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000088743" businessUnit="1" isbn10="0470183691" isbn13="9780470183694" pnumber="010005187" dataSource="US">
+            <title>MOAC 70-536, Microsoft .NET Framework 2.0 - Application Development Foundation, Textbook</title>
+            <author>MOAC</author>
+            <productLine>MS</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000048547" businessUnit="1" pnumber="010039172" dataSource="US">
+            <title>MOAC 70-630: Microsoft Office SharePoint Server 2007 Configuration Textbook</title>
+            <author>MOAC</author>
+            <productLine>MS</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000035851" businessUnit="1" isbn10="0470225092" isbn13="9780470225097" pnumber="010007323" dataSource="US">
+            <title>MOAC 70-640: Windows Server 2008 Active DirectoryConfiguration, Textbook</title>
+            <author>MOAC</author>
+            <productLine>MS</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000049469" businessUnit="1" isbn10="0470225157" isbn13="9780470225158" pnumber="010007330" dataSource="US">
+            <title>MOAC 70-642: Windows Server 2008 Network Infrastructure Configuration, Textbook</title>
+            <author>MOAC</author>
+            <productLine>MS</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000165373" businessUnit="1" isbn10="0470225130" isbn13="9780470225134" pnumber="010007327" dataSource="US">
+            <title>MOAC 70-643: Windows Server 2008 Applications Infrastructure Configuration, textbook</title>
+            <author>MOAC</author>
+            <productLine>MS</productLine>
+         </product>
+         <product wid="CORE.001.PROD.0000042668" businessUnit="1" isbn10="0470225114" isbn13="9780470225110" pnumber="010007328" dataSource="US">
+            <title>MOAC 70-646: Windows Server 2008 Administrator, Textbook</title>
+            <author>MOAC</author>
+            <productLine>MS</productLine>
+         </product>
+      </productSearchResults>
+   </reply>
+</message>

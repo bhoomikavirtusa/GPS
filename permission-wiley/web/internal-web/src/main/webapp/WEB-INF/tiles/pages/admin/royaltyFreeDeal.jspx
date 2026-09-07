@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root 
+    version="2.2"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:tiles="http://tiles.apache.org/tags-tiles"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+    xmlns:spring="http://www.springframework.org/tags"
+    xmlns:form="http://www.springframework.org/tags/form"
+    xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+
+<jsp:directive.page contentType="text/html" pageEncoding="UTF-8" />
+
+<tiles:importAttribute name="beanName" />
+<!-- beanName is manageSourceGroupForm, not sure how to use beanName in following line (would need to double-evaluate) -->
+<c:url var="sourceGroupUrl" value="/sapp/admin/sourceGroups?mode=MODIFY_CHILD&amp;groupId=${manageSourceGroupForm.group.id}" />
+
+<form:form modelAttribute="${beanName}">
+	<input type="hidden" name="_page2" value="true" />
+
+    <div style="display: none">
+    	<form:hidden path="selectedDeal" />
+    	<form:hidden path="mode" />
+    </div>
+
+    <table class="width100">
+    	<tr>
+        	<th colspan="2">
+        		Enter/Manage Deal
+        		<input type="hidden" name="page" value="2" />
+        		<input type="hidden" name="targetPage" value="0" />
+        	</th>
+    	</tr>
+     	<tr>
+        	<td class="label">
+        		<form:label path="dealName" cssClass="required" cssErrorClass="error">Deal Name:</form:label>
+        	</td>
+        	<td class="value">
+          		<form:input path="dealName" size="50" maxlength="100"/>
+        	</td>
+      	</tr>
+
+      	<tr>
+        	<td class="label">
+        		<form:label path="seats" cssClass="required" cssErrorClass="error">Seats:</form:label>
+        	</td>
+        	<td class="value">
+        		<!-- Allow max of 9 digits for 32-bit integer -->
+          		<form:input path="seats" size="9" maxlength="9" /> (0 = unlimited)
+        	</td>
+      	</tr>
+
+    	<tr>
+       		<td class="label">
+       			<form:label path="totalPrintRun" cssClass="required" cssErrorClass="error">Total Print Run:</form:label>
+       		</td>
+        	<td class="value">
+        		<!-- Allow max of 9 digits for 32-bit integer -->
+          		<form:input path="totalPrintRun" size="9" maxlength="9" /> (0 = unlimited)
+        	</td>
+      	</tr>
+    
+    	<!-- sandhya adding a radio button -->
+      	<tr>
+      	<td class="label">
+       			<form:label path="readytosublicense" cssClass="required" cssErrorClass="error">Ready to sub license:</form:label>
+       		</td>
+      	<td class="value">
+						<form:radiobutton path="readytosublicense" value="true" />
+						Yes
+						<form:radiobutton path="readytosublicense" value="false" cssStyle="margin-left: 1em"/>
+						No
+					</td>
+      	</tr>
+      	<!-- sandhya end -->
+    </table>
+    
+	<div class="buttonset">
+		<input type="submit" value="Save" />
+		<a href="${sourceGroupUrl}" class="button" id="cancel">Cancel</a>
+    </div>
+</form:form>
+
+<script type="text/javascript">
+	//<![CDATA[
+	$(document).ready(function() {
+		$( "#${beanName}").validate({
+			rules: {
+				"dealName": { required: true },
+				"seats": { required: true, min: 0 },
+				"totalPrintRun": { required: true, min: 0 }
+			}
+		});
+	});
+	//]]>		
+</script>
+
+</jsp:root>

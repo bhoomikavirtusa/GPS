@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+
+	<jsp:directive.page pageEncoding="UTF-8" />
+	
+	<style type="text/css">
+	.greybox {
+		position: absolute;
+		width: 100%;
+		padding: 0px;
+		border: 0px;
+		height: 100%;
+	}
+	
+	#dialog {
+		position: inherit;
+	}
+	</style>
+	
+	<jsp:body>
+		<form:form modelAttribute="loginForm">
+			<jsp:attribute name="action">
+				<c:url value="/app/security/login/submit"/>
+			</jsp:attribute>
+
+			<div style="display: none">
+				<!-- don't need
+				<form:hidden path="originalRequestURI"/>
+				-->
+			</div>
+
+		<div class="center bluebox width100">
+			<table class="width100">			
+				<tr>
+					<th>Please Login</th>
+				</tr>
+				<tr>
+					<td>
+					<form:errors cssClass="error" path="*"/>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<table>
+							<tbody>
+								<tr>
+									<td class="label">
+										<form:label path="email" cssClass="required" cssErrorClass="error">E-mail Address:</form:label>
+									</td>
+									<td><form:input path="email" size="30" class="required" /></td>
+								</tr>
+								<tr>
+									<td class="label">
+										<form:label path="password"  cssClass="required" cssErrorClass="error">Password:</form:label>
+									</td>
+									<td><form:password path="password" size="30" class="required" /></td>
+								</tr>
+							</tbody>
+						</table>
+					</td>
+				</tr>
+			</table>
+			<div class="buttonset">
+				<input type="submit" id="submitLogin" value="Login" />	
+			</div>			
+		</div>
+		</form:form>
+		
+
+		
+	</jsp:body>
+</jsp:root>

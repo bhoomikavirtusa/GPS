@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="permmsg_20080829.xsd"
+    type="notification" replyId="PERM_assetUseRequest.664" id="CMS002.334650209"
+    sent="1183481115542" source="PERM001" protocolVersion="1.0">
+    <target>
+        <system>CMS001</system>
+    </target>
+    <operation name="UpdateAssetUse">
+        <assetUse wid="P001.AU89430.33" updateTime="11834800394850">
+            <product wid="PE.HE99343490.2222"/>
+            <asset wid="CMS002.993478924.22"/> 
+            <component wid="CMS002.334650209" />
+            <position>Figure 1.</position>
+            <manuscriptPage>10</manuscriptPage>
+            <finalPage>12</finalPage>
+            <size>1/2 Page</size>
+            <usage>NumberedFigure</usage>
+            <reuse>true</reuse>
+            <reuseISBN>9780470053317</reuseISBN>
+            <isPickup>true</isPickup>
+            <pickupISBN>1234567890123</pickupISBN>
+            <canceled>false</canceled>
+            <permissionStatus>granted</permissionStatus>
+            <permissionComment>
+            HE has paid all necessary fees and the asset may be used in any HE product.
+            </permissionComment>
+        </assetUse>
+    </operation>
+</message>

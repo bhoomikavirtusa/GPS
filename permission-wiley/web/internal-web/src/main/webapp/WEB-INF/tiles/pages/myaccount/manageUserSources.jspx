@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jsp:root 
+    version="2.2"
+    xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+    xmlns:form="http://www.springframework.org/tags/form"
+>
+  <jsp:directive.page pageEncoding="UTF-8"/>
+  <c:url var="sourceSearchUrl" value="${wileyfn:getRestUrl(pageContext.request)}/service/source/search" />
+  <c:url var="delImageUrl" value="/images/buttons/delete-icon.png"/>
+  
+  <script type="text/javascript">
+	var deleteImageUrl="${delImageUrl}";
+  </script>
+  
+	<jsp:element name="script">
+		<jsp:attribute name="type">text/javascript</jsp:attribute>
+		<jsp:attribute name="src">
+			<c:url value="/js/dynamictable.js"/>
+		</jsp:attribute>
+		// Placeholder
+	</jsp:element>	
+
+	<script type="text/javascript">
+	<![CDATA[
+	$(document).ready(function() {
+		preLoadColumns();
+		
+		$( "#sourceName" ).autocomplete({
+			source: function( request, response ) {
+				$.jsonp({
+					"url": '${sourceSearchUrl}/' + request.term + '?callback=?', 
+					"success": function(json) {
+						response( $.map( json, function( item ) {
+							return {
+								value: item.name,					
+								id: item.id,
+								disabled: item.disabled
+							}
+						}));
+					},
+					"error": function() {
+			        	alert ("Error: failed to search sources");
+			        }
+		        });				
+			},
+			minLength: 3,
+			select: function( event, ui ) {
+				if (ui.item.disabled) {
+					alert ("This source may not be used. Please select a different source.");
+					$( "#sourceName" ).val ("");
+					return false;
+				} else {
+					fnAddRow (ui.item.id, ui.item.value, null);
+				}
+			},
+			open: function() {
+				$( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+			},
+			close: function() {
+				$( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+			}
+		});		
+	});		
+	]]>
+	</script>
+		
+  <c:set var="user" value="${myAccountForm.user}"/>
+
+  <form:form modelAttribute="myAccountForm">
+    <jsp:attribute name="action">
+      <c:url value="/sapp/myaccount/submit"/>
+    </jsp:attribute>
+
+    <div style="display: none">
+      <form:hidden path="mode"/>
+      <input type="hidden" name="page" value="6"/>
+    </div>
+
+    <table class="width100">
+		<tr>
+    	     <th>Favorite Source Group</th>
+        </tr>
+        <tr>
+			<td class="value">
+				Favorite Source Group:				
+				<form:select path="favoriteGroupId" id="favoriteGroupId">	
+						<option	value="-1">None Selected</option>	
+						<form:options  items="${favoriteGroups}" itemLabel="description" itemValue="id"/>
+						
+				</form:select>
+			</td>		
+		</tr>
+
+		<tr>
+        	<th>My Sources</th>
+		</tr>
+		<tr>
+			<td style="padding: 10px">
+				Source name: <input name="sourceName" id="sourceName" size="30" maxlength="100"/>
+			</td>
+		</tr>
+		<tr>
+			<td style="padding: 10px">
+				<table class="display" id="selectedValues">
+					<tr>
+						<th style="text-align: center; width: 10%">
+							Remove
+						</th>
+						<th style="width: 30%">
+							Source
+						</th>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+    <div class="buttonset">
+      <jsp:element name="input">
+        <jsp:attribute name="type">submit</jsp:attribute>
+        <jsp:attribute name="value">Save</jsp:attribute>
+        <jsp:attribute name="onclick">this.form.elements['mode'].value='MODIFY';</jsp:attribute>
+      </jsp:element>
+      <c:url var="userAccountUrl" value="/sapp/myaccount/form" />
+      <a href="${userAccountUrl}" id="cancel" class="button">Cancel</a>
+    </div>
+  </form:form>
+	<script type="text/javascript">
+		function preLoadColumns() {
+			deleteAllRows();
+			<c:forEach items="${user.sources}" var="column">
+				fnAddRow ("<c:out value="${column.id}"/>", "<c:out value="${column.name}"/>", null);
+			</c:forEach>
+		}
+	</script>  
+</jsp:root>

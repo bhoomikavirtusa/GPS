@@ -1,0 +1,150 @@
+package com.wiley.permissions.common.utils;
+
+import java.io.StringReader;
+import java.sql.Connection;
+import java.sql.DriverPropertyInfo;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+import com.wiley.sf.common.lang.StringUtil;
+import com.wiley.sf.common.sql.SimpleDBConnect;
+
+/**
+ * Do a large insert (single row) where 2 columns are LONGVARCHAR and the
+ * large data is inserted using a prepared statement with parameter markers
+ * for the columns - is this type of insert limited by MySQL
+ * max_allowed_packet config parameter?
+ * - Answer: Yes, if you use PreparedStatement.setString() but no if you
+ * use PreparedStatement.setNCharacterStream() and set certain driver properties.
+ * Performance (over local network using 2x 50 MB columns):
+ * setString():  16-24 secs
+ * setNCharacterStream(): 9-17 secs
+ * delete(): 3 secs
+ *
+ * Testing with DB2: With default config seems to handle both setString() and
+ * setCharacterStream() fine.
+ * Performance (over local network using 2x 50 MB columns):
+ * setString():  9-17 secs
+ * setNCharacterStream(): 8-15 secs
+ * delete(): 0 secs
+ *
+ * @since JDK 1.6
+ * @version 4/23/2012
+ * @author Steve Markoff
+ */
+public class TestLargeInsert {
+
+	public static void main(String[] args) throws Exception {
+		if (args.length < 1) {
+			System.err.println("Usage: <properties file>");
+			System.exit(1);
+		}
+
+		SimpleDBConnect dbConnect = SimpleDBConnect.create(args[0]);
+			// throws various exceptions
+		DriverPropertyInfo [] driverPropertyInfoArray = dbConnect.getDriverPropertyInfo();
+		TestLargeInsert prog = new TestLargeInsert(dbConnect.getConnection(), driverPropertyInfoArray);
+		prog.go();
+	}
+
+	private final Connection con;
+	private final DriverPropertyInfo [] driverPropertyInfoArray;
+
+	public TestLargeInsert(Connection con, DriverPropertyInfo [] driverPropertyInfoArray) throws SQLException {
+		this.con = con;
+		this.driverPropertyInfoArray = driverPropertyInfoArray;
+		con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+		con.setAutoCommit(true);
+		showDriverProperties();
+	}
+
+	public void go() throws SQLException {
+		long startTime = System.currentTimeMillis();
+		insert(false);
+		long time = System.currentTimeMillis() - startTime;
+		System.out.println("insert using setString() took " + time + " ms.");
+
+		delete();
+
+		startTime = System.currentTimeMillis();
+		insert(true);
+		time = System.currentTimeMillis() - startTime;
+		System.out.println("insert using setCharacterStream() took " + time + " ms.");
+
+		delete();
+	}
+
+	private void showDriverProperties() throws SQLException {
+		// The properties that need to be set are supposedly:
+		// blobSendChunkSize=1048576 (or whatever - this is 1 MB which is the default)
+		// noDatetimeStringSync=true (default is false)
+		// useServerPrepStmts=true (default is false)
+		// emulateUnsupportedPstmts=false (default is true)
+		// maxAllowedPacket=(generally this is larger than blobSendChunkSize, which is all we need - default is -1)
+		// -- note the server side max_allowed_packet must also be larger than blobSendChunkSize and normally it is
+
+		String [] propNames = { "blobSendChunkSize", "useServerPrepStmts",
+			"emulateUnsupportedPstmts", "maxAllowedPacket", "noDatetimeStringSync" };
+		for (DriverPropertyInfo info : driverPropertyInfoArray) {
+			for (String name : propNames) {
+				if (name.equals(info.name)) {
+					System.out.println(name + " = " + info.value);
+				}
+			}
+		}
+	}
+
+	private void insert(boolean useStream) throws SQLException {
+		String sql = "insert into test_clob (text1, text2) values (?, ?)";
+		PreparedStatement ps = con.prepareStatement(sql);
+		String text1 = StringUtil.createStringOfLength(50000000);
+		String text2 = StringUtil.createStringOfLength(50000000);
+		if (useStream) {
+			// MySQL can handle setNCharacterStream but DB2 9.7 cannot - try again with DB2 10
+			//ps.setNCharacterStream(1, new StringReader(text1));
+			//ps.setNCharacterStream(2, new StringReader(text2));
+			ps.setCharacterStream(1, new StringReader(text1));
+			ps.setCharacterStream(2, new StringReader(text2));
+		}
+		else {
+			ps.setString(1, text1);
+			ps.setString(2, text2);
+		}
+
+		int numRows = ps.executeUpdate();
+		if (numRows != 1) { // we don't expect this situation
+			System.out.println("numRows inserted was " + numRows + " but expected 1");
+		}
+		ps.close();
+	}
+
+	private void delete() throws SQLException {
+		long startTime = System.currentTimeMillis();
+		String sql = "delete from test_clob";
+		PreparedStatement ps = con.prepareStatement(sql);
+		int numRows = ps.executeUpdate();
+		ps.close();
+		long time = System.currentTimeMillis() - startTime;
+		System.out.println("deleted " + numRows + " rows in " + time + " ms.");
+	}
+}
+
+/**
+---- SQL to create table:
+
+---- MySQL
+create table test_clob (
+  id int not null auto_increment,
+  constraint pk_test_clob primary key (id),
+  text1 text(50111000) not null,
+  text2 text(50111000) default null
+);
+
+---- DB2
+create table test_clob (
+  id int not null generated by default as identity
+    constraint pk_test_clob PRIMARY KEY,
+  text1 clob(50111000) not null,
+  text2 clob(50111000) default null
+);
+**/

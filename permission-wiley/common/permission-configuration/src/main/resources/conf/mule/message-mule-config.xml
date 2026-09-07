@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
+    xmlns:spring="http://www.springframework.org/schema/beans"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	">
+
+	<spring:beans>
+		<spring:import resource="classpath:conf/spring/message-spring-context.xml"/>
+		<!-- adds the Re-processor Thread -->
+		<spring:import resource="classpath:conf/spring/reprocessor-spring-context.xml"/>		
+	</spring:beans>
+		
+	<model name="message.routing">
+		<!-- This is a dummy service to make sure things get distributed correctly -->
+		<service name="MessageHandler">
+			<inbound>
+				<vm:inbound-endpoint path="messageHandler"/>
+			</inbound>
+			
+			<outbound>
+				<chaining-router>
+					<!--
+					<vm:outbound-endpoint path="messageCache.preProcessMessage"/>
+					-->					
+					<vm:outbound-endpoint path="messageRouter" exchange-pattern="request-response"/>
+					
+					<vm:outbound-endpoint path="messageCache.postProcessMessage" exchange-pattern="request-response"/>
+
+					<vm:outbound-endpoint path="terminator"/>
+				</chaining-router>
+			</outbound>
+		</service>
+
+		<!-- This is our message router for the message router -->
+		<service name="MessageRouter">
+			<inbound>
+				<vm:inbound-endpoint path="messageRouter" exchange-pattern="request-response"/>
+			</inbound>
+			<component>
+				<spring-object bean="messageRouter"/>
+			</component>
+		</service>
+		<!-- // -->
+
+		<service name="MessageOutgoing">
+			<inbound>
+				<vm:inbound-endpoint path="message.outgoing"/>
+			</inbound>
+			<component>
+				<spring-object bean="messageRouter"/>
+			</component>
+		</service>
+
+		<service name="Terminator">
+			<inbound>
+				<vm:inbound-endpoint path="terminator"  exchange-pattern="request-response"/>
+			</inbound>
+			
+			<component class="com.wiley.permissions.common.mule.ChainTerminator"/>
+		</service>
+
+	</model>
+</mule>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="nextUrl" value="/sapp/permissions/contract/select_po" />
+	<c:url var="prevUrl" value="${contractWizardForm.prevUrl}" />
+	
+	<!--include as jspx so the jsp variable are recognized-->
+	<jsp:directive.include file="js/wizard.buttons.js.jspx" />
+	
+	<p>Click on the filename to download: </p>
+		
+	<table>
+		<tr>
+			<th>
+				Contract files
+			</th>
+		</tr>
+		<c:forEach items="${files}" var="file">
+			<tr>
+				<td>
+					<c:url var="downloadUrl" value="/sapp/permissions/contract/download_file?fileId=${file.id}" />
+					<a href="${downloadUrl}"> ${file.fileName}</a> (${wileyfn:filesize(file.fileData)}) uploaded on 
+					<fmt:formatDate type="date" value="${file.lastUpdatedDate}" />
+				</td>
+			</tr>
+		</c:forEach>
+		<tr>
+			<td>
+			</td>
+		</tr>			
+		<tr>
+			<th>
+				Asset use files
+			</th>
+		</tr>
+		<c:forEach items="${aufiles}" var="file">
+			<tr>
+				<td>
+					<c:url var="downloadUrl" value="/sapp/asset/custom/download_file?fileId=${file.id}" />
+					<a href="${downloadUrl}"> ${file.fileName}</a> (${wileyfn:filesize(file.fileData)}) uploaded on 
+					<fmt:formatDate type="date" value="${file.lastUpdatedDate}" />
+				</td>
+			</tr>
+		</c:forEach>
+	</table>
+	
+	<div class="buttonset">
+		<a href="#" id="cancelLink" class="button">Cancel</a>
+	</div>
+</jsp:root>

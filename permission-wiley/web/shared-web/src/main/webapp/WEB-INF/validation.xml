@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE form-validation PUBLIC
+     "-//Apache Software Foundation//DTD Commons Validator Rules Configuration 1.3.0//EN"
+     "http://jakarta.apache.org/commons/dtds/validator_1_3_0.dtd">
+
+
+<form-validation>
+	<formset>
+		<form name="loginForm">
+			<field property="credential" depends="required" >
+				<arg key="login.credential" position="0"/>
+			</field>
+			<field property="password" depends="required" >
+				<arg key="login.password" position="0"/>
+			</field>
+		</form>
+	</formset>
+    
+    <formset>
+		<form name="searchProductForm">
+			<field property="searchString" depends="required">
+				<arg key="product.searchString" position="0"/>
+			</field>
+		</form>
+	</formset>
+	
+	<formset>
+		<form name="purchaseOrderForm">
+        	<field property="purchaseOrder.userSignature" depends="required">
+				<arg key="purchaseOrder.userSignature" position="0"/>
+			</field>
+			<field property="purchaseOrder.returnAddress" depends="required">
+				<arg key="purchaseOrder.returnAddress" position="0"/>
+			</field>
+		</form>
+
+		<form name="contractForm">
+			<field property="contract.date" depends="required">
+				<arg key="invoice.date" position="0"/>
+			</field>
+			<field property="contract.price" depends="required">
+				<arg key="invoice.price" position="0"/>
+			</field>
+		    <field property="contract.currency" depends="required">
+				<arg key="invoice.currency" position="0"/>
+			</field>
+			
+			<field property="contract.startDate" depends="required">
+				<arg key="contract.startDate" position="0"/>
+			</field>
+		</form>
+	</formset>
+	
+	<formset>
+		<form name="manageAssetForm">
+			<field property="assetUse.asset.description" depends="required">
+				<arg key="assetUse.asset.description" position="0"/>
+			</field>
+		</form>
+	</formset>
+
+	<formset>
+		<form name="helpRequestForm">
+		    <field property="firstName" depends="required">
+		        <arg key="help.firstName" position="0" />
+		    </field>
+		    <field property="lastName" depends="required">
+		        <arg key="help.lastName" position="0" />
+		    </field>
+		    <field property="email" depends="required">
+		        <arg key="help.email" position="0" />
+		    </field>
+		    <field property="subject" depends="required">
+		        <arg key="help.subject" position="0" />
+		    </field>
+		    <field property="request" depends="required">
+		        <arg key="help.request" position="0" />
+		    </field>
+		</form>
+	</formset>
+	
+	<formset>
+		<form name="componentForm">
+		    <field property="component.name" depends="required">
+		        <arg key="component.name" position="0" />
+		    </field>
+		</form>
+	</formset>
+
+	<formset>
+		<form name="cwPhotoEstimate">
+		    <field property="photoEstimateType" depends="required">
+		        <arg key="product.photo.estimate.type" position="0" />
+		    </field>
+		    <field property="estimatedValue" depends="required">
+		        <arg key="product.photo.estimate.value" position="0" />
+		    </field>
+		    <field property="date" depends="required">
+		        <arg key="product.photo.estimate.date" position="0" />
+		    </field>
+		</form>
+	</formset>
+
+	<formset>
+		<form name="importAssetsForm">
+<!-- lnagy - file can be empty when we resubmit
+		    <field property="file" depends="required">
+		        <arg key="product.import.assets.file" position="0" />
+		    </field>
+ 		    <field property="values" depends="required">
+		        <arg key="product.import.assets.columns" position="0" />
+		    </field>
+-->
+		</form>
+	</formset>
+
+	<!-- Source Management Forms -->
+	<formset>
+		<form name="manageSourceForm">
+			<field property="source.name" depends="required">
+				<arg key="source.name" position="0"/>
+			</field>
+	
+			<field property="source.displayName" depends="required">
+				<arg key="source.displayName" position="0"/>
+			</field>
+
+			<!-- This doesn't do anything it seems -->
+			<!--
+			<field property="source.creditLine" depends="maxlength">
+        		<arg key="source.creditLine" position="0" />
+        		<arg name="maxlength" key="${var:maxlength}" resource="false" position="1" />
+        		<var>
+        			<var-name>maxlength</var-name>
+        			<var-value>1000</var-value>
+        		</var>
+			</field>
+			-->
+
+			<field property="source.country" depends="required">
+				<arg key="source.country" position="0"/>
+			</field>
+			
+			<field property="source.permissionType" depends="required">
+				<arg key="source.permissionType" position="0"/>
+			</field>
+		</form>
+		
+		<form name="createSourceForm">
+			<field property="source.name" depends="required">
+				<arg key="source.name" position="0"/>
+			</field>
+			<field property="source.displayName" depends="required">
+				<arg key="source.displayName" position="0"/>
+			</field>
+
+			<!-- This doesn't do anything it seems -->
+			<!--
+			<field property="source.creditLine" depends="maxlength">
+        		<arg key="source.creditLine" position="0" />
+        		<arg name="maxlength" key="${var:maxlength}" resource="false" position="1" />
+        		<var>
+        			<var-name>maxlength</var-name>
+        			<var-value>1000</var-value>
+        		</var>
+			</field>
+			-->
+
+			<field property="source.country" depends="required">
+				<arg key="source.country" position="0"/>
+			</field>
+			
+			<field property="source.permissionType" depends="required">
+				<arg key="source.permissionType" position="0"/>
+			</field>
+			
+			<field property="contact.firstName" depends="validwhen">
+				<arg key="contact.firstName" position="0"/>
+				<var>
+          			<var-name>test</var-name>
+          			<var-value>((contact.blank == 'true') or (*this* != null))</var-value>
+        		</var>
+			</field>
+			
+			<field property="contact.lastName" depends="validwhen">
+				<arg key="contact.lastName" position="0"/>
+				<var>
+          			<var-name>test</var-name>
+          			<var-value>((contact.blank == 'true') or (*this* != null))</var-value>
+        		</var>
+			</field>
+			
+			<!-- Note must say (address.blank == 'true') instead of (address.blank) -->
+			<field property="address.type" depends="validwhen">
+				<arg key="address.type" position="0"/>
+				<var>
+          			<var-name>test</var-name>
+          			<var-value>((address.blank == 'true') or (*this* != null))</var-value>
+        		</var>
+			</field>
+
+			<field property="address.lineOne" depends="validwhen">
+				<arg key="address.lineOne" position="0"/>
+				<var>
+          			<var-name>test</var-name>
+          			<var-value>((address.blank == 'true') or (*this* != null))</var-value>
+        		</var>
+			</field>
+			
+			<field property="address.city" depends="validwhen">
+				<arg key="address.city" position="0"/>
+				<var>
+          			<var-name>test</var-name>
+          			<var-value>((address.blank == 'true') or (*this* != null))</var-value>
+        		</var>
+			</field>
+			
+			<field property="address.postalCode" depends="validwhen">
+				<arg key="address.postalCode" position="0"/>
+				<var>
+          			<var-name>test</var-name>
+          			<var-value>((address.blank == 'true') or (*this* != null))</var-value>
+        		</var>
+			</field>
+			
+			<field property="address.country" depends="validwhen">
+				<arg key="address.country" position="0"/>
+				<var>
+          			<var-name>test</var-name>
+          			<var-value>((address.blank == 'true') or (*this* != null))</var-value>
+        		</var>
+			</field>
+		</form>
+
+		<form name="manageAddressForm">
+			<field property="address.type" depends="required">
+				<arg key="address.type" position="0"/>
+			</field>
+
+			<field property="address.lineOne" depends="required">
+				<arg key="address.lineOne" position="0"/>
+			</field>
+
+			<field property="address.city" depends="required">
+				<arg key="address.city" position="0"/>
+			</field>
+
+			<field property="address.postalCode" depends="required">
+				<arg key="address.postalCode" position="0"/>
+			</field>
+
+			<field property="address.country" depends="required">
+				<arg key="address.country" position="0"/>
+			</field>
+		</form>
+
+		<form name="manageContactForm">
+			<field property="contact.firstName" depends="required">
+				<arg key="contact.firstName" position="0"/>
+			</field>
+			<field property="contact.lastName" depends="required">
+				<arg key="contact.lastName" position="0"/>
+			</field>
+			
+			<!-- Note must say (address.blank == 'true') instead of (address.blank) -->
+			<field property="address.type" depends="validwhen">
+				<arg key="address.type" position="0"/>
+				<var>
+          			<var-name>test</var-name>
+          			<var-value>((address.blank == 'true') or (*this* != null))</var-value>
+        		</var>
+			</field>
+			
+			<field property="address.lineOne" depends="validwhen">
+				<arg key="address.lineOne" position="0"/>
+				<var>
+          			<var-name>test</var-name>
+          			<var-value>((address.blank == 'true') or (*this* != null))</var-value>
+        		</var>
+			</field>
+			
+			<field property="address.city" depends="validwhen">
+				<arg key="address.city" position="0"/>
+				<var>
+          			<var-name>test</var-name>
+          			<var-value>((address.blank == 'true') or (*this* != null))</var-value>
+        		</var>
+			</field>
+			
+			<field property="address.postalCode" depends="validwhen">
+				<arg key="address.postalCode" position="0"/>
+				<var>
+          			<var-name>test</var-name>
+          			<var-value>((address.blank == 'true') or (*this* != null))</var-value>
+        		</var>
+			</field>
+			
+			<field property="address.country" depends="validwhen">
+				<arg key="address.country" position="0"/>
+				<var>
+          			<var-name>test</var-name>
+          			<var-value>((address.blank == 'true') or (*this* != null))</var-value>
+        		</var>
+			</field>
+		</form>
+	</formset>
+
+	<!-- Admin Forms -->
+	<formset>
+		<form name="manageUserForm">
+			<field property="user.type" depends="required">
+				<arg key="user.type" position="0"/>
+			</field>
+
+			<field property="user.enabled" depends="required">
+				<arg key="user.enabled" position="0"/>
+			</field>
+
+			<field property="user.firstName" depends="required">
+				<arg key="user.firstName" position="0"/>
+			</field>
+
+			<field property="user.lastName" depends="required">
+				<arg key="user.lastName" position="0"/>
+			</field>
+
+			<field property="user.email" depends="required">
+				<arg key="user.email" position="0"/>
+			</field>
+			
+			<field property="user.group" depends="required">
+				<arg key="user.group" position="0"/>
+			</field>
+		</form>
+<form name="addUsersForm">
+			<field property="user.type" depends="required">
+				<arg key="user.type" position="0"/>
+			</field>
+
+			<field property="user.enabled" depends="required">
+				<arg key="user.enabled" position="0"/>
+			</field>
+
+			<field property="user.firstName" depends="required">
+				<arg key="user.firstName" position="0"/>
+			</field>
+
+			<field property="user.lastName" depends="required">
+				<arg key="user.lastName" position="0"/>
+			</field>
+
+			<field property="user.email" depends="required">
+				<arg key="user.email" position="0"/>
+			</field>
+			
+			<field property="user.group" depends="required">
+				<arg key="user.group" position="0"/>
+			</field>
+			
+			<field property="user.code" depends="required">
+				<arg key="user.code" position="0"/>
+			</field>
+		</form>
+
+
+		<form name="manageRoleForm">
+			<field property="role.type" depends="required">
+				<arg key="role.type" position="0"/>
+			</field>
+
+			<field property="role.code" depends="required">
+				<arg key="role.code" position="0"/>
+			</field>
+
+			<field property="role.description" depends="required">
+				<arg key="role.description" position="0"/>
+			</field>
+		</form>
+
+		<form name="managePrivilegeForm">
+			<field property="privilege.code" depends="required">
+				<arg key="privilege.code" position="0"/>
+			</field>
+
+			<field property="privilege.description" depends="required">
+				<arg key="privilege.description" position="0"/>
+			</field>
+		</form>
+
+		<form name="manageUserGroupForm">
+			<field property="group.name" depends="required">
+				<arg key="userGroup.name" position="0"/>
+			</field>
+
+			<field property="group.description" depends="required">
+				<arg key="userGroup.description" position="0"/>
+			</field>
+		</form>
+
+		<form name="myAccountForm">
+		</form>
+	</formset>
+	<!-- // -->
+</form-validation>

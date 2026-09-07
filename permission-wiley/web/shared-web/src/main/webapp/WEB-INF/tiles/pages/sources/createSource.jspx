@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+
+	<form:form modelAttribute="createSourceForm">
+		<jsp:attribute name="action">
+			<c:url value="/sapp/sources/createSource" />
+		</jsp:attribute>
+
+		<spring:hasBindErrors name="createSourceForm">
+			<jsp:directive.include file="/WEB-INF/tiles/pages/include/formErrors.jspx" />
+		</spring:hasBindErrors>
+
+		<table class="width100">
+			<tr>
+				<th colspan="2">Create New Source
+					<form:hidden path="cameFrom" />
+					<input type="hidden" name="assetId" value="${manageAssetForm.assetUse.asset.id}" />
+					<input type="hidden" name="assetUseId" value="${manageAssetForm.assetUse.id}" />
+				</th>
+			</tr>
+			<tr>
+				<td style="vertical-align: top">
+					<table>
+						<tr><td colspan="2"><h2>Source</h2></td></tr>
+						<c:set var="source" value="${createSourceForm.source}" scope="page" />
+						<jsp:directive.include file="sourceGeneralInclude.jspx" />
+							
+						<tr>
+							<td colspan="2"><h2>First Address</h2></td>
+						</tr>
+						<c:set var="addressRef" value="${createSourceForm.address}" />
+						<jsp:directive.include file="manageAddressInclude.jspx" />
+					</table>
+				</td>
+				<td style="vertical-align: top">
+					<table>
+						<tr>
+							<td colspan="2"><h2>Primary Contact</h2></td>
+						</tr>
+							
+						<jsp:directive.include file="manageContactInclude.jspx" />
+							
+						<tr>
+							<td colspan="2"><h2>Contact Address</h2></td>
+						</tr>
+						<spring:nestedPath path="contact">
+							<c:set var="addressRef" value="${createSourceForm.contact.address}" />
+							<jsp:directive.include file="manageAddressInclude.jspx" />
+						</spring:nestedPath>
+					</table>
+				</td>
+			</tr>
+		</table>
+		
+		<div class="buttonset">	
+			<input type="submit" value="Create" />
+		</div>
+	</form:form>
+
+</jsp:root>

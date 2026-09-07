@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+
+	<p>Show only:</p>
+	
+	<script type="text/javascript">
+	function toggleChecked(containerId, status) {
+		$("#" + containerId + " input[type='checkbox']").each( function() {
+			$(this).attr("checked", status);
+		})
+	}
+	</script>
+	
+	<c:url var="filterUrl" value="/sapp/landing/filter/submit" />
+
+	<form:form modelAttribute="landingFilterForm" action="${filterUrl}" method="POST">
+	<table>
+		<tr>
+			<td style="vertical-align: top; width: 150px">
+				<table id="componentTable" class="display">
+					<tr><th>Component <input type="hidden" name="cwId" value="${param.cwId}" /></th></tr>
+					<tr><td><a href="javascript:toggleChecked('componentTable', true)">Select All</a> | <a href="javascript:toggleChecked('componentTable', false)">Select None</a></td></tr>
+					<c:forEach items="${componentList}" var="component">
+						<tr>
+							<td>
+								<form:checkbox path="componentIds" value="${component.id}"/>
+								<c:out value="${component.name}" />
+							</td>
+						</tr>
+					</c:forEach>
+				</table>
+			</td>
+			<td style="vertical-align: top; width: 150px">
+				<table id="mediaTable" class="display">
+					<tr><th>Media Type</th></tr>
+					<tr><td><a href="javascript:toggleChecked('mediaTable', true)">Select All</a> | <a href="javascript:toggleChecked('mediaTable', false)">Select None</a></td></tr>
+					<c:forEach items="${mediaTypeList}" var="mediaType">
+						<tr>
+							<td>
+								<form:checkbox path="mediaTypeCodes" value="${mediaType.code}"/>
+								<c:out value="${mediaType.description}" />
+							</td>
+						</tr>
+					</c:forEach>
+				</table>
+			</td>
+			<td style="vertical-align: top; width: 150px">
+				<table id="usageTable" class="display">
+					<tr><th>Usage</th></tr>
+					<tr><td><a href="javascript:toggleChecked('usageTable', true)">Select All</a> | <a href="javascript:toggleChecked('usageTable', false)">Select None</a></td></tr>
+					<c:forEach items="${usageList}" var="usage">
+						<tr>
+							<td>
+								<form:checkbox path="usageCodes" value="${usage.code}"/>
+								<c:out value="${usage.description}" />
+							</td>
+						</tr>
+					</c:forEach>
+				</table>
+				
+				<table id="ownerTable" class="display" style="margin-top: 1em">
+					<tr><th>Owner Type</th></tr>
+					<tr><td><a href="javascript:toggleChecked('ownerTable', true)">Select All</a> | <a href="javascript:toggleChecked('ownerTable', false)">Select None</a></td></tr>
+					<c:forEach items="${ownerTypeList}" var="ownerType">
+						<tr>
+							<td>
+								<form:checkbox path="ownerTypeCodes" value="${ownerType.code}"/>
+								<c:out value="${ownerType.description}" />
+							</td>
+						</tr>
+					</c:forEach>
+				</table>
+			</td>
+			<td style="vertical-align: top; width: 200px">
+				<table id="sourceTable" class="display">
+					<tr><th>Source</th></tr>
+					<tr><td><a href="javascript:toggleChecked('sourceTable', true)">Select All</a> | <a href="javascript:toggleChecked('sourceTable', false)">Select None</a></td></tr>
+					<c:forEach items="${sourceList}" var="source">
+						<tr>
+							<td>
+								<form:checkbox path="sourceIds" value="${source.id}"/>
+								<c:out value="${source.name}" />
+							</td>
+						</tr>
+					</c:forEach>
+				</table>
+			</td>
+			<td style="vertical-align: top; width: 200px">
+				<table class="display">
+					<tr><th>User / Group</th></tr>
+					<tr>
+						<td>
+							<form:checkbox path="userSelected" />
+							<form:select path="userId">
+       							<form:options items="${userList}" itemValue="id" itemLabel="fullName"/>
+    						</form:select>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<form:checkbox path="groupSelected" />
+							<form:select path="groupId">
+       							<form:options items="${groupList}" itemValue="id" itemLabel="name"/>
+    						</form:select>
+						</td>
+					</tr>
+				</table>
+				
+				<table id="statusTable" class="display" style="margin-top: 1em">
+					<tr><th>Permission status</th></tr>
+					<tr><td><a href="javascript:toggleChecked('statusTable', true)">Select All</a> | <a href="javascript:toggleChecked('statusTable', false)">Select None</a></td></tr>
+					<c:forEach items="${statusList}" var="status">
+						<tr>
+							<td>
+								<form:checkbox path="statusCodes" value="${status.code}"/>
+								<c:out value="${status.description}" />
+							</td>
+						</tr>
+					</c:forEach>
+				</table>
+			</td>
+		</tr>
+	</table>
+	</form:form>
+
+</jsp:root>

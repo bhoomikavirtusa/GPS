@@ -1,0 +1,766 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- smarkoff: Now this is the only details screen (not just for custom workflow). Later might rename to just details.jspx -->
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+
+	<c:url var="uploadUrl" value="/sapp/permissions/contract/wizard_upload_file" />
+	<c:url var="deleteFileUrl" value="/sapp/permissions/contract/delete_file" />
+	<c:url var="uploadAmendmentUrl" value="/sapp/permissions/contract/upload_amendment_file" />
+	<c:url var="downloadAgreementUrl" value="/sapp/admin/sourcegroup/madeal/download?agreementId=" />
+	<c:url var="loadAgreementsUrl" value="/sapp/admin/sourcegroup/madeal/loadAgreements" />
+	<c:url var="addCompCopyUrl" value="/sapp/permissions/contract/add_compcopy" />
+	<c:url var="addAddressUrl" value="/sapp/permissions/contract/new_address" />
+	<c:url var="doesContractNumberExistUrl" value="/sapp/permissions/contract/doesContractNumberExist" />
+	<c:url var="nextUrl" value="/sapp/permissions/contract/assets?commonwid=${commonwid}" />
+	
+	<c:url var="plusImageUrl" value="/images/buttons/plus.png" />
+	<jsp:directive.include file="/WEB-INF/tiles/pages/include/js/toggleScript.js.jspx" />
+
+	<c:url var="waitUrl" value="/images/animated_progress_bar.gif" />
+
+	<!--include as jspx so the jsp variable are recognized-->
+	<jsp:directive.include file="js/wizard.buttons.js.jspx" />
+	
+	<style type="text/css">
+		/* hide icon */
+		.custom1 {
+			background-color: #BAD0EF;
+			color: black;
+		}
+	</style>
+
+	<jsp:element name="script">
+		<jsp:attribute name="type">text/javascript</jsp:attribute>
+		<jsp:attribute name="src">
+			<c:url value="/js/jquery.blockUI-2.38.js"/>
+		</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+   
+	<script type="text/javascript">
+	//<![CDATA[
+	$.datepicker.setDefaults({
+	     dateFormat: '${dateFormat}'
+	});
+	
+	var limitation = new Boolean(${contractWizardForm.contract.limitationOfLiability});
+	var uselimitation = new Boolean(${contractWizardForm.useLimitationOfLiabilityLogic});
+	var sourceId = new Number(${contractWizardForm.source.id});
+	
+	function extraValidation() {
+		if ($.exists("#uploadAmendmentForm") && $("#uploadAmendmentForm").validate( {
+		    rules: {
+		        'file': {
+		            required: function() {
+		            	return ($("input:radio[name='contract\\.limitationOfLiability']:checked").val() == 'true');
+		            }
+		        }
+			}
+		} ).form() == false) {
+			return false;
+		}
+		
+		// IE8 does not support regular string trim method so use jQuery trim instead
+		//var contractNumber = $("#contract\\.number").val().trim();
+		var contractNumber = $.trim($("#contract\\.number").val());
+		
+		
+		//var contractCost = $.trim($("#contract\\.price").val());
+ 		//var assetsCost = $.trim($("#totalAssetPrice").val());
+
+		//if (parseFloat(contractCost) != parseFloat(assetsCost)) {
+		//	alert("Contract cost is not equal to the cost of all the assets. Contract price=" + parseFloat(contractCost)
+		//			+ ", sum of all assets " + parseFloat(assetsCost) );
+		//	return false;
+		//}
+
+		var myDate = $("#contract\\.endDate").val();
+		var myDate2 = $("#contract\\.startDate").val();
+		if (myDate.length > 0) {
+			if (Date.parse(myDate) < new Date()) {
+				alert("This grant has already expired");
+				// only a warning
+			}
+
+			if (Date.parse(myDate) < Date.parse(myDate2)) {
+				alert("End date must be greater than Start date");
+				return false;
+			}
+		}
+		
+		if ($("#dealDropDown").is(":visible")) {  // this returns false for "display: none" which is what we want
+			var selectedIndex = $("#dealDropDown").prop("selectedIndex");
+			if (selectedIndex == 0) {
+				alert("You must pick a Master Agreement.");
+				return false;
+			}
+		}
+
+		var returnValue = true;
+		if (contractNumber.length > 0) {
+			var fullUrl = "${doesContractNumberExistUrl}?cwId=${contractWizardForm.cwId}&sourceId="
+				+ sourceId + "&number=" + contractNumber + "&contractId=${contractWizardForm.contract.id}";
+			$.ajax({
+				url: fullUrl,
+				type: 'get',
+				dataType: 'text',
+				async: false,  // false important here since we want to read the response before returning from outer function
+				success: function(response) {
+					if (response == "true") {
+						//return false; -- doesn't return from extraValidation() so set var instead
+						returnValue = false;
+						alert("An invoice has already been entered for this source having # "
+							+ contractNumber + ". Please cancel and edit the existing invoice.");
+					}
+				}
+			});
+		}
+		
+		return returnValue;
+	}
+	
+	$(document).ajaxStop($.unblockUI);
+	
+	var maJson;  // global var
+	function loadAgreements() {
+		$.ajax({
+            async: false,
+            type: "get",
+            dataType: "json",
+            // don't escape ampersand in line below since inside CDATA
+            url: "${loadAgreementsUrl}?sourceId=" + sourceId + "&invoiceDate=" + $("#contract\\.date").val(),
+            success: function (json) {
+            	maJson = json;
+            	//alert("#agreements found = " + maJson.length);
+            	//for (var i = 0; i < json.length; i++) {
+            	//	alert("mad " + i + ": id [" + json[i].id + "] name [" + json[i].name + "]");
+            	//}
+            },
+         	// we don't expect an error but if one happens this may help to debug
+	        error: function (jqXHR, textStatus, errorThrown) {
+	        	alert("error happened: textStatus: " + textStatus + ", errorThrown: " + errorThrown
+	        		+ ", status: " + jqXHR.status + ", responseText: " + jqXHR.responseText);
+	        }
+        });
+	}
+	
+	function setupAgreements() {
+		if (maJson.length == 1) {
+			$("#dealDropDown").hide();
+			$("#dealSingle").show();
+			$("#dealSingle").html(maJson[0].name);
+			setupSingleAgreement(0);
+		}
+		else {
+			emptyMAFields();
+			$("#contract_endDate").val("");
+			$("#contract\\.endDate").val("");
+			
+			$('#dealDropDown').append($(document.createElement("option")).
+                    attr("value", 0).text("-- Select desired deal to see pricing ---"));
+			
+			for (var i = 0; i < maJson.length; i++) {
+				$('#dealDropDown').append($(document.createElement("option")).
+                        attr("value", maJson[i].id).text(maJson[i].name));
+			}
+			
+			// Avoid using c:if here, doesn't work because inside CDATA
+			// but this works - when contractWizardForm.maDealId is null will be empty string when evaluated
+			// avoid using #maDealId here because we've already cleared it out
+			if ("${contractWizardForm.maDealId}" != "") {
+				$("#dealDropDown").val("${contractWizardForm.maDealId}");
+				// trigger change method so pricing, grant, etc. shown
+				$("#dealDropDown").change();
+			}
+			
+			$("#dealDropDown").show();
+		}
+	}
+	
+	function emptyMAFields() {
+		$("#maDealIdHidden").val("");
+		$("#dealSingle").empty();
+		$("#dealDropDown").empty();
+		$("#pricingData").empty();
+		$("#grantData").empty();
+		$("#maFile").empty();
+	}
+	
+	// used for when there is only one or one is picked from drop down
+	function setupSingleAgreement(index) {
+		var ma = maJson[index];
+		
+		// copy id to main form
+		$("#maDealIdHidden").val(ma.id);
+		
+		$("#pricingData").html(ma.pricingInfo);
+		$("#grantData").html(ma.grantInfo);
+		
+		$("#maFile").html("<a href='${downloadAgreementUrl}" + ma.id + "'> Download: " + ma.fileName + "</a>");
+		
+		calculateEndDate(ma.grantDurationYears);
+	}
+	
+	// called when "10 years from start date" button is clicked or when master agreement picked
+	// input expected to be an integer 0 or greater (0 means no end date)
+	function calculateEndDate(grantDurationYears) {
+		if (grantDurationYears == 0) {
+			$("#contract_endDate").val("");
+			return;
+		}
+		// datepicker get date is not working
+		// var startDate = $("#contract\\.startDate").datepicker('getDate');
+		var startDate = new Date($("#contract\\.startDate").val());
+		var endDate = startDate;
+		endDate.setFullYear(startDate.getFullYear() + parseInt(grantDurationYears));
+		$("#contract\\.endDate").val($.datepicker.formatDate('mm/dd/yy', endDate));
+	    $("#contract_endDate").val($.datepicker.formatDate('${dateFormat}', endDate));
+	}
+	
+	function onLoadAndInvoiceDateChange(isDateChange) {  // no longer use isDateChange param but keep for now
+		if ($.trim($("#contract_date").val()) == "" && "${sourceGroupHasMasterAgreements}" == "true") {
+			if ($("#maDiv").is(":visible")) {  // this returns false for "display: none" which is what we want
+				$("#contract_endDate").val("");
+				$("#contract\\.endDate").val("");
+			}
+			
+			$("#noInvoiceDateDiv").show();
+			$("#nonCancelButtons").hide();
+			$("#maDiv").hide();
+			emptyMAFields();
+			$("#compCopyDiv").hide();
+		}
+		else {
+			$("#noInvoiceDateDiv").hide();
+			$("#nonCancelButtons").show();
+			if ("${sourceGroupHasMasterAgreements}" == "true") {
+				loadAgreements();
+			}
+			else  maJson = [];
+			
+			if (maJson.length > 0) {  // we have at least one master agreement
+				$("#maDiv").show();
+		    	$("#contract_endDate").prop('disabled', true);
+		    	// hide 10 years button
+		    	$("#endDateButton").hide();
+				setupAgreements();
+			}
+			else {  // we have no master agreements
+				if ($("#maDiv").is(":visible")) {  // this returns false for "display: none" which is what we want
+					$("#contract_endDate").val("");
+					$("#contract\\.endDate").val("");
+				}
+			
+				$("#maDiv").hide();
+				emptyMAFields();
+				$("#compCopyDiv").show();
+				$("#contract_endDate").prop('disabled', false);
+		    	$("#endDateButton").show();
+			}
+		}
+	}
+
+	$(document).ready(function() {
+		$("#ui-datepicker-div").css("z-index", "9999" );
+		
+		$.datepicker.setDefaults({
+		     dateFormat: '${dateFormat}'
+		});
+		
+		$('#dealDropDown').change(function() {
+			var selectedIndex = $("#dealDropDown").prop("selectedIndex");
+			setupSingleAgreement(selectedIndex - 1);
+		});
+		
+		if (uselimitation == true) {
+			if (limitation == false) {
+				$("#contract\\.limitationOfLiability1").click(function() {
+					$('#toggleAmendment').show();
+				});
+				$("#contract\\.limitationOfLiability2").click(function() {
+					$('#toggleAmendment').hide();
+				});	
+			}
+		}
+	
+		$('#cancelLink').click (function() {
+			$modalDialog.dialog("close");
+		});
+		
+		$('#detailsNextB').click (function() {
+			if (!extraValidation())  return false;
+			next('post');
+		});
+
+	    $('#uploadAmendmentForm').ajaxForm({
+	        success: function(data) {
+	            var $out = $('#amendment');
+	            $out.html(data);
+	        }
+	    });
+
+	    $("#contractFile").change(function() {
+	        var fileName = $(this).val();
+	        $('#uploadForm').ajaxSubmit({
+		        success: function(data) {
+		            var $out = $('#contractFileDiv');
+		            $out.html(data);
+		        }
+		    }); 
+	    });
+	
+		$modalDialog.dialog('option', 'height', 'auto');
+		
+		$.datepicker.setDefaults({
+		     dateFormat: '${dateFormat}'
+		});
+
+		$("#contract_date").change(function() {
+			var d1 = $.datepicker.parseDate('${dateFormat}', $("#contract_date").val());
+			var d2 = $.datepicker.formatDate('mm/dd/yy', d1);
+	    	$("#contract\\.date").val(d2);
+	    	$("#invoiceDateStrHidden").val(d2);//Added to implement DM-1185
+	    	onLoadAndInvoiceDateChange(true);
+		});
+
+		$("#contract_startDate").change(function() {
+			var d1 = $.datepicker.parseDate('${dateFormat}', $("#contract_startDate").val());
+			var d2 = $.datepicker.formatDate('mm/dd/yy', d1);
+	    	$("#contract\\.startDate").val(d2);
+		});
+
+		$("#contract_endDate").change(function() {
+			var d1 = $.datepicker.parseDate('${dateFormat}', $("#contract_endDate").val());
+			var d2 = $.datepicker.formatDate('mm/dd/yy', d1);
+	    	$("#contract\\.endDate").val(d2);
+		});
+		
+		$("#ui-datepicker-div").css("z-index", "9999" );
+
+		$("#contract\\.date").datepicker();
+		$("#contract_date").datepicker();
+		var d1 = $.datepicker.parseDate('mm/dd/yy', $("#contract\\.date").val());
+		var d2 = $.datepicker.formatDate('${dateFormat}', d1);
+    	$("#contract_date").val(d2);
+    	$("#invoiceDateStrHidden").val(d2);//Added to implement DM-1185
+
+
+		$("#contract\\.startDate").datepicker();
+		$("#contract_startDate").datepicker();
+		var d1 = $.datepicker.parseDate('mm/dd/yy', $("#contract\\.startDate").val());
+		var d2 = $.datepicker.formatDate('${dateFormat}', d1);
+    	$("#contract_startDate").val(d2);
+
+		
+		$("#contract\\.endDate").datepicker();
+		$("#contract_endDate").datepicker();
+		var d1 = $.datepicker.parseDate('mm/dd/yy', $("#contract\\.endDate").val());
+		var d2 = $.datepicker.formatDate('${dateFormat}', d1);
+    	$("#contract_endDate").val(d2);
+		
+		
+		$('#addCompCopyB').click (function() {
+			if ($("#contractWizardForm").validate().form() == true) {	
+				$.ajax({
+		            async: true,
+		            type: 'post',
+		            url: '${addCompCopyUrl}',
+		            data: $('#contractWizardForm').serialize(),
+		            success: function (response) {
+		                $('#modalDiv').html(response);
+		                repositionDialog();
+		            }
+		        });
+			}
+		});	
+
+		$('#addCompCopyC').click (function() {
+			if ($("#contractWizardForm").validate().form() == true) {
+				$("#newAddressDiv").hide();	
+				$("#compDiv").show();
+				$.ajax({
+		            async: true,
+		            type: 'post',
+		            url: '${addAddressUrl}',
+		            data: $('#contractWizardForm').serialize(),
+		            success: function (response) {
+		                $('#modalDiv').html(response);
+		                repositionDialog();
+		            }
+		        });
+			}
+		});
+
+		$('#newAddress').click (function() {
+			$("#newAddressDiv").show();
+			$("#compDiv").hide();
+			
+		});
+    
+		repositionDialog();
+		
+		onLoadAndInvoiceDateChange(false);
+	});
+	
+	//Start -- Added for implementing Build DM-364
+	function fnDeleteFileOnID(id) {
+		var r = confirm("Are you sure you want to delete this file?");
+		if (r == true) {
+			fnDeleteFile(id);
+		} else {
+		    return false;
+		}
+	}
+	//End -- Added for implementing Build DM-364
+	
+	function fnDeleteFile(id) {
+		// id can be undefined (if new file) - so we set the empty string that way null is received in the controller
+		if (!id) {
+			id = '';
+		}
+		$.ajax({
+            async: true,
+            type: 'post',
+            url: '${deleteFileUrl}',
+            data: 'fileId=' + id,
+            success: function (response) {
+            	$('#attach' + id).html(response);
+            }
+        });
+        return false;
+	}
+	//]]>
+	</script>
+
+	<div id="errorMessage" class="custom1">
+		<jsp:directive.include file="/WEB-INF/tiles/pages/include/generalMessage.jspx" />
+	</div>
+
+	<h3>
+		Source ${contractWizardForm.source.name}
+		<span class="requiredtxt" style="text-align: right">* indicates required field</span>
+	</h3>
+
+	<form:form modelAttribute="contractWizardForm">
+	<table>
+		<tr>
+			<td colspan="6">		
+				<h2>Invoice or Contract</h2>
+				<form:hidden path="maDealId" id="maDealIdHidden" />
+			</td>
+		</tr>
+		<tr>
+			<td class="label">
+				<form:label path="contract.number" cssClass="optional" cssErrorClass="error">Invoice #</form:label>
+			</td>
+			<td>
+			    <form:input path="contract.number" size="20" maxlength="50" />
+			</td>
+			
+			<td class="label">
+				<form:label path="contract.date" cssClass="required" cssErrorClass="error">Date</form:label>
+			</td>
+			<td colspan="3">
+				<c:if test="${isPublicDomain || isAuthorOwned}">
+					<input type="text" id="contract_date1" name="contract_date1" value="01/01/5000" disabled="true" size="10" maxlength="10"/>
+			    	<form:hidden path="contract.date" value="01/01/5000"/>
+			   </c:if>
+			   <c:if test="${!(isPublicDomain || isAuthorOwned)}">
+			    	<input type="text" class="datepicker required" id="contract_date" name="contract_date" size="10" maxlength="10"/> (${dateFormat})
+			    	<form:hidden class="datepicker required" path="contract.date"/>
+			    </c:if>
+			    <form:hidden path="invoiceDateStr" id="invoiceDateStrHidden"/><!-- Added to implement DM-1185 -->
+			    
+			    			    
+			</td>
+		</tr>
+
+		<tr>
+			<td class="label">
+				<form:label path="contract.contractType" cssClass="required" cssErrorClass="error">Invoice type</form:label>
+			</td>
+			<td>
+			    <form:select path="contract.contractType">
+					<form:options items="${contractTypes}" itemValue="code" itemLabel="description" />
+				</form:select>
+			</td>
+			
+			<td class="label">
+				<form:label path="contract.paidByAuthor" cssClass="optional" cssErrorClass="error">Paid by author</form:label>
+			</td>
+			<td colspan="3">
+			    <form:checkbox path="contract.paidByAuthor" />
+			</td>
+		</tr>
+		
+		<tr>
+			<td>
+			   Wiley Owns Copyright
+			</td>
+			<!-- Added for PaperWork Task C Starts -->
+			<c:if test="${contractWizardForm.wizardOwnerType == 'Wiley_Created' }">
+				<td colspan="3">
+						<form:select path="contract.copyrightType" class="required">						    
+						    <form:option label="Work For Hire" value="1"/>						    
+						</form:select>
+				</td>
+			</c:if>
+			<c:if test="${contractWizardForm.wizardOwnerType != 'Wiley_Created' }">
+				<td colspan="3">
+					<form:select path="contract.copyrightType" class="required">
+					    <form:option label="No" value="0"/>
+					    <form:option label="Work For Hire" value="1"/>
+					    <form:option label="Copyright Transfer Agreement" value="2"/>
+					</form:select>
+				</td>
+			</c:if>	
+			<!-- Added for PaperWork Task C ends -->		
+		</tr>
+		<tr>
+			<td class="label">
+				<form:label path="contract.price" cssClass="required" cssErrorClass="error">Price</form:label>
+			</td>
+			<td>
+			    <form:input path="contract.price" size="10" class="required"/>
+			</td>
+			
+			<td class="label">
+				<form:label path="contract.currency" cssClass="required" cssErrorClass="error">Currency</form:label>
+			</td>
+			<td colspan="3">
+				<form:select path="contract.currency">
+					<form:options items="${currencies}" itemValue="code" itemLabel="description" />
+				</form:select>
+			</td>
+		</tr>
+		
+		<tr>
+			<td class="label">
+				<form:label path="contract.startDate" cssClass="required" cssErrorClass="error">Start date</form:label>
+			</td>
+			<td> 
+			    <input type="text" class="datepicker required" id="contract_startDate" name="contract_startDate" size="10" maxlength="10"/> 
+			    <form:hidden class="datepicker required" path="contract.startDate"/>
+			</td>
+			
+			<td class="label">
+				<form:label path="contract.endDate" cssClass="optional" cssErrorClass="error">End date</form:label>
+			</td>
+			<td colspan="3">
+			    <input type="text" class="datepicker" id="contract_endDate" name="contract_endDate" size="10" maxlength="10" /> 
+			    <form:hidden class="datepicker" path="contract.endDate" />
+			    
+				<input type="button" id="endDateButton" onclick="calculateEndDate(10); return false;" value="10 years from start date" />
+			</td>			
+		</tr>
+		<tbody>
+		<tr>
+			<td></td>
+			<td></td>
+			<!-- Show text under End date field -->
+			<td colspan="4">Blank indicates no expiration date</td>
+		</tr>
+		</tbody>
+	</table>
+	
+	<div id="compCopyDiv" style="display: none">
+	<h3 style="margin-top: 0px">
+		<img src="${plusImageUrl}" onclick="return toggleDetails('comp-copies', this);"/>
+		Comp Copies
+	</h3>
+	
+	<table id="details-comp-copies" style="display: none">
+		<tbody id="compDiv" style="display: inline">
+			<tr>
+				<td># of Copies</td>
+				<td>
+					<form:input path="numberOfCopies" size="3" maxlength="3" />
+				</td>
+			</tr>
+			<tr>
+				<td>Mail To Address</td>
+				<td>
+					<form:select path="mailingAddressId">
+						<option value="0">Select</option>
+						<c:forEach items="${mailingAddressList}" var="mailingAddress">
+							<option value="${mailingAddress.id}">${mailingAddress.oneLineDisplay}</option>
+						</c:forEach>
+				</form:select>
+
+				<input type="button" id="addCompCopyB" value="Add" /> 	
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<input type="button" id="newAddress" value="Create New Address" /> 				
+				</td>
+			</tr>
+		</tbody>	
+		<tbody id="newAddressDiv" style="display: none">
+			<tr>
+				<td colspan="3"><h3>Add Following Address:</h3></td>
+			</tr>
+			<tr>
+				<td>Name</td>
+				<td>
+					<form:input path="compRecipient" size="30" maxlength="30" />
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<jsp:directive.include file="/WEB-INF/tiles/pages/sources/manageAddressInclude.jspx" />
+				</td>
+				<td>
+					<input type="button" id="addCompCopyC" value="Add Address" />
+				</td>
+			</tr>
+		</tbody>
+		
+		<c:if test="${not empty contractWizardForm.contract.compCopies}">
+		<tr>
+			<td colspan="3">
+				<table>
+					<tr>
+						<th># Copies</th>
+						<th>Mail-To Address</th>
+						<th>Order Number</th>
+						<th>Success Flag</th>
+						<th>Error Message</th>
+					</tr>
+					<c:forEach items="${contractWizardForm.contract.compCopies}" var="compCopy" varStatus="status">
+						<tr class="${(status.index mod 2 == 0) ? 'lightRow' : 'darkRow'}">
+							<td>${compCopy.numberOfCopies}</td>
+							<td><c:out value="${compCopy.address.oneLineDisplay}" /></td>
+							<td>${compCopy.orderNum}</td>
+							<td>${compCopy.successFlag}</td>
+							<td><c:out value="${compCopy.errorMsg}" /></td>
+						</tr>
+					</c:forEach>
+				</table>
+			</td>
+		</tr>
+		</c:if>
+		
+	</table>
+	</div>
+	
+	<c:if test="${contractWizardForm.useLimitationOfLiabilityLogic}">
+	<table>
+		<tr>
+			<td>
+			   Do you already have a signed Limitation of Liability form for this invoice?
+			</td>
+			<td colspan="3">
+			    <form:radiobutton path="contract.limitationOfLiability" value="true" />Yes
+			    <form:radiobutton path="contract.limitationOfLiability" value="false" />No
+			</td>
+		</tr>
+	</table>
+	</c:if>
+	</form:form>
+	
+	<c:if test="${contractWizardForm.useLimitationOfLiabilityLogic}">
+	<c:if test="${not contractWizardForm.contract.limitationOfLiability}">
+		<div id="toggleAmendment" style="display: none" >
+			<hr/>
+			Please upload a limitation of liability file
+			<div id="amendment">
+				<form method="post" action="${uploadAmendmentUrl}" enctype="multipart/form-data" id="uploadAmendmentForm">
+					<input type="file" class="required" id="file" name="file" size="40" />
+					<input type="submit" id="uploadB" value="Upload"/>
+				</form>
+			</div>
+		</div>	
+	</c:if>
+	</c:if>
+	
+	<hr/>
+	Please upload a returned form/invoice
+	<div id="contractFileDiv">
+		<form method="post" action="${uploadUrl}" enctype="multipart/form-data" id="uploadForm">
+			<input type="file" name="file" id="contractFile" size="40" />
+			<!-- Instead of having submit button here we have JavaScript that auto-submits when file is changed -->
+		</form>
+	</div>
+	
+	<c:if test="${not empty contractWizardForm.contract.files}">
+	<table>
+		<tr>
+			<td>
+				<b>Returned form(s)/invoice(s):</b>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<table>
+				<c:forEach items="${contractWizardForm.contract.files}" var="file">
+					<tr><td>
+						<div id="attach${file.id}">
+							<c:url var="downloadUrl" value="/sapp/permissions/contract/download_file?fileId=${file.id}" />
+							<c:url var="deleteIconUrl" value="/images/buttons/delete-icon.png" />
+							<a href="${downloadUrl}"> ${file.fileName}</a> (${wileyfn:filesize(file.fileData)}) uploaded on 
+							<fmt:formatDate type="date" value="${file.lastUpdatedDate}" />
+							<a href="#" onClick="fnDeleteFileOnID(${file.id})"><img src="${deleteIconUrl}" /></a>
+						</div>
+					</td></tr>
+				</c:forEach>
+				</table>
+			</td>
+		</tr>
+	</table>
+	</c:if>
+	
+	<div id="noInvoiceDateDiv" class="message" style="display: none">
+		<hr />
+		<b>You must enter an invoice date before continuing.</b>
+	</div>
+	
+	<div id="maDiv" style="display: none">
+		<hr />
+		<table> 
+			<tr>
+				<td><b>Master Agreement Details</b></td>
+			</tr>
+			<tr>
+				<td>
+					<select id="dealDropDown">
+					</select>
+					<span id="dealSingle">
+					</span>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<table style="width: 100%">
+						<tr>
+							<td style="vertical-align: top">pricing:</td>
+							<td id="pricingData" width="40%" style="vertical-align: top; white-space: pre-wrap; word-wrap: break-word; word-break: break-all"></td>
+							<td style="vertical-align: top">grant:</td>
+							<td id="grantData" style="vertical-align: top; white-space: pre-wrap; word-wrap: break-word; word-break: break-all"></td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+		
+		<div id="maFile">
+		</div>
+	</div>
+	
+	<div class="buttonset">
+		<c:if test="${not empty prevUrl}">
+			<input type="button" id="prevB" value="Previous" />
+		</c:if>
+		<input type="button" id="detailsNextB" value="Next" />
+		<a href="#" id="cancelLink" class="button">Cancel</a>
+	</div>
+
+</jsp:root>

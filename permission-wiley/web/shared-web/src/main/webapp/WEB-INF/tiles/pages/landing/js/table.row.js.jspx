@@ -1,0 +1,1017 @@
+	<script type="text/javascript">
+//<![CDATA[
+
+CustomTableRow.getInstance = function ( dataTable, id ) {
+
+	var nIndex = dataTable.fnGetPositionByColumn(0,  id ); 
+
+	var aoRow = dataTable.fnSettings().aoData[nIndex];
+	if ( typeof aoRow == 'undefined' )
+		return null;
+
+	var aCustomRow = new CustomTableRow (aoRow._aData, aoRow.nTr, dataTable, profile);
+
+	return aCustomRow;
+}
+
+function CustomTableRow (aData, nTr, dataTable, profile) {
+    this._aData = aData;
+    this.nTr = nTr;
+    this.dataTable = dataTable;
+    this.profile = profile;
+
+    this.sEncodedForm = '';
+    this.bInProgress = false;
+	
+	/*
+	 * shows the "saving ..." message while the data is saved 
+	 */
+	this.wait = function () 
+	{
+		this.bInProgress = true;
+		var aChildren = $(this.nTr).children();
+		$(this.nTr).html ('<td colspan="' + aChildren.length + '"><center><b>saving...</b></center></td>');	
+	}
+
+	/*
+	 * recreates the table row so the fnUpdate works properly. Otherwise throws error because not enought <td>s
+	 * because of the wait message  
+	 */
+	this.finish = function () 
+	{
+		var td = $('td', this.nTr)[0];
+		var colspan = $(td).attr('colspan');
+		// if the row has been changed by a rawRender function, then the colspan is 1,
+		// and we do not need to do anything
+		if (colspan == 1)
+			return;
+		var tds = "";
+		for ( var j=0; j<colspan ; j++ ) {
+			tds += "<td></td>";
+		}
+		$(this.nTr).html (tds);
+		this.bInProgress = false;
+	}
+
+	/*
+	 * loads the edit form for a row
+	 */
+	this.fnLoadForm = function (form) 
+	{
+		var self = this;
+		$(self.nTr).addClass('row_selected');
+
+		$.jsonp({
+			"url": '${assetEditUrl}' + '/' + this.fnGetId() + '?callback=?', 
+			"success": function(json) {
+		        $(self.nTr).setTemplateURL('${assetTableRowEditTemplateUrl}');
+	            $(self.nTr).setParam ('profile', profile);
+	            $(self.nTr).setParam ('aData', json);
+		        $(self.nTr).processTemplate();
+				
+				self.fnBindEvents ();
+				
+				// if it is the last row, when we leave description field we add a new row
+				if (self.fnIsLast()) {
+					$('#description', self.nTr).unbind('blur').bind ('blur', fnBlurDescriptionHandler);
+				}
+
+				// calculate the dirty flag (exclude select checkbox)
+				var sEncoded = form.find('.[name!=auList]').serialize();
+				self.sEncodedForm = base64.encode (sEncoded);
+
+				oSelector.fnSetSelectedRow (self);			
+			},
+			"error": function() {
+	        	showErrorMessage ("Error: failed to load form elements");
+	        }
+        });	
+	}
+	
+	this.fnBindEvents = function () {
+		$('td.editable', this.nTr).unbind('click').bind ('click', fnEditEventHandler);
+		$('#auList', this.nTr).unbind('click').bind ('click', fnClickCheckboxHandler);		
+		$('a.wizard', this.nTr).unbind('click').bind ('click', fnClickSourceWizardHandler);
+		$('a.permissions', this.nTr).unbind('click').bind ('click', fnClickGetPermissionsHandler);
+		$('a.generateAmendment', this.nTr).unbind('click').bind ('click', fnClickGenerateAmendmentHandler);		
+		$('a.downloadAmendment', this.nTr).unbind('click').bind ('click', fnClickDownloadAmendmentHandler);
+		$('a.uploadAmendment', this.nTr).unbind('click').bind ('click', fnClickUploadAmendmentHandler);
+		$('a.rerequest', this.nTr).unbind('click').bind ('click', fnClickRerequestHandler);		
+		$('a.reinvoice', this.nTr).unbind('click').bind ('click', fnClickReinvoiceHandler);		
+		$('a.contractDetails', this.nTr).unbind('click').bind ('click', fnClickAddContractDetailsHandler);
+		$('a.customContractDetails', this.nTr).unbind('click').bind ('click', fnClickAddCustomContractDetailsHandler);						
+		$('a.editContractDetails', this.nTr).unbind('click').bind ('click', fnClickEditContractDetailsHandler);	
+		$('a.editCustomContractDetails', this.nTr).unbind('click').bind ('click', fnClickEditCustomContractDetailsHandler);			
+		$('a.pay', this.nTr).unbind('click').bind ('click', fnClickEditPaymentRequestHandler);
+		$('a.paid', this.nTr).unbind('click').bind ('click', fnClickViewPaymentRequestHandler);
+		$('a.downloadPdf', this.nTr).unbind('click').bind ('click', fnClickDownloadPdfHandler);
+		$('img.downloadContract', this.nTr).unbind('click').bind ('click', fnClickDownloadContractHandler);
+		$('span.tooltip', this.nTr).unbind('click').bind ('mouseover', fnMouseoverShowStatusDetailsHandler);
+		$('span.tooltip', this.nTr).unbind('click').bind ('mouseout', fnMouseoutShowStatusDetailsHandler);
+		$('img.editAssetUse', this.nTr).unbind('click').bind ('click', fnClickEditAssetUseHandler);
+		$('img.uploadAssetUse', this.nTr).unbind('click').bind ('click', fnClickUploadAssetUseHandler);
+		$('img.showComments', this.nTr).unbind('click').bind ('mouseover', fnMouseoverShowCommentsHandler);
+		$('img.showComments', this.nTr).unbind('click').bind ('mouseout', fnMouseoutShowCommentsHandler);
+		$('img.showThumbnail', this.nTr).unbind('click').bind ('mouseover', fnMouseoverShowThumbnailHandler);
+		$('img.showThumbnail', this.nTr).unbind('click').bind ('mouseout', fnMouseoutShowThumbnailHandler);
+		// Added for SS Task 12 - Start
+		$('a.approveDetails', this.nTr).unbind('click').bind ('click', fnClickApproveDetailsRequestHandler);
+		// Added for SS Task 12 - End
+		}
+		
+	/*
+	 * uses the aRow object to display the row using the row template
+	 */
+	 this.fnDisplayRow = function () 
+	 {
+	 	// if the asset use is canceled
+	 	if (this.fnIsCanceled()) {
+	 		$(this.nTr).addClass ('row_canceled');
+	 	} else {
+	 		$(this.nTr).removeClass ('row_canceled');
+	 	}
+	 	if (this.fnIsReplaced()) {
+	 		$(this.nTr).addClass ('row_replaced');
+	 	} else {
+	 		$(this.nTr).removeClass ('row_replaced');
+	 	}
+		
+        $(this.nTr).setTemplate(rowTemplate);
+        $(this.nTr).setParam ('profile', this.profile);
+        $(this.nTr).setParam ('aData', this._aData);
+                 
+        $(this.nTr).processTemplate();
+
+		this.fnBindEvents ();
+	 }
+
+	/*
+	 * saves and displays the new saved values (returned by the server)
+	 * will show the wait message while saving, also set the progress flag on true while saving
+	 * when the saving is done, the flag is set on false
+	 */
+	this.fnSaveForm = function (form) 
+	{
+		var self = this;
+		$(this.nTr).removeClass('row_selected');
+		$(this.nTr).removeClass ('row_new');
+		var jsonForm = form.serializeJSON ();  // this is now set bo fnValid
+  		// alert( "The following data will be submitted to the server: \n\n" + jsonForm );
+  	
+		var sEncoded = base64.encode (form.find('.[name!=auList]').serialize());
+		// use the encoded value as dirty flag. If the value is the same, nothing has changed
+		// if value has changed, we send the save request	
+		if (this.sEncodedForm == sEncoded) {
+			this.fnDisplayRow ();
+			return;
+		}
+
+		this.sEncodedForm = sEncoded;
+
+		// if values have changed
+		this.wait ();
+		
+		// save will return back the new values, to not have to do another server request
+		$.jsonp({
+			"url": '${assetSaveUrl}' + '/' + this.fnGetId() +'?callback=?', 
+			"data": jsonForm,   
+			"success": function(json) {
+				// we put the columns back so the fnUpdate function works
+				self.finish ();
+
+				var aPos = self.dataTable.fnGetPosition ($(self.nTr)[0]);
+				self.dataTable.fnUpdate( self.dataTable.fnGetDataForProfile(json, self.profile), aPos, 0, false);	
+				var aoRow = self.dataTable.fnSettings().aoData[aPos];
+				self._aData = aoRow._aData;
+				self.nTr = aoRow.nTr;
+				self.fnDisplayRow ();
+
+				// refresh the panels
+				refreshPanels (${cwId});
+			},
+			"error": function() {
+	        	showErrorMessage ("Error: failed to save data");
+	        }
+        });	
+	}
+	
+	this.fnValid = function (form) 
+	{
+		var jsonForm = form.serializeJSON (form)
+
+  		// special validation This is only temporary - James has an idea to have a smart popup that allows users
+  		// to fix the data in the popup and to give them the option to revert to previous value.
+  		if($('#form #description').length > 0 && jsonForm.description.length < 1) {
+  	  		$('#description').val ("*ENTER DESCRIPTION");
+  	  		if (this.fnIsLast()) {
+  	  			fnInsertLast (blankRow, true);
+  	  		}
+  		//	var retValue = "";
+  		//	var params = "?assetUseId=" + this.fnGetId() + "&pType=" + jsonForm.mediaTypeCode +
+  		//		"&pUsage=" + jsonForm.usageCode + 
+  		//		"&pComponent=" + jsonForm.componentId +
+  		//		"&pPosition=" + jsonForm.position + 
+  		//		";"
+  		//	// pop up a modal window that allow users to fix description or restore previous value
+  		//	retValue = window.showModalDialog("${descriptionValidationUrl}" + params );
+  		//	if (retValue != null && retValue.length < 1) {		
+  	  	//		return false;
+  		//	}
+  			// set description to the value user entered.
+  		//	$('#description').val (retValue);
+  		}
+  		return true;
+	}
+	
+	this.fnGetId = function () 
+	{
+		return this._aData[0];
+	}
+	
+	this.fnIsCanceled = function () 
+	{
+		return this._aData[this._aData.length - 1];
+	}
+
+	this.fnIsReplaced = function () 
+	{
+		return this._aData[this._aData.length - 9];
+	}
+
+	this.fnIsLast = function () 
+	{
+		var oSettings = this.dataTable.fnSettings();
+		var dLastRow = oSettings.aiDisplayMaster[oSettings.aiDisplayMaster.length-1];
+		var aPos = this.fnGetPos ();
+		if (aPos == dLastRow)
+			return true;
+		return false;
+	}
+	
+	this.fnGetPos = function () {
+		return this.dataTable.fnGetPosition ($(this.nTr)[0]);
+	}
+	
+	this.fnInsertRow = function (aData, iPos, offset) 
+	{
+		if(offset == null) {
+			offset = 1;
+		}
+
+		this.waitForUpdate();			 
+		var aiAdded = this.dataTable.fnAddDataAtPosition (aData, false ,iPos + offset);
+		
+		var aoRow = this.dataTable.fnSettings().aoData[aiAdded[0]];
+		var aNewRow = new CustomTableRow (aoRow._aData, aoRow.nTr, this.dataTable, this.profile);
+		aNewRow.fnDisplayRow();
+		return aNewRow;
+	}
+
+	this.waitForUpdate = function () 
+	{
+		this.sleep(100);
+		if(this.bInProgress == false) {
+			return;
+		}
+		/*	waitForUpdate();   */
+	}
+
+	this.sleep = function (millis) 
+	{
+		var date = new Date();
+		var curDate = null;
+
+		do { curDate = new Date(); } 
+		while(curDate-date < millis);
+	} 
+}
+
+	/*********************
+	 * events handler
+	 *********************/
+
+	/*
+	 * selector handler
+	 */
+	function fnClickCheckboxHandler ( event ) {
+  		// alert('isChecked: ' + $(this).is(':checked'));
+  		var nVal = parseInt ($(this).val());
+		if ($(this).is(':checked')) {
+			oSelector.fnAdd (nVal);
+		} else {
+			// remove from array
+			oSelector.fnRemove (nVal);
+		}
+	}
+	
+	function fnBlurDescriptionHandler ( event ) {
+  		fnInsertLast (blankRow, true);
+  		// after adding a new line, we unbind the event
+  		$(this).unbind('blur');
+	}
+
+	/*
+	 * edit handler
+	 */
+	function fnEditEventHandler ( event ) {
+		var nTr = event.currentTarget.parentNode;
+
+		var aPos = dataTable.fnGetPosition (nTr);
+		var aoRow = dataTable.fnSettings().aoData[aPos];
+
+		var aCustomRow = new CustomTableRow (aoRow._aData, aoRow.nTr, dataTable, profile);
+		var nId = aCustomRow.fnGetId();
+		
+		if (oSelector.oSelectedRow != null) {
+			var nSelectedId = oSelector.oSelectedRow.fnGetId();
+			// with the empty row and insert on description blur, we can end up with multiple id = 0
+			// in that case we want the save
+			if (nSelectedId != nId || nSelectedId == 0) {
+				// if data is valid we save it and load the next selection. otherwise we do nothing
+				if (oSelector.oSelectedRow.fnValid ($('#form'))) {
+					oSelector.oSelectedRow.fnSaveForm ($('#form'));
+					//oSelector.fnSetSelectedRow (aCustomRow);
+					aCustomRow.fnLoadForm ($('#form'));
+				}
+			}	
+		} else {
+			//oSelector.fnSetSelectedRow (aCustomRow);
+			aCustomRow.fnLoadForm ($('#form'));
+		}
+		// when row is clicked select it and deselect all others 
+		// (https://www.pivotaltracker.com/story/show/16370269)
+		oSelector.fnClearAllChecked ();
+		oSelector.fnAdd (nId);
+	}
+
+	/*
+	 * defines the click action for Enter Details, Change Source actions
+	 */
+	function fnClickSourceWizardHandler (event) {
+		event.preventDefault();
+        var id = this.id;
+        
+		/* 
+		 * try to save first the changes
+		 */
+		if (oSelector.oSelectedRow != null && oSelector.oSelectedRow.fnValid ($('#form'))) {
+			oSelector.oSelectedRow.fnSaveForm ($('#form'));
+			setTimeout("fnLoadSourceWizard(" + id + ")", 100);
+			return;
+		}
+		fnLoadSourceWizard (id);
+	}
+
+
+	/*
+	 * defines the click action for Add contract details
+	 */
+	function fnClickAddCustomContractDetailsHandler (event) {
+		event.preventDefault();
+        var id = this.id;
+        
+		/* 
+		 * try to save first the changes
+		 */
+		if (oSelector.oSelectedRow != null && oSelector.oSelectedRow.fnValid ($('#form'))) {
+			oSelector.oSelectedRow.fnSaveForm ($('#form'));
+			setTimeout("fnLoadAddContractDetails(" + id + ", true)", 100);
+			return;
+		}
+		fnLoadAddContractDetails (id, true);
+	}
+
+
+	/*
+	 * defines the edit asset use action
+	 */
+	function fnClickEditAssetUseHandler (event) {
+		event.preventDefault();
+        var id = this.id;
+        
+		/* 
+		 * try to save first the changes
+		 */
+		if (oSelector.oSelectedRow != null && oSelector.oSelectedRow.fnValid ($('#form'))) {
+			oSelector.oSelectedRow.fnSaveForm ($('#form'));
+			setTimeout("fnEditAssetUse(" + id + ")", 100);
+			return;
+		}
+		fnEditAssetUse (id);
+	}
+
+	function fnEditAssetUse (id) {
+		// console not defined in IE8 unless Dev tools open
+		if (window.console) console.log ('Edit asset use');
+		if (oSelector.oSelectedRow != null) {
+			if (oSelector.oSelectedRow.bInProgress) {
+				setTimeout("fnEditAssetUse(" + id + ")", 100);
+				return;
+			} else {
+				// if the row is a new row, we have id = 0 and we need the 
+				// new saved id to continue
+				if (id == 0)
+					id = oSelector.oSelectedRow.fnGetId();
+				// reset the selected row
+				oSelector.fnSetSelectedRow (null);
+			}
+		}
+		if (window.console) console.log ('${assetMainUrl}');
+		$("#modalDiv").load('${assetMainUrl}?auIds=' + id, function() {
+			openModalDialog ('Edit/View Asset');
+			oSelector.id = id;
+        });
+	}
+	
+	
+	/*
+	 * defines the upload asset use action
+	 */
+	function fnClickUploadAssetUseHandler (event) {
+		event.preventDefault();
+        var id = this.id;
+        
+		/* 
+		 * try to save first the changes
+		 */
+		if (oSelector.oSelectedRow != null && oSelector.oSelectedRow.fnValid ($('#form'))) {
+			oSelector.oSelectedRow.fnSaveForm ($('#form'));
+			setTimeout("fnUploadAssetUse(" + id + ")", 100);
+			return;
+		}
+		fnUploadAssetUse (id);
+	}
+
+	function fnUploadAssetUse (id) {
+		// console not defined in IE8 unless Dev tools open
+		if (window.console) console.log ('Upload asset use');
+		if (oSelector.oSelectedRow != null) {
+			if (oSelector.oSelectedRow.bInProgress) {
+				setTimeout("fnUploadAssetUse(" + id + ")", 100);
+				return;
+			} else {
+				// if the row is a new row, we have id = 0 and we need the 
+				// new saved id to continue
+				if (id == 0)
+					id = oSelector.oSelectedRow.fnGetId();
+				// reset the selected row
+				oSelector.fnSetSelectedRow (null);
+			}
+		}
+		if (window.console) console.log ('${uploadAssetMainUrl}');
+		$("#modalDiv").load('${uploadAssetMainUrl}?auIds=' + id, function() {
+			openModalDialog ('Upload Asset');
+			oSelector.id = id;
+        });
+	}
+
+
+	/*
+	 * defines the click action for Add contract details
+	 */
+	function fnClickAddContractDetailsHandler (event) {
+		event.preventDefault();
+        var id = this.id;
+        
+		/* 
+		 * try to save first the changes
+		 */
+		if (oSelector.oSelectedRow != null && oSelector.oSelectedRow.fnValid ($('#form'))) {
+			oSelector.oSelectedRow.fnSaveForm ($('#form'));
+			setTimeout("fnLoadAddContractDetails(" + id + ", false)", 100);
+			return;
+		}
+		fnLoadAddContractDetails (id, false);
+	}
+
+	function fnLoadAddContractDetails (id, isCustom) {
+		if (oSelector.oSelectedRow != null) {
+			if (oSelector.oSelectedRow.bInProgress) {
+				setTimeout("fnLoadAddContractDetails(" + id + "," + isCustom + ")", 100);
+				return;
+			} else {
+				// if the row is a new row, we have id = 0 and we need the 
+				// new saved id to continue
+				if (id == 0)
+					id = oSelector.oSelectedRow.fnGetId();
+				// reset the selected row
+				oSelector.fnSetSelectedRow (null);
+			}
+		}
+		$("#modalDiv").load('${contractPage1Url}?auId=' + id + '&custom=' + isCustom, function() {
+			openModalDialog ('Enter grant details');
+			oSelector.id = id;
+        });
+	}
+
+	/*
+	 * defines the click action for download PO PDF 
+	 */
+	function fnClickDownloadPdfHandler(event) {
+		event.preventDefault();
+        var id = this.id;
+
+		$("#modalDiv").load('${poDownloadUrl}?auId=' + id, function() {
+			openModalDialog ('Download');
+        });        
+	}
+
+	/*
+	 * defines the click action for download Contract file
+	 */
+	function fnClickDownloadContractHandler(event) {
+		event.preventDefault();
+        var id = this.id;
+		
+		$.ajax({
+        	async: false,
+       		type: 'get',
+        	url: '${contractDownloadUrl}?auId=' + id,
+        	success: function (response){
+        		// will return the download page if multiple files, else just download the file
+        		if (/html/i.test(response)) {
+        			openModalDialog ('Download');
+        			$('#modalDiv').empty().html(response);
+        		} else {
+			   		window.open(response);
+            	}
+        	},
+    	});
+	}
+
+	/*
+	 * defines the click action for View contract details details
+	 */
+	function fnClickEditCustomContractDetailsHandler(event) {
+		event.preventDefault();
+        var id = this.id;
+        
+		/* 
+		 * try to save first the changes
+		 */
+		if (oSelector.oSelectedRow != null && oSelector.oSelectedRow.fnValid ($('#form'))) {
+			oSelector.oSelectedRow.fnSaveForm ($('#form'));
+			setTimeout("fnLoadEditContractDetails(" + id + ", true)", 100);
+			return;
+		}
+		fnLoadEditContractDetails (id, true);
+	}
+
+	/*
+	 * defines the click action for View contract details details
+	 */
+	function fnClickEditContractDetailsHandler(event) {
+		event.preventDefault();
+        var id = this.id;
+        
+		/* 
+		 * try to save first the changes
+		 */
+		if (oSelector.oSelectedRow != null && oSelector.oSelectedRow.fnValid ($('#form'))) {
+			oSelector.oSelectedRow.fnSaveForm ($('#form'));
+			setTimeout("fnLoadEditContractDetails(" + id + ", false)", 100);
+			return;
+		}
+		fnLoadEditContractDetails (id, false);
+	}
+
+	function fnLoadEditContractDetails (id, isCustom) {
+		if (oSelector.oSelectedRow != null) {
+			if (oSelector.oSelectedRow.bInProgress) {
+				setTimeout("fnLoadEditContractDetails(" + id + ", " + isCustom + ")", 100);
+				return;
+			} else {
+				// if the row is a new row, we have id = 0 and we need the 
+				// new saved id to continue			
+				if (id == 0)
+					id = oSelector.oSelectedRow.fnGetId();
+				// reset the selected row
+				oSelector.fnSetSelectedRow (null);
+			}
+		}
+		$("#modalDiv").load('${editContractUrl}?auId=' + id + '&custom=' + isCustom, function() {
+			openModalDialog ('View details');
+			oSelector.id = id;
+        });
+	}
+
+	// Added for SS Task 12 - Start
+	/*
+	 * defines the click action for View contract details details
+	 */
+	function fnClickApproveDetailsRequestHandler(event) {
+		event.preventDefault();
+        var id = this.id;
+        
+		/* 
+		 * try to save first the changes
+		 */
+		if (oSelector.oSelectedRow != null && oSelector.oSelectedRow.fnValid ($('#form'))) {
+			oSelector.oSelectedRow.fnSaveForm ($('#form'));
+			setTimeout("fnLoadApproveDetails(" + id + ", false)", 100);
+			return;
+		}
+		fnLoadApproveDetails (id, false);
+	}
+	
+	function fnLoadApproveDetails (id, isCustom) {
+		if (oSelector.oSelectedRow != null) {
+			if (oSelector.oSelectedRow.bInProgress) {
+				setTimeout("fnLoadApproveDetails(" + id + ", " + isCustom + ")", 100);
+				return;
+			} else {
+				// if the row is a new row, we have id = 0 and we need the 
+				// new saved id to continue			
+				if (id == 0)
+					id = oSelector.oSelectedRow.fnGetId();
+				// reset the selected row
+				oSelector.fnSetSelectedRow (null);
+			}
+		}
+		$("#modalDiv").load('${approveDetailsUrl}?auId=' + id + '&custom=' + isCustom, function() {
+			openModalDialog ('Granted Insufficient Exception');
+			oSelector.id = id;
+        });
+	}
+	// Added for SS Task 12 - End
+	
+	function fnClickEditPaymentRequestHandler(event) {
+		event.preventDefault();
+        var id = this.id;
+        
+		/* 
+		 * try to save first the changes
+		 */
+		if (oSelector.oSelectedRow != null && oSelector.oSelectedRow.fnValid ($('#form'))) {
+			oSelector.oSelectedRow.fnSaveForm ($('#form'));
+			setTimeout("fnLoadEditPaymentRequest(" + id + ")", 100);
+			return;
+		}
+		fnLoadEditPaymentRequest (id);
+	}
+	
+	// same as fnClickEditPaymentRequestHander(event) above except View instead of Edit (Paid link instead of Pay)
+	function fnClickViewPaymentRequestHandler(event) {
+		event.preventDefault();
+        var id = this.id;
+        
+		/* 
+		 * try to save first the changes
+		 */
+		if (oSelector.oSelectedRow != null && oSelector.oSelectedRow.fnValid ($('#form'))) {
+			oSelector.oSelectedRow.fnSaveForm ($('#form'));
+			setTimeout("fnLoadViewPaymentRequest(" + id + ")", 100);
+			return;
+		}
+		fnLoadViewPaymentRequest (id);
+	}
+
+	function fnLoadEditPaymentRequest (id) {
+		if (oSelector.oSelectedRow != null) {
+			if (oSelector.oSelectedRow.bInProgress) {
+				setTimeout("fnLoadEditPaymentRequest(" + id + ")", 100);
+				return;
+			} else {
+				// if the row is a new row, we have id = 0 and we need the 
+				// new saved id to continue			
+				if (id == 0)
+					id = oSelector.oSelectedRow.fnGetId();
+				// reset the selected row
+				oSelector.fnSetSelectedRow (null);
+			}
+		}
+		
+		$("#modalDiv").load('${payUrl}?auId=' + id, function() {
+			openModalDialog ('Payment Request');
+			oSelector.id = id;
+        });
+		// prevent the default action, e.g., following a link
+		return false;
+	}
+	
+	// same as fnLoadEditPaymentRequest above except View instead of Edit (Paid link instead of Pay)
+	function fnLoadViewPaymentRequest (id) {
+		if (oSelector.oSelectedRow != null) {
+			if (oSelector.oSelectedRow.bInProgress) {
+				setTimeout("fnLoadViewPaymentRequest(" + id + ")", 100);
+				return;
+			} else {
+				// if the row is a new row, we have id = 0 and we need the 
+				// new saved id to continue			
+				if (id == 0)
+					id = oSelector.oSelectedRow.fnGetId();
+				// reset the selected row
+				oSelector.fnSetSelectedRow (null);
+			}
+		}
+		
+		$("#modalDiv").load('${paidUrl}?auId=' + id, function() {
+			openModalDialog ('Payment Request');
+			oSelector.id = id;
+        });
+		// prevent the default action, e.g., following a link
+		return false;
+	}
+	
+	function fnMouseoverShowStatusDetailsHandler (event) {
+		var id = this.id;
+		// Read the status message from DB - send an ajax call 
+		// Another solution might be to add the message in the index and read it with all 
+		// the other fields and just display it
+		$.jsonp({
+			"url": '${statusDetailUrl}' + id + '?callback=?', 
+			"success": function(json) {	
+		        //Add the tooltip value
+		        $('#tooltip').html(json.explanation);
+        	}
+    	});
+        $('#tooltip').show();
+         
+        //Set the X and Y axis of the tooltip
+        $('#tooltip').css('top', event.pageY - 20);
+        $('#tooltip').css('left', event.pageX - 20);
+	}
+	
+	function fnMouseoutShowStatusDetailsHandler (event) {
+		//Remove the appended tooltip template
+		$('#tooltip').html('Loading...');
+        $('#tooltip').hide();
+	}	
+
+	function fnMouseoverShowCommentsHandler (event) {
+		var id = this.id;
+		// Read the comments from DB - send an ajax call
+		$.jsonp({
+			"url": '${commentsUrl}' + id + '?callback=?', 
+			"success": function(json) {	
+		        //Add the tooltip value
+		        $('#tooltip').html(json.comments);
+        	}
+    	});
+        $('#tooltip').show();
+         
+        //Set the X and Y axis of the tooltip
+        $('#tooltip').css('top', event.pageY - 20);
+        $('#tooltip').css('left', event.pageX - 20);
+	}
+	
+	function fnMouseoutShowCommentsHandler (event) {
+		//Remove the appended tooltip template
+		$('#tooltip').html('Loading...');
+        $('#tooltip').hide();
+	}	
+
+	function fnMouseoverShowThumbnailHandler (event) {
+		var id = this.id;
+		// Read the comments from DB - send an ajax call
+        $('#tooltip').html("<img src='${thumbnailUrl}?assetUseId=" + id + "&size=medium' alt='Thumbnail' />");
+        $('#tooltip').show();
+         
+        //Set the X and Y axis of the tooltip
+        $('#tooltip').css('top', event.pageY - 20);
+        $('#tooltip').css('left', event.pageX - 20);
+	}
+	
+	function fnMouseoutShowThumbnailHandler (event) {
+		//Remove the appended tooltip template
+		$('#tooltip').html('Loading...');
+        $('#tooltip').hide();
+	}	
+	
+	
+
+
+	/*
+	 * defines the click action for Get Permissions
+	 */
+	function fnClickGetPermissionsHandler (event) {
+		event.preventDefault();
+        var id = this.id;
+        
+		/* 
+		 * try to save first the changes
+		 */
+		if (oSelector.oSelectedRow != null && oSelector.oSelectedRow.fnValid ($('#form'))) {
+			oSelector.oSelectedRow.fnSaveForm ($('#form'));
+			setTimeout("fnLoadGetPermissions(" + id + ")", 100);
+			return;
+		}
+		fnLoadGetPermissions (id);
+	}
+
+	function fnLoadSourceWizard (id) {
+		if (oSelector.oSelectedRow != null) {
+			if (oSelector.oSelectedRow.bInProgress) {
+				setTimeout("fnLoadSourceWizard(" + id + ")", 100);
+				return;
+			} else {
+				// if the row is a new row, we have id = 0 and we need the 
+				// new saved id to continue			
+				if (id == 0)
+					id = oSelector.oSelectedRow.fnGetId();
+				// reset the selected row
+				oSelector.fnSetSelectedRow (null);
+			}
+		}
+
+		var dSources = oSelector.fnGetCheckedValues();
+		if(null != dSources && dSources != "") {
+			$("#modalDiv").load('${sourcePageMultiUrl}?ids=' + dSources, function() {
+				openModalDialog ('Enter details');		
+				oSelector.id = id;
+        	});
+
+		} else {
+			$("#modalDiv").load('${sourcePage1Url}?auId=' + id, function() {
+				openModalDialog ('Enter details');		
+				oSelector.id = id;
+        	});
+		}
+	}
+
+	function fnLoadGetPermissions (id) {
+		if (oSelector.oSelectedRow != null) {
+			if (oSelector.oSelectedRow.bInProgress) {
+				setTimeout("fnLoadGetPermissions(" + id + ")", 100);
+				return;
+			} else {
+				// if the row is a new row, we have id = 0 and we need the 
+				// new saved id to continue			
+				if (id == 0)
+					id = oSelector.oSelectedRow.fnGetId();
+				// reset the selected row
+				oSelector.fnSetSelectedRow (null);
+			}
+		}
+		$("#modalDiv").load('${poPage1Url}?auId=' + id, function() {
+			openModalDialog ('Get permissions');		
+			oSelector.id = id;
+        });
+	}
+	
+	/*
+	 * defines the click action for Generate Amendment
+	 */
+	function fnClickGenerateAmendmentHandler (event) {
+		event.preventDefault();
+        var id = this.id;
+        
+		/* 
+		 * try to save first the changes
+		 */
+		if (oSelector.oSelectedRow != null && oSelector.oSelectedRow.fnValid ($('#form'))) {
+			oSelector.oSelectedRow.fnSaveForm ($('#form'));
+			setTimeout("fnGenerateAmendment(" + id + ")", 100);
+			return;
+		}
+		fnGenerateAmendment (id);
+	}	
+	
+	function fnGenerateAmendment (id) {
+		if (oSelector.oSelectedRow != null) {
+			if (oSelector.oSelectedRow.bInProgress) {
+				setTimeout("fnGenerateAmendment(" + id + ")", 100);
+				return;
+			} else {
+				// if the row is a new row, we have id = 0 and we need the 
+				// new saved id to continue			
+				if (id == 0)
+					id = oSelector.oSelectedRow.fnGetId();
+				// reset the selected row
+				oSelector.fnSetSelectedRow (null);
+			}
+		}
+		$("#modalDiv").load('${generateAmendmentUrl}?auId=' + id, function() {
+			openModalDialog ('Generate Amendment');		
+			oSelector.id = id;
+        });
+	}	
+
+	/*
+	 * defines the click action for Generate Amendment
+	 */
+	function fnClickRerequestHandler (event) {
+		event.preventDefault();
+        var id = this.id;
+        
+		/* 
+		 * try to save first the changes
+		 */
+		if (oSelector.oSelectedRow != null && oSelector.oSelectedRow.fnValid ($('#form'))) {
+			oSelector.oSelectedRow.fnSaveForm ($('#form'));
+			setTimeout("fnRerequest(" + id + ")", 100);
+			return;
+		}
+		fnRerequest (id);
+	}	
+
+	function fnRerequest (id) {
+		if (oSelector.oSelectedRow != null) {
+			if (oSelector.oSelectedRow.bInProgress) {
+				setTimeout("fnRerequest(" + id + ")", 100);
+				return;
+			} else {
+				// if the row is a new row, we have id = 0 and we need the 
+				// new saved id to continue			
+				if (id == 0)
+					id = oSelector.oSelectedRow.fnGetId();
+				// reset the selected row
+				oSelector.fnSetSelectedRow (null);
+			}
+		}
+		$("#modalDiv").load('${rePage1Url}?auId=' + id, function() {
+			openModalDialog ('Re-request permissions');		
+			oSelector.id = id;
+        });
+	}	
+
+	/*
+	 * defines the click action for creating a new invoice
+	 */
+	function fnClickReinvoiceHandler (event) {
+		event.preventDefault();
+        var id = this.id;
+        
+		/* 
+		 * try to save first the changes
+		 */
+		if (oSelector.oSelectedRow != null && oSelector.oSelectedRow.fnValid ($('#form'))) {
+			oSelector.oSelectedRow.fnSaveForm ($('#form'));
+			setTimeout("fnReinvoice(" + id + ")", 100);
+			return;
+		}
+		fnReinvoice (id);
+	}	
+
+	function fnReinvoice (id) {
+		if (oSelector.oSelectedRow != null) {
+			if (oSelector.oSelectedRow.bInProgress) {
+				setTimeout("fnReinvoice(" + id + ")", 100);
+				return;
+			} else {
+				// if the row is a new row, we have id = 0 and we need the 
+				// new saved id to continue			
+				if (id == 0)
+					id = oSelector.oSelectedRow.fnGetId();
+				// reset the selected row
+				oSelector.fnSetSelectedRow (null);
+			}
+		}
+		$("#modalDiv").load('${reinvoicePage1Url}?auId=' + id, function() {
+			openModalDialog ('Create new contract');	
+			oSelector.id = id;
+        });
+	}	
+
+	/*
+	 * defines the click action for Generate Amendment
+	 */
+	function fnClickUploadAmendmentHandler (event) {
+		event.preventDefault();
+        var id = this.id;
+        
+		/* 
+		 * try to save first the changes
+		 */
+		if (oSelector.oSelectedRow != null && oSelector.oSelectedRow.fnValid ($('#form'))) {
+			oSelector.oSelectedRow.fnSaveForm ($('#form'));
+			setTimeout("fnUploadAmendment(" + id + ")", 100);
+			return;
+		}
+		fnUploadAmendment (id);
+	}	
+	
+	function fnUploadAmendment (id) {
+		if (oSelector.oSelectedRow != null) {
+			if (oSelector.oSelectedRow.bInProgress) {
+				setTimeout("fnUploadAmendment(" + id + ")", 100);
+				return;
+			} else {
+				// if the row is a new row, we have id = 0 and we need the 
+				// new saved id to continue			
+				if (id == 0)
+					id = oSelector.oSelectedRow.fnGetId();
+				// reset the selected row
+				oSelector.fnSetSelectedRow (null);
+			}
+		}
+		$("#modalDiv").load('${uploadAmendmentUrl}?auId=' + id, function() {
+			openModalDialog ('Upload Amendment');		
+			oSelector.id = id;
+        });
+	}	
+
+	/*
+	 * defines the click action for download Amendment PDF 
+	 */
+	function fnClickDownloadAmendmentHandler(event) {
+		event.preventDefault();
+        var id = this.id;
+
+		$("#modalDiv").load('${downloadAmendmentUrl}?auId=' + id, function() {
+			openModalDialog ('Download');
+        });        
+	}
+
+//]]>		
+	</script>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page">
+
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	<div id="dock">
+		&#169; 2009-2014 John Wiley &amp; Sons
+		<a style="margin-left: 2em; color: white" target="_blank" href="http://san-ds-dev.wiley.com/permissionsWiki/index.php/Release_Notes">v5r10</a>
+	</div>
+</jsp:root>

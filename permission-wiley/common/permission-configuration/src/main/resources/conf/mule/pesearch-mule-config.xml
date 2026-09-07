@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule
+ 	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:https="http://www.mulesoft.org/schema/mule/https"
+	xmlns:stdio="http://www.mulesoft.org/schema/mule/stdio"
+	xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file"
+    xmlns:quartz="http://www.mulesoft.org/schema/mule/quartz"	
+	xmlns:mule-xml="http://www.mulesoft.org/schema/mule/xml"	
+	xmlns:spring="http://www.springframework.org/schema/beans"
+	
+	xsi:schemaLocation="		
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+        http://www.mulesoft.org/schema/mule/https http://www.mulesoft.org/schema/mule/https/current/mule-https.xsd
+		http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd    
+		http://www.mulesoft.org/schema/mule/stdio http://www.mulesoft.org/schema/mule/http/current/mule-stdio.xsd
+		http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/http/current/mule-jms.xsd
+		http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/http/current/mule-file.xsd
+		http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/http/current/mule-xml.xsd
+		http://www.mulesoft.org/schema/mule/quartz http://www.mulesoft.org/schema/mule/http/current/mule-quartz.xsd		
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd		
+	">
+<!--
+	<file:connector name="PEFileConnector"/>
+-->
+	<!-- "PermissionsRequestToPE" Same as in peclient-mule-config.xml but must give different name or
+	     complains "already defined" on startup when use single Mule instance for everything (full). -->
+	<http:connector name="HttpConnector" clientSoTimeout="60000" />
+
+	<custom-transformer
+		name="PermissionsRequestToPE2"
+		class="com.wiley.permissions.common.transformer.XsltMessageTransformer"
+		returnClass="java.lang.String">
+		<spring:property name="xsltFile" value="/xsl/permissions-request-to-pe.xsl" />
+	</custom-transformer>
+
+	<!-- ditto (different name) -->
+	<custom-transformer
+		name="PEReplyToPermissions2"
+		class="com.wiley.permissions.common.transformer.XsltMessageTransformer"
+		returnClass="java.lang.String">
+		<spring:property name="xsltFile" value="/xsl/pe-reply-to-permissions.xsl" />
+	</custom-transformer>
+	
+	<custom-transformer
+		name="PEXmlToObject2"
+		class="com.wiley.permissions.common.transformer.XmlToObjectTransformer"
+		returnClass="com.wiley.permissions.domain.message.Message" />
+		
+	<custom-transformer
+		name="PEObjectToXml2"
+		class="com.wiley.permissions.common.transformer.ObjectToXmlTransformer"
+		returnClass="java.lang.String" />
+
+	<custom-transformer
+		name="PESearchXmlToObject2"
+		class="com.wiley.permissions.common.transformer.XmlToObjectTransformer"
+		returnClass="com.wiley.permissions.domain.message.pe.ProductSearchMessage" />
+
+	<!-- /////////////////////////////////////////////////// -->
+	<!-- PE Search using a web service 						 -->
+	<!-- /////////////////////////////////////////////////// -->
+	<model name="ProductEngineeringClientServices">
+		<!-- These services are HTTP based and are synchronous -->
+		<service name="PEProductSearch">
+			<inbound>
+				<vm:inbound-endpoint 
+					path="services.PEProductSearch"
+					exchange-pattern="request-response"
+					>
+				</vm:inbound-endpoint>
+			</inbound>
+
+			<outbound>
+				<pass-through-router>
+					<http:outbound-endpoint connector-ref="HttpConnector"
+						host="${core.ws.host}"
+						port="${core.ws.port}"
+						path="CGI-BIN/JSMDIRECT?PEPRODUCTSEARCH"
+						contentType="text/xml"
+						method="POST"
+						responseTimeout="${core.ws.timeout}"
+						exchange-pattern="request-response">
+
+							<transformer ref="PEObjectToXml2" />
+
+						<response>
+							<object-to-string-transformer/>
+							<transformer ref="PESearchXmlToObject2"/>
+						</response>
+					</http:outbound-endpoint>
+				</pass-through-router>
+			</outbound>
+		</service>
+
+		<service name="PEProductService">
+			<inbound>
+				<vm:inbound-endpoint
+					path="services.PEProductService"
+					exchange-pattern="request-response"
+					>
+				</vm:inbound-endpoint>
+			</inbound>
+
+			<outbound>
+				<pass-through-router>
+					<http:outbound-endpoint connector-ref="HttpConnector"
+						host="${core.ws.host}"
+						port="${core.ws.port}"
+						path="CGI-BIN/JSMDIRECT?GETPEPRODUCTDETAIL"
+						contentType="text/xml"
+						method="POST"
+						responseTimeout="${core.ws.timeout}"
+						exchange-pattern="request-response">
+
+							<transformer ref="PEObjectToXml2" />
+							<transformer ref="PermissionsRequestToPE2"/>
+
+						<response>
+							<object-to-string-transformer/>
+							<transformer ref="PEReplyToPermissions2"/>
+							<transformer ref="PEXmlToObject2"/>
+						</response>
+					</http:outbound-endpoint>
+				</pass-through-router>
+			</outbound>
+			
+			<!-- lnagy - I used this to log the messages from PE, but does not properly load the product - so use it just when you 
+			want to see the message in the folder fromPE
+			<outbound>
+				<chaining-router>
+					<http:outbound-endpoint
+						host="prodeng.wileypub.com"
+						port="80"
+						path="apps/uvcgi/REQUEST"
+						contentType="text/xml"
+						method="POST"
+						exchange-pattern="request-response">
+
+						<transformers>
+							<transformer ref="PEObjectToXml2" />
+							<transformer ref="PermissionsRequestToPE2"/>
+						</transformers>
+					</http:outbound-endpoint>
+					
+					<file:outbound-endpoint path="/tmp/perm/fromPE" connector-ref="PEFileConnector" />
+				</chaining-router>
+			</outbound>			
+			-->
+		</service>
+		<!-- // -->
+
+		<!-- used to process requests to LOCAL server (not PE) -->
+		<service name="LocalPEProductService">
+			<inbound>
+				<vm:inbound-endpoint
+					path="services.LocalPEProductService"
+					exchange-pattern="request-response"
+					>
+				</vm:inbound-endpoint>
+			</inbound>
+
+			<outbound>
+				<pass-through-router>
+					<http:outbound-endpoint
+						host="${mule.host.bind}"
+						port="63081"
+						path="service/requestProduct/REQUEST"
+						contentType="application/xml"
+						method="POST"
+						responseTimeout="60000"
+						exchange-pattern="request-response">
+
+							<transformer ref="PEObjectToXml2" />
+							<transformer ref="PermissionsRequestToPE2"/>
+
+						<response>
+							<object-to-string-transformer/>
+							<transformer ref="PEReplyToPermissions2"/>
+							<transformer ref="PEXmlToObject2"/>
+						</response>
+					</http:outbound-endpoint>
+				</pass-through-router>
+			</outbound>
+		</service>
+
+
+	</model>
+	
+</mule>

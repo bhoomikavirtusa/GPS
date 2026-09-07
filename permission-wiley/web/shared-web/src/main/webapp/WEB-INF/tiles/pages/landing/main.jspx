@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:security="http://www.springframework.org/security/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+
+	<!-- INCLUDES THE REST URLs, JTEMPLATE URLs, AND POSSIBLE SHARED METHODS FOR EASY ACCESS -->
+	<jsp:directive.include file="include/panels.jspx" />
+
+	<c:url var="assetSourceListUrl" value="/sapp/landing/sources?cwId=${cwId}&amp;isReadOnly=${isReadOnly}" />
+	<c:url var="invoiceListUrl" value="/sapp/landing/invoices?cwId=${cwId}" />
+	<c:url var="assetListUrl" value="/sapp/landing/assets?cwId=${cwId}&amp;useFilter=${useFilter}&amp;scroll=${scroll}&amp;hasExportInProgress=${hasExportInProgress}" />
+	<c:url var="summaryPanelUrl" value="/sapp/panels/summaryPanel?cwId=${cwId}&amp;isReadOnly=${isReadOnly}" />
+	<c:url var="historyPanelUrl" value="/sapp/landing/cw/history?cwId=${cwId}&amp;limit=5" />
+	<c:url var="countsPanelUrl" value="/sapp/landing/cw/countsPanel?cwId=${cwId}" />
+	<c:url var="displayCount" value="/sapp/landing/displayCount?cwId=${cwId}" />
+	<script type="text/javascript">
+	//<![CDATA[
+		// used in assets.jspx to filter the chapters if needed (the variable will not be populated until needed - in LandingController we test the privilege )
+		var chapters = [${chapters}];
+		var externalGroupIds = [${externalGroupIds}];
+		var bHasConditions = ${hasConditions};
+		var bHasComponents = ${hasComponents};
+		var bPermissionComplete = ${permissionComplete};
+		
+		function fnProductSetup() {
+			if (!bPermissionComplete) {				
+				//if (!bHasConditions && !bHasComponents)
+				//	openCWConditionViewEditDialog(true);
+				//else if (!bHasConditions)
+				//	openCWConditionViewEditDialog(false);
+				//else 
+				if (!bHasComponents)
+					openCreateComponentDialog();
+			}
+		}
+	//]]>
+	</script>
+	
+	<script type="text/javascript">
+	//<![CDATA[
+
+	function fnDisablePage () {
+		// disable edit	if permission complete
+		if ('${permissionComplete}' == 'true' || '${isReadOnly}' == 'true' || '${hasExportInProgress}' == 'true') {		
+			disablePageByClass('.disable', true);
+			disablePageByClass ('.rowdisabled', true);
+		} else {
+			disablePageByClass ('.rowdisabled', false);
+		}
+	}
+	
+	function disablePageByClass (clazz, readOnly) {
+		var level1, level2, level3;
+		if (readOnly) {
+			level1 = $(clazz).not('.enable');
+			level2 = $(clazz).children(':not(.enable)');
+			level3 = $(clazz).children(':not(.enable)').children(':not(.enable)');
+		} else {
+			level1 = $(clazz);
+			level2 = $(clazz).children();
+			level3 = $(clazz).children().children();
+		}
+		disable (level1);
+		disable (level2);
+		disable (level3);
+
+		// prevent the checkbox click to be propagated
+		$('#assetTable tbody td input[type=checkbox]').click( function (e) {
+			e.stopPropagation();
+			if('${hasExportInProgress}' == 'true')
+				{
+					e.preventDefault();
+				}
+		});
+	}
+	
+	function disable (level) {
+		level.removeAttr('onclick');
+		level.unbind('click');
+		level.addClass("disablednoline");
+		level.bind('click',function(e) {
+			e.preventDefault();
+			// alert ("Sorry 1, you cannot edit the page because you have the permission complete flag on true " + e.target.nodeName);	
+			if('${hasExportInProgress}' == 'true')
+				{
+				fnDisplaycount();
+				}
+			return false;
+		});
+	}			
+
+	var $tabs;
+	
+	function pageSetup (productSetup) {
+		$("#summaryPanel_${cwId}").load("${summaryPanelUrl}");
+		$("#historyPanel").load("${historyPanelUrl}");	
+		$("#countsPanel").load("${countsPanelUrl}");	
+		createModalDialog();
+		$tabs = $("#ltabs").tabs();
+		fnDisablePage();
+		if (productSetup)
+			fnProductSetup();
+	}
+
+	//]]>
+	</script>
+
+	<security:authorize access="hasAuthority('EMPLOYEE_DEFAULT')">
+		<script type="text/javascript">
+		//<![CDATA[	
+			$(document).ready(function() {
+				pageSetup(true);
+			} );
+		//]]>
+		</script>			
+	</security:authorize>
+	<security:authorize access="not hasAuthority('EMPLOYEE_DEFAULT')">
+		<script type="text/javascript">
+		//<![CDATA[	
+			$(document).ready(function() {
+				pageSetup(false);
+			} );
+		//]]>
+		</script>			
+	</security:authorize>
+	<table id="summary">
+		<tr>  
+    		<td style="width: 45%; vertical-align: top"><div id="summaryPanel_${cwId}" style="clear: both">Loading...</div></td>
+    		<td style="width: 20%; vertical-align: top"><div id="countsPanel" style="clear: both">Loading...</div></td>
+    		<td style="width: 35%; vertical-align: top"><div id="historyPanel">Loading...</div></td>    		
+		</tr>
+	</table>
+
+	<div id="message" style="display: none">Loading...</div>
+	<br/>
+	<div id="ltabs">
+		<ul>
+			<li><a href="${assetListUrl}">Asset Details</a></li>
+			<li><a href="${assetSourceListUrl}">Sources</a></li>
+			<li><a href="${invoiceListUrl}">Invoices</a></li>
+		</ul>
+	</div>
+
+	<br/><br/>
+
+	<div id="modalDiv" style="display: none">
+		<p style="font-size: 16pt">
+		Loading...
+		</p>
+	</div>
+</jsp:root>

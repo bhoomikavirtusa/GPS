@@ -1,0 +1,398 @@
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+
+	<c:url var="plusImageUrl" value="/images/buttons/plus.png" />
+
+	<jsp:element name="script">
+		<jsp:attribute name="type">text/javascript</jsp:attribute>
+		<jsp:attribute name="src">
+			<c:url value="/js/jquery.simpletip-1.3.1.min.js"/>
+		</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+
+	<script type="text/javascript">
+	//<![CDATA[
+
+	$(document).ready(function() {
+		var permStatusTooltip = '<b>One time use</b> - This source is not a vendor, is unlikely to be used again and will not appear in future Source searches <br/> ' + 
+					'<b>Permission form</b> - This source is not a vendor and will be sent a request form by default<br/>' +
+					'<b>Purchase order</b> - This source charges for permission use and will be issued a purchase order by default when creating requests.<br/>' + 
+					'<b>Preferred vendor</b> - This source has a discounted pricing agreement with Wiley for content usage.';
+						
+		$("#permissionTypeTooltip").simpletip({
+		   content: permStatusTooltip,
+		   fixed: true,
+		   baseClass: "ctooltip",
+		   position: ["-300", "-200"]
+		});
+	} );
+	//]]>		
+	</script>
+
+	<jsp:directive.include file="/WEB-INF/tiles/pages/include/js/toggleScript.js.jspx" />
+
+	<form:form method="post" modelAttribute="createSourceForm" enctype="multipart/form-data">
+		<c:set var="source" value="${createSourceForm.source}" scope="page" />
+		
+		<table class="width100">
+		<spring:nestedPath path="source">
+			<tr>
+				<td class="label">
+					<form:label path="name" cssClass="required" cssErrorClass="error">Official name for request forms:</form:label>
+				</td>
+				<td class="value" colspan="3">
+					<form:input path="name" size="50" maxlength="200" class="required" />
+				</td>
+			</tr>
+			<tr>
+				<td class="label">
+					<form:label path="displayName" cssClass="required" cssErrorClass="error">Internally displayed name:</form:label>
+				</td>
+				<td class="value" colspan="3">
+					<form:input path="displayName" size="50" maxlength="200" class="required" />
+				</td>
+			</tr>
+			<tr>
+				<td class="label">
+					Default Credit Line:
+				</td>
+				<td class="value" colspan="3">
+					<form:textarea path="creditLine" rows="2" cols="60" />
+				</td>
+			</tr>
+			<tr>
+				<td class="label">
+				    <form:label path="country" cssClass="required" cssErrorClass="error">Country:</form:label>
+				</td>
+				<td class="value" colspan="3">
+					<spring:bind path="country">
+						<select name="${status.expression}" class="required">
+							<option value="">--Select--</option>
+							<c:forEach items="${countries}" var="item">
+								<c:choose>
+									<c:when test="${item.code == source.country.code}">
+										<option value="${item.code}" selected="selected">${item.description}</option>
+									</c:when>
+									<c:otherwise>
+										<option value="${item.code}">${item.description}</option>
+									</c:otherwise>
+								</c:choose>							
+							</c:forEach>
+						</select>
+					</spring:bind>
+				</td>
+			</tr>
+			<tr>
+				<td class="label">
+					Phone:
+				</td>
+				<td class="value" colspan="3">
+					<form:input path="phoneNumber" size="25" maxlength="25" />
+				</td>
+			</tr>
+			<tr>
+				<td class="label">
+					Website:
+				</td>
+				<td class="value" colspan="3">
+					<form:input path="website" size="50" maxlength="200" />
+				</td>
+			</tr>
+			<input type="hidden" id="source.permissionType" value="Permission Form" />
+			<!-- 
+			<tr>
+				<td>
+				    <span id="permissionTypeTooltip">*Permission Type:</span>
+				</td>
+				<td colspan="3">
+				    <form:select path="permissionType" class="required">
+				        <option value="">Select</option>
+				        <form:options items="${permissionTypes}" itemValue="code" itemLabel="description" />
+				    </form:select>
+				</td>
+			</tr>		
+			 -->
+			<tr>
+				<td class="label">
+					JDE Vendor#:
+				</td>
+				<td class="value">
+					<form:input path="jdeVendorNumber" size="8" maxlength="8" />
+				</td>
+			</tr>
+		</spring:nestedPath>
+		<tr>
+			<th colspan="4"><img src="${plusImageUrl}" id="showSourceAddress" onclick="return toggleDetails('sourceAddressDiv', this);"/>Add source address</th>
+		</tr>
+		<tbody id="details-sourceAddressDiv" style="margin-left: 2em; display:none;" >
+		<spring:nestedPath path="address">
+			<tr>
+				<td class="label">
+					<form:label path="type" cssClass="required" cssErrorClass="error">Type:</form:label>
+				</td>
+				<td class="value">
+					<form:select path="type">
+						<c:forEach items="${addressTypes}" var="item">
+							<c:choose>
+								<c:when test="${item.code == createSourceForm.address.type.code}">
+									<option value="${item.code}" selected="selected">${item.description}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${item.code}">${item.description}</option>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+					</form:select>
+				</td>
+			</tr>
+			<tr>
+				<td class="label">
+					Street Address:
+				</td>
+				<td class="value" colspan="3">
+					<form:input path="lineOne" size="45" maxlength="45" />
+				</td>
+			</tr>
+
+			<tr>
+				<td class="label">
+				</td>
+				<td class="value" colspan="3">
+					<form:input path="lineTwo" size="45" maxlength="45"/>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="label">
+				</td>
+				<td class="value" colspan="3">
+					<form:input path="lineThree" size="45" maxlength="45"/>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="label">
+					City/Town:
+				</td>
+				<td class="value" colspan="3">
+					<form:input path="city" size="35" maxlength="35"/>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="label">
+					State/Province:
+				</td>
+				<td class="value" colspan="3">
+					<form:input path="province" size="30" maxlength="30"/>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="label">
+					Zip/Postal:
+				</td>
+				<td class="value" colspan="3">
+					<form:input path="postalCode" size="10" maxlength="10" />
+				</td>
+			</tr>
+
+			<tr>
+				<td class="label">
+					Country:
+				</td>
+				<td class="value">
+					<spring:bind path="country">
+						<select name="${status.expression}">
+					        <option value="">--Select--</option>
+							<c:forEach items="${countries}" var="item">
+								<option value="${item.code}">${item.description}</option>
+							</c:forEach>
+						</select>
+					</spring:bind>
+				</td>
+			</tr>
+		</spring:nestedPath>
+		</tbody>
+<!-- 
+			<tr>
+				<td>File:</td>
+				<td colspan="3">
+					<form:input type="file" path="multipartFile" />
+				</td>
+			</tr>
+ -->		
+ 			<tr>
+ 				<td></td>
+ 			</tr>
+			<tr>
+				<th colspan="4"><img src="${plusImageUrl}" id="showContact" onclick="return toggleDetails('contactDiv', this);"/>Add contact details</th>
+			</tr>
+			<tbody id="details-contactDiv" style="margin-left: 2em; display:none;" >
+		<spring:nestedPath path="contact">
+			<tr>
+				<td class="label">
+					First Name:
+				</td>
+				<td class="value">
+					<form:input path="firstName" size="20" maxlength="20" />
+				</td>
+				<td class="label">
+					Middle:
+				</td>
+				<td class="value">
+					<form:input path="middleName" size="20" maxlength="20" />
+				</td>
+			</tr>
+			<tr>
+				<td class="label">
+					Last Name:
+				</td>
+				<td class="value" colspan="3">
+					<form:input path="lastName" size="25" maxlength="25" />
+				</td>
+			</tr>
+			<tr>
+				<td class="label">
+					Title:
+				</td>
+				<td class="value" colspan="3">
+					<form:input path="jobTitle" size="25" maxlength="25" />
+				</td>
+			</tr>
+			<tr>
+				<td class="label">
+					Email:
+				</td>
+				<td class="value" colspan="3">
+					<form:input path="email" size="50" maxlength="100" />
+				</td>
+			</tr>
+			<tr>
+				<td class="label">Office Phone:</td>
+				<td class="value"><form:input path="phone" size="25" maxlength="25" /></td>
+				
+				<td class="label">Fax:</td>
+				<td class="value"><form:input path="fax" size="25" maxlength="25" /></td>
+			</tr>
+			<tr>
+				<td class="label">Home Phone:</td>
+				<td class="value"><form:input path="homePhoneNumber" size="25" maxlength="25" /></td>
+				
+				<td class="label">Mobile Phone:</td>
+				<td class="value"><form:input path="mobilePhoneNumber" size="25" maxlength="25" /></td>
+			</tr>
+			<tr>
+				<td class="label">Note:</td>
+				<td class="value" colspan="3"><form:input path="note" size="25" maxlength="200" /></td>
+			</tr>
+		</spring:nestedPath>
+	
+			<tr>
+				<th colspan="4"><img src="${plusImageUrl}" id="showContactAddress" onclick="return toggleDetails('contactAddressDiv', this);"/>Add contact address details</th>
+			</tr>
+			<tbody id="details-contactAddressDiv" style="margin-left: 2em; display:none;" >
+		<spring:nestedPath path="contactAddress">
+			<tr>
+				<td class="label">
+					<form:label path="type" cssClass="required" cssErrorClass="error">Type:</form:label>
+				</td>
+				<td class="value">
+					<form:select path="type">
+						<c:forEach items="${addressTypes}" var="item">
+							<c:choose>
+								<c:when test="${item.code == createSourceForm.contactAddress.type.code}">
+									<option value="${item.code}" selected="selected">${item.description}</option>
+								</c:when>
+								<c:otherwise>
+									<option value="${item.code}">${item.description}</option>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+					</form:select>
+				</td>
+			</tr>
+			<tr>
+				<td class="label">
+					Street Address:
+				</td>
+				<td class="value" colspan="3">
+					<form:input path="lineOne" size="45" maxlength="45" />
+				</td>
+			</tr>
+
+			<tr>
+				<td class="label">
+				</td>
+				<td class="value" colspan="3">
+					<form:input path="lineTwo" size="45" maxlength="45"/>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="label">
+				</td>
+				<td class="value" colspan="3">
+					<form:input path="lineThree" size="45" maxlength="45"/>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="label">
+					City/Town:
+				</td>
+
+				<td class="value" colspan="3">
+					<form:input path="city" size="35" maxlength="35"/>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="label">
+					State/Province:
+				</td>
+
+				<td class="value" colspan="3">
+					<form:input path="province" size="30" maxlength="30"/>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="label">
+					Zip/Postal:
+				</td>
+
+				<td class="value" colspan="3">
+					<form:input path="postalCode" size="10" maxlength="10" />
+				</td>
+			</tr>
+
+			<tr>
+				<td class="label">
+					Country:
+				</td>
+
+				<td class="value">
+					<spring:bind path="country">
+						<select name="${status.expression}">
+					        <option value="">--Select--</option>
+							<c:forEach items="${countries}" var="item">
+								<option value="${item.code}">${item.description}</option>
+							</c:forEach>
+						</select>
+					</spring:bind>
+				</td>
+			</tr>
+		</spring:nestedPath>
+		</tbody>
+		</tbody>
+		</table>
+	</form:form>
+
+</jsp:root>

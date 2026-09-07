@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+
+	<jsp:directive.page pageEncoding="UTF-8" />
+
+	<fmt:setBundle basename="messages" />
+
+	<jsp:body>
+
+	<c:url var="progressbarUrl" value="/sapp/commonwork/importAssetsReplace/progressbar" />
+	<c:url var="importAssetsReplaceUrl" value="/sapp/commonwork/importAssetsReplace/submit" />	
+	<c:url var="downloadUrl" value="/static/2018_import_template-1.xlsm" />				
+		
+	<style type="text/css">
+		#uploadprogressbar { display: none; }
+	</style>
+	
+	<jsp:element name="script">
+		<jsp:attribute name="type">text/javascript</jsp:attribute>
+		<jsp:attribute name="src">
+			<c:url value="/js/jquery.progressbar.js"/>
+		</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+	
+	<jsp:element name="script">
+		<jsp:attribute name="type">text/javascript</jsp:attribute>
+		<jsp:attribute name="src">
+			<c:url value="/js/jquery.form.js"/>
+		</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+	
+	<script type="text/javascript">
+	<![CDATA[
+
+		var options = { 
+		 	beforeSubmit:  startProgressBar,
+	        success: showResponse  // post-submit callback 
+	    }; 
+		    		
+		function rollbackImportChanges() {
+			submitImportChanges ("false");
+		}
+			
+		function commitImportChanges() {
+			submitImportChanges ("true");
+		}
+			
+		function submitImportChanges(force) {
+			startProgressBar();
+			var form = document.getElementById("importAssetsReplaceForm");
+			form.elements["forcePersist"].value = force;
+			$('#importAssetsReplaceForm').ajaxSubmit(options);
+		}
+		
+		function checkNoPermRequiredFlag() {
+			if (!${current_common_work.interiorCWStatus.code == 'no_perm_req'}) {
+				return true;
+			}
+			if (!confirm('No Perm Required flag is being turned off for the import and you will have to go back and select it again after the import. Do you want to continue?')) { 
+				return false;
+			}
+			return true;
+		}
+		
+		function startProgressBar() {
+			$('#uploadprogressbar').fadeIn();
+
+			var i = setInterval(function() { 
+				$.post("${progressbarUrl}", function(data) {
+					var percentage = parseInt(data);
+					$('#uploadprogressbar').progressBar(percentage);
+				});
+			}, 1500);
+		}
+		
+		function showResponse (responseText, statusText, xhr, $form) {
+            $('#modalDiv').empty().html(responseText);
+		}
+		
+		$(document).ready(function() {
+		
+			$("#uploadprogressbar").progressBar();
+			
+			$('#importAssetsReplaceForm').submit(function() { 
+			    // submit the form 
+			    $(this).ajaxSubmit(options);
+	            return false; 
+    		});
+		});
+	]]>
+	</script>
+
+	<jsp:directive.include file="/WEB-INF/tiles/pages/include/generalMessage.jspx" />
+	
+	<p>Please select the spreadsheet to be imported using the predefined template (<a href="${downloadUrl}">Download</a>). </p>
+	
+	<form:form modelAttribute="importAssetsReplaceForm" method="post" action="${importAssetsReplaceUrl}"
+		enctype="multipart/form-data">
+		<spring:hasBindErrors name="importAssetsReplaceForm">
+			<jsp:directive.include file="/WEB-INF/tiles/pages/include/importFormErrors.jspx" />
+		</spring:hasBindErrors>
+		<form:hidden path="filename" />
+		<form:hidden path="forcePersist" />
+		<table>
+			<tr>
+				<td><span class="progressbar" id="uploadprogressbar">0%</span></td>
+			</tr>
+			<tr>
+				<td><input type="file" name="file" size="40" /></td>
+			</tr>
+		</table>
+		
+		<div class="buttonset">
+			<input type="submit" id="finishB" value="Go"/>
+			<a href="#" id="cancelLink" class="button">Cancel</a>
+		</div> 
+	</form:form>
+	</jsp:body>
+
+</jsp:root>

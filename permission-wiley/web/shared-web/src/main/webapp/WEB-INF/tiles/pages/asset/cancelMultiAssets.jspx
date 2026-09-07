@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="submitUrl" value="/sapp/asset/manageAsset/cancelMulti" />
+
+	<jsp:directive.include file="js/jquery-custom-combobox.js.jspx" />
+	
+	<script type="text/javascript">
+		<![CDATA[
+		$(document).ready(function() {
+
+			$(function() {
+				$( "#cancelComment" ).combobox();
+			});
+
+			$('#cancelMultiTable').dataTable( {
+				"aoColumns" : [
+					{ "sWidth" : "5%", "sClass" : "center", "bSortable" : false, "bSearchable" : false }, // Select
+					{ "sWidth" : "15%" }, // Component
+					{ "sWidth" : "10%" }, // Position
+					{ "sWidth" : "40%" },  // Description
+					{ "sWidth" : "10%" },  // Media Type
+					{ "sWidth" : "20%" }  // Source(s)
+				],
+				"aaSorting": [[1, "asc" ], [2, "asc"]],
+				"bAutoWidth": false,
+				"bProcessing": true,
+				"bStateSave": false,
+				//"sPaginationType": "full_numbers",
+				//"aLengthMenu": [10, 15, 25, 50, 100],  // override default of [10, 25, 50, 100]
+				"iDisplayLength": 5000, // make large because we will scroll this table - probably this param is ignored with bPaginate false
+				"sScrollY": "300px",
+				"bPaginate": false,
+				"bScrollCollapse": true,
+				"sDom" : "rt"
+			} );
+			
+			$('#submitB').click (function() {
+				// First make sure the user has checked at least one asset
+				if ($(".auId-checkbox:checked").length == 0) {
+					alert("You must select at least one Asset.");
+					return false;
+				}
+				
+				$("#buttonDiv").html("Please Wait...");
+				
+				$.ajax({
+			    	async: true,
+			        type: 'post',
+			        url: '${submitUrl}',
+			        data: $('#cancelMultiForm').serialize(),
+			        success: function (json) {
+			        	// delete/refresh proper rows in landing dataTable (this is copy/pase from cancelOneAsset.jspx)
+						for (var i=0, iLen=json.length; i < iLen; i++) {
+							var nIndex = dataTable.fnGetPositionByColumn (0, parseInt(json[i].auId));
+							// if asset deleted
+							if (json[i].deleted) {				
+								dataTable.fnDeleteRow(nIndex);
+							}
+							// for cancel/uncancel - just refresh the row to display the new status
+							else {
+								fnRefreshRows(parseInt(json[i].auId));
+							}
+						}
+			        	
+						oSelector.fnPostMenuAction();  // unchecks all rows, including ones which just deleted (important)
+			            $modalDialog.dialog('close');
+			        },
+					error: function() {
+			        	showErrorMessage("Error: failed to cancel the selected rows");
+			        }
+			    });
+			});
+
+		}); // end document ready
+		]]>
+	</script>
+	
+	<p>You are cancelling the following assets. Please add a comment below.</p>
+	
+	<form method="post" action="${submitUrl}" id="cancelMultiForm">
+		<table class="display" id="cancelMultiTable">
+			<thead>
+				<tr>
+					<th>Select</th>
+					<th>Component</th>
+					<th>Position</th>
+					<th>Description</th>
+					<th>Media Type</th>
+					<th>Source(s)</th>
+				</tr>
+			</thead>
+			<tbody>
+				<c:forEach items="${assetUses}" var="assetUse">
+					<c:if test="${not assetUse.canceled}">
+					<tr>
+						<td><input type="checkbox" name="auIds" class="auId-checkbox" checked="checked" value="${assetUse.id}" /></td>
+						<td><c:out value="${assetUse.component.name}" /></td>
+						<td><c:out value="${assetUse.position}" /></td>
+						<td><c:out value="${assetUse.asset.description}" /></td>
+						<td><c:out value="${assetUse.asset.mediaType.description}" /></td>
+						<td><c:out value="${assetUse.asset.sourcesAsString}" /></td>
+					</tr>
+					</c:if>
+				</c:forEach>
+			</tbody>
+		</table>
+
+		<p style="margin-top: 2em">
+			<span style="vertical-align: top">Why was this cancelled?</span>
+			<div class="ui-widget">
+				<select id="cancelComment">
+				<option value="">Select one...</option>
+				<c:forEach items="${cancelReasons}" var="item">
+					<option value="${item.code}">${item.description}</option>
+				</c:forEach>									
+				</select>
+			</div>				
+		</p>
+
+		<div class="buttonset" id="buttonDiv">
+			<input type="button" id="submitB" value="Complete" />
+			<a href="#" id="cancelLink" class="button">Abort Cancellation</a>
+		</div>
+	</form>
+
+</jsp:root>

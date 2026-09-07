@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+		http://www.springframework.org/schema/util
+		http://www.springframework.org/schema/util/spring-util-4.3.xsd
+	">
+
+	<import resource="classpath:conf/spring/repositories-spring-context.xml"/>
+
+	<import resource="classpath:conf/spring/validator/validator-spring-context.xml" />
+	<import resource="classpath:conf/spring/filemaker-pool.xml"/>
+	<import resource="classpath:conf/spring/persistence-context.xml"/>
+	
+	<bean id="utility.InternalSSOUserLookupUtility"
+		class="com.wiley.permissions.services.SSOUserLookupUtility">
+
+		<property name="contextSource" ref="SSOContextSource"/>
+
+		<property name="ldapTemplate" ref="SSOLDAPTemplate"/>
+		<property name="ldapBase" value="${wiley.ldap.base.internal}" />
+		
+		<property name="monitor" ref="utility.PerformanceMonitor" />
+	</bean>
+	
+	<bean id="utility.ExternalSSOUserLookupUtility"
+		class="com.wiley.permissions.services.SSOUserLookupUtility">
+
+		<property name="contextSource" ref="SSOContextSource"/>
+
+		<property name="ldapTemplate" ref="SSOLDAPTemplate"/>
+		<property name="ldapBase" value="${wiley.ldap.base.external}" />
+		
+		<property name="monitor" ref="utility.PerformanceMonitor" />
+	</bean>
+	
+	<bean id="utility.ExternalUserLdapClient" class="com.wiley.permissions.services.ExternalUserLdapClient">
+	</bean>
+	
+	<bean id="utility.RightsLinkClient" class="com.wiley.permissions.services.RightsLinkClient">
+		<property name="tokenUri" value="${rightslink.tokenUri}" />
+		<property name="licenseUri" value="${rightslink.licenseUri}" />
+		<property name="username" value="${rightslink.username}" />
+		<property name="password" value="${rightslink.password}" />
+		<property name="consumerKey" value="${rightslink.consumerKey}" />
+		<property name="consumerSecret" value="${rightslink.consumerSecret}" />
+		<property name="scope" value="${rightslink.scope}" />
+	</bean>
+
+	<bean id="genericMessageService"
+		class="com.wiley.permissions.services.message.GenericMessageService"
+		parent="services.BaseService"
+		abstract="true">
+
+		<property name="enabled" value="${outgoing.messages.enabled}" />
+		<property name="cachedMessageRepository" ref="repository.CachedMessageRepository" />
+
+		<property name="monitor" ref="utility.PerformanceMonitor" />
+	</bean>
+
+	<bean id="services.message.RestMessageService" class="com.wiley.permissions.services.message.RestMessageService">
+	</bean>
+
+	<bean id="services.message.PEProductSearchMessageService" class="com.wiley.permissions.services.message.PEProductSearchMessageService">
+		<property name="serviceDispatcher" ref="remoteWebDispatcher"/>
+	</bean>
+	
+	<!-- this instance is used for sending messages - will use the serviceDispatcher defined in BaseService (remoteWebDispatcher) -->
+	<bean id="services.message.CmsMessageService" class="com.wiley.permissions.services.message.CMSMessageService" 
+		parent="genericMessageService">
+		<property name="sessionFactory" ref="sessionFactory"/>
+		<property name="entityManagerFactory" ref="permissions"/>
+		<property name="enabled" value="${messaging.jms.cms.enabled}" />
+	</bean>
+
+	<!-- Another instance (with different id) is defined in peclient-spring-context.xml -->
+	<!-- this instance is used for sending messages - will use the serviceDispatcher defined in BaseService (remoteWebDispatcher) -->
+	<bean id="services.message.PEMessageService" class="com.wiley.permissions.services.message.PEMessageService" 
+		parent="genericMessageService">
+		<property name="source" value="${messaging.jms.pe.source}" />
+		<property name="productRepository" ref="repository.ProductRepository" />
+		<property name="productIndexService" ref="services.ProductIndexService" />
+		<property name="commonWorkRepository" ref="repository.CommonWorkRepository" />
+		<property name="commonWorkService" ref="services.CommonWorkService" />
+		<property name="userRepository" ref="repository.UserRepository" />
+		<property name="defaultBunchLimit" value="${messaging.pe.outgoing.default.bunchlimit}" />
+	</bean>
+
+	<bean id="services.BaseService"
+		abstract="true"
+		class="com.wiley.permissions.services.BaseService">
+
+		<property name="remoteDispatcher" ref="remoteWebDispatcher" />
+		<property name="localDispatcher" ref="localDispatcher" />
+		
+		<property name="messageSource" ref="utility.messageSource" />
+		<property name="monitor" ref="utility.PerformanceMonitor" />
+	</bean>
+	
+	<bean id="services.SourceService"
+		class="com.wiley.permissions.services.SourceServiceImpl"
+		parent="services.BaseService">
+        <property name="outgoingMessageService" ref="services.message.CmsMessageService" />
+        <property name="sourceRepository" ref="repository.SourceRepository"/>
+        <property name="conditionRepository" ref="repository.ConditionRepository"/>
+	</bean>
+	
+	<bean id="services.AssetService"
+		class="com.wiley.permissions.services.AssetServiceImpl"
+		parent="services.BaseService">
+        <property name="assetUseService" ref="services.AssetUseService"/>
+        <property name="outgoingMessageService" ref="services.message.CmsMessageService" />
+        <property name="assetRepository" ref="repository.AssetRepository"/>
+	</bean>
+
+	<bean id="services.ProductService"
+		class="com.wiley.permissions.services.ProductServiceImpl"
+		parent="services.BaseService">
+
+		<property name="commonWorkService" ref="services.CommonWorkService" />
+		<property name="commonWorkRepository" ref="repository.CommonWorkRepository" />
+		<property name="peMessageService" ref="services.message.PEMessageService" />
+		<property name="peSearchMessageService" ref="services.message.PEProductSearchMessageService" />
+		<property name="productRepository" ref="repository.ProductRepository" />
+		<property name="productIndexService" ref="services.ProductIndexService" />
+		<property name="assetUseRepository" ref="repository.AssetUseRepository" />
+	</bean>
+		
+	<bean id="services.LocalProductService"
+		class="com.wiley.permissions.services.ProductServiceImpl" 		
+		parent="services.BaseService">
+
+		<property name="latestProductOperationType" value="GET_LOCAL_LATEST_PRODUCT" />
+		<property name="updateCommonWorkOperationType" value="UPDATE_LOCAL_COMMON_WORK" />		
+
+		<property name="commonWorkService" ref="services.CommonWorkService"/>
+		<property name="commonWorkRepository" ref="repository.CommonWorkRepository"/>
+		<property name="peSearchMessageService" ref="services.message.PEProductSearchMessageService"/>
+		<property name="productRepository" ref="repository.ProductRepository"/>
+		<property name="assetUseRepository" ref="repository.AssetUseRepository"/>
+	</bean>
+
+	<bean id="services.CommonWorkService"
+		class="com.wiley.permissions.services.CommonWorkServiceImpl"
+		parent="services.BaseService">
+
+		<property name="smtpServer" value="${email.smtp.server}" />
+
+		<property name="commonWorkRepository" ref="repository.CommonWorkRepository"/>
+		<property name="userRepository" ref="repository.UserRepository" />
+		<property name="productRepository" ref="repository.ProductRepository" />
+		<property name="assetUseRepository" ref="repository.AssetUseRepository"/>		
+		<property name="productService" ref="services.ProductService" />
+		<property name="assetUseService" ref="services.AssetUseService"/>
+		<property name="outgoingMessageService" ref="services.message.CmsMessageService" />
+		<property name="assetUseIndexService" ref="services.AssetUseIndexService" />
+		<property name="contractRepository" ref="repository.ContractRepository"/>
+		<property name="conditionRepository" ref="repository.ConditionRepository"/>
+		<property name="productIndexService" ref="services.ProductIndexService" />
+		<property name="internalUrl" value="${internal.url}" />
+		<property name="authorUrl" value="${author.url}" />
+		<!-- Added for DM-534 --> 
+		<property name="saveExcelFilesUrl" value="${PERMISSIONS_HOME}/excelFiles"/>
+				
+	</bean>
+	
+	<bean id="services.AssetUseService"
+		class="com.wiley.permissions.services.AssetUseServiceImpl"
+		parent="services.BaseService">
+
+		<property name="outgoingMessageService" ref="services.message.CmsMessageService" />
+		<property name="assetUseIndexService" ref="services.AssetUseIndexService" />
+		<property name="productService" ref="services.ProductService" />
+		<property name="assetService" ref="services.AssetService" />
+
+		<property name="assetRepository" ref="repository.AssetRepository"/>
+		<property name="assetUseRepository" ref="repository.AssetUseRepository"/>
+		<property name="commonWorkRepository" ref="repository.CommonWorkRepository"/>
+		<property name="sourceRepository" ref="repository.SourceRepository"/>
+		
+		<property name="cachedData" ref="app.ReferenceDataCache"/>
+	</bean>
+	
+	<bean id="services.AssetUseIndexService"
+		class="com.wiley.permissions.services.AssetUseIndexService"
+		parent="services.BaseService">
+
+		<property name="assetUseRepository" ref="repository.AssetUseRepository" />
+		<property name="productRepository" ref="repository.ProductRepository" />
+		<property name="assetUseService" ref="services.AssetUseService" />
+		<property name="assetUseIndexServiceRequiresNew" ref="services.AssetUseIndexServiceRequiresNew" />
+		<property name="primeTimeStartHour" value="${primeTime.startHour}" />
+		<property name="primeTimeStopHour" value="${primeTime.stopHour}" />
+		 <!-- Added for DM-1606 -->
+		<property name="assetRepository" ref="repository.AssetRepository"/>
+		
+	</bean>
+	
+	<bean id="services.ProductIndexService"
+		class="com.wiley.permissions.services.ProductIndexService"
+		parent="services.BaseService">
+		
+		<property name="peMessageService" ref="services.message.PEMessageService" />
+		<property name="productService" ref="services.ProductService" />
+		<property name="productRepository" ref="repository.ProductRepository" />
+		<property name="commonWorkRepository" ref="repository.CommonWorkRepository" />
+	</bean>
+	
+	<bean id="services.AssetUseIndexServiceRequiresNew"
+		class="com.wiley.permissions.services.AssetUseIndexServiceRequiresNew"
+		parent="services.BaseService">
+
+		<property name="assetUseRepository" ref="repository.AssetUseRepository" />
+		<property name="assetUseIndexService" ref="services.AssetUseIndexService" />
+	</bean>
+	
+	<bean id="services.UserService"
+		class="com.wiley.permissions.services.UserServiceImpl"
+		parent="services.BaseService">
+
+		<property name="userRepository" ref="repository.UserRepository"/>
+	</bean>
+	
+	<bean id="services.SecurityService"
+		class="com.wiley.permissions.services.SecurityServiceImpl"
+		parent="services.BaseService">
+
+		<property name="externalUserLdapClient" ref="utility.ExternalUserLdapClient" />
+		<property name="internalSSOUserLookupUtility" ref="utility.InternalSSOUserLookupUtility" />
+		<property name="userRepository" ref="repository.UserRepository"/>
+	</bean>
+	
+	<bean id="services.PurchaseOrderService"
+		class="com.wiley.permissions.services.PurchaseOrderServiceImpl"
+		parent="services.BaseService">
+
+		<property name="assetUseService" ref="services.AssetUseService"/>
+		<property name="poRepository" ref="repository.PurchaseOrderRepository"/>
+		<property name="assetUseRepository" ref="repository.AssetUseRepository"/>
+		<property name="sourceRepository" ref="repository.SourceRepository"/>
+		<property name="userRepository" ref="repository.UserRepository"/>
+		<property name="commonWorkRepository" ref="repository.CommonWorkRepository"/>
+		<property name="conditionRepository" ref="repository.ConditionRepository" />		
+	</bean>
+    
+	<bean id="services.ContractService"
+        class="com.wiley.permissions.services.ContractServiceImpl"
+		parent="services.BaseService">
+
+		<property name="smtpServer" value="${email.smtp.server}" />
+		<property name="daysBeforeExpire" value="${contract.before.expire.days}" />
+
+		<property name="contractRepository" ref="repository.ContractRepository"/>
+		<property name="assetUseService" ref="services.AssetUseService"/>
+		<property name="assetUseRepository" ref="repository.AssetUseRepository"/>
+		<property name="conditionRepository" ref="repository.ConditionRepository" />
+		<property name="assetRepository" ref="repository.AssetRepository" />
+		<property name="productRepository" ref="repository.ProductRepository" />
+		<property name="commonWorkService" ref="services.CommonWorkService" />		
+		<property name="assetUseIndexService" ref="services.AssetUseIndexService" />
+		<property name="sourceRepository" ref="repository.SourceRepository"/>
+		<property name="sourceService" ref="services.SourceService" />
+	</bean>
+	
+	<bean id="services.DevMiscService"
+		class="com.wiley.permissions.services.DevMiscServiceImpl"
+		parent="services.BaseService">
+
+		<property name="commonWorkService" ref="services.CommonWorkService"/>
+		<property name="devMiscRepository" ref="repository.DevMiscRepository"/>
+	</bean>
+
+	 <!-- This is SSO Lookup Stuff -->
+	<bean id="SSOContextSource"
+		class="org.springframework.ldap.core.support.LdapContextSource">
+
+		<property name="url" value="${wiley.ldap.url}" />
+		<property name="userDn" value="${wiley.ldap.userDN}" />
+		<property name="password" value="${wiley.ldap.password}" />
+	</bean>
+
+	<bean id="SSOLDAPTemplate"
+		class="org.springframework.ldap.core.LdapTemplate">
+
+		<constructor-arg ref="SSOContextSource" />
+	</bean>
+	
+	<bean id="services.SourceImportUtility"
+		class="com.wiley.permissions.services.imports.SourceSpreadsheetImportUtility">
+		
+		<property name="sourceService" ref="services.SourceService" />
+		<property name="sourceRepository" ref="repository.SourceRepository"/>
+	</bean>
+
+	<bean id="services.ImportAssetsUtility"
+		class="com.wiley.permissions.services.imports.ImportAssetsUtility">
+		
+		<property name="assetRepository" ref="repository.AssetRepository"/>
+		<property name="assetUseService" ref="services.AssetUseService" />
+		<property name="commonWorkService" ref="services.CommonWorkService" />
+		<property name="contractService" ref="services.ContractService" />
+
+		<property name="commonWorkRepository" ref="repository.CommonWorkRepository"/>
+		<property name="sourceRepository" ref="repository.SourceRepository"/>		
+		<property name="productRepository" ref="repository.ProductRepository" />		
+		<property name="userRepository" ref="repository.UserRepository" />	
+		<property name="conditionRepository" ref="repository.ConditionRepository" />
+		<property name="contractRepository" ref="repository.ContractRepository" />
+
+		<property name="importProductsUtility" ref="services.ImportProductsUtility" />
+		<property name="excelUtility" ref="utility.ExcelTransformerUtility" />
+	</bean>
+	
+	<bean id="services.FilemakerImportUtility"
+		class="com.wiley.permissions.services.imports.FilemakerDataImportUtility">
+		
+		<property name="dataSource" ref="filemakerDataSource" />
+		<property name="importAssetsUtility" ref="services.ImportAssetsUtility" />
+	</bean>
+	
+	<bean id="services.AusImportUtility"
+		class="com.wiley.permissions.services.imports.AusDataImportUtility">
+		
+		<property name="dataSource" ref="ausDataSource" />
+		<property name="importAssetsUtility" ref="services.ImportAssetsUtility" />
+	</bean>
+	<bean id="services.AusImportInvoicesUtility"
+		class="com.wiley.permissions.services.imports.AusInvoiceDataImportUtility">
+		
+		<property name="dataSource" ref="ausDataSource" />
+		<property name="importAssetsUtility" ref="services.ImportAssetsUtility" />
+		<property name="purchaseOrderRepository" ref="repository.PurchaseOrderRepository" />
+	</bean>
+
+	<bean id="services.ImportProductsUtility"
+		class="com.wiley.permissions.services.imports.ImportProductsUtility">
+		
+		<property name="productService" ref="services.ProductService" />
+		<property name="productRepository" ref="repository.ProductRepository" />
+		<property name="excelUtility" ref="utility.ExcelTransformerUtility" />
+	</bean>
+		
+	<bean id="services.CSFilemakerDataImportUtility"
+		class="com.wiley.permissions.services.imports.CSFilemakerDataImportUtility">
+		
+		<property name="importAssetsUtility" ref="services.ImportAssetsUtility" />
+		<property name="conditionRepository" ref="repository.ConditionRepository" />
+		<property name="sourceRepository" ref="repository.SourceRepository" />
+		<property name="assetUseRepository" ref="repository.AssetUseRepository" />
+		<property name="contractRepository" ref="repository.ContractRepository" />		
+	</bean>
+	
+	<bean id="services.ExcelDataImportUtility"
+		class="com.wiley.permissions.services.imports.ExcelDataImportUtility"
+		parent="services.CSFilemakerDataImportUtility">
+		
+		<property name="importAssetsUtility" ref="services.ImportAssetsUtility" />
+		<property name="userRepository" ref="repository.UserRepository" />
+		<property name="cwRepository" ref="repository.CommonWorkRepository" />
+		<property name="sourceRepository" ref="repository.SourceRepository" />
+		<property name="commonWorkService" ref="services.CommonWorkService" />
+	</bean>
+
+</beans>

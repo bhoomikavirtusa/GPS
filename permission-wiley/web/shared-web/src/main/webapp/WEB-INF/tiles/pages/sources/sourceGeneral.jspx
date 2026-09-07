@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+
+	<jsp:directive.page pageEncoding="UTF-8" />
+	
+	<tiles:importAttribute name="action"/>
+	<tiles:importAttribute name="title"/>
+	
+	<jsp:body>
+		<form:form modelAttribute="manageSourceForm" enctype="multipart/form-data">
+			<jsp:attribute name="action">
+				<c:out value="${action}" />
+			</jsp:attribute>
+			
+			<div style="display: none">
+				<form:hidden path="mode" />
+				<form:hidden path="fileToRemove" />
+				<form:hidden path="cameFrom" />				
+				<input type="hidden" name="submit" value="true" />
+			</div>
+
+			<spring:hasBindErrors name="manageSourceForm">
+				<jsp:directive.include file="/WEB-INF/tiles/pages/include/formErrors.jspx" />
+			</spring:hasBindErrors>
+
+			<table class="width100">
+				<tr>
+					<th colspan="2">
+						<c:out value="${title}" />
+					</th>
+				</tr>
+
+				<c:set var="source" value="${manageSourceForm.source}" scope="page" />
+				<jsp:directive.include file="sourceGeneralInclude.jspx" />
+			</table>
+			
+			<div class="buttonset">			
+				<c:choose>
+					<c:when test="${manageSourceForm.originalMode == 'ADD'}">
+						<jsp:element name="input">
+							<jsp:attribute name="type">submit</jsp:attribute>
+							<jsp:attribute name="value">Add</jsp:attribute>
+							<jsp:attribute name="onclick">this.form.elements['mode'].value='ADD';</jsp:attribute>
+						</jsp:element>										
+					</c:when>
+
+					<c:when test="${manageSourceForm.originalMode == 'MODIFY'}">
+						<jsp:element name="input">
+							<jsp:attribute name="type">submit</jsp:attribute>
+							<jsp:attribute name="value">Modify</jsp:attribute>
+							<jsp:attribute name="onclick">this.form.elements['mode'].value='MODIFY';</jsp:attribute>
+						</jsp:element>										
+					</c:when>
+				</c:choose>
+
+				<c:if test="${source.id != null}">
+					<jsp:element name="input">
+						<jsp:attribute name="type">submit</jsp:attribute>
+						<jsp:attribute name="value">Cancel</jsp:attribute>
+						<jsp:attribute name="id">cancel</jsp:attribute>
+						<jsp:attribute name="class">button</jsp:attribute>										
+						<jsp:attribute name="onclick">this.form.elements['mode'].value='CANCEL';</jsp:attribute>
+					</jsp:element>										
+				</c:if>
+			</div>
+
+		</form:form>
+	</jsp:body>
+</jsp:root>

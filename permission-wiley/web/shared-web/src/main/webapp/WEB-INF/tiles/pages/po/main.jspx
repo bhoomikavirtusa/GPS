@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:security="http://www.springframework.org/security/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="nextUrl" value="${poWizardForm.nextUrl}" />
+	<c:url var="prevUrl" value="${poWizardForm.prevUrl}" />
+	
+	<!--include as jspx so the jsp variable are recognized-->
+	<jsp:directive.include file="js/wizard.buttons.js.jspx" />
+	
+	
+	<c:if test="${not empty poWizardForm.po.id}">
+		<c:set var="text">Change the</c:set>
+		<c:set var="text2">(Id: ${poWizardForm.po.id})</c:set>
+	</c:if>
+	
+	<c:if test="${empty poWizardForm.po.id}">
+		<c:set var="text">Create a</c:set>
+		<c:set var="text2"></c:set>
+	</c:if>
+	
+	<!-- Added for PaperWork Task C Start-->
+	<c:if test="${(poWizardForm.wizardOwnerType == 'Wiley_Created') || (poWizardForm.managerApproved)}">
+		<c:set var="disableFlag">true</c:set>
+	</c:if>
+	<!-- Added for PaperWork Task C End-->
+	
+	<form:form modelAttribute="poWizardForm">
+	<h3>Source ${poWizardForm.source.name}</h3>	
+	<table>
+		<tr>
+			<td>
+			   <c:if test="${(not poWizardForm.managerApproved) and (poWizardForm.wizardOwnerType != 'Wiley_Created')}">
+				<form:radiobutton path="permissionRequest" value="1" />${text} permissions request form ${text2} to send to ${poWizardForm.source.name}<br/>
+				<security:authorize access="hasAnyRole('create_po', 'EMPLOYEE_DEFAULT')">
+					<form:radiobutton path="permissionRequest" value="0" />${text} purchase order ${text2} to send to ${poWizardForm.source.name}<br/>
+				</security:authorize>
+				</c:if>
+				<c:if test="${!poWizardForm.multiForm}">
+					<form:radiobutton path="permissionRequest" value="2" checked="${disableFlag}"/>Request was created outside the system <br/>
+					<span class="explanation">Choose this if you have already requested permissions</span>
+					<div id="logRequest" style="margin-left: 2em; display: none">
+						<table>
+							<tr>
+								<td colspan="2">
+									<form:radiobutton path="po.requestAppliedOnline" value="1" disabled="${disableFlag}"/> Permission request form
+									<form:radiobutton path="po.requestAppliedOnline" value="0" checked="${disableFlag}"/> Purchase order
+									<form:radiobutton path="po.requestAppliedOnline" value="3" disabled="${disableFlag}"/> Applied Online
+								</td>
+							</tr>
+							<tr>
+								<td>
+									Date requested:
+								</td>
+								<td>
+									<input type="text" id="po_date" name="po_date" size="10" maxlength="10" /> (${dateFormat})
+									<form:hidden path="po.date" />
+								</td>
+							</tr>
+							<tr>
+								<td>
+									Description of request:
+								</td>
+								<td>
+								 	<form:textarea path="po.note" rows="4" cols="60" />
+								</td>
+							</tr>
+						</table>
+					</div>
+				</c:if>
+			</td>
+		</tr>
+	</table>
+	</form:form>
+	<div class="buttonset">
+	<c:if test="${not empty poWizardForm.prevUrl}">
+		<input type="submit" id="prevB" value="Previous" /> 
+	</c:if>
+	<input type="submit" id="nextB" value="Next" /> 
+	<a href="#" id="cancelLink" class="button">Cancel</a>
+
+	</div>
+	<script type="text/javascript">
+//<![CDATA[
+	$(document).ready(function() {
+
+		$modalDialog.dialog('option', 'height', 'auto');
+		$.datepicker.setDefaults({
+		     dateFormat: '${dateFormat}'
+		});
+
+		$(function() {
+			$("#ui-datepicker-div").css("z-index", "9999" );
+			$("input[id='po.date']").datepicker();
+			$("input[id='po_date']").datepicker();
+			var d1 = $.datepicker.parseDate('mm/dd/yy', $("input[id='po.date']").val());
+			var d2 = $.datepicker.formatDate('${dateFormat}', d1);
+	    	$("input[id='po_date']").val(d2);
+		});
+
+		$("input[id='po_date']").change(function() {
+			var d1 = $.datepicker.parseDate('${dateFormat}', $("input[id='po_date']").val());
+			var d2 = $.datepicker.formatDate('mm/dd/yy', d1);
+	    	$("input[id='po.date']").val(d2);
+
+		});
+		
+	
+		$(":radio[name='permissionRequest'][value=0]").click (function() {
+			$('#logRequest').hide();
+		});
+		$(":radio[name='permissionRequest'][value=1]").click (function() {
+			$('#logRequest').hide();
+		});
+		$(":radio[name='permissionRequest'][value=2]").click (function() {
+			$('#logRequest').show();
+		});
+	});
+
+//]]>		
+	</script>
+</jsp:root>

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:security="http://www.springframework.org/security/tags"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+	xmlns:form="http://www.springframework.org/tags/form">
+
+	<jsp:directive.page pageEncoding="UTF-8" />
+
+	<jsp:element name="link">
+		<jsp:attribute name="rel">stylesheet</jsp:attribute>
+		<jsp:attribute name="type">text/css</jsp:attribute>
+		<jsp:attribute name="href">
+			<c:url value="/css/menu.css" />
+		</jsp:attribute>
+	</jsp:element>
+
+
+	<jsp:element name="script">
+		<jsp:attribute name="type">text/javascript</jsp:attribute>
+		<jsp:attribute name="src">
+			<c:url value="/js/jquery.cookie.js" />
+		</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+
+	<jsp:element name="script">
+		<jsp:attribute name="type">text/javascript</jsp:attribute>
+		<jsp:attribute name="src">
+			<c:url value="/js/jquery.dmDropDownMenu.js" />
+		</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+
+	<jsp:body>
+		<c:url var="userLandingUrl" value="/sapp/product/userLanding/main" />
+		<c:url var="archivedUrl" value="/sapp/product/userLanding/archived" />
+		<c:url var="componentUrl" value="/sapp/landing/component/manage?cwId=${cwId}" />
+		<c:url var="renumUrl" value="/sapp/landing/renumber/selectcomponent?cwId=${cwId}" />
+		<c:url var="chapterMergeUrl" value="/sapp/landing/chapterMerge/selectchapter?cwId=${cwId}" />
+		<c:url var="chapterInsertUrl" value="/sapp/landing/chapterMerge/insertingChapter?cwId=${cwId}" />
+		<c:url var="createComponentUrl" value="/sapp/landing/component/create?cwId=${cwId}" />	
+		<c:url var="sourcesUrl" value="/sapp/sources/sources/list?cameFrom=admin" />
+		<c:url var="copyPreviousUrl" value="/sapp/landing/copyAssets/selectPreviousEdition?cwId=${cwId}" />
+		<c:url var="copyFromProductUrl" value="/sapp/landing/copyAssets/searchProduct" />
+		<c:url var="requestLicenseUrl" value="/sapp/landing/license/load?cwId=${cwId}" />
+
+	<div id="menu" class="MenuBar">
+		<a href="${userLandingUrl}">
+			<fmt:message key="product.title.userLandingNoArg" />
+		</a>
+		<a href="${archivedUrl}">Archived Products</a>
+
+		<security:authorize access="hasRole('manage_components')">
+			<a href="#" class="left right">Chapters &#x25BC;</a>
+			<div id="cwSubmenu" class="cwSubmenu">
+				<a id="componentLink" href="${componentUrl}" class="disable">Create/Edit components</a>
+			  	<input type="button"  class="buttons disable" id="renumberLink" value="Renumber Figures"/>
+			  	<input type="button"  class="buttons disable" id="chapterMergeLink" value="Merge chapters"/> 
+			    <input type="button"  class="buttons disable" id="chapterInsertLink" value="Insert new chapter(s)"/> 			
+			</div>
+		</security:authorize>
+
+		
+		<a href="#" class="left right">Imports &#x25BC;</a>
+		<div id="cwSubmenu" class="cwSubmenu">
+			<security:authorize access="hasRole('copy_assets')">
+				<c:if test="${hasPreviousEdition}">
+					<input type="button" id="copyPreviousLink" href="${copyPreviousUrl}" class="disable"  value="Copy assets from previous edition" />
+				</c:if>
+				<c:if test="${not hasPreviousEdition}">
+					<input type="button" id="copyPreviousLink" href="${copyPreviousUrl}" class="disable" value="Copy assets from previous edition" disabled="disabled" />
+				</c:if>
+			</security:authorize>
+			<security:authorize access="hasRole('copy_assets_product')">
+		  		<a id="copyFromProductLink" href="${copyFromProductUrl}" class="disable">Copy assets from another product</a>
+		  	</security:authorize>
+		  	<a id="requestLicenseLink" href="${requestLicenseUrl}" class="disable">Request RightsLink license</a>
+		</div>
+		
+		<a href="${sourcesUrl}">Sources</a>
+	</div>
+<script type="text/javascript">
+//<![CDATA[
+
+	function openComponentDialog() {
+		$("#modalDiv").load('${componentUrl}', function() {
+			openModalDialog ('Create/Edit components');
+        });
+	}
+	
+	$(document).ready(function() {		
+		$("div.MenuBar").dmDropDownMenu();	
+
+		$('#componentLink').click(function() {
+			openComponentDialog();
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+		
+		$('#renumberLink').click(function() {
+			$("#modalDiv").load('${renumUrl}', function() {
+				openModalDialog ('Renumber Assets');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+
+		$('#chapterMergeLink').click(function() {
+			$("#modalDiv").load('${chapterMergeUrl}', function() {
+				openModalDialog ('Merge Chapters');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+
+		$('#chapterInsertLink').click(function() {
+			$("#modalDiv").load('${chapterInsertUrl}', function() {
+				openModalDialog ('Insert new chapter');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+		
+		$('#copyPreviousLink').click(function() {
+			$("#modalDiv").load($(this).attr("href"), function() {
+				openModalDialog ('Copy assets from previous edition');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+		
+		$('#copyFromProductLink').click(function() {
+			$("#modalDiv").load($(this).attr("href"), function() {
+				openModalDialog ('Copy assets from another product');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+		
+		$('#requestLicenseLink').click(function() {
+			$("#modalDiv").load($(this).attr("href"), function() {
+				openModalDialog ('Request RightsLink license');
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});
+	});
+//]]>		
+</script>
+
+	</jsp:body>
+</jsp:root>

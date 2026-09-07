@@ -1,0 +1,68 @@
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+	
+									<spring:nestedPath path="contact">
+										<tr>
+											<td class="label"><form:label path="firstName" cssClass="required" cssErrorClass="error">First Name:</form:label></td>
+											<td class="value"><form:input path="firstName" size="20" maxlength="20" /></td>
+										</tr>
+
+										<tr>
+											<td class="label"><form:label path="middleName" cssClass="optional" cssErrorClass="error">Middle Name:</form:label></td>
+											<td class="value"><form:input path="middleName" size="20" maxlength="20"/></td>
+										</tr>
+
+										<tr>
+											<td class="label"><form:label path="lastName" cssClass="required" cssErrorClass="error">Last Name:</form:label></td>
+											<td class="value"><form:input path="lastName" size="25" maxlength="25" /></td>
+										</tr>
+										
+										<tr>
+											<td class="label optional">Job Title:</td>
+											<td class="value"><form:input path="jobTitle" size="50" maxlength="50" /></td>
+										</tr>
+
+										<tr>
+											<td class="label optional">Gender:</td>
+											<td class="value">
+												<fmt:message key="select.choose.one" var="chooseOneMsg" />
+												<form:select path="gender">
+													<form:option value="">${chooseOneMsg}</form:option>
+													<form:option value="M">Male</form:option>
+													<form:option value="F">Female</form:option>
+												</form:select>
+											</td>
+										</tr>
+
+										<tr>
+											<td class="label optional">E-Mail:</td>
+											<td class="value"><form:input path="email" size="50" maxlength="100" /></td>
+										</tr>
+
+										<tr>
+											<td class="label optional">Office Phone Number:</td>
+											<td class="value"><form:input path="phone" size="25" maxlength="25" /></td>
+										</tr>
+										
+										<tr>
+											<td class="label optional">Fax Number:</td>
+											<td class="value"><form:input path="fax" size="25" maxlength="25" /></td>
+										</tr>
+
+										<tr>
+											<td class="label optional">Home Phone Number:</td>
+											<td class="value"><form:input path="homePhoneNumber" size="25" maxlength="25" /></td>
+										</tr>
+
+										<tr>
+											<td class="label optional">Mobile Phone Number:</td>
+											<td class="value"><form:input path="mobilePhoneNumber" size="25" maxlength="25" /></td>
+										</tr>
+									</spring:nestedPath>
+</jsp:root>

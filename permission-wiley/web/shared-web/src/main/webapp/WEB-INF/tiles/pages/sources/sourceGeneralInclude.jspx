@@ -1,0 +1,175 @@
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+>
+
+				<spring:nestedPath path="source">
+					
+					<c:if test="${manageSourceForm.managementMode != 'NOFLY'}">
+						<tr>
+							<td class="label">
+								<form:label path="name" cssClass="required" cssErrorClass="error">Official name for request forms:</form:label>
+								<form:hidden path="id" />
+								<form:hidden path="externalId" />
+							</td>
+							<td class="value"><form:input path="name" size="50" maxlength="200" /></td>
+						</tr>
+						<tr>
+							<td class="label">
+								<form:label path="displayName" cssClass="required" cssErrorClass="error">Internally displayed name:</form:label>
+							</td>
+							<td class="value"><form:input path="displayName" size="50" maxlength="200" /></td>
+						</tr>
+						<tr>
+							<td class="label">
+								<form:label path="country" cssClass="required" cssErrorClass="error">Country:</form:label>
+							</td>
+
+							<td class="value">
+								<spring:bind path="country">
+									<select name="${status.expression}">
+										<fmt:message key="select.choose.one" var="chooseOneMsg" />
+										<option value="">${chooseOneMsg}</option>
+										<c:forEach items="${countries}" var="item">
+											<c:choose>
+												<c:when test="${item.code == source.country.code}">
+													<option value="${item.code}" selected="selected">${item.description}</option>
+												</c:when>
+												<c:otherwise>
+													<option value="${item.code}">${item.description}</option>
+												</c:otherwise>
+											</c:choose>
+										</c:forEach>
+									</select>
+								</spring:bind>
+							</td>
+						</tr>
+
+						<tr>
+							<td class="label optional">Phone:</td>
+							<td class="value"><form:input path="phoneNumber" size="25" maxlength="25" /></td>
+						</tr>
+
+						<tr>
+							<td class="label optional">Fax:</td>
+							<td class="value"><form:input path="faxNumber" size="25" maxlength="25" /></td>
+						</tr>
+									
+						<tr>
+							<td class="label optional">Website:</td>
+							<td class="value"><form:input path="website" size="50" maxlength="200" /></td>
+						</tr>
+
+						<tr>
+							<td class="label optional">JDE Vendor#:</td>
+							<td class="value">
+								<form:input path="jdeVendorNumber" size="8" maxlength="8" />
+							</td>
+						</tr>
+									
+						<!-- Hide for now but may "come back" so we've kept field in DB
+						<tr>
+							<td class="label">
+								<form:label path="permissionType" cssClass="required" cssErrorClass="error">Permission Type:</form:label>
+							</td>
+							<td class="value">
+								<form:select path="permissionType">
+									<fmt:message key="select.choose.one" var="chooseOneMsg" />
+									<option value="">${chooseOneMsg}</option>
+									<form:options items="${permissionTypes}" itemValue="code" itemLabel="description" />
+								</form:select>
+							</td>
+						</tr>
+						-->
+					
+						<tr>
+							<td class="label optional">Comment:</td>
+							<td class="value">
+								<form:textarea path="comment" rows="3" cols="60">
+								</form:textarea>
+							</td>
+						</tr>
+									
+						<tr>
+							<td class="label">
+								<form:label path="creditLine" cssClass="optional" cssErrorClass="error">Default Credit Line:</form:label>
+							</td>
+							<td class="value">
+								<form:textarea path="creditLine" rows="2" cols="60" />
+							</td>
+						</tr>
+						<tr>
+                        	<td colspan="2">(Overridden by Asset Credit Line if present)</td>
+                        </tr>
+
+						<tr>
+							<td class="label optional">Delivery Method:</td>
+							<td class="value">
+								<spring:bind path="deliveryMethod">
+									<select name="${status.expression}">
+										<fmt:message key="select.choose.one" var="chooseOneMsg" />
+										<option value="">${chooseOneMsg}</option>
+										<c:forEach items="${deliveryMethods}" var="item">
+											<c:choose>
+												<c:when test="${item.code == source.deliveryMethod.code}">
+													<option value="${item.code}" selected="selected">${item.description}</option>
+												</c:when>
+												<c:otherwise>
+													<option value="${item.code}">${item.description}</option>
+												</c:otherwise>
+											</c:choose>
+										</c:forEach>
+									</select>
+								</spring:bind>
+							</td>
+						</tr>
+						<tr>
+							<td class="label optional">Permission Request URL:</td>
+							<td class="value">
+								<form:input path="permissionRequestUrl" size="50" maxlength="200"/>
+							</td>
+						</tr>
+				</c:if>
+						
+				<c:if test="${manageSourceForm.managementMode == 'NOFLY'}">
+						<tr>
+							<td class="label optional">No Fly:</td>
+							<td class="value">
+								<form:select path="nofly">
+									<form:option value="true">Yes</form:option>
+									<form:option value="false">No</form:option>
+								</form:select>
+							</td>
+						</tr>
+							<tr>
+							<td class="label optional">Sued Wiley:</td>
+							<td class="value">
+								<form:select path="suedWiley">
+									<form:option value="true">Yes</form:option>
+									<form:option value="false">No</form:option>
+								</form:select>
+							</td>
+						</tr>
+						<tr>
+							<td class="label optional">No Fly Photographer:</td>
+							<td class="value">
+								<form:input path="noFlyPhotographerLastName" size="50" maxlength="50"/>
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="label optional">Comment:</td>
+							<td class="value">
+								<form:textarea path="comment" rows="3" cols="60">
+								</form:textarea>
+							</td>
+						</tr>
+				</c:if>
+			</spring:nestedPath>
+
+</jsp:root>

@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+
+	<c:url var="submitUrl" value="/sapp/landing/copyAssets/submit" />
+	
+
+	
+	
+	<jsp:element name="script">
+		<jsp:attribute name="type">text/javascript</jsp:attribute>		
+		// Placeholder
+	</jsp:element>
+
+	<script type="text/javascript">
+	<![CDATA[
+		var theTable;
+
+		$(document).ready(function() {
+			$('#copyAssetsForm').submit( function() {
+				var displayNodes = $(theTable.fnGetDisplayNodes()).find('input:checked');
+				var hiddenNodes = $(theTable.fnGetHiddenNodes()).find('input:checked');
+				var count = displayNodes.length + hiddenNodes.length;
+				if (count == 0) {
+					alert("You have not selected any assets to copy.");
+					return false;
+				}
+				hiddenNodes.css('display', 'none');
+				hiddenNodes.appendTo(this);
+				
+				//var sData = $('input', theTable.fnGetHiddenNodes()).serialize();
+				//alert( "The following data would have been submitted to the server: \n\n" + sData);
+				
+				
+				
+				return true;
+			} );
+			
+			theTable = $('#copyAssetsFromProductTable').dataTable( {
+				"aoColumns" : [
+					{ "sWidth" : "5%", "sClass" : "center", "bSortable" : false, "bSearchable" : false }, // Select
+					{ "sWidth" : "5%" }, // Image	//Added for Build RN Ticket 151026-002014
+					{ "sWidth" : "5%" }, // Component
+					{ "sWidth" : "5%" }, // Media Type
+					{ "sWidth" : "20%" }, // Description
+					{ "sWidth" : "5%" }, // Usage
+					{ "sWidth" : "5%" }, // Position
+					{ "sWidth" : "5%" }, // Msp Page
+					{ "sWidth" : "5%" }, // Final Page
+					{ "sWidth" : "20%" }, // Source(s)
+					{ "sWidth" : "10%" }, // Source Ref#	//Added for Build RN Ticket 151026-002014
+					{ "sWidth" : "10%" } // Photographer	//Added for Build RN Ticket 151026-002014
+				],
+				"aaSorting": [[2, "asc" ], [6, "asc"], [4, "asc"]],
+				// Using bRegex true for oSearch doesn't seem to work
+				//"oSearch": {"bRegex":true, "bSmart": false},
+				"bAutoWidth": false,
+				"bProcessing": true,
+				"bStateSave": true,
+				"sPaginationType": "full_numbers",
+				"aLengthMenu": [10, 15, 25, 50, 100],  // override default of [10, 25, 50, 100]
+				"iDisplayLength": 15 // override default of 10
+			} );
+		} );
+
+		//$('#check_all').click( function() {
+		//	$('input', theTable.fnGetFilteredNodes()).attr('checked', this.checked);
+		//} );
+
+		// above doesn't work so use this instead + the checkbox calls this
+		function checkAll(master) {
+			$('input', theTable.fnGetFilteredNodes()).attr('checked', master.checked);
+		}
+
+		
+		
+		jQuery(document).ready(function() {
+			
+		});
+	]]>
+	</script>
+	
+	<form:form id="copyAssetsForm" action="${submitUrl}">
+	
+	<div style="display: none">
+		<input type="hidden" name="productId" value="${selectedProduct.id}" />
+		<input type="hidden" name="edition" value="${edition}" />
+		<input type="hidden" name="copyFlag" value="true" />
+	</div>
+
+	<table>
+		<tr>
+			<td>
+				<h1>Copy assets from <c:out value="${selectedProduct.title}" /></h1>
+				
+				<c:if test="${empty commonWorkAssets}">
+					The product or previous edition has no assets.
+				</c:if>
+				<c:if test="${not empty commonWorkAssets}">
+					<input type="checkbox" name="includeUsage" value="true" checked="true" style="margin-left: 1em" /> Include Usage Data
+					<input type="submit" value="Start" style="margin-left: 1em" />
+					
+				</c:if>
+			</td>
+		</tr>
+	</table>
+	
+	<br/>
+	<h3>Asset List</h3>
+	<c:if test="${not empty commonWorkAssets}">
+		<table class="display" id="copyAssetsFromProductTable">
+			<thead>
+				<tr>
+					<th>Select <input type="checkbox" id="check_all" onclick="checkAll(this)" style="padding: 0px; margin: 0px" /></th>
+					<th>Image</th>	<!-- Added for Build RN Ticket 151026-002014 -->
+					<th>Component</th>
+					<th>Media Type</th>
+					<th>Description</th>
+					<th>Usage</th>
+					<th>Position</th>
+					<th>Msp Page</th>
+					<th>Final Page</th>
+					<th>Source(s)</th>
+					<th>Source Ref#</th>	<!-- Added for Build RN Ticket 151026-002014 -->
+					<th>Photographer</th>	<!-- Added for Build RN Ticket 151026-002014 -->
+				</tr>
+			</thead>
+			<tbody>
+				<c:forEach items="${commonWorkAssets}" var="pick">
+					<tr>
+						<td> 
+							<c:if test="${pick.active}">
+								<c:if test="${not pick.sourceNofly}">
+									<input type="checkbox" name="pickList" value="${pick.assetUseId}" />
+								</c:if>
+								<c:if test="${pick.sourceNofly}">
+									DISABLED Source
+								</c:if>
+							</c:if>
+						</td>
+						<td>	<!-- Added this td for Build RN Ticket 151026-002014 -->
+							<c:if test="${pick.hasAssetFiles}">
+								<c:url var="thumbUrl" value="/sapp/product/assetThumbnail?assetId=${pick.assetId}&amp;size=medium" />
+								<img src="${thumbUrl}" alt="Thumbnail" />
+							</c:if>
+						</td>
+						<td><c:out value="${pick.componentName}" /></td>
+						<td><c:out value="${pick.mediaType}" /></td>
+						<td>${wileyfn:isResultActive(pick)}</td>
+						<!-- lnagy - the view will direct to assetUse view page and sets the product in 
+							the session to be the new product
+						<td>
+							<jsp:element name="a">
+								<jsp:attribute name="href">
+									<c:url value="/sapp/commonwork/asset/viewAsset?assetUseId=${pick.assetUseId}" />
+								</jsp:attribute>
+								<c:out value="${pick.description}" />
+							</jsp:element>
+						</td>
+						-->
+						<td><c:out value="${pick.usage}" /></td>
+						<td><c:out value="${pick.position}" /></td>
+						<td><c:out value="${pick.manuscriptPage}" /></td>
+						<td><c:out value="${pick.finalPage}" /></td>
+						<td>${wileyfn:sourcesAsHTML(pick.sources)}</td>
+						<td><c:out value="${pick.sourceRef}" /></td>	<!-- Added for Build RN Ticket 151026-002014 -->
+						<td><c:out value="${pick.artist}"></c:out></td>	<!-- Added for Build RN Ticket 151026-002014 -->
+					</tr>
+				</c:forEach>
+			</tbody>
+		</table>
+		
+		<div class="buttonset">
+			<input type="submit" value="Start" />		
+		</div>							
+	</c:if>
+	
+	</form:form>
+	
+</jsp:root>

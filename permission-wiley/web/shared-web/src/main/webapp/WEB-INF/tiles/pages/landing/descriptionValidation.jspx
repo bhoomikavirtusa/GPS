@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="continueUrl" value="${redirectUrl}" />
+	
+	<h1> The Description cannot be blank. </h1>
+	Please fill in a description for ${pType} at ${pComponent} ${pUsage} ${pPosition}
+	<br/>
+	
+	<form>
+	
+	<input type="text" size="20" id="modalInp" name="modalInp"  />
+	<input type="button" onclick="returnValue=document.forms[0].modalInp.value; window.close()" value="Save" /><br/>
+	
+	<c:if test="${assetUseId != '0'}">
+		Click Undo to go back to previous description: "${pDescription}"  
+		<input type="button" onclick="returnValue='${pDescription}'; window.close();" value="Undo" /> <br/>
+	</c:if>
+	
+	<c:if test="${assetUseId == '0'}">
+		Click Cancel to abandon the new asset
+		<input type="button" onclick="returnValue=''; window.close();" value="Cancel"/>
+	</c:if>
+
+	</form>
+</jsp:root>

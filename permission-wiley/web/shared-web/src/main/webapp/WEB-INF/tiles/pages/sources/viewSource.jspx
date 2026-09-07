@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:security="http://www.springframework.org/security/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+
+    <!--  For some reason this particular page looks messed up unless contentType is specified. -->
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8" />
+
+    <jsp:directive.include file="/WEB-INF/tiles/pages/include/js/toggleScript.js.jspx" />
+		    
+    <script type="text/javascript">
+		function doSourceCommand(sourceCommand, managementMode) {
+			var ourForm = document.getElementById("viewSourceForm");
+			var commandNode = ourForm.elements["sourceCommand"];
+			var mMode = ourForm.elements["managementMode"];
+	
+			commandNode.value = sourceCommand;
+	
+			if (managementMode != null) {
+				mMode.value = managementMode;
+			}
+		}
+	</script>
+
+	<!-- This is here just for shortcuts.  The EL was getting long -->
+	<c:set var="source" value="${viewSourceForm.source}"/>
+	<!--  c:set var="enterprise" value="${viewSourceForm.enterprise}"/ -->
+	<c:set var="sourceAddress" value="${viewSourceForm.sourceAddress}"/>
+	<c:set var="contact" value="${viewSourceForm.contact}"/>
+	<c:set var="contactAddress" value="${viewSourceForm.contactAddress}"/>
+
+	<c:choose>
+		<c:when test="${source != null}">
+			<c:url var="formAction" value="/sapp/sources/viewSource/submit"/>
+
+			<form:form modelAttribute="viewSourceForm" id="viewSourceForm" action="${formAction}">
+				<form:errors cssClass="error" path="*"/>
+
+				<div style="display: none">
+					<form:hidden path="sourceCommand" id="sourceCommand"/>
+					<form:hidden path="currentSourceId" />
+					<form:hidden path="managementMode" />
+					<form:hidden path="cameFrom" />
+				</div>
+
+				<table class="width100">
+					<tr>
+						<th colspan="2">
+							Source Information
+						</th>
+					</tr>
+
+					<tr>
+						<td colspan="2">
+							<h1>${source.name}
+							<security:authorize access="hasAuthority('EMPLOYEE_DEFAULT')">
+							<security:authorize access="!hasAnyAuthority('AUTHOR_DEFAULT')">
+								<jsp:element name="input">
+									<jsp:attribute name="name">modifySourceButton</jsp:attribute>
+									<jsp:attribute name="type">image</jsp:attribute>
+									<jsp:attribute name="onclick">doSourceCommand('MODIFY_SOURCE', 'GENERAL');</jsp:attribute>
+									<jsp:attribute name="src">
+										<c:url value="/images/buttons/edit-icon.png" />
+									</jsp:attribute>
+								</jsp:element>
+							</security:authorize>
+							</security:authorize>
+							</h1>
+						</td>
+					</tr>
+
+					<tr>
+						<td valign="top">
+							<tiles:insertDefinition name="tiles.sources.source">
+								<tiles:putAttribute name="source" value="${source}" type="object"/>
+								<!-- tiles:putAttribute name="enterprise" value="${enterprise}" type="object"/ -->
+							</tiles:insertDefinition>
+						</td>
+						<td valign="top">
+							<table>
+								<tr>
+									<td>
+							<h2>
+							<c:if test="${not empty source.addresses}">
+								Select Address:
+
+								<form:select path="currentSourceAddressId" onchange="this.form.submit()">
+									<c:forEach var="addressAsc" items="${source.addresses}">
+										<form:option value="${addressAsc.address.id}">${addressAsc.address.type.description}</form:option>
+									</c:forEach>
+								</form:select>
+							</c:if>
+							<security:authorize access="hasAuthority('EMPLOYEE_DEFAULT')">
+							<security:authorize access="!hasAnyAuthority('AUTHOR_DEFAULT')">
+								<jsp:element name="input">
+									<jsp:attribute name="name">addSourceAddressButton</jsp:attribute>
+									<jsp:attribute name="type">image</jsp:attribute>
+									<jsp:attribute name="onclick">doSourceCommand('ADD_SOURCE_ADDRESS', null)</jsp:attribute>
+									<jsp:attribute name="alt">Add New Address</jsp:attribute>
+									<jsp:attribute name="src">
+										<c:url value="/images/buttons/new-icon.png"/>
+									</jsp:attribute>
+								</jsp:element>
+							</security:authorize>
+							</security:authorize>
+								
+							<c:if test="${not empty source.addresses}">
+								<security:authorize access="hasAuthority('EMPLOYEE_DEFAULT')">
+								<security:authorize access="!hasAnyAuthority('AUTHOR_DEFAULT')">
+									<jsp:element name="input">
+										<jsp:attribute name="name">modifySourceAddressButton</jsp:attribute>
+										<jsp:attribute name="type">image</jsp:attribute>
+										<jsp:attribute name="onclick">doSourceCommand('MODIFY_SOURCE_ADDRESS', null)</jsp:attribute>
+										<jsp:attribute name="alt">Edit Address</jsp:attribute>
+										<jsp:attribute name="src">
+											<c:url value="/images/buttons/edit-icon.png"/>
+										</jsp:attribute>
+									</jsp:element>
+									<jsp:element name="input">
+										<jsp:attribute name="name">removeSourceAddressButton</jsp:attribute>
+										<jsp:attribute name="type">image</jsp:attribute>
+										<jsp:attribute name="onclick">doSourceCommand('REMOVE_SOURCE_ADDRESS', null)</jsp:attribute>
+										<jsp:attribute name="alt">Remove Address</jsp:attribute>
+										<jsp:attribute name="src">
+											<c:url value="/images/buttons/delete-icon.png"/>
+										</jsp:attribute>
+									</jsp:element>
+								</security:authorize>
+								</security:authorize>
+							</c:if>
+							</h2>
+								</td>
+							</tr>
+							<tr>
+								<td>
+							<table>
+								<c:choose>
+									<c:when test="${not empty source.addresses}">
+										<tr>
+											<td>
+												<tiles:insertDefinition name="tiles.sources.address">
+													<tiles:putAttribute name="addressType" value="${sourceAddress.address.type}" type="object"/>
+													<tiles:putAttribute name="address" value="${sourceAddress.address}" type="object"/>
+												</tiles:insertDefinition>
+											</td>
+										</tr>
+									</c:when>
+
+									<c:otherwise>
+										<tr>
+											<td>
+												No Addresses For This Source
+											</td>
+										</tr>
+									</c:otherwise>
+								</c:choose>
+							</table>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+
+					<tr>
+						<td colspan="2"><h2>
+							
+							<jsp:element name="input">
+								<jsp:attribute name="name">salesDetailsButton</jsp:attribute>
+								<jsp:attribute name="type">image</jsp:attribute>
+								<jsp:attribute name="onclick">return toggleDetails('files', this);</jsp:attribute>
+								<jsp:attribute name="src">
+									<c:url value="/images/buttons/plus.png"/>
+								</jsp:attribute>
+							</jsp:element>
+							
+							Files (${fn:length(source.files)})
+							<security:authorize access="hasAuthority('EMPLOYEE_DEFAULT')">
+							<security:authorize access="!hasAnyAuthority('AUTHOR_DEFAULT')">
+								<jsp:element name="input">
+									<jsp:attribute name="name">modifySourceButton</jsp:attribute>
+									<jsp:attribute name="type">image</jsp:attribute>
+									<jsp:attribute name="onclick">doSourceCommand('MODIFY_SOURCE', 'FILES');</jsp:attribute>
+									<jsp:attribute name="src">
+										<c:url value="/images/buttons/edit-icon.png" />
+									</jsp:attribute>
+								</jsp:element>
+							</security:authorize>
+							</security:authorize>
+						
+						</h2></td>
+					</tr>
+					
+					<tr>
+						<td colspan="2">
+							<div id="details-files" style="display: none;">
+								<tiles:insertDefinition name="tiles.sources.sourceFileDetails">
+									<tiles:putAttribute name="source" value="${source}" type="object"/>
+									<!-- tiles:putAttribute name="enterprise" value="${enterprise}" type="object"/-->
+								</tiles:insertDefinition>
+							</div>
+
+							<div class="spacer"><img src="${pageContext.request.contextPath}/images/spacer.png" class="spacer" alt="spacer"/></div>
+						</td>
+					</tr>
+					
+					<tr>
+						<td colspan="2">
+						<h2>
+							<jsp:element name="input">
+								<jsp:attribute name="name">salesDetailsButton</jsp:attribute>
+								<jsp:attribute name="type">image</jsp:attribute>
+								<jsp:attribute name="onclick">return toggleDetails('nofly', this);</jsp:attribute>
+								<jsp:attribute name="src">
+									<c:url value="/images/buttons/plus.png"/>
+								</jsp:attribute>
+							</jsp:element>
+
+							Active/No Fly: (${source.noFlyText})
+							<security:authorize access="hasAuthority('ADMIN')">
+								<jsp:element name="input">
+									<jsp:attribute name="name">modifySourceButton</jsp:attribute>
+									<jsp:attribute name="type">image</jsp:attribute>
+									<jsp:attribute name="onclick">doSourceCommand('MODIFY_SOURCE', 'NOFLY');</jsp:attribute>
+									<jsp:attribute name="src">
+										<c:url value="/images/buttons/edit-icon.png" />
+									</jsp:attribute>
+								</jsp:element>
+							</security:authorize>
+						</h2>
+						</td>
+					</tr>
+
+					<tr>
+						<td colspan="2">
+							<div id="details-nofly" style="display: none;">
+								<tiles:insertDefinition name="tiles.sources.sourceNoflyDetails">
+									<tiles:putAttribute name="source" value="${source}" type="object"/>
+									<!-- tiles:putAttribute name="enterprise" value="${enterprise}" type="object"/-->
+								</tiles:insertDefinition>
+							</div>
+
+							<div class="spacer"><img src="${pageContext.request.contextPath}/images/spacer.png" class="spacer" alt="spacer"/></div>
+						</td>
+					</tr>
+				</table>
+
+				<br/>
+
+				<c:choose>
+					<c:when test="${not empty source.contacts}">
+						<table class="width100">
+							<tr>
+								<th>Contact Information</th>
+							</tr>
+							<tr>
+								<td>
+									Select Contact:
+							
+									<form:select path="currentContactId" onchange="this.form.submit()">
+										<c:forEach var="tmpContact" items="${source.contacts}">
+											<!-- <form:option value="${tmpContact.id}">${tmpContact.type.value}</form:option> -->
+											<form:option value="${tmpContact.id}">${tmpContact.lastName}</form:option>
+											
+										</c:forEach>
+									</form:select>
+									<security:authorize access="hasAuthority('EMPLOYEE_DEFAULT')">
+									<security:authorize access="!hasAnyAuthority('AUTHOR_DEFAULT')">
+										<jsp:element name="input">
+											<jsp:attribute name="name">addContactButton</jsp:attribute>
+											<jsp:attribute name="type">image</jsp:attribute>
+											<jsp:attribute name="onclick">doSourceCommand('ADD_CONTACT', null)</jsp:attribute>
+											<jsp:attribute name="src">
+												<c:url value="/images/buttons/new-icon.png"/>
+											</jsp:attribute>
+										</jsp:element>
+	
+										<jsp:element name="input">
+											<jsp:attribute name="name">modifyContactButton</jsp:attribute>
+											<jsp:attribute name="type">image</jsp:attribute>
+											<jsp:attribute name="onclick">doSourceCommand('MODIFY_CONTACT', null)</jsp:attribute>
+											<jsp:attribute name="src">
+												<c:url value="/images/buttons/edit-icon.png"/>
+											</jsp:attribute>
+										</jsp:element>
+	
+										<jsp:element name="input">
+											<jsp:attribute name="name">removeContactButton</jsp:attribute>
+											<jsp:attribute name="type">image</jsp:attribute>
+											<jsp:attribute name="onclick">doSourceCommand('REMOVE_CONTACT', null)</jsp:attribute>
+											<jsp:attribute name="src">
+												<c:url value="/images/buttons/delete-icon.png"/>
+											</jsp:attribute>
+										</jsp:element>
+									</security:authorize>
+									</security:authorize>
+								</td>
+							</tr>
+							<tr>
+								<td>
+						<tiles:insertDefinition name="tiles.sources.contact">
+							<tiles:putAttribute name="contact" value="${contact}" type="object"/>
+							<tiles:putAttribute name="contactAddress" value="${contactAddress}" type="object"/>
+						</tiles:insertDefinition>
+								</td>
+							</tr>
+						</table>							
+					</c:when>
+
+					<c:otherwise>
+						No Contacts For This Source
+						<security:authorize access="hasAuthority('EMPLOYEE_DEFAULT')">
+						<security:authorize access="!hasAnyAuthority('AUTHOR_DEFAULT')">
+							<jsp:element name="input">
+								<jsp:attribute name="name">addContactButton2</jsp:attribute>
+								<jsp:attribute name="type">image</jsp:attribute>
+								<jsp:attribute name="onclick">doSourceCommand('ADD_CONTACT')</jsp:attribute>
+								<jsp:attribute name="src">
+									<c:url value="/images/buttons/new-icon.png"/>
+								</jsp:attribute>
+							</jsp:element>
+						</security:authorize>
+						</security:authorize>
+					</c:otherwise>
+				</c:choose>
+			</form:form>
+			
+			<!-- cameFromSourceGroupId is stored in the session -->
+			<c:if test="${cameFromSourceGroupId != null}">
+				<!-- Seem to need table to get right align to work -->
+				<table class="width100">
+					<tr>
+						<td style="text-align: right">
+							<c:url var="manageSourceGroupUrl"
+								value="/sapp/admin/sourceGroups?groupId=${cameFromSourceGroupId}&amp;mode=MODIFY_CHILD" />
+							<a class="button" href="${manageSourceGroupUrl}">Return to Manage Source Group</a>
+						</td>
+					</tr>
+				</table>
+			</c:if>
+		</c:when>
+
+		<c:otherwise>
+			<label class="error">No Source Found!</label>
+		</c:otherwise>
+	</c:choose>
+</jsp:root>

@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root 
+	version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:security="http://www.springframework.org/security/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	<c:url var="plusImageUrl" value="/images/buttons/plus.png" />
+	<c:url var="prevUrl" value="/sapp/product/userLanding/main" />
+	<c:url var="prev2Url" value="/sapp/cwlanding/scroll?cwId=${cwId}" />
+	
+	<script type="text/javascript">
+	//<![CDATA[
+		$(document).ready(function() {
+			$('#sourceGroupsTable').dataTable( {
+				"aoColumns": [
+					{ "sWidth" : "10%", "sClass" : "center", "bSearchable" : false, "bSortable": false }, // Edit
+					{ "sWidth" : "10%", "sClass" : "center", "bSearchable" : false, "bSortable": false }, // Delete
+					{ "sWidth" : "40%", "sClass" : "left", "bSearchable" : false, "bSortable": false },   // Description
+					{ "sWidth" : "40%", "sClass" : "left", "bSearchable" : false, "bSortable": false } // Active Master Agreement
+				],
+				"aaSorting": [[2, "asc" ]],
+				"oLanguage": { "sEmptyTable": "No Source Groups Found" },
+				"bAutoWidth": false,
+				"bProcessing": true,
+				//"bStateSave": true,
+				//"sPaginationType": "full_numbers",
+				//"aLengthMenu": [10, 15, 25, 50, 100],  // override default of [10, 25, 50, 100]
+				"iDisplayLength": 5000, // since scrolling table this number needs to be at least as big as possible result set
+				"sDom" : "rt"
+			} );
+
+			$('#nofySourceGroupsTable').dataTable( {
+				"aoColumns": [
+					{ "sWidth" : "10%", "sClass" : "center", "bSearchable" : false, "bSortable": false }, // Edit
+					{ "sWidth" : "10%", "sClass" : "center", "bSearchable" : false, "bSortable": false }, // Delete
+					{ "sWidth" : "40%", "sClass" : "left", "bSearchable" : false, "bSortable": false }, // Description
+					{  "sWidth" : "40%", "sClass" : "left", "bSearchable" : false, "bSortable": false } // Members
+				],
+				"aaSorting": [[2, "asc" ]],
+				"oLanguage": { "sEmptyTable": "No Source Groups Found" },
+				"bAutoWidth": false,
+				"bProcessing": true,
+				//"bStateSave": true,
+				//"sPaginationType": "full_numbers",
+				//"aLengthMenu": [10, 15, 25, 50, 100],  // override default of [10, 25, 50, 100]
+				"iDisplayLength": 5000, // since scrolling table this number needs to be at least as big as possible result set
+				"sDom" : "rt"
+			} );
+		} );
+	//]]>
+	</script>
+	
+	<script type="text/javascript">
+	$(document).ready(function() {
+		$('#showNoFly').click (function() {
+			$("#noflyDiv").toggle();
+	 	});
+	});
+	</script>
+
+	<form:form modelAttribute="sourceGroupMainForm">
+		<jsp:attribute name="action">
+			<c:url value="/sapp/admin/sourceGroups"/>
+		</jsp:attribute>
+
+		<div style="display: none">
+			<form:hidden path="mode"/>
+			<form:hidden path="groupId"/>
+		</div>
+
+		<table class="width100">
+			<tr>
+				<th>
+					Master Agreements (${fn:length(groups)})
+					<div class="right top11">
+					<security:authorize access="hasAuthority('ADMIN')">
+						<jsp:element name="input">
+							<jsp:attribute name="type">submit</jsp:attribute>
+							<jsp:attribute name="value">Create New Group</jsp:attribute>
+							<jsp:attribute name="onclick">this.form.elements['mode'].value='ADD_CHILD';</jsp:attribute>
+						</jsp:element>
+					</security:authorize>
+					</div>
+				</th>
+			</tr>
+		</table>
+		
+		
+		<table class="width100">
+			<tr>
+				<td><b> </b></td>
+			</tr>
+		</table>
+		
+		<table class="width100">
+			<tr>
+				<td>
+				<div style="height:260px; width:100%; overflow:auto">
+					<table class="display" id="sourceGroupsTable">
+						<thead>
+							<tr>
+								<th> </th>
+								<th><security:authorize access="hasAuthority('ADMIN')">Delete</security:authorize></th>
+								<th>Name</th>
+								<th>Master Agreement</th>
+							</tr>
+						</thead>
+						
+						<tbody>
+							<c:forEach items="${groups}" var="group">
+								<tr>
+									<td>
+										<jsp:element name="input">
+											<jsp:attribute name="type">button</jsp:attribute>
+											<jsp:attribute name="value">details</jsp:attribute>
+											<jsp:attribute name="onclick">
+												this.form.elements['mode'].value='MODIFY_CHILD';
+												this.form.elements['groupId'].value='${group.id}';
+												this.form.submit();
+											</jsp:attribute>
+										</jsp:element>
+									</td>
+
+									<td>
+									<security:authorize access="hasAuthority('ADMIN')">
+										<c:if test="${!group.isBeingUsed}">
+											<jsp:element name="input">
+												<jsp:attribute name="name">actionButton4</jsp:attribute>
+												<jsp:attribute name="type">image</jsp:attribute>
+												<jsp:attribute name="alt">Delete Group</jsp:attribute>
+												<jsp:attribute name="onclick">
+													this.form.elements['mode'].value='REMOVE_CHILD';
+													this.form.elements['groupId'].value='${group.id}';
+												</jsp:attribute>
+												<jsp:attribute name="src">
+													<c:url value="/images/buttons/delete-icon.png" />
+												</jsp:attribute>
+											</jsp:element>
+										</c:if>
+									</security:authorize>
+									</td>
+
+									<td><c:out value="${group.name}" /></td>
+									<td>
+										<c:if test="${not empty group.activeMasterAgreement}">
+											<c:url var="downloadUrl" value="/sapp/landing/source/download_file?agreementId=${group.activeMasterAgreement.id}" />
+											<a href="${downloadUrl}"><c:out value="${group.activeMasterAgreement.fileName}" /></a>  active until 
+											<fmt:formatDate type="date" value="${group.activeMasterAgreement.endDate}" /> 
+										</c:if>
+									</td>			
+								</tr>
+							</c:forEach>
+						</tbody>
+		
+					</table>
+					</div>
+				</td>
+			</tr>
+			<tr><td> </td></tr>
+			<tr><td> </td></tr>
+		</table>
+		
+	<security:authorize access="hasAuthority('ADMIN')">
+		<table class="width100">
+			<tr>
+				<td colspan="2">
+					<img src="${plusImageUrl}" id="showNoFly" /><b> No Fly Source Groups (${fn:length(noflygroups)})</b>
+				</td>
+			</tr>
+		</table>
+	</security:authorize>
+		<table class="width100">
+			<tbody id="noflyDiv" style="display:none">
+			<tr>
+				<td>
+				<div style="height:260px; width:100%; overflow:auto">
+					<table class="display" id="nofySourceGroupsTable">
+						<thead>
+							<tr>
+								<th> </th>
+								<th><security:authorize access="hasAuthority('ADMIN')">Delete</security:authorize></th>
+								<th>Description</th>
+								<th>Members</th>
+							</tr>
+						</thead>
+						
+						<tbody>
+							<c:forEach items="${noflygroups}" var="group">
+								<tr>
+									<td>
+										<jsp:element name="input">
+										<jsp:attribute name="type">button</jsp:attribute>
+										<jsp:attribute name="value">details</jsp:attribute>
+										<jsp:attribute name="onclick">
+											this.form.elements['mode'].value='MODIFY_CHILD';
+											this.form.elements['groupId'].value='${group.id}';
+											this.form.submit();
+										</jsp:attribute>
+									</jsp:element>	
+									</td>
+
+									<td>
+										<security:authorize access="hasAuthority('ADMIN')">
+										<c:if test="${!group.isBeingUsed}">
+											<jsp:element name="input">
+												<jsp:attribute name="name">actionButton4</jsp:attribute>
+												<jsp:attribute name="type">image</jsp:attribute>
+												<jsp:attribute name="alt">Delete Group</jsp:attribute>
+												<jsp:attribute name="onclick">
+													this.form.elements['mode'].value='REMOVE_CHILD';
+													this.form.elements['groupId'].value='${group.id}';
+												</jsp:attribute>
+												<jsp:attribute name="src">
+													<c:url value="/images/buttons/delete-icon.png" />
+												</jsp:attribute>
+											</jsp:element>
+										</c:if>
+							   			</security:authorize>
+									</td>
+
+									<td><c:out value="${group.name}" /></td>
+									<td><c:out value="${group.members}" /></td>
+								</tr>
+							</c:forEach>
+						</tbody>
+		
+					</table>
+					</div>
+				</td>
+			</tr>
+			</tbody>
+			<tr><td> </td></tr>
+			<tr><td> </td></tr>
+		</table>
+		
+		<table class="width100">
+			<tr><td> </td></tr>
+			<tr><td> </td></tr>
+			<tr>
+				<th>
+					<div class="buttonset">
+						<security:authorize access="hasAuthority('ADMIN')">
+						<jsp:element name="input">
+							<jsp:attribute name="type">submit</jsp:attribute>
+							<jsp:attribute name="value">Create New Group</jsp:attribute>
+							<jsp:attribute name="onclick">this.form.elements['mode'].value='ADD_CHILD';</jsp:attribute>
+						</jsp:element>
+						</security:authorize>
+
+						<c:if test="${not empty cwId}">
+							<a href="${prev2Url}" class="button">Return to Product</a>
+						</c:if>
+				
+						<c:if test="${empty cwId}">
+							<a href="${prevUrl}" class="button">Return</a>
+						</c:if>
+					</div>
+				</th>
+			</tr>
+		</table>
+
+	</form:form>
+</jsp:root>

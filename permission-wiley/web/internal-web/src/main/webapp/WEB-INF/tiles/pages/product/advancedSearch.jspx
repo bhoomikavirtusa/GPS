@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+
+	<jsp:directive.page pageEncoding="UTF-8" />
+	
+	<c:url var="landingUrl" value="/sapp/product/userLanding/main" />
+
+	<jsp:element name="script">
+		<jsp:attribute name="type">text/javascript</jsp:attribute>
+		<jsp:attribute name="src">
+			<c:url value="/js/jquery.blockUI-2.38.js"/>
+		</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+	
+	<script type="text/javascript">
+	//<![CDATA[
+		$(document).ajaxStop($.unblockUI); 
+		
+		function search() {
+			$.blockUI();
+			return true; 
+		}
+
+		function isWhitespace(string) {
+			var pattern = /^\s*$/;
+			return pattern.test(string);
+		}
+		
+		function syncCheckbox(textField, checkboxId) {
+			var checkbox = document.getElementById(checkboxId);
+			checkbox.checked = !isWhitespace(textField.value);
+		}
+
+		function checkValidNumeric(textField, checkboxId) {
+			if (isNumber(textField.value)) {
+				syncCheckbox(textField, checkboxId);
+			}
+			if (!isNumber(textField.value)) {
+				alert("This field must be numeric");
+				textField.focus();
+				return false;
+			}	
+		}
+		
+		function isNumber(n) {
+			return !isNaN(parseFloat(n)) && isFinite(n);
+		}
+	//]]>
+	</script>
+ 	
+	<fmt:setBundle basename="messages" />
+
+    <c:url value="/sapp/product/product/advancedsearch" var="action" />
+	<form method="post" action="${action}" id="advancedSearchForm" onSubmit="search();">
+		<div style="display: none">
+			<input type="hidden" name="mode" value="SEARCH"/>
+		</div>
+
+		<input type="hidden" name="target" value="landingViewName" />
+		
+        <!-- Strings such as "Author" may need to be internationalized later. -->
+        <!-- Maybe do this a better way - instead of hard coding options. -->
+        <table class="width100">
+			<tr>
+				<th colspan="2">Advanced Search</th>
+			</tr>
+        	<tr>
+        		<td><form:checkbox path="advancedSearchForm.titleCheck" label="Title"/></td>
+        		<td><form:input path="advancedSearchForm.title" size="30" maxlength="30" onchange="syncCheckbox(this, 'titleCheck1')" ></form:input></td>
+        	</tr>
+        	<tr>
+        		<td><form:checkbox path="advancedSearchForm.authorCheck" label="Author"/></td>
+        		<td><form:input path="advancedSearchForm.author" size="30" maxlength="30" onchange="syncCheckbox(this, 'authorCheck1')"  ></form:input></td>
+        	</tr>
+        	<tr>
+        		<td><form:checkbox path="advancedSearchForm.editionCheck" label="Edition (must be numeric)"/></td>
+        		<td><form:input path="advancedSearchForm.edition" size="10" maxlength="10" onchange="checkValidNumeric(this, 'editionCheck1')"  ></form:input></td>
+        	</tr>
+        	<tr>
+        		<td><form:checkbox path="advancedSearchForm.productLineCheck" label="Product Line" /></td>
+        		<td><form:input path="advancedSearchForm.productLine" size="3" maxlength="3" onchange="syncCheckbox(this, 'productLineCheck1')" ></form:input></td>
+        	</tr>
+        	<tr>
+        		<td><form:checkbox path="advancedSearchForm.editorCodeCheck" label="Editor Code"/></td>
+        		<td><form:input path="advancedSearchForm.editorCode" size="10" maxlength="10" onchange="syncCheckbox(this, 'editorCodeCheck1')"  ></form:input></td>
+        	</tr>
+        	<tr>
+        		<td><form:checkbox path="advancedSearchForm.copyrightYearCheck" label="Copyright Year"/></td>
+        		<td><form:input path="advancedSearchForm.copyrightYear" size="30" maxlength="30" onchange="checkValidNumeric(this, 'copyrightYearCheck1')" ></form:input></td>
+        	</tr>
+        	<tr>
+        		<td><form:checkbox path="advancedSearchForm.pubStatusCheck" label="Pub Status" /></td>
+        		<td>
+        			<form:select path="advancedSearchForm.pubStatus" onchange="syncCheckbox(this, 'pubStatusCheck1')" >
+			        	<form:options items="${publicationStatusList}" itemValue="code" itemLabel="codeAndDescription" />
+			        </form:select>
+        		</td>
+        	</tr>
+        </table>
+        
+		<div class="buttonset">	
+	    	<input type="reset" value="Clear From Fields"/>
+	    	<input value="Search Products" type="submit"/>
+	    	<a class="button" href="${landingUrl}">Cancel</a>
+		</div>
+	</form>
+</jsp:root>

@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:form="http://www.springframework.org/tags/form"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions">
+	
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="nextUrl" value="/sapp/landing/source/submit_3rdparty_search" />
+	<c:url var="prevUrl" value="${sourceWizardForm.prevUrl}" />
+	<c:url var="sourceSearchUrl" value="${wileyfn:getRestUrl(pageContext.request)}/service/source/search" />
+
+	<!--include as jspx so the jsp variable are recognized-->
+	<jsp:directive.include file="js/wizard.buttons.js.jspx" />
+
+	<h3>${sourceWizardForm.assetUse.asset.description}</h3>
+	<form:form modelAttribute="sourceWizardForm">
+		<form:hidden path="sourceId" />
+		<table>
+			<tr>
+				<td>
+					Source name:
+				</td>
+				<td>
+					<form:input path="sourceName" size="40" maxlength="100"/>
+				</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td colspan="2">
+					<span class="explanation">Name of the institution, website etc. that the asset is coming from</span>
+				</td>
+			</tr>
+			<c:if test="${sources != null}">
+			<tr>
+				<td colspan="2">
+					<center>or</center>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Select previous:
+				</td>			
+				<td>
+					<select id="prevSource">
+						<option>--Select--</option>
+						<c:forEach items="${sources}" var="source">
+							<c:if test="${not source.disabled}">
+								<option value="${source.id}">${source.name}</option>
+							</c:if>
+						</c:forEach>
+					</select>
+				</td>
+			</tr>
+			</c:if>		
+			<tr>
+				<td colspan="2">
+					<center>or</center>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Select favorite:
+				</td>			
+				<td>
+					<select id="favSource">
+						<option>--Select--</option>
+						<c:forEach items="${mysources}" var="source">
+							<c:if test="${not source.disabled}">
+								<option value="${source.id}">${source.name}</option>
+							</c:if>
+						</c:forEach>
+					</select>
+				</td>
+			</tr>
+		</table>
+	</form:form>
+	<div class="buttonset">
+	<input type="button" id="prevB" value="Previous"/>	
+	<input type="submit" id="searchB" value="Next"/> 
+	<a href="#" id="cancelLink" class="button">Cancel</a> 	
+	</div>
+		
+	<script type="text/javascript">
+//<![CDATA[
+	$(document).ready(function() {
+		
+		$('#searchB').click (function() {
+			next ('get');
+		});
+
+		$('#prevSource').change(function() {
+			$("#prevSource option:selected").each(function () {
+	            $( "#sourceId" ).val ($(this).val());
+	        });	
+		});
+		
+		$('#favSource').change(function() {
+			$("#favSource option:selected").each(function () {
+	            $( "#sourceId" ).val ($(this).val());
+	        });	
+		});
+		
+		$( "#sourceName" ).autocomplete({
+			source: function( request, response ) {
+				$.jsonp({
+					"url": '${sourceSearchUrl}/' + request.term + '?callback=?', 
+					"success": function(json) {
+						response( $.map( json, function( item ) {
+							return {
+								value: item.name,					
+								id: item.id,
+								disabled: item.nofly
+							}
+						}));
+					},
+					"error": function() {
+			        	alert ("Error: failed to search sources");
+			        }
+		        });				
+			},
+			minLength: 3,
+			select: function( event, ui ) {
+				if (ui.item.disabled) {
+					alert ("Use of any assets provided by this source has been prohibited by Wiley.  Please cancel this asset, and select one from an alternate source.");
+					$( "#sourceName" ).val ("");
+					return false;
+				} else {
+					$( "#sourceId" ).val (ui.item.id);
+				}
+			},
+			open: function() {
+				$( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+			},
+			close: function() {
+				$( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+			}
+		});
+	});
+//]]>		
+	</script>	 
+
+</jsp:root>

@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:wileyfn="http://permissions.wiley.com/tlds/functions"
+	xmlns:security="http://www.springframework.org/security/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+
+	<jsp:directive.page pageEncoding="UTF-8" />
+
+	<jsp:element name="link">
+		<jsp:attribute name="rel">stylesheet</jsp:attribute>
+		<jsp:attribute name="type">text/css</jsp:attribute>
+		<jsp:attribute name="href">
+			<c:url value="/css/menu.css" />
+		</jsp:attribute>
+	</jsp:element>
+
+	<jsp:element name="script">
+		<jsp:attribute name="type">text/javascript</jsp:attribute>
+		<jsp:attribute name="src">
+			<c:url value="/js/jquery.cookie.js" />
+		</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+
+	<jsp:element name="script">
+		<jsp:attribute name="type">text/javascript</jsp:attribute>
+		<jsp:attribute name="src">
+			<c:url value="/js/superfish.js" />
+		</jsp:attribute>
+		// Placeholder
+	</jsp:element>
+
+<c:url var="filterFormUrl" value="/sapp/landing/filter/form?cwId=${cwId}" />
+<c:if test="${current_common_work.permissionComplete}">
+	<c:url var="assetMainUrl" value="/sapp/asset/main/view/first" />
+</c:if>
+<c:if test="${not current_common_work.permissionComplete}">
+	<c:url var="assetMainUrl" value="/sapp/asset/main/first" />
+</c:if>
+
+<c:url var="assetCustomEditUrl" value="/sapp/asset/main/custom/first" />
+<c:url var="assetCancelUrl" value="/sapp/asset/manageAsset/cancel" />
+<c:url var="assetCancelMultiUrl" value="/sapp/asset/manageAsset/cancelMulti" />
+<c:url var="assetUnCancelUrl" value="${wileyfn:getRestUrl(pageContext.request)}/service/asset/uncancel/${cwId}" />
+<c:url var="assetDuplicateUrl" value="${wileyfn:getRestUrl(pageContext.request)}/service/asset/duplicate/${cwId}" />
+<c:url var="flagAsReplacementUrl" value="/sapp/asset/manageAsset/flagAsReplace" />
+<c:url var="clearAssetsUrl"       value="/sapp/asset/manageAsset/assetsClear" />
+
+<jsp:directive.include file="../js/table.menu.js.jspx" />
+
+	<jsp:body>
+		
+		<div id="menu" class="ActionBar disable">
+			<ul id="action-menu-1">
+				<li>
+					<a href="#" class="left right disable">Actions &#x25BC;</a>					
+					<ul id="subMenuAction" style="display: none; visibility: hidden;">
+					  	<!-- These are buttons instead of anchors so we can disable them but still show them -->
+					  	<!--<input type="button" class="buttons disable"  onClick="fnInsertLast (blankRow); return false;" value="Insert new row"/>-->
+					  	<c:if test="${userSession.currentUser.customMode}">
+						  	<li>
+	    			  			<input type="button" class="buttons disable" onClick="fnCustomEditRows(); return false;" value="Quick Asset Entry" disabled="true"/> 
+							</li>
+						</c:if>
+						<li>
+    					  	<input type="button"  class="multi disable" onClick="fnDuplicateRows(); return false;" value="Copy for Multiuse" disabled="true"/> 
+						</li>
+						<!-- lnagy - maybe we have to split this file in author and internal
+						<li>
+    					  	<input type="button"  class="multi disable" onClick="fnCancelRows(); return false;" value="Delete/cancel/replace asset" disabled="true"/> 
+						</li>
+						-->
+						<li>
+    					  	<input type="button"  class="multi disable" onClick="fnInternalCancelRows(); return false;" value="Delete/cancel/replace asset" disabled="true"/> 
+						</li>
+						<li>
+    			  			<input type="button"  class="multi disable" onClick="fnUnCancelRows(); return false;" value="Uncancel asset" disabled="true"/> 
+						</li>
+						<li>
+		    			  	<input type="button"  class="one disable" onClick="fnFlagAsReplacement(blankRow,0); return false;" value="Flag As Replacement" disabled="true"/>  
+						</li>
+						<li>
+    			  			<input type="button"  class="multi" onClick="fnEditRows(); return false;" value="View/edit asset details" disabled="true"/> 
+						</li>
+						<li>
+		    			  	<input type="button"  class="one disable" onClick="fnInsertAtSelection(blankRow,0); return false;" value="Insert new row before" disabled="true"/>  
+						</li>
+						<li>
+		    			  	<input type="button"  class="one disable" onClick="fnInsertAtSelection(blankRow,1); return false;" value="Insert new row after" disabled="true"/>  
+						</li>
+						<!-- Start: Added for DM-532 -->
+						<li>
+		    			  	<input type="button"  class="multi disable" onClick="fnUploadDocuments();" value="Upload Documents" disabled="true"/>
+						</li>
+						<!-- End: Added for DM-532 -->
+				 							
+						<security:authorize access="hasAuthority('SUPER')">
+							<li>
+								<input type="button"  class="multi disable" onClick="fnClearAssets(); return false;" value="Clear Assets" disabled="true"/>  
+							</li>
+						</security:authorize>
+    			    <!-- <input type="button"  class="buttons" onClick="oSelector.fnGetCheckedValues (); return false;" value="get checked"/> --> 
+					</ul>
+				</li>
+			</ul>
+		</div>
+		<!-- Start: Added for DM-532 -->
+		<div id="multiFileUploadDiv" style="display: none">
+			<c:url var="multiUploadInProgressUrl" value="/sapp/permissions/contract/isMultiUploadInProgress" />
+			<c:url var="multiUploadUrl" value="/sapp/permissions/contract/multiUpload" />
+			<form method="post" action="${multiUploadUrl}" enctype="multipart/form-data" id="multiUploadForm">
+				<input type="file" id="files" name="files"  multiple="multiple" />
+				<input type="hidden" id="cwId" name="cwId" value="${cwId}" />
+				<input type="hidden" id="assetUseIds" name="assetUseIds" value="" />
+			</form>
+		</div>
+		<!-- End: Added for DM-532 -->
+
+	<script type="text/javascript">
+	//<![CDATA[		
+	$('#action-menu-1').superfish({ 
+    	delay:       800,                             // mouseout delay in milliseconds
+        animation:   {opacity:'show',height:'show'},  // fade-in and slide-down animation 
+        speed:       'fast',                          // faster animation speed 
+        autoArrows:  false,                           // disable generation of arrow mark-up 
+        dropShadows: false                            // disable drop shadows 
+    });
+	
+	// Start: Added for DM-532
+	function fnUploadDocuments() {
+		 $.ajax({
+			 async: false,
+			 type: 'post',
+			 url: '${multiUploadInProgressUrl}',
+			 data: {commonWorkId: "${cwId}"},
+			 success: function (response) {
+				 if(response == "true") {
+					 alert("Document upload is in progress. Try after sometime...");
+					 return;
+				 } else if (response == "false"){
+					 $('#files').click();
+				 }
+			 }
+		 })
+	 }
+	
+	$('#files').change(function() {
+		var sValues = oSelector.fnPreMenuAction (true);
+		if (null == sValues || "" == sValues) {
+			alert("Please make your selection");
+			return;
+		}
+		$('#assetUseIds').val(sValues);
+		var fileName = $(this).val();
+		if(null != fileName && fileName != "") {
+			$('#multiUploadForm').ajaxSubmit({
+	        	dataType: 'json',
+	        	success: function(response) {//response contains auids
+	        		//refresh rows to display document icon in asset details table.
+	        		fnRefreshRows(response);
+		        }
+		    });
+		}
+	});
+	// End: Added for DM-532
+			
+	$(document).ready(function() {
+		$('#filterLink').click(function() {
+			$("#modalDiv").load('${filterFormUrl}', function() {
+				openModalDialog ('Filter asset list', [
+    				{
+        				text: "Apply",
+        				click: function() { $('#landingFilterForm').submit(); }
+    				}
+    				// for some reason Cancel doesn't work
+    				//,
+    				//{
+    				//	text: "Cancel",
+    				//	click: function() { $(this).dialog("close"); }
+    				//}
+				]);
+	        });
+			// prevent the default action, e.g., following a link
+			return false;
+		});		
+	});
+	//]]>					
+	</script>
+
+	</jsp:body>
+</jsp:root>

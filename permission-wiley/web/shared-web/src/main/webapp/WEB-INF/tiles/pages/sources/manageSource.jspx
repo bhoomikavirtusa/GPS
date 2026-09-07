@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:form="http://www.springframework.org/tags/form">
+
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8" />
+
+	<c:url value="/sapp/sources/manageSource/submit" var="actionURL" />
+
+	<c:if test="${manageSourceForm.managementMode == 'GENERAL'}">
+		<tiles:insertDefinition name="tiles.sources.sourceGeneral">
+			<tiles:putAttribute name="action" value="${actionURL}"/>
+			<tiles:putAttribute name="title" value="General Information"/>
+		</tiles:insertDefinition>
+	</c:if>
+
+	<c:if test="${manageSourceForm.managementMode == 'FILES'}">
+		<tiles:insertDefinition name="tiles.sources.sourceFiles"/>
+	</c:if>
+	
+	<c:if test="${manageSourceForm.managementMode == 'NOFLY'}">
+		<tiles:insertDefinition name="tiles.sources.sourceGeneral">
+			<tiles:putAttribute name="action" value="${actionURL}"/>
+			<tiles:putAttribute name="title" value="No Fly Information"/>
+		</tiles:insertDefinition>
+	</c:if>
+	
+</jsp:root>

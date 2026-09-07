@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jsp:root version="2.2"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+	<jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+	
+	<c:url var="userProfileUrl" value="/sapp/cwlanding/user/profile?userId=6" />
+	<c:url var="landingUrl" value="/sapp/cwlanding/main?cwId=13&amp;userId=6" />
+	
+	HEADER
+	<br/>
+	<a href="${userProfileUrl}">Profile</a> | 
+	<a href="${landingUrl}">Landing</a>
+	<br/>
+</jsp:root>

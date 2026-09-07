@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
+        http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+    version="2.0" >
+	<persistence-unit name="perm" transaction-type="JTA">
+		<class>com.wiley.permissions.domain.persistence.permissions.Account</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.Asset</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.AssetFile</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.AssetGroup</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.AssetToSource</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.AssetUse</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.AuSourcePermStatus</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.Bundle</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.BusinessUnit</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.CommonWork</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.CommonWorkStatus</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.CompCopy</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.Component</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.ComponentCategory</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.Contract</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.ContractAsset</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.ContractType</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.Condition</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.ConditionType</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.Currency</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.CwFile</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.CwHistory</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.CwPhotoEstimate</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.CwSummary</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.DataType</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.DataSource</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.DeliveryMethod</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.Editor</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.GeographicalLocation</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.MediaType</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.Medium</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.OwnerType</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.PaymentRequest</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.PermissionPayer</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.PermissionStatus</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.Privilege</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.Product</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.ProductEdition</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.ProductFamily</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.ProductLine</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.ProductType</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.PublicationStatus</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.PurchaseOrder</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.Relation</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.RelationCode</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.RenditionType</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.Role</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.Size</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.Source</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.SourceFile</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.SubjectCode</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.Usage</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.EnumUsageCondition</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.User</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.UserDefaults</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.UserProfile</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.UserGroup</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.UserToRole</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.ContractFile</class>
+		<!-- Start: Added for DM-532 -->
+		<class>com.wiley.permissions.domain.persistence.permissions.ContractFileName</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.UploadDocumentsHistory</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.UploadedDocumentsDetails</class>
+		<!-- End: Added for DM-532 -->
+		<!-- Start: Added for DM-534 -->
+		<class>com.wiley.permissions.domain.persistence.permissions.ExportAsset</class>
+		<!-- End: Added for DM-534 -->
+		<class>com.wiley.permissions.domain.persistence.permissions.PhotoEstimateType</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.ProductPrinting</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.SubMedium</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.PagePosition</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.SystemNotification</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.SourceGroup</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.RoyaltyFreeDeal</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.Amendment</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.WileyEntity</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.AssetPermissionRef</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.FavoriteGroup</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.AuthorToCommonWork</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.ModelRelease</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.AssetUseFile</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.UserLocation</class>		
+		<class>com.wiley.permissions.domain.persistence.permissions.MasterAgreementDeal</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.CopyrightType</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.GuidelineFile</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.EnumCancelReason</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.EnumLanguage</class>
+
+		<class>com.wiley.permissions.domain.persistence.permissions.Address</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.SourceAddress</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.Contact</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.AddressType</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.Country</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.GbpmCategory</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.ImportSource</class>
+		
+		<!-- The following 2 classes added for BMIS integration (Huge ISBN, corresponding count import) -->
+		<class>com.wiley.permissions.domain.persistence.permissions.ISBNData</class>
+		<class>com.wiley.permissions.domain.persistence.permissions.ISBNDataTmp</class>
+		
+    <!-- These are classes for the message caching system -->
+		<class>com.wiley.permissions.domain.persistence.message.CachedMessage</class>
+		<class>com.wiley.permissions.domain.persistence.message.CachedMessageTarget</class>
+		
+	</persistence-unit>
+
+</persistence>
