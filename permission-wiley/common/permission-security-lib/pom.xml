@@ -79,6 +79,7 @@
 						</goals>
 						
 						<configuration>
+							<classifier>mule</classifier>
 							<outputDirectory>${perm.mule.dir}</outputDirectory>
 						</configuration>
 					</execution>

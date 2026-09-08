@@ -36,9 +36,9 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 		<lucene.version>4.8.1</lucene.version>
 		<maven.test.skip>true</maven.test.skip>
 		<maven.version>3.2.2</maven.version>
-		<maven.surefire.version>2.17</maven.surefire.version>
-		<maven.jar.version>2.5</maven.jar.version>
-		<maven.war.version>2.4</maven.war.version>
+		<maven.surefire.version>3.2.5</maven.surefire.version>
+		<maven.jar.version>3.4.2</maven.jar.version>
+		<maven.war.version>3.4.0</maven.war.version>
 		<maven.antrun.version>1.8</maven.antrun.version>
 		<jxls.version>1.0</jxls.version>
 		<jxls-reader.version>2.0</jxls-reader.version>
@@ -715,7 +715,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.6.1</version>
+				<version>3.13.0</version>
 				<configuration>
 					<!-- smarkoff: If change source/target to 1.7 then when run get following exception. -->
 					<!-- I think a library we are using to generate bytecode dynamically needs to be updated to work with Java 7 -->
@@ -1226,7 +1226,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 			</activation>
 
 			<properties>
-				<perm.mule.dir>${env.MULE_HOME}/lib/user</perm.mule.dir>
+				<perm.mule.dir>${user.dir}/target/mule</perm.mule.dir>
 				<perm.tomcat.apps.dir>${env.CATALINA_HOME}/webapps</perm.tomcat.apps.dir>
 				<perm.tomcat.lib.dir>${env.CATALINA_HOME}/lib</perm.tomcat.lib.dir>
 				<perm.build.profile>local</perm.build.profile>

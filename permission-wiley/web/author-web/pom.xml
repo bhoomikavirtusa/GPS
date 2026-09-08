@@ -481,10 +481,17 @@
 								<!-- The compilation phase is unpredictable, we have to copy before compilation-->
 								<copy todir="${project.build.directory}/${project.build.finalName}" >
   									<!-- for some reason "${project.parent.basedir}/shared-web/copy" does not work -->
+  									<!-- Exclude shared stub header: war plugin 3.x is first-win / up-to-date and will keep it -->
   									<fileset dir="${basedir}/../shared-web/src/main/webapp">
     									<include name="**/*.*" />
+    									<exclude name="WEB-INF/tiles/templates/main/header.jspx" />
   									</fileset>
 								</copy>
+								<!-- Force this module's real header into the webapp (beats leftover shared stub on dirty builds) -->
+								<copy file="${basedir}/src/main/webapp/WEB-INF/tiles/templates/main/header.jspx"
+									tofile="${project.build.directory}/${project.build.finalName}/WEB-INF/tiles/templates/main/header.jspx"
+									overwrite="true"
+									failonerror="true"/>
 							</target>
 						</configuration>
 
