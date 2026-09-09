@@ -28,7 +28,6 @@ import org.apache.poi.hssf.util.CellRangeAddress;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.IndexedColors;
-import org.springframework.web.servlet.view.document.AbstractExcelView;
 
 import com.wiley.sf.common.excel.WriteExcel;
 
@@ -36,7 +35,7 @@ import com.wiley.sf.common.excel.WriteExcel;
  *
  * @author lnagy
  */
-public class ExcelView extends AbstractExcelView {
+public class ExcelView extends AbstractLegacyExcelView {
 
 	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(ExcelView.class);

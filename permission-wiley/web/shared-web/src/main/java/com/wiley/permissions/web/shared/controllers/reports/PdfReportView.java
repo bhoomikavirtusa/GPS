@@ -1,86 +1,92 @@
 package com.wiley.permissions.web.shared.controllers.reports;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.sql.Connection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 
-import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
 
-import net.sf.jasperreports.engine.JRExporter;
-import net.sf.jasperreports.engine.JRExporterParameter;
+import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.export.JRPdfExporter;
 import net.sf.jasperreports.engine.export.JRPdfExporterParameter;
+import net.sf.jasperreports.engine.util.JRLoader;
+import net.sf.jasperreports.export.SimpleExporterInput;
+import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.ui.jasperreports.JasperReportsUtils;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.servlet.view.jasperreports.JasperReportsPdfView;
+import org.springframework.web.servlet.view.AbstractView;
 
-public class PdfReportView extends JasperReportsPdfView {
+public class PdfReportView extends AbstractView {
 
-	private static final Log log = LogFactory.getLog(PdfReportView.class);
+    private String url;
+    private DataSource jdbcDataSource;
+    private Map<String, String> subReportUrls;
+    private Properties headers;
 
-	/**
-	 * Perform rendering for a single Jasper Reports exporter, that is,
-	 * for a pre-defined output format.
-	 *
-	 * We override this method because we want to be able to pass the outputstream
-	 * and handle special parameters ("AvoidResponse" and "file").
-	 */
-	@Override
-	protected void renderReport(JasperPrint populatedReport, Map<String, Object> model, HttpServletResponse response)
-			throws Exception
-	{
-		// Prepare report for rendering.
-		JRExporter exporter = createExporter();
-		exporter.setParameter( JRPdfExporterParameter.METADATA_AUTHOR, "Wiley & Sons" );
-		exporter.setParameter( JRPdfExporterParameter.METADATA_CREATOR, "Wiley & Sons Permissions System." );
-		exporter.setParameter( JRPdfExporterParameter.IS_TAGGED, true );
-		exporter.setParameter( JRPdfExporterParameter.TAG_LANGUAGE, "English" );
+    public PdfReportView() {
+        setContentType("application/pdf");
+    }
 
-		// Set exporter parameters - overriding with values from the Model.
-		Map<JRExporterParameter,Object> mergedExporterParameters = mergeExporterParameters(model);
-		if (!CollectionUtils.isEmpty(mergedExporterParameters)) {
-			exporter.setParameters(mergedExporterParameters);
-		}
+    @Override
+    protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request,
+            HttpServletResponse response) throws Exception {
+        JasperReport report;
+        try (InputStream input = request.getSession().getServletContext().getResourceAsStream(url)) {
+            if (input == null) {
+                throw new IllegalStateException("Jasper report resource not found: " + url);
+            }
+            report = (JasperReport) JRLoader.loadObject(input);
+        }
+        Map<String, Object> parameters = new HashMap<String, Object>(model);
+        if (!CollectionUtils.isEmpty(subReportUrls)) {
+            for (Map.Entry<String, String> entry : subReportUrls.entrySet()) {
+                parameters.put(entry.getKey(), loadReport(request, entry.getValue()));
+            }
+        }
+        try (Connection connection = jdbcDataSource.getConnection()) {
+            JasperPrint print = JasperFillManager.fillReport(report, parameters, connection);
+            JRPdfExporter exporter = new JRPdfExporter();
+            exporter.setParameter(JRPdfExporterParameter.METADATA_AUTHOR, "Wiley & Sons");
+            exporter.setParameter(JRPdfExporterParameter.METADATA_CREATOR, "Wiley & Sons Permissions System.");
+            exporter.setParameter(JRPdfExporterParameter.IS_TAGGED, true);
+            exporter.setParameter(JRPdfExporterParameter.TAG_LANGUAGE, "English");
+            applyHeaders(response);
+            exporter.setExporterInput(new SimpleExporterInput(print));
+            exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(response.getOutputStream()));
+            exporter.exportReport();
+        }
+    }
 
-		JasperReportsUtils.render(exporter, populatedReport, response.getOutputStream());
-		    // throws JRException
-		response.getOutputStream().flush();
-	}
+    private JasperReport loadReport(HttpServletRequest request, String resourcePath) throws Exception {
+        InputStream input = request.getSession().getServletContext().getResourceAsStream(resourcePath);
+        if (input == null) {
+            throw new IllegalStateException("Jasper report resource not found: " + resourcePath);
+        }
+        try (InputStream reportInput = input) {
+            return (JasperReport) JRLoader.loadObject(reportInput);
+        }
+    }
 
-	/**
-	 * smarkoff: In Spring 2.x, AbstractJasperReportsSingleFormatView used to have this method
-	 * but it's gone in Spring 3.0.
-	 * Actually the 2.5 code was Map model aka Map<Object, Object> model which makes sense
-	 * but renderReport (above) takes Map<String, Object model, so I change the signature on
-	 * this method to be the same thing - which means that key will never be instance of
-	 * JRExportedParmeter - which means only the first part of this method might do anything.
-	 */
-	/**
-	 * Merges the configured JRExporterParameters with any specified in the supplied model data.
-	 * JRExporterParameters in the model override those specified in the configuration.
-	 * @see #setExporterParameters(java.util.Map)
-	 */
-	protected Map<JRExporterParameter, Object> mergeExporterParameters(Map<String, Object> model) {
-		Map<JRExporterParameter, Object> mergedParameters = new HashMap<JRExporterParameter, Object>();
-		Map<JRExporterParameter, Object> convertedExporterParameters = getConvertedExporterParameters();
-		if (!CollectionUtils.isEmpty(convertedExporterParameters)) {
-			mergedParameters.putAll(convertedExporterParameters);
-		}
-		for (Iterator<String> it = model.keySet().iterator(); it.hasNext();) {
-			Object key = it.next();
-			if (key instanceof JRExporterParameter) {
-				Object value = model.get(key);
-				Object convertedValue = convertParameterValue((JRExporterParameter) key, value);
-				mergedParameters.put((JRExporterParameter)key, convertedValue);
-			}
-		}
-		return mergedParameters;
-	}
+    public String getUrl() { return url; }
+    public void setUrl(String url) { this.url = url; }
+    public DataSource getJdbcDataSource() { return jdbcDataSource; }
+    public void setJdbcDataSource(DataSource jdbcDataSource) { this.jdbcDataSource = jdbcDataSource; }
+    public Map<String, String> getSubReportUrls() { return subReportUrls; }
+    public void setSubReportUrls(Map<String, String> subReportUrls) { this.subReportUrls = subReportUrls; }
+    public Properties getHeaders() { return headers; }
+    public void setHeaders(Properties headers) { this.headers = headers; }
+
+    private void applyHeaders(HttpServletResponse response) {
+        if (headers != null) {
+            for (String name : headers.stringPropertyNames()) {
+                response.setHeader(name, headers.getProperty(name));
+            }
+        }
+    }
 }

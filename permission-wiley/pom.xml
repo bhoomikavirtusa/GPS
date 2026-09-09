@@ -18,7 +18,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 	</modules>
 
 	<properties>
-		<springframework.version>4.3.9.RELEASE</springframework.version>
+		<springframework.version>5.3.39</springframework.version>
 		<!-- The spring security versions are not exactly in sync with springframework versions -->
 		<spring-security.version>4.2.3.RELEASE</spring-security.version>
 		<junit.version>4.11</junit.version>
@@ -34,6 +34,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 		<commons-digester.version>2.1</commons-digester.version>
 		<commons-jexl.version>2.0.1</commons-jexl.version>
 		<lucene.version>4.8.1</lucene.version>
+		<jpa-api.version>2.2</jpa-api.version>
 		<maven.test.skip>true</maven.test.skip>
 		<maven.version>3.2.2</maven.version>
 		<maven.surefire.version>3.2.5</maven.surefire.version>
@@ -550,10 +551,9 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 			</dependency>
 			
 			<dependency>
-				<!-- This goes with Hibernate 3.6.x and 4.2.x, use JPA 2.1 with Hibernate 4.3.x -->
-		    	<groupId>org.hibernate.javax.persistence</groupId>
-    			<artifactId>hibernate-jpa-2.0-api</artifactId>
-    			<version>1.0.1.Final</version>
+				<groupId>javax.persistence</groupId>
+				<artifactId>javax.persistence-api</artifactId>
+				<version>${jpa-api.version}</version>
 			</dependency>
 
 			<dependency>
@@ -937,8 +937,8 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 								</artifactItem>
 								
 								<artifactItem>
-	    							<groupId>org.hibernate.javax.persistence</groupId>
-    								<artifactId>hibernate-jpa-2.0-api</artifactId>
+			    					<groupId>javax.persistence</groupId>
+			    					<artifactId>javax.persistence-api</artifactId>
 								</artifactItem>
 
 								<artifactItem>
