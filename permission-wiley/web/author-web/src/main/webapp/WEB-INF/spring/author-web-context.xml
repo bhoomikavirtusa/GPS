@@ -57,7 +57,7 @@
 		<property name="externalUserLdapClient" ref="utility.ExternalUserLdapClient" />
 	</bean>
 	
-	<bean name="/sapp/cwlanding/*"
+	<bean id="AuthorCwLandingController"
 		class="com.wiley.permissions.web.author.controllers.landing.CwLandingController"
 		parent="LandingController">
 	</bean>

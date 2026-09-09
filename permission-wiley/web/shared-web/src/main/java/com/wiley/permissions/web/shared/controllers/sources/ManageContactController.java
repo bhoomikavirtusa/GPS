@@ -44,8 +44,26 @@ public class ManageContactController extends BaseAnnotatedController {
 	// (since used above class definition)
 	protected static final String MODEL_FORM_NAME = "manageContactForm";
 
+	private static final String FORM_VIEW_SOURCES = "pages.sources.manageContact";
+	private static final String FORM_VIEW_PO = "pages.po.addContact";
+	private static final String SUCCESS_VIEW_SOURCES = "redirect:/sapp/sources/viewSource/form";
+	private static final String SUCCESS_VIEW_PO = "redirect:/sapp/permissions/po/details";
+
 	private SourceService sourceService = null;
 	private SourceRepository sourceRepository = null;
+
+	private String resolveFormView(HttpServletRequest request) {
+		return isPoPath(request) ? FORM_VIEW_PO : FORM_VIEW_SOURCES;
+	}
+
+	private String resolveSuccessView(HttpServletRequest request) {
+		return isPoPath(request) ? SUCCESS_VIEW_PO : SUCCESS_VIEW_SOURCES;
+	}
+
+	private boolean isPoPath(HttpServletRequest request) {
+		String uri = request.getRequestURI();
+		return uri != null && uri.contains("/sources/po/manageContact");
+	}
 
 	@Override
 	@InitBinder
@@ -130,7 +148,7 @@ public class ManageContactController extends BaseAnnotatedController {
 
 		model.addAttribute(MODEL_FORM_NAME, form);
 
-		return getFormView();
+		return resolveFormView(request);
 	}
 
 	/*@GetMapping("/submit")*/
@@ -147,7 +165,7 @@ public class ManageContactController extends BaseAnnotatedController {
 
 			if (bindingResult.hasErrors()) {
 				model.addAttribute(MODEL_FORM_NAME, form);
-				return getFormView();
+				return resolveFormView(request);
 			}
 		}
 
@@ -171,7 +189,7 @@ public class ManageContactController extends BaseAnnotatedController {
 				break;
 		}
 
-		String viewName = getSuccessView() + "?" + ViewSourceController.SOURCE_ID + "=" + form.getSourceId();
+		String viewName = resolveSuccessView(request) + "?" + ViewSourceController.SOURCE_ID + "=" + form.getSourceId();
 
 		if (StringUtils.isNotBlank(form.getCameFrom())) {
 			viewName += "&cameFrom=" + form.getCameFrom();

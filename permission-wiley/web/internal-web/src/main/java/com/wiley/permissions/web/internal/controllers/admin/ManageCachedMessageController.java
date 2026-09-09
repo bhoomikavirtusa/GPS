@@ -31,7 +31,7 @@ public class ManageCachedMessageController extends BaseAnnotatedController {
 
 	private CachedMessageRepository cachedMessageRepository = null;
 
-	@RequestMapping(method = {RequestMethod.GET, RequestMethod.POST})
+	@RequestMapping(value = "/admin/manageCachedMessageObject", method = {RequestMethod.GET, RequestMethod.POST}, params = "cachedMessageId")
 	public String formBackingObject(Model model,
 		@RequestParam("cachedMessageId") int cachedMessageId)
 	throws PersistenceException
@@ -45,7 +45,7 @@ public class ManageCachedMessageController extends BaseAnnotatedController {
         return getFormView();
 	}
 
-    @RequestMapping(method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value = "/admin/manageCachedMessageObject", method = RequestMethod.POST)
 	public String onSubmit(@ModelAttribute(FORM_MODEL_NAME) CachedMessage msg,
             BindingResult bindingResult) throws PersistenceException, BeanMergeException
     {

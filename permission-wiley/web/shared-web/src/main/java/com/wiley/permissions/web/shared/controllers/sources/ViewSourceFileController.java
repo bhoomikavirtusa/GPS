@@ -6,7 +6,6 @@ package com.wiley.permissions.web.shared.controllers.sources;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.View;
@@ -32,7 +31,7 @@ extends BaseAnnotatedController
 	private SourceRepository sourceRepository = null;
 
 
-	@GetMapping
+	@GetMapping("/sources/viewSourceFile")
 	public View handle(@RequestParam("fileId") int fileId)
 	throws PersistenceException
 	{

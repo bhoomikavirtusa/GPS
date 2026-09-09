@@ -104,7 +104,7 @@ public class CachedMessageRepository extends JPARepository
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	public Date getSentForLastMasterListReply(String masterListName) {
 		String sql = "from CachedMessage cm where cm.operationType = 'MASTER_LIST_UPDATE'"
-			+ " and cm.operationSubType = ? and cm.type = 'REPLY'"
+			+ " and cm.operationSubType = ?1 and cm.type = 'REPLY'"
 			+ " and cm.status = 'PROCESSED' and cm.lastFailureMessage is null"
 			+ " order by cm.lastUpdatedDate desc";
 		try {
@@ -158,7 +158,7 @@ public class CachedMessageRepository extends JPARepository
 	 */
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void delete(int deleteId) throws Exception {
-		String sql = "delete from CachedMessage where id = ?";
+		String sql = "delete from CachedMessage where id = ?1";
 		Query q = entityManager.createQuery(sql);
 		q.setParameter(1, deleteId);
 		q.executeUpdate();

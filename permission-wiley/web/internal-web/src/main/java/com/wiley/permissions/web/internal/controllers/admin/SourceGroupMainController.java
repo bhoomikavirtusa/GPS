@@ -37,7 +37,7 @@ extends BaseAnnotatedController
 	private SourceRepository sourceRepository = null;
 
 
-	@RequestMapping
+	@RequestMapping("/admin/sourceGroups")
 	@SuppressWarnings("incomplete-switch")
 	public ModelAndView handle(HttpServletRequest request,
 			@RequestParam(value = "cwId", required = false) Integer cwId,

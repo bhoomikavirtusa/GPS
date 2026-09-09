@@ -29,7 +29,7 @@ public class ManageCachedMessageListController extends BaseAnnotatedController {
 
 
 	// handle both GET and POST (POST will be from delete link)
-	@RequestMapping
+	@RequestMapping("/admin/manageCachedMessageList")
 	public String handle(Model model, HttpServletRequest request,
 		@RequestParam(value = "deleteId", required = false) Integer deleteId)
 	throws Exception

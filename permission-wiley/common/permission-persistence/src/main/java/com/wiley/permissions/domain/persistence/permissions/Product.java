@@ -57,12 +57,12 @@ import com.wiley.sf.common.xml.bind.BooleanXmlAdapter;
 	@NamedQuery(
 	    name="Product.findFamilyMembers",
 	    query="from Product prod join fetch prod.commonWork where " +
-	    		"prod.productFamily.code = ? and prod.id <> ? order by prod.title"
+	    		"prod.productFamily.code = ?1 and prod.id <> ?2 order by prod.title"
 	),
 	@NamedQuery(
 		    name="Product.findEditionMembers",
 		    query="from Product prod join fetch prod.commonWork where " +
-		    		"prod.productFamily.code = ? and prod.edition.id=? and prod.id <> ? order by prod.title"
+		    		"prod.productFamily.code = ?1 and prod.edition.id=?2 and prod.id <> ?3 order by prod.title"
 		),
 	@NamedQuery(
 	    name="Product.findRelatedWorks",
@@ -91,7 +91,7 @@ import com.wiley.sf.common.xml.bind.BooleanXmlAdapter;
 	),
 	@NamedQuery(
 		    name="Product.findProductsByCW",
-		    query="from Product p where p.commonWork.id = ? "
+		    query="from Product p where p.commonWork.id = ?1 "
 	)
 })
 @NamedNativeQueries({

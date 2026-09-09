@@ -64,8 +64,8 @@ public class PurchaseOrderRepository extends JPARepository
 	{
 		PerfTimer timer = monitor.startTimer("PurchaseOrderService::loadListForAssetSourceCW");
 
-		String queryString = "select distinct po from PurchaseOrder po, in (po.assets) a where a.id = ?"
-			+ " and po.commonWork.id = ? and po.source.id = ?"
+		String queryString = "select distinct po from PurchaseOrder po, in (po.assets) a where a.id = ?1"
+			+ " and po.commonWork.id = ?2 and po.source.id = ?3"
 			+ " order by po.date desc, po.id desc";
 			// a lot of the PO dates are truncated to just day (not hours, etc)
 			// so sort by "id desc" also
@@ -324,7 +324,7 @@ public class PurchaseOrderRepository extends JPARepository
 	 */
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	public List<PurchaseOrder> loadPurchaseOrdersByCWId(int cwId) {
-		String sql = "from PurchaseOrder po join fetch po.source join fetch po.commonWork where po.commonWork.id = ?";
+		String sql = "from PurchaseOrder po join fetch po.source join fetch po.commonWork where po.commonWork.id = ?1";
 		TypedQuery<PurchaseOrder> query = entityManager.createQuery(sql, PurchaseOrder.class);
 		query.setParameter(1, cwId);
 		return query.getResultList();

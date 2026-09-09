@@ -24,6 +24,12 @@
 		    <artifactId>jackson-all</artifactId>
 		</dependency>
 
+		<!-- Also provide Jackson 2 for Spring 5.3 / shared callers -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+
 		
 		
 		 <!-- https://mvnrepository.com/artifact/javax.jms/javax.jms-api -->
@@ -152,7 +158,7 @@
 
 		<dependency>
 			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate3</artifactId>
+			<artifactId>hibernate-core</artifactId>
 		</dependency>
 		<!-- For Hibernate 4
 		<dependency>

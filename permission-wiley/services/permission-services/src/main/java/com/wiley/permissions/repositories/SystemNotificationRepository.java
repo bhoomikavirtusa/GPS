@@ -85,8 +85,8 @@ public class SystemNotificationRepository extends JPARepository {
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	public SystemNotification loadById(Integer id) throws PersistenceException
 	{
-		TypedQuery<SystemNotification> query = entityManager.createQuery("from SystemNotification n " +
-				"where n.id = ?",
+			TypedQuery<SystemNotification> query = entityManager.createQuery("from SystemNotification n " +
+				"where n.id = ?1",
 				SystemNotification.class);
 		query.setParameter(1, id);
 		return query.getSingleResult();

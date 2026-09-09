@@ -35,6 +35,8 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 		<commons-jexl.version>2.0.1</commons-jexl.version>
 		<lucene.version>4.8.1</lucene.version>
 		<jpa-api.version>2.2</jpa-api.version>
+		<!-- Spring 5.3 requires Jackson 2.9+ (registerModules); JasperReports 6 pulled 2.1.4 -->
+		<jackson.version>2.13.5</jackson.version>
 		<maven.test.skip>true</maven.test.skip>
 		<maven.version>3.2.2</maven.version>
 		<maven.surefire.version>3.2.5</maven.surefire.version>
@@ -49,6 +51,8 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 		<!-- Hibernate 3.6.x and 4.2.x depend on slf4j 1.6.1 -->
 		<slf4j.version>1.7.21</slf4j.version>
 		<atomikos.version>3.9.3</atomikos.version>
+		<hibernate.version>5.6.15.Final</hibernate.version>
+		<ehcache.version>2.10.9.2</ehcache.version>
 		<!-- Use jersey 1.0 for Mule 2, 1.6 for Mule 3 -->
 		<jersey.version>1.0</jersey.version>
 		<jasper.version>6.0.2</jasper.version>
@@ -558,15 +562,21 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 
 			<dependency>
 				<groupId>org.hibernate</groupId>
-				<artifactId>hibernate3</artifactId>
-				<version>3.6.10-Final</version>
+				<artifactId>hibernate-core</artifactId>
+				<version>${hibernate.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.hibernate</groupId>
+				<artifactId>hibernate-ehcache</artifactId>
+				<version>${hibernate.version}</version>
 			</dependency>
 			
 			<dependency>
 				<!-- Hibernate says 2.4.3 for 3.6.10 -->
-        		<groupId>net.sf.ehcache</groupId>
-        		<artifactId>ehcache-core</artifactId>
-        		<version>2.4.3</version>
+				<groupId>net.sf.ehcache</groupId>
+				<artifactId>ehcache</artifactId>
+				<version>${ehcache.version}</version>
      		</dependency>
      		
      		<!-- For Hibernate 4
@@ -651,11 +661,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 				<version>${atomikos.version}</version>
 			</dependency>
 
-			<dependency>
-				<groupId>com.atomikos</groupId>
-				<artifactId>transactions-hibernate3</artifactId>
-				<version>${atomikos.version}</version>
-			</dependency>
         
        	 	<!-- Hibernate says 1.6.1 for 3.6.10 and 4.2.12 -->
         	<dependency>
@@ -697,6 +702,23 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 			    <groupId>org.codehaus.jackson</groupId>
 			    <artifactId>jackson-all</artifactId>
 			    <version>1.6.7</version>
+			</dependency>
+
+			<!-- FasterXML Jackson 2.x for Spring 5.3 MappingJackson2HttpMessageConverter -->
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-databind</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-core</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-annotations</artifactId>
+				<version>${jackson.version}</version>
 			</dependency>
 			
 			</dependencies>
@@ -943,14 +965,8 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 
 								<artifactItem>
 									<groupId>org.hibernate</groupId>
-									<artifactId>hibernate3</artifactId>
+									<artifactId>hibernate-core</artifactId>
 								</artifactItem>
-								<!-- for Hibernate 4
-								<artifactItem>
-									<groupId>org.hibernate</groupId>
-									<artifactId>hibernate-entitymanager</artifactId>
-								</artifactItem>
-								-->
 								
 								<artifactItem>
 		    						<groupId>javax.validation</groupId>
@@ -962,16 +978,10 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 		    						<artifactId>hibernate-validator</artifactId>
 								</artifactItem>
 								
-								<artifactItem><!-- Used by Hibernate -->
-									<groupId>net.sf.ehcache</groupId>
-        							<artifactId>ehcache-core</artifactId>
-								</artifactItem>
-								<!-- For Hibernate 4
 								<artifactItem>
 									<groupId>org.hibernate</groupId>
         							<artifactId>hibernate-ehcache</artifactId>
 								</artifactItem>
-								-->
 
 								<artifactItem>
 									<groupId>com.wiley.sf</groupId>
@@ -1029,12 +1039,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 								<artifactItem>
     								<groupId>com.atomikos</groupId>
     								<artifactId>transactions-api</artifactId>
-    								<version>${atomikos.version}</version>
-								</artifactItem>
-			
-								<artifactItem>
-    								<groupId>com.atomikos</groupId>
-    								<artifactId>transactions-hibernate3</artifactId>
     								<version>${atomikos.version}</version>
 								</artifactItem>
 			

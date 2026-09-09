@@ -768,7 +768,7 @@ public class ProductRepository extends JPARepository {
 	public List<Product> loadProductsByCWId(int cwId) {
 		PerfTimer timer = monitor.startTimer("ProductService::loadProductsByCWId");
 		try {
-			TypedQuery<Product> query = entityManager.createQuery("from Product p where p.commonWork.id  = ?", Product.class);
+			TypedQuery<Product> query = entityManager.createQuery("from Product p where p.commonWork.id  = ?1", Product.class);
 			query.setParameter(1, cwId);
 			return query.getResultList();
 		}
@@ -787,7 +787,7 @@ public class ProductRepository extends JPARepository {
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	public Product loadByExternalId(String externalId) throws PersistenceException {
 		try {
-			TypedQuery<Product> query = entityManager.createQuery("from Product up where up.externalId = ?", Product.class);
+			TypedQuery<Product> query = entityManager.createQuery("from Product up where up.externalId = ?1", Product.class);
 			query.setParameter(1, externalId);
 			Product p = query.getSingleResult();
 			// For some reason if return query.getSingleResult() directly this code hangs (in DEV) - weird !!
@@ -941,7 +941,7 @@ public class ProductRepository extends JPARepository {
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	public Product loadById(Integer id) throws PersistenceException
 	{
-		String jpql = "from Product p join fetch p.commonWork where p.id = ?";
+		String jpql = "from Product p join fetch p.commonWork where p.id = ?1";
 		TypedQuery<Product> query = entityManager.createQuery(jpql, Product.class);
 		query.setParameter(1, id);
 		return query.getSingleResult();
@@ -1132,11 +1132,11 @@ public class ProductRepository extends JPARepository {
 		String familyCode = product.getProductFamily() == null ? null : product.getProductFamily().getCode();
 
 		// FETCH FIRST does not work with Hibernate, so we do a 2 step query
-		String sqlEdition = previous ? "from ProductEdition e where e.productFamily.code = ?"
-				+ "	and e.editionNumber < ? order by e.editionNumber desc"
+		String sqlEdition = previous ? "from ProductEdition e where e.productFamily.code = ?1"
+				+ "	and e.editionNumber < ?2 order by e.editionNumber desc"
 				:
-				"from ProductEdition e where e.productFamily.code = ?"
-				+ "	and e.editionNumber > ? order by e.editionNumber";
+				"from ProductEdition e where e.productFamily.code = ?1"
+				+ "	and e.editionNumber > ?2 order by e.editionNumber";
 		TypedQuery<ProductEdition> query = entityManager.createQuery(sqlEdition, ProductEdition.class);
 		query.setParameter(1, familyCode);
 		query.setParameter(2, product.getEdition().getEditionNumber());
@@ -1155,15 +1155,15 @@ public class ProductRepository extends JPARepository {
 		// for now I will just fix it so it does not throw an exception
 		TypedQuery<Product> q2;
 		if (null != product.getMedium()) {
-			String sql = "from Product p where p.productFamily.code = ? "
-						+ " and p.edition.id = ? and p.medium.code = ?";
+			String sql = "from Product p where p.productFamily.code = ?1 "
+						+ " and p.edition.id = ?2 and p.medium.code = ?3";
 			q2 = entityManager.createQuery(sql, Product.class);
 
 			q2.setParameter(3, product.getMedium().getCode());
 		}
 		else {
-			String sql = "from Product p where p.productFamily.code = ? "
-					+ " and p.edition.id = ?";
+				String sql = "from Product p where p.productFamily.code = ?1 "
+						+ " and p.edition.id = ?2";
 			q2 = entityManager.createQuery(sql, Product.class);
 		}
 		q2.setParameter(1, familyCode);

@@ -9,7 +9,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -33,7 +32,17 @@ public class ManageGuidelinesController  extends BaseAnnotatedController {
 
 	private final static Log log = LogFactory.getLog(ManageGuidelinesController.class);
 
-	@GetMapping("/download")
+	private static final String VIEW_ADMIN = "pages.admin.guidelines.main";
+	private static final String VIEW_AUTHOR = "pages.guidelines";
+
+	private String resolveSuccessView(javax.servlet.http.HttpServletRequest request) {
+		String uri = request != null ? request.getRequestURI() : null;
+		if (uri != null && uri.contains("/guidelines/smalllist")) {
+			return VIEW_AUTHOR;
+		}
+		return VIEW_ADMIN;
+	}
+
 	@RequestMapping(value={"/admin/guidelines/download", "/guidelines/download"}, method = {RequestMethod.GET, RequestMethod.POST})
 	public ModelAndView download(@RequestParam("fileId") int fileId)
 			throws Exception
@@ -66,14 +75,14 @@ public class ManageGuidelinesController  extends BaseAnnotatedController {
 
 	@RequestMapping(value = {"/admin/guidelines/list", "/guidelines/smalllist"}, method = {RequestMethod.GET, RequestMethod.POST})
 	
-	public ModelAndView list()
+	public ModelAndView list(javax.servlet.http.HttpServletRequest request)
 			throws Exception
 	{
 		log.debug("list()");
 		Properties prop = new Properties();
 		prop.put("orderBy", "sortOrder");
 		List<GuidelineFile> files = getRepository().loadAll(GuidelineFile.class, prop);
-		ModelAndView mv = new ModelAndView(getSuccessView());
+		ModelAndView mv = new ModelAndView(resolveSuccessView(request));
 		mv.addObject("guidelines", files);
 		return mv;
 	}
@@ -84,7 +93,7 @@ public class ManageGuidelinesController  extends BaseAnnotatedController {
 	{
 		log.debug("add()");
 		GuidelineFile guideline = new GuidelineFile ();
-		ModelAndView mv = new ModelAndView(getSuccessView());
+		ModelAndView mv = new ModelAndView(VIEW_ADMIN);
 		mv.addObject("guidelineFile", guideline);
 		return mv;
 	}
@@ -133,7 +142,7 @@ public class ManageGuidelinesController  extends BaseAnnotatedController {
 		} catch (PersistenceException e) {			
 			Object [] errorArgs = { displayName };
 			bindingResult.rejectValue("displayName", null, errorArgs, "{0} is a duplicate name");
-			ModelAndView mv = new ModelAndView(getSuccessView());
+			ModelAndView mv = new ModelAndView(VIEW_ADMIN);
 			mv.addObject("guidelineFile", gFile);			
 			return mv;
 		}

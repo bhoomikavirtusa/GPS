@@ -68,7 +68,7 @@ public class AssetUseIndexSearchController extends BaseAnnotatedController {
 		return output;
 	}
 
-	@RequestMapping(method = {RequestMethod.GET, RequestMethod.POST})
+	@RequestMapping(value = "/asset/assetSearch", method = RequestMethod.GET)
 	public String formBackingObject(HttpServletRequest request,	Model model)
 	throws Exception
 	{
@@ -90,7 +90,7 @@ public class AssetUseIndexSearchController extends BaseAnnotatedController {
 		return getFormView();
 	}
 
-	@RequestMapping(method = RequestMethod.POST)
+	@RequestMapping(value = "/asset/assetSearch", method = RequestMethod.POST)
 	public ModelAndView onSubmit(HttpServletRequest request,
 			@ModelAttribute(MODEL_FORM_NAME) AssetSearchForm form,
 			BindingResult bindingResult)

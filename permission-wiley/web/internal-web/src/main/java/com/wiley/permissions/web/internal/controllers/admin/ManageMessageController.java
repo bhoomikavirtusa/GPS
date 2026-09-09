@@ -37,7 +37,7 @@ extends BaseAnnotatedController
 	private PEMessageService peMessageService;
 
 
-	@RequestMapping(method = {RequestMethod.GET, RequestMethod.POST})
+	@RequestMapping(value = "/admin/testMessages", method = RequestMethod.GET)
 	public String formBackingObject(Model model)
 	throws Exception
 	{
@@ -49,7 +49,7 @@ extends BaseAnnotatedController
         return getFormView();
 	}
 
-	@RequestMapping(method = RequestMethod.POST)
+	@RequestMapping(value = "/admin/testMessages", method = RequestMethod.POST)
 	public String onSubmit(Model model,
 			@ModelAttribute("manageMessageForm") ManageMessageForm form,
 			BindingResult bindingResult)

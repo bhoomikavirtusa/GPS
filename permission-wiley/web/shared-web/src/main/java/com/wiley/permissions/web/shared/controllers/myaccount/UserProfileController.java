@@ -29,7 +29,7 @@ import com.wiley.permissions.web.shared.controllers.BaseAnnotatedController;
  *
  * @author lnagy
  */
-@RequestMapping("/user/profile")
+@RequestMapping("/cwlanding/user/profile")
 @Controller
 public class UserProfileController extends BaseAnnotatedController {
 
@@ -50,7 +50,7 @@ public class UserProfileController extends BaseAnnotatedController {
 	 * @return ModelAndView
 	 * @throws Exception
 	 */
-	@RequestMapping(method = {RequestMethod.GET, RequestMethod.POST})
+	@RequestMapping(method = RequestMethod.GET)
 	public ModelAndView load(HttpServletRequest request,
 			HttpServletResponse response,
 			@RequestParam(value = "userId", required = false) Integer userId

@@ -83,7 +83,7 @@ public class AssetUseRepository extends JPARepository {
 		log.debug("loadAssetUseByExternalId(): entered - extId = [" + externalId + "]");
 		try {
 			TypedQuery<AssetUse> query = entityManager.createQuery(
-					"from AssetUse au where au.externalId = ?", AssetUse.class);
+					"from AssetUse au where au.externalId = ?1", AssetUse.class);
 			query.setParameter(1, externalId);
 			return query.getSingleResult();
 		}
@@ -101,7 +101,7 @@ public class AssetUseRepository extends JPARepository {
 		try {
 			String sql = "select * from asset_use au join asset a on au.asset_id = a.id and a.vendor_id= ? "  +
 			" join product p on au.cw_id = p.cw_id and ";
-
+	
 			if (isbn.trim().length() == 13) {
 				sql = sql + "isbn13 = ? where usage_type = ? ";
 			} else {
@@ -190,7 +190,7 @@ public class AssetUseRepository extends JPARepository {
 	{
 		PerfTimer timer = monitor.startTimer("AssetUseRepository::loadAssetUsesByComponentId");
 		TypedQuery<AssetUse> query = entityManager.createQuery(
-				"from AssetUse au where au.component.id = ?", AssetUse.class);
+				"from AssetUse au where au.component.id = ?1", AssetUse.class);
 		query.setParameter(1, componentId);
 		List<AssetUse> result = query.getResultList();
 		timer.stopTimer();
@@ -364,8 +364,8 @@ public class AssetUseRepository extends JPARepository {
 			// Use "as id" to match scalarId
 			List<Contract> contract = new ArrayList<Contract>();
 			int poId = 0;
-			final String sql1 = "select distinct po from PurchaseOrder po, in (po.assets) a where a.id = ?"
-					+ " and  po.source.id = ?"
+			final String sql1 = "select distinct po from PurchaseOrder po, in (po.assets) a where a.id = ?1"
+					+ " and  po.source.id = ?2"
 					+ " order by po.date desc, po.id desc";
 				// a lot of the PO dates are truncated to just day (not hours, etc)
 				// so sort by "id desc" also
@@ -393,7 +393,7 @@ public class AssetUseRepository extends JPARepository {
 			try {
 				TypedQuery<Contract> query = entityManager.createQuery(
 					"select c from Contract c, ContractAsset ca where " +
-					" c.source.id = ? and ca.contract.id = c.id and ca.assetBase.id = ?"
+					" c.source.id = ?1 and ca.contract.id = c.id and ca.assetBase.id = ?2"
 					+ " order by c.date desc, c.id desc",
 					// a lot of the contract dates are truncated to just day (not hours, etc)
 					// so sort by "id desc" also
@@ -491,7 +491,7 @@ public class AssetUseRepository extends JPARepository {
 			"join fetch au.asset a " +
 			// Think for this method it is safe to join on sources since we are only getting a single AssetUse
 			"left join fetch a.sources " +
-			"where au.asset.id = ? ";
+			"where au.asset.id = ?1 ";
 		TypedQuery<AssetUse> query = entityManager.createQuery(sql, AssetUse.class);
 		query.setParameter(1, assetId);
 		return query.getResultList();
@@ -530,7 +530,7 @@ public class AssetUseRepository extends JPARepository {
 			// Don't join on sources because if a product has more than one asset usage for the same asset
 			// then we get each source the asset has multiple times
 			// "left join fetch a.sources " +
-			"where au.commonWork.id = ? and au.asset.id = ?";
+			"where au.commonWork.id = ?1 and au.asset.id = ?2";
 		TypedQuery<AssetUse> query = entityManager.createQuery(sql, AssetUse.class);
 		query.setParameter(1, cwId);
 		query.setParameter(2, assetId);
@@ -576,7 +576,7 @@ public class AssetUseRepository extends JPARepository {
 			// Don't join on sources because if a CommonWork has more than one asset usage for the same asset
 			// then we get each source the asset has multiple times
 			// "left join fetch a.sources " +
-			"where au.commonWork.id = ? order by au.position ", AssetUse.class
+			"where au.commonWork.id = ?1 order by au.position ", AssetUse.class
 		);
 
 		query.setParameter(1, cwId);
@@ -600,7 +600,7 @@ public class AssetUseRepository extends JPARepository {
 			 "left join fetch a.sources " +
 			 "left join fetch au.component " +
 			 "left join fetch au.usage " +
-			"where au.commonWork.id = ? " + wfilter + " order by au.position ", AssetUse.class
+			"where au.commonWork.id = ?1 " + wfilter + " order by au.position ", AssetUse.class
 		);
 
 		query.setParameter(1, cwId);
@@ -668,7 +668,7 @@ public class AssetUseRepository extends JPARepository {
 			// Don't join on sources because if a CommonWork has more than one asset usage for the same asset
 			// then we get each source the asset has multiple times
 			// "left join fetch a.sources " +
-			"where au.commonWork.id = ?  and au.component.id = ? ", AssetUse.class
+			"where au.commonWork.id = ?1  and au.component.id = ?2 ", AssetUse.class
 		);
 
 		query.setParameter(1, cwId);
@@ -694,7 +694,7 @@ public class AssetUseRepository extends JPARepository {
 			"left join fetch a.ownerType left join fetch a.mediaType " +
 			// Think for this method it is safe to join on sources since we are only getting a single AssetUse
 			"left join fetch a.sources " +
-			"where au.id = ? ", AssetUse.class
+			"where au.id = ?1 ", AssetUse.class
 		);
 
 		query.setParameter(1, auId);
@@ -1065,7 +1065,7 @@ public class AssetUseRepository extends JPARepository {
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void deleteNonCurrentSourceStatuses(AssetUse au, List<Source> sources) throws PersistenceException
 	{
-		String sql = "delete from AuSourcePermStatus where assetUseId = ?";
+		String sql = "delete from AuSourcePermStatus where assetUseId = ?1";
 
 		if (CollectionUtils.isNotEmpty(sources)) {
 			List<Integer> sourceIdList = new ArrayList<Integer>(sources.size());
@@ -1819,7 +1819,7 @@ public class AssetUseRepository extends JPARepository {
 	@Transactional(propagation = Propagation.REQUIRED)
 	public List<AssetUseFile> loadAssetUseFiles(Integer auId) {
 		TypedQuery<AssetUseFile> query = entityManager.createQuery(
-				"from AssetUseFile auf where auf.assetUse.id = ?", AssetUseFile.class);
+				"from AssetUseFile auf where auf.assetUse.id = ?1", AssetUseFile.class);
 
 		query.setParameter(1, auId);
 		List<AssetUseFile> auList = query.getResultList();

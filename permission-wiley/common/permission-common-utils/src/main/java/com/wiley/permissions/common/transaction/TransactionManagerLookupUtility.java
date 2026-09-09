@@ -7,8 +7,6 @@ import javax.transaction.TransactionManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.HibernateException;
-import org.hibernate.transaction.TransactionManagerLookup;
 import org.mule.api.config.MuleConfiguration;
 import org.mule.api.transaction.TransactionManagerFactory;
 import org.springframework.context.ApplicationContext;
@@ -24,8 +22,7 @@ import com.wiley.permissions.common.spring.AppContext;
  *
  * @author ttidwell
  */
-public class TransactionManagerLookupUtility
-implements TransactionManagerLookup, TransactionManagerFactory
+public class TransactionManagerLookupUtility implements TransactionManagerFactory
 {
 	private final static Log log = LogFactory.getLog(TransactionManagerLookupUtility.class);
 
@@ -99,26 +96,6 @@ implements TransactionManagerLookup, TransactionManagerFactory
 	//public TransactionManager getTransactionManager() {
 	//	return TransactionManagerServices.getTransactionManager();
 	//}
-
-	// This is required for Hibernate
-	/** Implements TransactionManagerLookup interface. */
-	@Override
-	public TransactionManager getTransactionManager(Properties props) throws HibernateException {
-		return getTransactionManager();
-	}
-
-	// This is required for Hibernate
-	/** Implements TransactionManagerLookup interface. */
-	@Override
-	public String getUserTransactionName() {
-		return "/comp/UserTransaction";
-	}
-
-	/** Implements TransactionManagerLookup interface. */
-	@Override
-	public Object getTransactionIdentifier(Transaction transaction) {
-		return transaction;
-	}
 
 	/**
 	 * Implements TransactionManagerFactory interface (required for Mule).

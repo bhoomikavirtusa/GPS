@@ -22,7 +22,7 @@ import com.wiley.permissions.web.shared.controllers.BaseAnnotatedController;
  *
  * @author smarkoff
  */
-
+@Controller
 public class ManageSummaryController extends BaseAnnotatedController {
 	private static final Log log = LogFactory.getLog(ManageSummaryController.class);
 
@@ -32,7 +32,7 @@ public class ManageSummaryController extends BaseAnnotatedController {
 	private CommonWorkRepository cwRepository = null;
 	private CommonWorkService commonWorkService;
 
-	@RequestMapping(method = {RequestMethod.GET, RequestMethod.POST})
+	@RequestMapping(value = "/landing/manageSummary", method = RequestMethod.GET)
 	public String formBackingObject(HttpServletRequest request, Model model,
 			@RequestParam(CW_ID) Integer cwId)
 	throws Exception
@@ -54,7 +54,7 @@ public class ManageSummaryController extends BaseAnnotatedController {
 		return getFormView();
 	}
 
-	@RequestMapping(method = RequestMethod.POST)
+	@RequestMapping(value = "/landing/manageSummary", method = RequestMethod.POST)
 	public String onSubmit(HttpServletRequest request,
 			@ModelAttribute(MODEL_FORM_NAME) CwSummary cwSummary,
 			BindingResult bindingResult)

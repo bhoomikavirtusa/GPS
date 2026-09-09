@@ -11,7 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -37,7 +36,7 @@ public class SourceTableController extends BaseAnnotatedController
 	private SourceRepository sourceRepository = null;
 
 
-	@GetMapping
+	@GetMapping("/sources/sources/sourceTable")
 	public void handle(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(value="filter", required=false) String filter,
 			@RequestParam(value="sSearch_1", required=false) String search,

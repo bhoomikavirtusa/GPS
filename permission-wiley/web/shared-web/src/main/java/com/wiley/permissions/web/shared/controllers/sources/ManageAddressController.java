@@ -43,8 +43,26 @@ public class ManageAddressController extends BaseAnnotatedController {
 	// (since used above class definition)
 	protected static final String MODEL_FORM_NAME = "manageAddressForm";
 
+	private static final String FORM_VIEW_SOURCES = "pages.sources.manageAddress";
+	private static final String FORM_VIEW_PO = "pages.po.addAddress";
+	private static final String SUCCESS_VIEW_SOURCES = "redirect:/sapp/sources/viewSource/form";
+	private static final String SUCCESS_VIEW_PO = "redirect:/sapp/permissions/po/details";
+
 	private SourceService sourceService = null;
 	private SourceRepository sourceRepository = null;
+
+	private String resolveFormView(HttpServletRequest request) {
+		return isPoPath(request) ? FORM_VIEW_PO : FORM_VIEW_SOURCES;
+	}
+
+	private String resolveSuccessView(HttpServletRequest request) {
+		return isPoPath(request) ? SUCCESS_VIEW_PO : SUCCESS_VIEW_SOURCES;
+	}
+
+	private boolean isPoPath(HttpServletRequest request) {
+		String uri = request.getRequestURI();
+		return uri != null && uri.contains("/sources/po/manageAddress");
+	}
 
 	@Override
 	protected List<String> getReferenceDataNames(HttpServletRequest request)
@@ -115,7 +133,7 @@ public class ManageAddressController extends BaseAnnotatedController {
 
 		form.setCameFrom(request.getParameter("cameFrom"));
 
-		ModelAndView mv = new ModelAndView(getFormView());
+		ModelAndView mv = new ModelAndView(resolveFormView(request));
 		mv.addObject(MODEL_FORM_NAME, form);
 		return mv;
 	}
@@ -131,7 +149,7 @@ public class ManageAddressController extends BaseAnnotatedController {
 		getValidator().validate(form, bindingResult);
 
 		if (bindingResult.hasErrors() && form.getMode() != FormMode.CANCEL) {
-			return getFormView();
+			return resolveFormView(request);
 		}
 
 		switch (form.getMode()) {
@@ -142,7 +160,7 @@ public class ManageAddressController extends BaseAnnotatedController {
 						sourceRepository.saveSourceAddress(form.getSourceId(), form.getAddress());
 					} catch (DuplicateAddressTypeException de) {
 						bindingResult.reject (null, de.getMessage());
-						return getFormView();
+						return resolveFormView(request);
 					}
 				} else if (form.getContactId() != null) {
 					//TODO SOURCE - maybe create method in repository
@@ -174,7 +192,7 @@ public class ManageAddressController extends BaseAnnotatedController {
 			}
 		}
 
-		String viewName = getSuccessView() + "?" + ViewSourceController.SOURCE_ID + "=" + form.getSourceId();
+		String viewName = resolveSuccessView(request) + "?" + ViewSourceController.SOURCE_ID + "=" + form.getSourceId();
 
 		if (StringUtils.isNotBlank(form.getCameFrom())) {
 			viewName += "&cameFrom=" + form.getCameFrom();

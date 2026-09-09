@@ -63,7 +63,7 @@ public class AssetRepository extends JPARepository
 	{
 		try {
 			TypedQuery<Asset> query = entityManager.createQuery(
-			    "from Asset a where a.externalId = ?", Asset.class);
+			    "from Asset a where a.externalId = ?1", Asset.class);
 		    query.setParameter(1, externalId);
 		    return query.getSingleResult();
 		}

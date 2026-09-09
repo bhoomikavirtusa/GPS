@@ -38,7 +38,7 @@ extends BaseAnnotatedController {
 
 	private DataSource sourceDataSource = null;
 
-	@RequestMapping
+	@RequestMapping("/permissions/paymentrequest.xls")
 	public View handle(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(PR_ID) Integer prId)
 	throws Exception {

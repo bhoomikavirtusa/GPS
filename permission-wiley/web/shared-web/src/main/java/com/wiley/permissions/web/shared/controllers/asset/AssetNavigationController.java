@@ -8,13 +8,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -42,10 +42,71 @@ public class AssetNavigationController extends BaseAnnotatedController {
 	protected static final String FORM_MODEL_NAME = "assetMainForm";
 	private final long maximumAssetFileSize = 10 * 1024 * 1024;
 
+	private static final String FORM_VIEW_MAIN = "pages.asset.main";
+	private static final String FORM_VIEW_CUSTOM = "pages.asset.custom.main";
+	private static final String FORM_VIEW_VIEW = "pages.asset.main.view";
+	private static final String FORM_VIEW_UPLOAD = "pages.asset.asset.upload";
+	private static final String SUCCESS_VIEW_MAIN = "redirect:/sapp/asset/main/load";
+	private static final String SUCCESS_VIEW_CUSTOM = "redirect:/sapp/asset/main/custom/load";
+	private static final String SUCCESS_VIEW_VIEW = "redirect:/sapp/asset/main/view/load";
+
 	private AssetUseRepository assetUseRepository;
 	private AssetRepository assetRepository;
 	private AssetService assetService;
 	private AssetUseService assetUseService;
+
+	/**
+	 * Spring 5 registers @RequestMapping on every bean instance, so only one
+	 * AssetNavigationController bean may exist. Resolve views from the request
+	 * path instead of separate beans with different formView/successView.
+	 */
+	private String resolveFormView() {
+		String path = currentServletPath();
+		if (path != null) {
+			if (path.contains("/asset/main/custom")) {
+				return FORM_VIEW_CUSTOM;
+			}
+			if (path.contains("/asset/main/view")) {
+				return FORM_VIEW_VIEW;
+			}
+			if (path.contains("/asset/main/upload")) {
+				return FORM_VIEW_UPLOAD;
+			}
+		}
+		return FORM_VIEW_MAIN;
+	}
+
+	private String resolveSuccessView() {
+		String path = currentServletPath();
+		if (path != null) {
+			if (path.contains("/asset/main/custom")) {
+				return SUCCESS_VIEW_CUSTOM;
+			}
+			if (path.contains("/asset/main/view")) {
+				return SUCCESS_VIEW_VIEW;
+			}
+		}
+		return SUCCESS_VIEW_MAIN;
+	}
+
+	private String currentServletPath() {
+		try {
+			ServletRequestAttributes attrs =
+					(ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+			if (attrs != null) {
+				HttpServletRequest request = attrs.getRequest();
+				String uri = request.getRequestURI();
+				String context = request.getContextPath();
+				if (uri != null && context != null && uri.startsWith(context)) {
+					return uri.substring(context.length());
+				}
+				return uri;
+			}
+		} catch (Exception e) {
+			log.debug("currentServletPath(): unable to resolve request path", e);
+		}
+		return null;
+	}
 
 	/*@RequestMapping("/first")*/
 	@RequestMapping(value={"/asset/main/first", "/asset/main/custom/first", "/asset/main/view/first"}, method = {RequestMethod.GET, RequestMethod.POST})
@@ -63,7 +124,7 @@ public class AssetNavigationController extends BaseAnnotatedController {
 		// reset the session on first
 		request.getSession().setAttribute(CustomAssetController.FORM_MODEL_LIST, null);
 
-		ModelAndView mv = new ModelAndView (getSuccessView() + "?auId=" + form.getId());
+		ModelAndView mv = new ModelAndView (resolveSuccessView() + "?auId=" + form.getId());
 		mv.addObject(FORM_MODEL_NAME, form);
 		return mv;
 	}
@@ -83,7 +144,7 @@ public class AssetNavigationController extends BaseAnnotatedController {
 		// reset the session on first
 		//request.getSession().setAttribute(CustomAssetController.FORM_MODEL_LIST, null);
 		AssetUse assetUse = null;
-		ModelAndView mv = new ModelAndView (getFormView());
+		ModelAndView mv = new ModelAndView (resolveFormView());
 		// Added for Thumbnail Display - Start
 		mv.addObject("auIds", ids);
 		// Added for Thumbnail Display - End
@@ -178,7 +239,7 @@ public class AssetNavigationController extends BaseAnnotatedController {
 			 assetUse = assetUseRepository.loadAssetUseById(id);
 		}
 
-		ModelAndView mv = new ModelAndView(getFormView());
+		ModelAndView mv = new ModelAndView(resolveFormView());
 		mv.addObject("assetUse", assetUse);
 		mv.addObject("isLast", form.isLast ("" + id));
 		mv.addObject("isFirst", form.isFirst ("" + id));
@@ -190,7 +251,7 @@ public class AssetNavigationController extends BaseAnnotatedController {
 	public ModelAndView next(@ModelAttribute(FORM_MODEL_NAME) AssetNavigationForm form)
 		throws Exception
 	{
-		return new ModelAndView (getSuccessView() + "?auId=" + form.getNextId());
+		return new ModelAndView (resolveSuccessView() + "?auId=" + form.getNextId());
 	}
 
 	@RequestMapping(value={"/asset/main/add", "/asset/main/custom/add", "/asset/main/view/add"}, method = {RequestMethod.GET, RequestMethod.POST})
@@ -209,7 +270,7 @@ public class AssetNavigationController extends BaseAnnotatedController {
 	public ModelAndView prev(@ModelAttribute(FORM_MODEL_NAME) AssetNavigationForm form)
 		throws Exception
 	{
-		return new ModelAndView (getSuccessView() + "?auId=" + form.getPrevId());
+		return new ModelAndView (resolveSuccessView() + "?auId=" + form.getPrevId());
 	}
 
 	public AssetUseRepository getAssetUseRepository()

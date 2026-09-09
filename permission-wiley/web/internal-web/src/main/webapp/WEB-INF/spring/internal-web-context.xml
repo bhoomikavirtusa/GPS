@@ -151,7 +151,7 @@
 		<property name="userRepository" ref="repository.UserRepository" />
 	</bean>
 
-	<bean name="/sapp/commonwork/report/*"
+	<bean id="ReportsController"
 		class="com.wiley.permissions.web.internal.controllers.reports.ReportsController"
 		parent="controllers.BaseAnnotatedController">
 
@@ -187,31 +187,14 @@
 		<property name="assetExportExcelView" ref="assetExportExcelView" />
 		<!-- Added for DNM-534 - End -->
 		<property name="assetRepository" ref="repository.AssetRepository" />
+		<!-- Merged from former duplicate ReportsController beans (Spring 5 ambiguous mapping) -->
+		<property name="pdfView" ref="ArtLogPdfReport" />
+		<property name="excludedAssetsView" value="pages.product.list.excludedAssetUse" />
 	</bean>
 
 	<bean name="/sapp/commonwork/report/viewPhotocopyrightReport.xls"
 		class="org.springframework.web.servlet.mvc.ParameterizableViewController">
 		<property name="viewName" value="pages.product.viewPhotocopyrightExcelView" />
-	</bean>
-	
-	<bean name="/sapp/commonwork/report/artLog.pdf"
-		class="com.wiley.permissions.web.internal.controllers.reports.ReportsController"
-		parent="controllers.BaseAnnotatedController">
-		<property name="commonWorkRepository" ref="repository.CommonWorkRepository" />
-		<property name="userRepository" ref="repository.UserRepository" />
-		<property name="pdfView" ref="ArtLogPdfReport" />
-	</bean>
-
-	<bean name="/sapp/commonwork/report/viewExcludedAssets"
-		class="com.wiley.permissions.web.internal.controllers.reports.ReportsController"
-		parent="controllers.BaseAnnotatedController">
-		<property name="assetUseRepository" ref="repository.AssetUseRepository" />
-		<property name="commonWorkRepository" ref="repository.CommonWorkRepository" />
-		<property name="userRepository" ref="repository.UserRepository" />
-		<property name="productRepository" ref="repository.ProductRepository" />
-
-		<property name="excludedAssetsView" value="pages.product.list.excludedAssetUse" />
-		<property name="userLandingViewName" value="redirect:/sapp/product/userLanding" />
 	</bean>
 		
 	<bean name="/app/product/internalpr.pdf"
@@ -356,7 +339,7 @@
 		<property name="externalUserLdapClient" ref="utility.ExternalUserLdapClient" />
 	</bean>
 	
-	<bean name="/sapp/admin/sourceGroups"
+	<bean id="SourceGroupMainController"
 		class="com.wiley.permissions.web.internal.controllers.admin.SourceGroupMainController"
 		parent="controllers.BaseAnnotatedController">
 
@@ -393,13 +376,6 @@
 		<property name="manageUserGroupURL" value="/sapp/admin/manageUserGroup/form" />
 	</bean>
 
-	<bean name="/sapp/admin/guidelines/*"
-		class="com.wiley.permissions.web.shared.controllers.landing.ManageGuidelinesController"
-		parent="controllers.BaseAnnotatedController">
-
-		<property name="successView" value="pages.admin.guidelines.main" />
-	</bean>
-
 	<bean name="/sapp/admin/manageUserGroup/*"
 		class="com.wiley.permissions.web.internal.controllers.admin.ManageUserGroupController"
 		parent="controllers.BaseAnnotatedController">
@@ -414,7 +390,7 @@
 		<property name="finishView" value="redirect:/sapp/admin/userGroups" />
 	</bean>
 
-	<bean name="/sapp/admin/testMessages"
+	<bean id="ManageMessageController"
 		class="com.wiley.permissions.web.internal.controllers.admin.ManageMessageController"
 		parent="controllers.BaseAnnotatedController">
 
@@ -425,7 +401,7 @@
 		<property name="PEMessageService" ref="services.message.PEMessageService" />
 	</bean>
 
-	<bean name="/sapp/admin/manageCachedMessageList"
+	<bean id="ManageCachedMessageListController"
 		class="com.wiley.permissions.web.internal.controllers.admin.ManageCachedMessageListController"
 		parent="controllers.BaseAnnotatedController">
 
@@ -434,7 +410,7 @@
 		<property name="cachedMessageRepository" ref="repository.CachedMessageRepository" />
 	</bean>
 
-	<bean name="/sapp/admin/manageCachedMessageObject"
+	<bean id="ManageCachedMessageController"
 		class="com.wiley.permissions.web.internal.controllers.admin.ManageCachedMessageController"
 		parent="controllers.BaseAnnotatedController">
 
@@ -523,7 +499,7 @@
 		<property name="conditionRepository" ref="repository.ConditionRepository" />
 	</bean>
 	
-	<bean name="/sapp/admin/manageSystemNotification/*"
+	<bean id="ManageNotificationController"
 		class="com.wiley.permissions.web.internal.controllers.admin.ManageNotificationController"
 		parent="controllers.BaseAnnotatedController">
 
@@ -552,7 +528,7 @@
 		<property name="sourceRepository" ref="repository.SourceRepository" />
 	</bean>
 	
-	<bean name="/sapp/admin/manageComplianceEmails/*"
+	<bean id="ManageComplianceEmailsController"
 		class="com.wiley.permissions.web.internal.controllers.admin.ManageComplianceEmailsController"
 		parent="controllers.BaseAnnotatedController">
 
@@ -571,7 +547,7 @@
 		<property name="sourceRepository" ref="repository.SourceRepository" />
 	</bean>
 
-	<bean name="/sapp/cwlanding/*"
+	<bean id="InternalCwLandingController"
 		class="com.wiley.permissions.web.internal.controllers.landing.CwLandingController"
 		parent="LandingController">
 	</bean>

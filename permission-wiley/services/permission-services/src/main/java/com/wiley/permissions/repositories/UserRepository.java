@@ -507,7 +507,7 @@ public class UserRepository extends JPARepository {
 	 */
 	@Transactional(propagation = Propagation.REQUIRED)
 	public UserDefaults loadUserDefaults(int userId) {
-		TypedQuery<UserDefaults> q = createQuery("from UserDefaults ud where ud.user.id = ?", UserDefaults.class);
+		TypedQuery<UserDefaults> q = createQuery("from UserDefaults ud where ud.user.id = ?1", UserDefaults.class);
 		q.setParameter(1, userId);
 
 		try {
@@ -607,7 +607,7 @@ public class UserRepository extends JPARepository {
 	{
 		try {
 			TypedQuery<Role> query = createQuery(
-			    "from Role r where r.roleType = ? and r.code = ?", Role.class);
+			    "from Role r where r.roleType = ?1 and r.code = ?2", Role.class);
 			query.setParameter(1, type);  // note type.toString() give error, JPA wants object
 		    query.setParameter(2, code);
 		    return query.getSingleResult();
@@ -700,7 +700,7 @@ public class UserRepository extends JPARepository {
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void deleteProfile(int userId) throws PersistenceException
 	{
-		String sql = "delete from UserProfile where user.id = ?";
+		String sql = "delete from UserProfile where user.id = ?1";
 
 		Query q = entityManager.createQuery(sql);
 		q.setParameter(1, userId);
@@ -716,7 +716,7 @@ public class UserRepository extends JPARepository {
 	@Transactional(propagation = Propagation.REQUIRED)
 	public List<User> loadAuthorsByLastName(String lastName) throws PersistenceException
 	{
-		String sql = "from User u where UPPER(u.lastName) = ? "
+		String sql = "from User u where UPPER(u.lastName) = ?1 "
 			+ "and (u.type = 'AUTHOR' or u.type = 'FREELANCER')";
 		TypedQuery<User> query = entityManager.createQuery(sql, User.class);
 		query.setParameter(1, lastName.toUpperCase());
@@ -1046,7 +1046,7 @@ public class UserRepository extends JPARepository {
 
 		//String sql = "select cw.* from common_work cw, author_2_cw map"
 		//	+ " where map.user_id = ? and cw.id = map.cw_id";
-		String sql = "select cw from CommonWork cw where id in (select cw_id from author_2_cw where user_id = ?)";
+		String sql = "select cw from CommonWork cw where id in (select cw_id from author_2_cw where user_id = ?1)";
 		TypedQuery<CommonWork> query = entityManager.createQuery(sql, CommonWork.class);
 		query.setParameter(1, userId);
 		List<CommonWork> list = query.getResultList();

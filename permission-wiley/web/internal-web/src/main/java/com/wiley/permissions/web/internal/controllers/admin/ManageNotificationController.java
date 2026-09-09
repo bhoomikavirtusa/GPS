@@ -29,7 +29,7 @@ import com.wiley.permissions.web.shared.controllers.BaseAnnotatedController;
  * @author nmedrano
  */
 @Controller
-@RequestMapping("/edit")
+@RequestMapping("/admin/manageSystemNotification")
 @SessionAttributes(ManageNotificationController.FORM_MODEL_NAME)
 public class ManageNotificationController
 
@@ -60,7 +60,7 @@ extends BaseAnnotatedController
 		return output;
 	}
 
-	@RequestMapping(method = {RequestMethod.GET, RequestMethod.POST})
+	@RequestMapping(value = "/edit", method = RequestMethod.GET)
 	public ModelAndView formBackingObject(HttpServletRequest request,	Model model)
 	throws Exception
 	{
@@ -95,7 +95,7 @@ extends BaseAnnotatedController
 	}
 
 
-	@RequestMapping(method =  RequestMethod.POST)
+	@RequestMapping(value = "/edit", method =  RequestMethod.POST)
 	public ModelAndView onSubmit(HttpServletRequest request,
 			@ModelAttribute(FORM_MODEL_NAME) ManageNotificationForm form,
 			BindingResult bindingResult)

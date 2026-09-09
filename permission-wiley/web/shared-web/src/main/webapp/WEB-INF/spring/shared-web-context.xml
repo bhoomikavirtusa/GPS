@@ -29,15 +29,35 @@
 			</list>
 		</property>
 	</bean>
-	<!-- mvc:annotation-driven/-->
+	<!-- Spring 5: replaces removed AnnotationMethodHandlerAdapter / DefaultAnnotationHandlerMapping.
+	     Controllers use @RequestMapping on methods; XML bean names like /sapp/... are no longer the primary route.
+	     validator=beanValidator: app uses Commons Validator (spring-modules), not JSR-303.
+	     Without this, annotation-driven auto-creates OptionalValidatorFactoryBean which needs
+	     javax.validation.ParameterNameProvider (Bean Validation 1.1+); project has validation-api 1.0. -->
+	<bean id="validatorFactory" class="org.springmodules.validation.commons.DefaultValidatorFactory">
+		<property name="validationConfigLocations">
+			<list>
+				<value>/WEB-INF/validator-rules.xml</value>
+				<value>/WEB-INF/validation.xml</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="beanValidator" class="org.springmodules.validation.commons.DefaultBeanValidator">
+		<property name="validatorFactory" ref="validatorFactory" />
+	</bean>
+
+	<mvc:annotation-driven validator="beanValidator" />
 	<context:component-scan base-package="com.wiley.permissions.web.controllers"/>
 	
-	<!-- bean id="handlerMapping" class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
-	<property name="alwaysUseFullPath" value = "true" />
-</bean>
-<bean id="handlerAdapter" class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
-        <property name="alwaysUseFullPath" value="true"/>
-    </bean-->
+	<!-- Legacy Spring 3/4 adapters (removed in Spring 5) — kept commented for history
+	<bean id="handlerMapping" class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
+		<property name="alwaysUseFullPath" value="true" />
+	</bean>
+	<bean id="handlerAdapter" class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+		<property name="alwaysUseFullPath" value="true"/>
+	</bean>
+	-->
    	<bean id="viewResolver" class="org.springframework.web.servlet.view.UrlBasedViewResolver">
 		<property name="requestContextAttribute" value="requestContext" />
 		<property name="viewClass" value="org.springframework.web.servlet.view.tiles3.TilesView" />
@@ -59,26 +79,15 @@
 		</property>
 	</bean>
 	
-	<bean id="validatorFactory" class="org.springmodules.validation.commons.DefaultValidatorFactory">
-		<property name="validationConfigLocations">
-			<list>
-				<value>/WEB-INF/validator-rules.xml</value>
-				<value>/WEB-INF/validation.xml</value>
-			</list>
-		</property>
-	</bean>
-
-	<bean id="beanValidator" class="org.springmodules.validation.commons.DefaultBeanValidator">
-		<property name="validatorFactory" ref="validatorFactory" />
-	</bean>
-
 	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
 		<!-- make this the same as our largest blob column in db, which is on asset_file table -->
 		<property name="maxUploadSize" value="500111000" />
 	</bean>
 
+	<!-- Must be AFTER RequestMappingHandlerMapping (order 0 from mvc:annotation-driven).
+	     If this stays at order 0, URL-named controller beans win and Spring 5 has no adapter for them. -->
 	<bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping">
-		<property name="order" value="0"/>
+		<property name="order" value="10"/>
 		<property name="alwaysUseFullPath" value="true"/>
 	</bean>
 
@@ -167,9 +176,14 @@
 		<property name="viewName" value="pages.product" />
 	</bean>
 
-	<bean name="/sapp/landing/*"
+	<!-- abstract parent only: do not instantiate LandingController itself.
+	     Spring 5 RequestMappingHandlerMapping registers every @RequestMapping on every
+	     bean instance, so a second LandingController (or a live parent + CwLandingController)
+	     causes Ambiguous mapping on /landing/scroll and other shared paths.
+	     Concrete apps use CwLandingController (parent=LandingController) as the live bean.
+	     descriptionValidation view is hardcoded in LandingController#descriptionValidation. -->
+	<bean id="LandingController" abstract="true"
 		class="com.wiley.permissions.web.shared.controllers.landing.LandingController"
-		id="LandingController"
 		parent="controllers.BaseAnnotatedController">
 
 		<property name="formView" value="pages.landing.main" />
@@ -186,15 +200,7 @@
 		<property name="assetUseIndexService" ref="services.AssetUseIndexService" />
 	</bean>
 	
-	<bean name="/sapp/landing/descriptionValidation"
-		class="com.wiley.permissions.web.shared.controllers.landing.LandingController"
-		parent="controllers.BaseAnnotatedController">
-
-		<property name="formView" value="pages.landing.descriptionValidation" />
-		<property name="assetUseRepository" ref="repository.AssetUseRepository" />
-	</bean>
-	
-	<bean name="/sapp/landing/table"
+	<bean id="LandingTableController"
 		class="com.wiley.permissions.web.shared.controllers.landing.LandingTableController">
 		
 		<property name="assetUseService" ref="services.AssetUseService" />
@@ -269,7 +275,7 @@
 		<property name="commonWorkService" ref="services.CommonWorkService" />
 	</bean>
 	
-	<bean name="/sapp/landing/manageSummary"
+	<bean id="ManageSummaryController"
 		class="com.wiley.permissions.web.shared.controllers.landing.ManageSummaryController"
 		parent="controllers.BaseAnnotatedController">
 
@@ -408,37 +414,18 @@
 		<property name="assetUseService" ref="services.AssetUseService" />
 	</bean>
 
-	<bean name="/sapp/custom/createSource"
+	<!-- Single bean only: Spring 5 RequestMappingHandlerMapping registers every
+	     @RequestMapping on every instance. successView is resolved from the
+	     request path (custom/createSource, landing/createSource, landing/editSource). -->
+	<bean id="LandingCreateSourceController"
 		class="com.wiley.permissions.web.shared.controllers.landing.CreateSourceController"
 		parent="controllers.BaseAnnotatedController">
 
-		<property name="formView" value="pages.sources.include.createSource" />
-		<property name="successView" value="redirect:/sapp/asset/custom/submit" />
 		<property name="sourceService" ref="services.SourceService" />
 		<property name="sourceRepository" ref="repository.SourceRepository" />
 	</bean>
 
-	<bean name="/sapp/landing/createSource"
-		class="com.wiley.permissions.web.shared.controllers.landing.CreateSourceController"
-		parent="controllers.BaseAnnotatedController">
-
-		<property name="formView" value="pages.sources.include.createSource" />
-		<property name="successView" value="redirect:/sapp/landing/source/submit_3rdparty_search" />
-		<property name="sourceService" ref="services.SourceService" />
-		<property name="sourceRepository" ref="repository.SourceRepository" />
-	</bean>
-
-	<bean name="/sapp/landing/editSource"
-		class="com.wiley.permissions.web.shared.controllers.landing.CreateSourceController"
-		parent="controllers.BaseAnnotatedController">
-
-		<property name="formView" value="pages.sources.include.createSource" />
-		<property name="successView" value="redirect:/sapp/permissions/po/assets" />
-		<property name="sourceService" ref="services.SourceService" />
-		<property name="sourceRepository" ref="repository.SourceRepository" />
-	</bean>
-
-	<bean name="/sapp/cwlanding/user/profile"
+	<bean id="UserProfileController"
 		class="com.wiley.permissions.web.shared.controllers.myaccount.UserProfileController"
 		parent="controllers.BaseAnnotatedController">
 
@@ -448,40 +435,19 @@
 		<property name="userRepository" ref="repository.UserRepository" />
 	</bean>
 	
-	<bean name="/sapp/asset/main/custom/*"
-		class="com.wiley.permissions.web.shared.controllers.asset.AssetNavigationController">
+	<!-- Single bean only: Spring 5 RequestMappingHandlerMapping registers every
+	     @RequestMapping on every instance. formView/successView are resolved from
+	     the request path inside AssetNavigationController (main/custom/view/upload). -->
+	<bean id="AssetNavigationController"
+		class="com.wiley.permissions.web.shared.controllers.asset.AssetNavigationController"
+		parent="controllers.BaseAnnotatedController">
 
-		<property name="formView" value="pages.asset.custom.main" />
-		<property name="successView" value="redirect:/sapp/asset/main/custom/load" />
-		<property name="assetUseRepository" ref="repository.AssetUseRepository" />
-	</bean>
-
-	<bean name="/sapp/asset/main/view/*"
-		class="com.wiley.permissions.web.shared.controllers.asset.AssetNavigationController">
-
-		<property name="formView" value="pages.asset.main.view" />
-		<property name="successView" value="redirect:/sapp/asset/main/view/load" />
-		<property name="assetUseRepository" ref="repository.AssetUseRepository" />
-	</bean>
-
-	<bean name="/sapp/asset/main/*"
-		class="com.wiley.permissions.web.shared.controllers.asset.AssetNavigationController">
-
-		<property name="formView" value="pages.asset.main" />
-		<property name="successView" value="redirect:/sapp/asset/main/load" />
 		<property name="assetUseRepository" ref="repository.AssetUseRepository" />
 		<property name="assetService" ref="services.AssetService" />
 		<!-- Added for Thumbnail Display - Start -->
 		<property name="assetRepository" ref="repository.AssetRepository" />
 		<property name="assetUseService" ref="services.AssetUseService" />
 		<!-- Added for Thumbnail Display - End -->
-	</bean>
-	
-	<bean name="/sapp/asset/main/upload"
-		class="com.wiley.permissions.web.shared.controllers.asset.AssetNavigationController"
-		parent="controllers.BaseAnnotatedController">
-
-		<property name="formView" value="pages.asset.asset.upload" />
 	</bean> 
 	
 	<bean name="/sapp/asset/details/*"
@@ -590,7 +556,7 @@
 	
 	<!-- // Reports Controllers -->
 	
-	<bean name="/sapp/asset/assetSearch"
+	<bean id="AssetUseIndexSearchController"
 		class="com.wiley.permissions.web.shared.controllers.asset.AssetUseIndexSearchController"
 		parent="controllers.BaseAnnotatedController">
 
@@ -617,7 +583,7 @@
 		</property>
 	</bean>
 	
-	<bean name="/sapp/permissions/paymentrequest.xls"
+	<bean id="GeneratePaymentRequestXlsController"
 		class="com.wiley.permissions.web.shared.controllers.permissions.GeneratePaymentRequestXlsController"
 		parent="controllers.BaseAnnotatedController">
 
@@ -661,7 +627,7 @@
 		<property name="manageNoFlyURL" value="forward:/sapp/sources/manageSource/form" />
 	</bean>
 
-	<bean name="/sapp/sources/viewSourceFile"
+	<bean id="ViewSourceFileController"
 		class="com.wiley.permissions.web.shared.controllers.sources.ViewSourceFileController"
 		parent="controllers.BaseAnnotatedController">
 
@@ -669,45 +635,19 @@
 		<property name="sourceService" ref="services.SourceService" />
 	</bean>
 
-	<bean name="/sapp/sources/manageAddress/*"
+	<!-- Single bean only (Spring 5 ambiguous mapping). Views resolved from request path. -->
+	<bean id="ManageAddressController"
 		class="com.wiley.permissions.web.shared.controllers.sources.ManageAddressController"
 		parent="controllers.BaseAnnotatedController">
 
-		<property name="formView" value="pages.sources.manageAddress" />
-		<property name="successView" value="redirect:/sapp/sources/viewSource/form" />
-
 		<property name="sourceRepository" ref="repository.SourceRepository" />
 		<property name="sourceService" ref="services.SourceService" />
 	</bean>
 
-	<bean name="/sapp/sources/po/manageAddress/*"
-		class="com.wiley.permissions.web.shared.controllers.sources.ManageAddressController"
-		parent="controllers.BaseAnnotatedController">
-
-		<property name="formView" value="pages.po.addAddress" />
-		<property name="successView" value="redirect:/sapp/permissions/po/details" />
-
-		<property name="sourceRepository" ref="repository.SourceRepository" />
-		<property name="sourceService" ref="services.SourceService" />
-	</bean>
-
-	<bean name="/sapp/sources/manageContact/*"
+	<!-- Single bean only (Spring 5 ambiguous mapping). Views resolved from request path. -->
+	<bean id="ManageContactController"
 		class="com.wiley.permissions.web.shared.controllers.sources.ManageContactController"
 		parent="controllers.BaseAnnotatedController">
-
-		<property name="formView" value="pages.sources.manageContact" />
-		<property name="successView" value="redirect:/sapp/sources/viewSource/form" />
-
-		<property name="sourceRepository" ref="repository.SourceRepository" />
-		<property name="sourceService" ref="services.SourceService" />
-	</bean>
-	
-	<bean name="/sapp/sources/po/manageContact/*"
-		class="com.wiley.permissions.web.shared.controllers.sources.ManageContactController"
-		parent="controllers.BaseAnnotatedController">
-
-		<property name="formView" value="pages.po.addContact" />
-		<property name="successView" value="redirect:/sapp/permissions/po/details" />
 
 		<property name="sourceRepository" ref="repository.SourceRepository" />
 		<property name="sourceService" ref="services.SourceService" />
@@ -731,7 +671,7 @@
 		<property name="viewSourceURL" value="/sapp/sources/viewSource/form" />
 	</bean>
 
-	<bean name="/sapp/sources/sources/sourceTable"
+	<bean id="SourceTableController"
 		class="com.wiley.permissions.web.shared.controllers.sources.SourceTableController"
 		parent="controllers.BaseAnnotatedController">
 
@@ -750,7 +690,7 @@
 		<property name="assetService" ref="services.AssetService" />
 	</bean>
 
-	<bean name="/sapp/sources/createSource"
+	<bean id="SourcesCreateSourceController"
 		class="com.wiley.permissions.web.shared.controllers.sources.CreateSourceController"
 		parent="controllers.BaseAnnotatedController">
 
@@ -763,7 +703,7 @@
 		<property name="sourceRepository" ref="repository.SourceRepository" />
 	</bean>
 			
-	<bean name="/sapp/servicedesk/addUsers"
+	<bean id="AddUsersController"
 		class="com.wiley.permissions.web.shared.controllers.servicedesk.AddUsersController"
 		parent="controllers.BaseAnnotatedController">
 		
@@ -776,7 +716,7 @@
 		<property name="userRepository" ref="repository.UserRepository" />
 	</bean>
 	
-	<bean name="/sapp/product/assetThumbnail"
+	<bean id="AssetThumbnailController"
 		class="com.wiley.permissions.web.shared.controllers.asset.AssetThumbnailController"
 		parent="controllers.BaseAnnotatedController">
 
@@ -784,11 +724,10 @@
 		<property name="assetRepository" ref="repository.AssetRepository" />
 	</bean>
 
-	<bean name="/sapp/guidelines/smalllist"
+	<!-- Single bean: views resolved from path (admin list vs author smalllist). -->
+	<bean id="ManageGuidelinesController"
 		class="com.wiley.permissions.web.shared.controllers.landing.ManageGuidelinesController"
 		parent="controllers.BaseAnnotatedController">
-
-		<property name="successView" value="pages.guidelines" />
 	</bean>
 
 	<bean name="/sapp/asset/manageAsset/*"

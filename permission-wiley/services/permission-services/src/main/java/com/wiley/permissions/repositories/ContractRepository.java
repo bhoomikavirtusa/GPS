@@ -139,8 +139,8 @@ public class ContractRepository extends JPARepository {
 		PerfTimer timer = monitor.startTimer("ContractRepository::loadForAssetSourceCW::latestOnly-" + latestOnly);
 		try {
 			TypedQuery<Contract> query = entityManager.createQuery(
-					"select c from Contract c, ContractAsset ca where c.commonWork.id = ?" +
-					" and c.source.id = ? and ca.contract.id = c.id and ca.assetBase.id = ?"
+					"select c from Contract c, ContractAsset ca where c.commonWork.id = ?1" +
+					" and c.source.id = ?2 and ca.contract.id = c.id and ca.assetBase.id = ?3"
 					+ " order by c.date desc, c.id desc",
 					// a lot of the contract dates are truncated to just day (not hours, etc)
 					// so sort by "id desc" also
@@ -173,8 +173,8 @@ public class ContractRepository extends JPARepository {
 	public List<Contract> loadListForAssetCW(int assetId, int cwId) throws PersistenceException
 	{
 		TypedQuery<Contract> query = entityManager.createQuery(
-			"select c from Contract c, ContractAsset ca where c.commonWork.id = ?" +
-			" and ca.contract.id = c.id and ca.assetBase.id = ? order by c.date desc",
+			"select c from Contract c, ContractAsset ca where c.commonWork.id = ?1" +
+			" and ca.contract.id = c.id and ca.assetBase.id = ?2 order by c.date desc",
 			Contract.class
 		);
 
@@ -307,7 +307,7 @@ public class ContractRepository extends JPARepository {
 	@Transactional(propagation = Propagation.REQUIRED)
 	public Account getAccountByNumberAndSubCode(String accountNumber, String subCode) throws PersistenceException
 	{
-		String queryString = "from Account account where account.accountNumber = ? and account.subCode = ?";
+		String queryString = "from Account account where account.accountNumber = ?1 and account.subCode = ?2";
 
 		try {
 			TypedQuery<Account> q = entityManager.createQuery(queryString, Account.class);
@@ -432,7 +432,7 @@ public class ContractRepository extends JPARepository {
 	@Transactional(propagation = Propagation.REQUIRED)
 	public Contract loadContractByNumber(String contractNumber, Integer sourceId, Integer cwId) throws PersistenceException
 	{
-		TypedQuery<Contract> query = entityManager.createQuery("from Contract up where up.number = ? and up.source.id = ? and up.commonWork.id = ?",
+		TypedQuery<Contract> query = entityManager.createQuery("from Contract up where up.number = ?1 and up.source.id = ?2 and up.commonWork.id = ?3",
 				Contract.class);
 		query.setParameter(1, contractNumber);
 		query.setParameter(2, sourceId);
@@ -501,7 +501,7 @@ public class ContractRepository extends JPARepository {
 
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	public List<UploadedDocumentsDetails> loadUploadDocsDetailsByHistoryId (int historyID) {
-		TypedQuery<UploadedDocumentsDetails> query = entityManager.createQuery("from UploadedDocumentsDetails udd where udd.uploadHistoryId.id = ?",
+		TypedQuery<UploadedDocumentsDetails> query = entityManager.createQuery("from UploadedDocumentsDetails udd where udd.uploadHistoryId.id = ?1",
 				UploadedDocumentsDetails.class);
 		query.setParameter(1, historyID);
 		return query.getResultList();
@@ -515,7 +515,7 @@ public class ContractRepository extends JPARepository {
 	 */
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	public List<Contract> loadContractsByCWId (int cwId) {
-		TypedQuery<Contract> query = entityManager.createQuery("from Contract up join fetch up.source where up.commonWork.id = ?",
+		TypedQuery<Contract> query = entityManager.createQuery("from Contract up join fetch up.source where up.commonWork.id = ?1",
 				Contract.class);
 		query.setParameter(1, cwId);
 		return query.getResultList();
@@ -736,7 +736,7 @@ public class ContractRepository extends JPARepository {
 	 * @return
 	 */
 	public List<PaymentRequest> getPaymentRequestsByCWId(int cwId) {
-		TypedQuery<PaymentRequest> query = entityManager.createQuery("from PaymentRequest up where up.contract.commonWork.id = ?",
+		TypedQuery<PaymentRequest> query = entityManager.createQuery("from PaymentRequest up where up.contract.commonWork.id = ?1",
 				PaymentRequest.class);
 		query.setParameter(1, cwId);
 		return query.getResultList();

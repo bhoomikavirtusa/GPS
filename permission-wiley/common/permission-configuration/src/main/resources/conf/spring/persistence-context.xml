@@ -81,8 +81,9 @@
 			specify further Hibernate specific configuration properties -->  
 		<property name="jpaPropertyMap">
 			<map>
-        		<entry key="hibernate.transaction.manager_lookup_class"  value="com.atomikos.icatch.jta.hibernate3.TransactionManagerLookup" />
-        		<entry key="hibernate.current_session_context_class" value="org.hibernate.context.JTASessionContext" />
+        		<entry key="hibernate.transaction.coordinator_class" value="jta" />
+        		<entry key="hibernate.transaction.jta.platform" value="org.hibernate.engine.transaction.jta.platform.internal.AtomikosJtaPlatform" />
+        		<entry key="hibernate.current_session_context_class" value="jta" />
       			<entry key="hibernate.connection.release_mode" value="after_statement" />
 				<entry key="hibernate.max_fetch_depth" value="0" />
 				<entry key="hibernate.jdbc.use_get_generated_keys" value="true" />
@@ -94,12 +95,7 @@
 		
 				<entry key="hibernate.cache.use_second_level_cache" value="true" />
 	    		<entry key="hibernate.cache.use_query_cache" value="true" />
-	    		<!-- For Hibernate 3.6.x -->
-	    		<entry key="hibernate.cache.region.factory_class" value="net.sf.ehcache.hibernate.SingletonEhCacheRegionFactory" />
-	    		<!-- For Hibernate 4.2.x -->
-	    		<!--
-	    		<entry key="hibernate.cache.region.factory_class" value="org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory" />
-	    		-->
+        				<entry key="hibernate.cache.region.factory_class" value="org.hibernate.cache.ehcache.EhCacheRegionFactory" />
 	    		<!-- For testing only - seems to have no effect (smarkoff) -->
 	    		<!-- <entry key="hibernate.connection.autocommit" value="true" /> -->
 	    		<!-- hibernate.connection.isolation - don't need - have on datasource -->

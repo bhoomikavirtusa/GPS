@@ -44,11 +44,6 @@
 			<artifactId>transactions-jta</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>com.atomikos</groupId>
-			<artifactId>transactions-hibernate3</artifactId>
-		</dependency>
-
         <!-- Seems to be required by Atomikos -->
         <dependency>
     		<groupId>dom4j</groupId>
@@ -73,27 +68,14 @@
 		</dependency>
 
 		<dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate3</artifactId>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
         </dependency>
-        <!-- For Hibernate 4
-		<dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-entitymanager</artifactId>
-        </dependency>
-        -->
 
-		<dependency>
-			<!-- for Hibernate -->
-        	<groupId>net.sf.ehcache</groupId>
-        	<artifactId>ehcache-core</artifactId>
-     	</dependency>
-		<!-- For Hibernate 4
 		<dependency>
         	<groupId>org.hibernate</groupId>
         	<artifactId>hibernate-ehcache</artifactId>
-     	</dependency>
-     	-->
+		</dependency>
      	
      	<dependency>
      		<!-- Hibernate uses cglib to generate lazy proxies -->
@@ -165,12 +147,6 @@
 			<artifactId>sljc</artifactId>
 		</dependency>
 		
-		<!-- Needed for Instrument for Hibernate/maven-antrun-plugin below -->
-		<dependency>
-    		<groupId>org.javassist</groupId>
-    		<artifactId>javassist</artifactId>
-    		<version>3.14.0-GA</version>
-		</dependency>
 	</dependencies>
 	
 	<build>
@@ -196,34 +172,6 @@
 				</configuration>
 			</plugin>
 
-			<plugin>
-		        <artifactId>maven-antrun-plugin</artifactId>
-		        <version>${maven.antrun.version}</version>
-		        <executions>
-		          <execution>
-		            <phase>process-classes</phase>
-		            <goals>
-		              <goal>run</goal>
-		            </goals>
-		          </execution>
-		        </executions>
-		        <configuration>
-		          <target>
-		            <taskdef name="instrument" classname="org.hibernate.tool.instrument.javassist.InstrumentTask">
-		              <classpath>
-		                <path refid="maven.runtime.classpath" />
-		                <path refid="maven.plugin.classpath" />
-		              </classpath>
-		            </taskdef>
-		            <instrument verbose="false">
-		              <fileset dir="${project.build.outputDirectory}">
-		                <include name="**/domain/persistence/**/*.class" />
-		              </fileset>
-		            </instrument>
-		          </target>
-		        </configuration>
-		    </plugin>
-			
 		</plugins>
 	</build>
 

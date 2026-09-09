@@ -168,11 +168,11 @@ public class SecurityServiceImpl extends BaseService implements LoginModule, Sec
 	@Transactional(propagation = Propagation.REQUIRED)
 	public void deleteUserGroupById(Integer id) throws PersistenceException
 	{
-		Query q = userRepository.createQuery("update User u set u.group = null where u.group.id = ?");
+		Query q = userRepository.createQuery("update User u set u.group = null where u.group.id = ?1");
 		q.setParameter(1, id);
 		q.executeUpdate();
 
-		Query q2 = userRepository.createQuery("delete from UserGroup ug where ug.id = ?");
+		Query q2 = userRepository.createQuery("delete from UserGroup ug where ug.id = ?1");
 		q2.setParameter(1, id);
 		q2.executeUpdate();
 	}
@@ -191,7 +191,7 @@ public class SecurityServiceImpl extends BaseService implements LoginModule, Sec
 		// userRepository.remove(u2r);
 
 		// Think this should be slightly more efficient - don't need to load the object
-		Query q = userRepository.createQuery("delete from UserToRole ur where ur.id = ?");
+		Query q = userRepository.createQuery("delete from UserToRole ur where ur.id = ?1");
 		q.setParameter(1, userToRoleId);
 		q.executeUpdate();
 
@@ -232,7 +232,7 @@ public class SecurityServiceImpl extends BaseService implements LoginModule, Sec
 
 		// Alternate way
 		int roleId = role.getId();
-		Query q = userRepository.createQuery("delete from UserToRole ur where ur.role.id = ?");
+		Query q = userRepository.createQuery("delete from UserToRole ur where ur.role.id = ?1");
 		q.setParameter(1, roleId);
 		q.executeUpdate();
 
@@ -240,7 +240,7 @@ public class SecurityServiceImpl extends BaseService implements LoginModule, Sec
 		q.setParameter(1, roleId);
 		q.executeUpdate();
 
-		q = userRepository.createQuery("delete from Role where id = ?");
+		q = userRepository.createQuery("delete from Role where id = ?1");
 		q.setParameter(1, roleId);
 		q.executeUpdate();
 	}
@@ -255,7 +255,7 @@ public class SecurityServiceImpl extends BaseService implements LoginModule, Sec
 		userRepository.merge(u);
 		*/
 
-		Query q = userRepository.createQuery("update User u set u.group = null where u.id = ?");
+		Query q = userRepository.createQuery("update User u set u.group = null where u.id = ?1");
 		q.setParameter(1, userId);
 		q.executeUpdate();
 	}

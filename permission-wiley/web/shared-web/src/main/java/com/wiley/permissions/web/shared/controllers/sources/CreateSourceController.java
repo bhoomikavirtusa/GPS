@@ -64,7 +64,7 @@ public class CreateSourceController extends BaseAnnotatedController {
 		model.addAttribute("permissionTypes", PermissionType.VALID_VALUES);
 	}
 
-	@RequestMapping(method = {RequestMethod.GET, RequestMethod.POST})
+	@RequestMapping(value = "/sources/createSource", method = RequestMethod.GET)
 	public String form(HttpServletRequest request,	Model model)
 	throws Exception
 	{
@@ -87,7 +87,7 @@ public class CreateSourceController extends BaseAnnotatedController {
 		return getFormView();
 	}
 
-	@RequestMapping(method = RequestMethod.POST)
+	@RequestMapping(value = "/sources/createSource", method = RequestMethod.POST)
 	public String submit(HttpServletRequest request,
 			@ModelAttribute(FORM_MODEL_NAME) CreateSourceForm form,
 			BindingResult bindingResult)

@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -26,6 +27,7 @@ import com.wiley.permissions.web.shared.controllers.BaseAnnotatedController;
  *
  * @author smarkoff
  */
+@Controller
 public class AssetThumbnailController extends BaseAnnotatedController {
 
 	private static final Log log = LogFactory.getLog(AssetThumbnailController.class);
@@ -33,7 +35,7 @@ public class AssetThumbnailController extends BaseAnnotatedController {
 	private AssetService assetService = null;
 	private AssetRepository assetRepository;
 
-	@RequestMapping
+	@RequestMapping("/product/assetThumbnail")
 	public void serveThumbnail(
 			@RequestParam("size") String size,
 			@RequestParam(value = "assetId", required=false) Integer assetId,

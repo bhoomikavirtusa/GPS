@@ -77,7 +77,7 @@ public class AddUsersController extends BaseAnnotatedController {
 		model.addAttribute("permissionTypes", PermissionType.VALID_VALUES);
 	}
 
-	@RequestMapping(method = {RequestMethod.GET, RequestMethod.POST})
+	@RequestMapping(value = "/servicedesk/addUsers", method = RequestMethod.GET)
 	public String form(HttpServletRequest request,	Model model)
 	throws Exception
 	{
@@ -94,7 +94,7 @@ public class AddUsersController extends BaseAnnotatedController {
 	}
 
 	
-	@RequestMapping(method = RequestMethod.POST)
+	@RequestMapping(value = "/servicedesk/addUsers", method = RequestMethod.POST)
 	public ModelAndView submit(HttpServletRequest request,
 			@ModelAttribute(FORM_MODEL_NAME) AddUsersForm form,
 			BindingResult bindingResult)

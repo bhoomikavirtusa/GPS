@@ -26,8 +26,7 @@ import com.wiley.permissions.web.shared.controllers.BaseAnnotatedController;
  * @author lnagy
  */
 @Controller
-/*@RequestMapping("/admin/manageComplianceEmails")*/
-@RequestMapping
+@RequestMapping("/admin/manageComplianceEmails")
 @SessionAttributes(ManageComplianceEmailsController.FORM_MODEL_NAME)
 public class ManageComplianceEmailsController
 extends BaseAnnotatedController
@@ -39,7 +38,7 @@ extends BaseAnnotatedController
 	private ContractService contractService;
 
 
-	@RequestMapping(value = "/admin/manageComplianceEmails/load", method = {RequestMethod.GET, RequestMethod.POST})
+	@RequestMapping(value = "/load", method = RequestMethod.GET)
 	public ModelAndView onLoad (HttpServletRequest request)
 	throws Exception
 	{
@@ -74,7 +73,7 @@ extends BaseAnnotatedController
 		return mv;
 	}
 
-	@RequestMapping(method = {RequestMethod.GET, RequestMethod.POST})
+	@RequestMapping(value = "/load", method = RequestMethod.POST)
 	public ModelAndView onSubmit(HttpServletRequest request,
 			@ModelAttribute(FORM_MODEL_NAME) ManageComplianceEmailsForm form,
 			BindingResult bindingResult)
@@ -101,7 +100,7 @@ extends BaseAnnotatedController
 	/**
 	 * Calls the same method that the cron job normally calls.
 	 */
-	@RequestMapping("/admin/manageComplianceEmails/cron")
+	@RequestMapping("/cron")
 	public String cron() {
 		log.debug("cron() entered...");
 		try {

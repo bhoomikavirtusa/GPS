@@ -102,7 +102,7 @@ public class SourceRepository extends JPARepository {
 	{
 		ArgUtil.notNull(source.getName(), "name");
 
-		TypedQuery<Source> query = entityManager.createQuery("from Source s where s.name = ?", Source.class);
+		TypedQuery<Source> query = entityManager.createQuery("from Source s where s.name = ?1", Source.class);
 		query.setParameter(1, source.getName());
 
 		try {
@@ -237,7 +237,7 @@ public class SourceRepository extends JPARepository {
 	{
 		try {
 			TypedQuery<Source> query = entityManager.createQuery(
-					"from Source s where s.externalId = ?",
+					"from Source s where s.externalId = ?1",
 					Source.class);
 
 			query.setParameter(1, externalId);
@@ -253,7 +253,7 @@ public class SourceRepository extends JPARepository {
 	public Source loadSourceByName(String name) throws PersistenceException
 	{
 		try {
-			TypedQuery<Source> query = entityManager.createQuery("from Source s where s.name = ?",
+			TypedQuery<Source> query = entityManager.createQuery("from Source s where s.name = ?1",
 					Source.class);
 			query.setParameter(1, name);
 			List<Source> sources = query.getResultList();
@@ -393,7 +393,7 @@ public class SourceRepository extends JPARepository {
 	public void deleteSourceFile(int fileId) throws PersistenceException
 	{
 		Query q = entityManager.createQuery(
-				"delete from SourceFile where id = ?");
+				"delete from SourceFile where id = ?1");
 		q.setParameter(1, fileId);
 		q.executeUpdate();
 	}
@@ -759,7 +759,7 @@ public class SourceRepository extends JPARepository {
 	@Transactional(propagation = Propagation.REQUIRED)
 	public void deleteRoyaltyFreeDeal(Integer dealId) throws PersistenceException
 	{
-		Query q = entityManager.createQuery("delete from RoyaltyFreeDeal where id = ?");
+		Query q = entityManager.createQuery("delete from RoyaltyFreeDeal where id = ?1");
 		q.setParameter(1, dealId);
 		q.executeUpdate();
 	}
@@ -909,7 +909,7 @@ public class SourceRepository extends JPARepository {
 	@Transactional(propagation = Propagation.REQUIRED)
 	public void voidSourceGroup(Integer sourceId) throws PersistenceException
 	{
-		Query q = getEntityManager().createQuery("update Source s set s.sourceGroup = null where s.id = ?");
+		Query q = getEntityManager().createQuery("update Source s set s.sourceGroup = null where s.id = ?1");
 		q.setParameter(1, sourceId);
 		q.executeUpdate();
 	}

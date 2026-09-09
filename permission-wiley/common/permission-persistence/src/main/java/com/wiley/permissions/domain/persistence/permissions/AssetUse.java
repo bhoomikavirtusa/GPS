@@ -52,7 +52,7 @@ import com.wiley.sf.common.lang.StringUtil;
 @NamedQueries({
 	@NamedQuery(name = "AssetUse.loadUsesWithSamePositionInCW",
 		 		query = "select au from AssetUse au join fetch au.asset a left join fetch a.sources " +
-	 		  			" where au.commonWork.id = ? and au.id != ? and upper(au.position) = upper (?) and au.canceled = false")
+	 	  						" where au.commonWork.id = ?1 and au.id != ?2 and upper(au.position) = upper (?3) and au.canceled = false")
 })
 @NamedNativeQueries({
 	@NamedNativeQuery(name = "AssetUse.loadUsesWithSameAssetInCW",

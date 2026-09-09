@@ -41,7 +41,7 @@ public class LandingTableController {
 	private AssetUseService assetUseService;
 
 
-	@RequestMapping
+	@RequestMapping("/landing/table")
 	public void allRequests(HttpServletRequest request, HttpServletResponse response,
 		@RequestParam(value = "cwId") int cwId) throws InitialisationException, TransformationException, PersistenceException, ParseException, IOException
 	{

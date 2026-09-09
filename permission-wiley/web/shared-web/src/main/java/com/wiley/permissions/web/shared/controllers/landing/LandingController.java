@@ -193,7 +193,10 @@ public class LandingController extends BaseAnnotatedController {
 	{
 		log.debug("descriptionValidation(): assetUseId = " + assetUseId);
 
-		ModelAndView mv = new ModelAndView(getFormView());
+		// Hardcoded view: previously a second LandingController bean existed only to set
+		// formView=pages.landing.descriptionValidation, which duplicated @RequestMapping
+		// handlers under Spring 5 and caused Ambiguous mapping on /landing/scroll.
+		ModelAndView mv = new ModelAndView("pages.landing.descriptionValidation");
 		mv.addObject("assetUseId", assetUseId);
 		log.debug("descriptionValidation(): after adding assetUseId = " + assetUseId);
 		if (null != assetUseId && assetUseId != 0) {

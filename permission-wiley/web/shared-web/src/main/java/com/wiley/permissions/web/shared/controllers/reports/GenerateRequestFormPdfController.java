@@ -13,10 +13,8 @@ import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.Controller;
 
 import com.wiley.permissions.domain.persistence.permissions.PurchaseOrder;
 import com.wiley.permissions.repositories.PurchaseOrderRepository;
@@ -31,8 +29,9 @@ import com.wiley.permissions.web.shared.controllers.BaseAnnotatedController;
  *
  * @author nmedrano
  */
-@Controller
-public class GenerateRequestFormPdfController extends BaseAnnotatedController {
+// Implements classic Controller so BeanNameUrlHandlerMapping can keep
+// bean-name URL /app/product/prform.pdf without Spring 5 @RequestMapping clashes.
+public class GenerateRequestFormPdfController extends BaseAnnotatedController implements Controller {
 
 	private final static Log log = LogFactory.getLog(GenerateRequestFormPdfController.class);
 
@@ -46,13 +45,23 @@ public class GenerateRequestFormPdfController extends BaseAnnotatedController {
 
 	private DataSource sourceDataSource = null;
 
-	@GetMapping
+	@Override
+	public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
+			throws Exception {
+		Integer productId = Integer.valueOf(request.getParameter(PRODUCT_ID));
+		Integer cwId = Integer.valueOf(request.getParameter(CW_ID));
+		String poId = request.getParameter(PO_ID);
+		boolean download = Boolean.parseBoolean(request.getParameter("download"));
+		handle(request, response, productId, cwId, poId, download);
+		return null;
+	}
+
 	public void handle(HttpServletRequest request,
 			HttpServletResponse response,
-			@RequestParam(PRODUCT_ID) Integer productId,
-			@RequestParam(CW_ID) Integer cwId,
-			@RequestParam(PO_ID) String poId,
-			@RequestParam(value="download", required=false) boolean download)
+			Integer productId,
+			Integer cwId,
+			String poId,
+			boolean download)
 	throws Exception
 	{
 		log.debug("handle(): productId = " + productId + ", cwId = " + cwId

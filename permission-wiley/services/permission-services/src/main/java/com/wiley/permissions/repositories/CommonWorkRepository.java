@@ -355,7 +355,7 @@ public class CommonWorkRepository extends JPARepository {
 	public CommonWork loadByCode(String code) throws PersistenceException
 	{
 		try {
-			TypedQuery<CommonWork> query = entityManager.createQuery("from CommonWork cw where cw.code = ?", CommonWork.class);
+			TypedQuery<CommonWork> query = entityManager.createQuery("from CommonWork cw where cw.code = ?1", CommonWork.class);
 			query.setParameter(1, code);
 			return query.getSingleResult();
 		}
@@ -495,7 +495,7 @@ public class CommonWorkRepository extends JPARepository {
 	public Component loadComponentByExternalId(String externalId) throws PersistenceException
 	{
 		try {
-			TypedQuery<Component> query = entityManager.createQuery("from Component c where c.externalId = ?", Component.class);
+			TypedQuery<Component> query = entityManager.createQuery("from Component c where c.externalId = ?1", Component.class);
 			query.setParameter(1, externalId);
 			return query.getSingleResult();
 		}
@@ -571,7 +571,7 @@ public class CommonWorkRepository extends JPARepository {
 		ArgUtil.notNull(name, "name");
 
 		TypedQuery<Component> query = entityManager.createQuery(
-				"from Component c where c.commonWork.id = ? and c.name = ?", Component.class);
+				"from Component c where c.commonWork.id = ?1 and c.name = ?2", Component.class);
 		query.setParameter(1, cwId);
 		query.setParameter(2, name);
 
@@ -636,7 +636,7 @@ public class CommonWorkRepository extends JPARepository {
 	 */
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	public List<CwPhotoEstimate> loadPhotoEstimates (int cwId) {
-		TypedQuery<CwPhotoEstimate> query = entityManager.createQuery("from CwPhotoEstimate up where up.commonWork.id = ?",
+		TypedQuery<CwPhotoEstimate> query = entityManager.createQuery("from CwPhotoEstimate up where up.commonWork.id = ?1",
 				CwPhotoEstimate.class);
 		query.setParameter(1, cwId);
 		return query.getResultList();
@@ -649,7 +649,7 @@ public class CommonWorkRepository extends JPARepository {
 	 */
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	public List<CwFile> loadFiles (int cwId) {
-		TypedQuery<CwFile> query = entityManager.createQuery("from CwFile up where up.commonWork.id = ?",
+		TypedQuery<CwFile> query = entityManager.createQuery("from CwFile up where up.commonWork.id = ?1",
 				CwFile.class);
 		query.setParameter(1, cwId);
 		return query.getResultList();
@@ -747,7 +747,7 @@ public class CommonWorkRepository extends JPARepository {
 	 */
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	public List<Component> loadComponentListByComponentType (int cwId, ComponentCategory type, boolean include) {
-		TypedQuery<Component> query = entityManager.createQuery("from Component c where c.commonWork.id = ? and " +
+		TypedQuery<Component> query = entityManager.createQuery("from Component c where c.commonWork.id = ?1 and " +
 				"c.category.code" + (include ? "=" : "!=") + "'" + type.getCode() + "'" + "order by sortOrder",
 				Component.class);
 		query.setParameter(1, cwId);
@@ -789,9 +789,9 @@ public class CommonWorkRepository extends JPARepository {
 	 */
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	public List<Component> loadComponentList (int cwId, boolean includeCovers) {
-		String sql = "from Component c where c.commonWork.id = ? order by sortOrder";
+		String sql = "from Component c where c.commonWork.id = ?1 order by sortOrder";
 		if (!includeCovers) {
-			sql = "from Component c where c.commonWork.id = ? and c.category.code != '"
+			sql = "from Component c where c.commonWork.id = ?1 and c.category.code != '"
 				+ ComponentCategory.COVER.getCode() + "' order by sortOrder";
 		}
 		TypedQuery<Component> query = entityManager.createQuery(sql, Component.class);
@@ -1501,7 +1501,7 @@ public class CommonWorkRepository extends JPARepository {
 	{
 		PerfTimer timer = monitor.startTimer("CommonWorkRepository::getHistory");
 		TypedQuery<CwHistory> query = entityManager.createQuery(
-			"from CwHistory h where h.cwId = ? order by lastUpdatedDate desc",
+				"from CwHistory h where h.cwId = ?1 order by lastUpdatedDate desc",
 			CwHistory.class);
 		query.setParameter(1, cwId);
 		List<CwHistory> list = query.getResultList();
@@ -1750,7 +1750,7 @@ public class CommonWorkRepository extends JPARepository {
 			PerfTimer timer = monitor.startTimer("CommonWorkRepository::loadexportStatus");
 			ExportAsset ea =null;
 			try {
-			TypedQuery<ExportAsset> query = entityManager.createQuery("select es from ExportAsset es where es.cwId=? and es.userId=?", ExportAsset.class);
+			TypedQuery<ExportAsset> query = entityManager.createQuery("select es from ExportAsset es where es.cwId=?1 and es.userId=?2", ExportAsset.class);
 
 			query.setParameter(1, cwId);
 			query.setParameter(2, userId);
@@ -1770,7 +1770,7 @@ public class CommonWorkRepository extends JPARepository {
 			PerfTimer timer = monitor.startTimer("CommonWorkRepository::loadexportStatus");
 			ExportAsset ea =null;
 			try {
-			TypedQuery<ExportAsset> query = entityManager.createQuery("select es from ExportAsset es where es.cwId=? and es.exportStatus=?", ExportAsset.class);
+			TypedQuery<ExportAsset> query = entityManager.createQuery("select es from ExportAsset es where es.cwId=?1 and es.exportStatus=?2", ExportAsset.class);
 
 			query.setParameter(1, cwId);
 			query.setParameter(2, status);
@@ -1828,7 +1828,7 @@ public class CommonWorkRepository extends JPARepository {
 			PerfTimer timer = monitor.startTimer("CommonWorkRepository::loadexportStatus");
 			ExportAsset ea =null;
 			try {
-			TypedQuery<ExportAsset> query = entityManager.createQuery("from ExportAsset es where es.cwId=? order by exportDate desc", ExportAsset.class);
+			TypedQuery<ExportAsset> query = entityManager.createQuery("from ExportAsset es where es.cwId=?1 order by exportDate desc", ExportAsset.class);
 
 			query.setParameter(1, cwId);
 			List<ExportAsset> eassets = query.getResultList();

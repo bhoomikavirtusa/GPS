@@ -9,7 +9,7 @@ import com.wiley.permissions.services.SSOUserLookupUtility;
 import com.wiley.permissions.web.shared.controllers.login.BaseLoginController;
 
 @Controller
-@RequestMapping("/security/login")
+@RequestMapping("")
 public class LoginController extends BaseLoginController {
 	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(LoginController.class);

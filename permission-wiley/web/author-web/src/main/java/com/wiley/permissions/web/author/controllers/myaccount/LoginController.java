@@ -21,7 +21,7 @@ import com.wiley.permissions.web.shared.controllers.login.BaseLoginController;
 import com.wiley.permissions.web.shared.controllers.login.LoginForm;
 
 @Controller
-@RequestMapping("/security/login")
+@RequestMapping("")
 public class LoginController extends BaseLoginController {
 	private static final Log log = LogFactory.getLog(LoginController.class);
 
@@ -31,7 +31,7 @@ public class LoginController extends BaseLoginController {
 	private CommonWorkService commonWorkService;
 
 
-	@RequestMapping(value = "/forgotPassword", method = RequestMethod.POST)
+	@RequestMapping(value = "/security/login/forgotPassword", method = RequestMethod.POST)
 	public ModelAndView forgotPassword(HttpServletRequest request, @ModelAttribute(FORM_MODEL_NAME) LoginForm form,
 			BindingResult bindingResult) throws Exception
 	{

@@ -28,11 +28,11 @@ import com.wiley.permissions.domain.DomainObject;
 @NamedQueries ({
 	@NamedQuery(
 	    name="UserGroup.findByName",
-	    query="from UserGroup where name like ?"
+	    query="from UserGroup where name like ?1"
 	),
 	@NamedQuery(
 		    name="UserGroup.findById",
-		    query="from UserGroup where id = ?"
+		    query="from UserGroup where id = ?1"
 	)
 })
 public class UserGroup
