@@ -20,7 +20,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 	<properties>
 		<springframework.version>5.3.39</springframework.version>
 		<!-- The spring security versions are not exactly in sync with springframework versions -->
-		<spring-security.version>4.2.3.RELEASE</spring-security.version>
+		<spring-security.version>5.8.13</spring-security.version>
 		<junit.version>4.11</junit.version>
 		<mule.version>3.8.1</mule.version>
 		<drools.version>4.0.7</drools.version>
