@@ -115,6 +115,13 @@
 			<artifactId>sf-common2</artifactId>
 		</dependency>
 
+		<!-- JDK 11+ removed java.corba; mule-module-client's org.mule.util.UUID needs org.omg.CORBA.* at runtime on Tomcat/JDK21 -->
+		<dependency>
+			<groupId>org.glassfish.corba</groupId>
+			<artifactId>glassfish-corba-omgapi</artifactId>
+			<version>4.2.1</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.mule.modules</groupId>
 			<artifactId>mule-module-client</artifactId>

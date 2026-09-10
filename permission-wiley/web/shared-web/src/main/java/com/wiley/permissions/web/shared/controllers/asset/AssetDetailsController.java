@@ -275,6 +275,8 @@ public class AssetDetailsController extends BaseAnnotatedController {
 			mv.addObject("generalMessage", "Your data has been successfully saved.");
 
 		} catch (Exception e) {
+			// TEMP diagnostic for JDK21/Hibernate5.6 migration - remove once root cause is confirmed
+			log.error("saveAssetUse failed for auId=" + assetUse.getId(), e);
 			mv.addObject("generalMessage", e.getMessage());
 		}
 

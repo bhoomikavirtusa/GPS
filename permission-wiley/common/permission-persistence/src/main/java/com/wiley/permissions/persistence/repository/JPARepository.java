@@ -28,6 +28,7 @@ import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Hibernate;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -639,6 +640,10 @@ public class JPARepository {
 			}
 		}
 		else {
+			// Reading only the @Id field never triggers real initialization of a Hibernate proxy
+			// (the identifier is already known without a DB round-trip); force a real load here so
+			// the view doesn't hit a LazyInitializationException after this transaction closes.
+			Hibernate.initialize(propValue);
 			List<BeanProperty> fields = BeanUtility.getProperties(propValue.getClass(), Id.class);
 			for (BeanProperty field : fields) {
 				BeanUtility.getPropertyValue (field, propValue);

@@ -87,6 +87,11 @@
       			<entry key="hibernate.connection.release_mode" value="after_statement" />
 				<entry key="hibernate.max_fetch_depth" value="0" />
 				<entry key="hibernate.jdbc.use_get_generated_keys" value="true" />
+				<!-- Hibernate 5's "enhanced" id generators resolve GenerationType.AUTO to a
+				     hibernate_sequence emulation table on MySQL, which doesn't exist here since
+				     every table uses AUTO_INCREMENT. This restores the pre-5.x behavior where
+				     AUTO maps to the dialect's native generator (MySQL IDENTITY/AUTO_INCREMENT). -->
+				<entry key="hibernate.id.new_generator_mappings" value="false" />
 				<!-- batching size -->
 	            <entry key="hibernate.jdbc.batch_size" value="30"/>
 	            <entry key="hibernate.order_inserts" value="true"/>
