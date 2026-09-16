@@ -23,7 +23,10 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 		<spring-security.version>5.8.13</spring-security.version>
 		<junit.version>4.11</junit.version>
 		<mule.version>3.8.1</mule.version>
-		<drools.version>4.0.7</drools.version>
+		<!-- Phase 8: this now drives permission-validator's Tomcat/JDK21 rule engine only.
+		     Mule (JDK 8) keeps its own frozen Drools 4.0.7 jars under $PERMISSIONS_HOME/mule -
+		     see phase8-mule-drools-decision. Never redeploy that dir from this version. -->
+		<drools.version>8.44.2.Final</drools.version>
 		<tiles.version>3.0.7</tiles.version>
 		<jaxb-api.version>2.3.1</jaxb-api.version>
 		<!-- run xjc -version to get the version number used in the JDK -->
@@ -536,15 +539,16 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 				<version>${drools.version}</version>
 			</dependency>
 
+			<!-- Drools 8's rule builder throws MissingDependencyException without this, even for plain Java-dialect rules -->
 			<dependency>
 				<groupId>org.drools</groupId>
-				<artifactId>drools-decisiontables</artifactId>
+				<artifactId>drools-mvel</artifactId>
 				<version>${drools.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.drools</groupId>
-				<artifactId>drools-jsr94</artifactId>
+				<artifactId>drools-decisiontables</artifactId>
 				<version>${drools.version}</version>
 			</dependency>
 
@@ -902,45 +906,11 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 									<version>2.3.0</version>
 								</artifactItem>
 
-								<artifactItem>
-									<groupId>org.drools</groupId>
-									<artifactId>drools-core</artifactId>
-								</artifactItem>
-
-								<artifactItem>
-									<groupId>org.drools</groupId>
-									<artifactId>drools-compiler</artifactId>
-								</artifactItem>
-								
-								<artifactItem>
-									<groupId>org.drools</groupId>
-									<artifactId>drools-decisiontables</artifactId>
-								</artifactItem>
-
-								<artifactItem>
-									<groupId>org.drools</groupId>
-									<artifactId>drools-jsr94</artifactId>
-								</artifactItem>
-								
-								<artifactItem><!-- smarkoff: this is needed by drools -->
-								    <!-- 1.3.16-* gives java.lang.NoSuchMethodError: org.mvel.MVEL.setThreadSafe(Z)V
-	                                     at org.drools.rule.builder.dialect.mvel.MVELDialect.init(MVELDialect.java:144) -->
-									<groupId>org.mvel</groupId>
-									<artifactId>mvel</artifactId>
-									<version>1.3.1-java1.4</version>
-								</artifactItem>
-								
-								<artifactItem><!-- needed by drools -->
-									<groupId>org.eclipse.jdt</groupId>
-									<artifactId>core</artifactId>
-									<version>3.2.3.v_686_R32x</version>
-								</artifactItem>
-								
-								<artifactItem><!-- needed by drools -->
-									<groupId>org.antlr</groupId>
-									<artifactId>antlr-runtime</artifactId>
-									<version>3.0.1</version>
-								</artifactItem>
+								<!-- Phase 8: Drools was bumped to ${drools.version} for permission-validator/Tomcat only.
+								     Mule (JDK 8) cannot load it, so drools-core/compiler/decisiontables/jsr94 and their
+								     old mvel/eclipse-jdt/antlr-runtime satellite jars are no longer copied here - Mule
+								     keeps running its existing frozen Drools 4.0.7 jars already in $PERMISSIONS_HOME/mule.
+								     See phase8-mule-drools-decision. Do not re-add these without re-checking that decision. -->
 
 								<artifactItem>
 									<groupId>org.springframework.ldap</groupId>

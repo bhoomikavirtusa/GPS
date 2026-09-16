@@ -1,18 +1,22 @@
 package com.wiley.permissions.validator.rules.base;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.drools.RuleBase;
-import org.drools.RuleBaseFactory;
-import org.drools.StatelessSession;
-import org.drools.compiler.DroolsParserException;
-import org.drools.compiler.PackageBuilder;
+import org.kie.api.KieBase;
+import org.kie.api.KieServices;
+import org.kie.api.builder.KieBuilder;
+import org.kie.api.builder.KieFileSystem;
+import org.kie.api.builder.KieRepository;
+import org.kie.api.builder.Message;
+import org.kie.api.builder.ReleaseId;
+import org.kie.api.io.ResourceType;
+import org.kie.api.runtime.KieContainer;
+import org.kie.api.runtime.StatelessKieSession;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.Resource;
@@ -25,6 +29,7 @@ import com.wiley.permissions.validator.rules.listeners.ValidatorAgendaEventListe
  * @author sputta
  * @since JDK 1.5
  * @version 1.1 Created on Jun 1, 2008 at 12:37:21 AM
+ * Ported from the Drools 4 RuleBase/PackageBuilder API to the KIE API (Phase 8, Drools ${drools.version}).
  */
 public class RuleBaseFacadeImpl implements RuleBaseFacade, InitializingBean {
 
@@ -32,42 +37,32 @@ public class RuleBaseFacadeImpl implements RuleBaseFacade, InitializingBean {
 
 	Resource[] resources = null;
 
-	private RuleBase ruleBase;
+	private KieBase kieBase;
 
 	/**
-	 * Gets the rule base.
+	 * Gets the kie base.
 	 *
-	 * @return the rule base
+	 * @return the kie base
 	 */
-	public RuleBase getRuleBase() {
-		return ruleBase;
+	public KieBase getKieBase() {
+		return kieBase;
 	}
 
 	/**
-	 * Sets the rule base.
+	 * Sets the kie base.
 	 *
-	 * @param ruleBase the new rule base
+	 * @param kieBase the new kie base
 	 */
-	public void setRuleBase(RuleBase ruleBase) {
-		this.ruleBase = ruleBase;
+	public void setKieBase(KieBase kieBase) {
+		this.kieBase = kieBase;
 	}
-
-	/**
-	 * Fire all rules.
-	 */
-	public void fireAllRules() {
-		log.debug("Inside fireAllRules method");
-		StatelessSession session = setupWorkingSession();
-		session.execute(new Object());
-	}
-
 
 	/* (non-Javadoc)
 	 * @see com.wiley.permissions.validator.rules.base.RuleBaseFacade#execute(java.util.Map, java.util.Collection)
 	 */
 	public void execute(Map<String, Object> globals, Collection<Object> facts) {
 		log.debug("About to call RuleBase Execute method");
-		StatelessSession workingSession = setupWorkingSession();
+		StatelessKieSession workingSession = setupWorkingSession();
 		setupGlobals(globals, workingSession);
 		workingSession.execute(facts);
 
@@ -81,27 +76,39 @@ public class RuleBaseFacadeImpl implements RuleBaseFacade, InitializingBean {
 		log.debug("Initializing the Rules Loader ");
 		Validate.notNull(getResources(), "Resources are not null");
 
-		log.debug("Creating a RuleBase:");
-		final RuleBase ruleBase = RuleBaseFactory.newRuleBase(RuleBase.RETEOO);
+		log.debug("Creating a KieBase:");
+		KieServices kieServices = KieServices.Factory.get();
+		KieFileSystem kieFileSystem = kieServices.newKieFileSystem();
 		try {
+			int index = 0;
 			for (Resource resource : getResources()) {
-				PackageBuilder builder = new PackageBuilder();
-				builder.addPackageFromDrl(new InputStreamReader(resource
-						.getInputStream()));
-				log.debug("Adding The following rule Packages");
-				ruleBase.addPackage(builder.getPackage());
+				// KieFileSystem needs a unique virtual path per .drl, the actual classpath location doesn't matter
+				String path = "src/main/resources/rules/generated" + (index++) + ".drl";
+				kieFileSystem.write(path, kieServices.getResources()
+						.newInputStreamResource(resource.getInputStream())
+						.setResourceType(ResourceType.DRL));
+				log.debug("Adding rule package from: " + resource.getFilename());
 			}
 
-			setRuleBase(ruleBase);
+			KieBuilder kieBuilder = kieServices.newKieBuilder(kieFileSystem);
+			kieBuilder.buildAll();
+			if (kieBuilder.getResults().hasMessages(Message.Level.ERROR)) {
+				throw new BeanCreationException(
+						"Unable to Parse Drl files, Please look into the files: "
+								+ kieBuilder.getResults().getMessages(Message.Level.ERROR));
+			}
+
+			KieRepository kieRepository = kieServices.getRepository();
+			ReleaseId releaseId = kieRepository.getDefaultReleaseId();
+			KieContainer kieContainer = kieServices.newKieContainer(releaseId);
+
+			setKieBase(kieContainer.getKieBase());
 		} catch (IOException ioe) {
 			log.error(ioe);
 			throw new BeanCreationException(
 					"Unable to Read Drl files from the file System", ioe);
-		} catch (DroolsParserException dpe) {
-			log.error(dpe);
-			throw new BeanCreationException(
-					"Unable to Parse Drl files, Please look into the files ",
-					dpe);
+		} catch (BeanCreationException bce) {
+			throw bce;
 		} catch (Exception e) {
 			log.error(e);
 			throw new BeanCreationException(
@@ -132,9 +139,9 @@ public class RuleBaseFacadeImpl implements RuleBaseFacade, InitializingBean {
 	 *
 	 * @return the stateless session
 	 */
-	public StatelessSession setupWorkingSession() {
+	public StatelessKieSession setupWorkingSession() {
 		log.debug("Creating the Working memory");
-		StatelessSession workingSession = getRuleBase().newStatelessSession();
+		StatelessKieSession workingSession = getKieBase().newStatelessKieSession();
 		workingSession.addEventListener(new ValidatorAgendaEventListener());
 
 		return workingSession;
@@ -147,7 +154,7 @@ public class RuleBaseFacadeImpl implements RuleBaseFacade, InitializingBean {
 	 * @param workingSession the working session
 	 */
 	public void setupGlobals(Map<String, Object> globals,
-			StatelessSession workingSession) {
+			StatelessKieSession workingSession) {
 		if (globals != null) {
 			for (Map.Entry<String, Object> entry : globals.entrySet()) {
 				workingSession.setGlobal(entry.getKey(), entry.getValue());
@@ -156,3 +163,4 @@ public class RuleBaseFacadeImpl implements RuleBaseFacade, InitializingBean {
 	}
 
 }
+

@@ -1,7 +1,7 @@
-#created on: Jun 13, 2008
+// created on: Jun 13, 2008
 package com.wiley.permissions.rules
 
-#list any import classes here.
+// list any import classes here.
 import java.util.List;
 import java.util.ArrayList;
 
@@ -31,17 +31,17 @@ import com.wiley.permissions.services.ContractService;
 import com.wiley.permissions.repositories.ConditionRepository;
 import com.wiley.permissions.repositories.ContractRepository;
 
-# Documentation on rule language (for Drools 5.2 but seems the same):
-# http://docs.jboss.org/drools/release/5.2.0.Final/drools-expert-docs/html/ch05.html
+// Documentation on rule language (for Drools 5.2 but seems the same):
+// http://docs.jboss.org/drools/release/5.2.0.Final/drools-expert-docs/html/ch05.html
 
-#declare any global variables here
+//declare any global variables here
 global com.wiley.permissions.validator.rules.service.ValidationResult validationResult;
 
-# The facts added to start (by PermissionStatusRequiresNew.updatePermissionStatus(AssetUse))
-# are a single AssetUse and a single Source (if the Asset has multiple sources the
-# status is calculated for one at a time).
-# - Also a PurchaseOrderList and ContractList - these may be empty (will always be empty
-# if there is no source)
+// The facts added to start (by PermissionStatusRequiresNew.updatePermissionStatus(AssetUse))
+// are a single AssetUse and a single Source (if the Asset has multiple sources the
+// status is calculated for one at a time).
+// - Also a PurchaseOrderList and ContractList - these may be empty (will always be empty
+// if there is no source)
 
 rule "Start AssetUse status"
 agenda-group "Permission-Status"
@@ -127,7 +127,7 @@ salience 7000
 		not PermissionStatus()
 		assetUse : AssetUse()
 	then
-		# Need to insert the facts required to activate these rules
+		// Need to insert the facts required to activate these rules
 		insert(assetUse.getAsset());
 		insert(assetUse.getCommonWork());
 
@@ -384,9 +384,9 @@ salience 6000
 		*/
 end
 
-# This used to be below "Royalty Free" rule below but needs to be above
-# so that the contract is set on the validationResult, even though the
-# "Royalty Free" rule does not look at it.
+// This used to be below "Royalty Free" rule below but needs to be above
+// so that the contract is set on the validationResult, even though the
+// "Royalty Free" rule does not look at it.
 rule "Determine newest PO or Contract"
 agenda-group "Asset-Managed"
 salience 5700
@@ -572,8 +572,8 @@ salience 5300
 		RuleLog.debug(explanation);
 end
 
-# from this point on we are only dealing with Asset(managed == Boolean.TRUE)
-# so we are not going to bother specifying this
+// from this point on we are only dealing with Asset(managed == Boolean.TRUE)
+// so we are not going to bother specifying this
 
 rule "If no POs or Contracts"
 agenda-group "Asset-Managed"
@@ -623,7 +623,7 @@ salience 5100
 			
 			if (!matchResult.isMatch()) {
 
-# Added for SS Task 12 - Start			
+// Added for SS Task 12 - Start			
 				int totalAssets = contract.getAssets().size();	
 				int assetId = assetUse.getAsset().getId().intValue();		
 				int assetIndex = 0;		
@@ -640,7 +640,7 @@ salience 5100
 					validationResult.setExplanation(explanation);
 					RuleLog.debug(explanation);
 				}
-# Added for SS Task 12 - End						
+// Added for SS Task 12 - End						
 				else {
 				insert(PermissionStatus.CONTRACT_INSUFFICIENT);
 				validationResult.setStatus(PermissionStatus.CONTRACT_INSUFFICIENT);

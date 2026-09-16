@@ -12,14 +12,14 @@
 	Rule Engine is "MAIN".
 */
 
-# Specify the rule package
+// Specify the rule package
 package com.wiley.permissions.rules.main
 
-#list any import classes here.
+// list any import classes here.
 import com.wiley.permissions.validator.rules.base.Operation;
 
 
-#declare any global variables here
+// declare any global variables here
 global org.apache.commons.logging.Log ruleLog;
 
 rule "Set focus on agendaGroup based on Operation Name"
@@ -28,7 +28,7 @@ rule "Set focus on agendaGroup based on Operation Name"
     when
         Operation( name : name  )        
     then
-	    #ruleLog.debug("about to call the agenda  " + name);
+	    // ruleLog.debug("about to call the agenda  " + name);
 	    drools.setFocus( name );
 end
 
