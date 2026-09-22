@@ -24,12 +24,11 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
-import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexableField;
-import org.apache.lucene.index.MultiFields;
+import org.apache.lucene.index.MultiBits;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -40,7 +39,6 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Bits;
-import org.apache.lucene.util.Version;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -79,7 +77,7 @@ import com.wiley.sf.common.text.TimeFormat;
  * It is assumed that only one instance of this class will
  * be created (being a service class).
  *
- * @since  JDK 1.6, Lucene 4.7
+ * @since  JDK 1.8, Lucene 8.11
  * @author smarkoff
  */
 public class AssetUseIndexService extends BaseService implements IndexWriterConfigFactory
@@ -94,7 +92,6 @@ public class AssetUseIndexService extends BaseService implements IndexWriterConf
 	// 100,000 is simply a number greater than the max number of asset uses
 	// we expect to be assigned to any single CommonWork - just saying we want all the results
 	private static final int CW_MAX_RESULTS = 100000;
-	private static final Version LUCENE_VERSION = Version.LUCENE_48;
 
 	// constants for product search field names
 	public static final String COMMON_WORK_ID = "commonWorkId";
@@ -275,8 +272,7 @@ public class AssetUseIndexService extends BaseService implements IndexWriterConf
 				}
 			}
 
-			 indexDirectory = FSDirectory.open(indexDir);  // throws IOException // Updated to Lucene 4.8
-			//indexDirectory = FSDirectory.open(indexDir.toPath());
+			 indexDirectory = FSDirectory.open(indexDir.toPath());  // throws IOException
 		}
 
 		// delay creation of searcher in case the index does not exist yet
@@ -289,11 +285,11 @@ public class AssetUseIndexService extends BaseService implements IndexWriterConf
 	/** Implements IndexWriterConfigFactory */
 	@Override
 	public IndexWriterConfig newConfig() {
-		return new IndexWriterConfig(LUCENE_VERSION, new StandardAnalyzer(LUCENE_VERSION)); // Updated to Lucene 4.8
+		return new IndexWriterConfig(new StandardAnalyzer());
 		// return new IndexWriterConfig( new StandardAnalyzer());
 	}
 
-	public IndexInfo readIndexInfo() throws CorruptIndexException, IOException {
+	public IndexInfo readIndexInfo() throws IOException {
 		return readManager.readIndexInfo();
 	}
 
@@ -301,8 +297,24 @@ public class AssetUseIndexService extends BaseService implements IndexWriterConf
 		return readManager.readIndexedFieldInfo();
 	}
 
-	public List<FieldInfo> readStoredFieldInfo() throws CorruptIndexException, IOException {
+	public List<FieldInfo> readStoredFieldInfo() throws IOException {
 		return readManager.readStoredFieldInfo();
+	}
+
+	/**
+	 * Lucene 8 cannot open Lucene 4.x on-disk segments. Wipe and create an empty
+	 * Lucene 8 index so incremental rebuild / writes can proceed.
+	 */
+	private void ensureIndexReadableOrRecreate() throws IOException {
+		if (LuceneUtil.canOpenIndex(indexDirectory)) {
+			LuceneUtil.createIndexIfDoesNotExist(indexDirectory, newConfig());
+			return;
+		}
+		log.warn("ensureIndexReadableOrRecreate(): Asset Use index is Lucene-format-incompatible; recreating empty Lucene 8 index under "
+				+ INDEX_DIR + ". Operators must rebuild (per CW or full).");
+		readManager.reset();
+		LuceneUtil.recreateEmptyIndex(indexDirectory, newConfig());
+		readManager.reset();
 	}
 
     /**
@@ -330,6 +342,9 @@ public class AssetUseIndexService extends BaseService implements IndexWriterConf
 
 		long startTime = System.currentTimeMillis();
 
+		// Lucene 4.x on-disk indexes must be replaced before incremental rebuild can run.
+		ensureIndexReadableOrRecreate();
+
 		//buildIndexByIdFromScratch();  // throws Exception
 	    buildIndexByIdIncremental(cwId, overridePrimeTime);  // throws Exception
 
@@ -352,7 +367,7 @@ public class AssetUseIndexService extends BaseService implements IndexWriterConf
 	 * @param cwId  null means rebuild entire index
 	 */
 	public void buildIndexByIdIncremental(Integer cwId, boolean overridePrimeTime) throws PersistenceException, IOException, ParseException {
-		LuceneUtil.createIndexIfDoesNotExist(indexDirectory, newConfig());
+		ensureIndexReadableOrRecreate();
 
 		long startTime = System.currentTimeMillis();
 		String where = (cwId == null) ? null : "cw_id = " + cwId;
@@ -1178,13 +1193,12 @@ public class AssetUseIndexService extends BaseService implements IndexWriterConf
 	 * @param assetUses
 	 * @return Set<PermissionStatus>
 	 * @throws IOException
-	 * @throws CorruptIndexException
-	 */
-	public Set<PermissionStatus> getPermissionStatusSet(AssetUseSearchResults results) throws CorruptIndexException, IOException
+		 */
+	public Set<PermissionStatus> getPermissionStatusSet(AssetUseSearchResults results) throws IOException
 	{
 		Set<PermissionStatus> set = new HashSet<PermissionStatus>();
 
-		// getDocuments() throws CorruptIndexException, IOException
+		// getDocuments() throws IOException
 		for (AssetUseSearchResult result : results.getDocuments()) {
 			// add the asset only if has at least one Source (bug #0001945)
 			if (result.exclude()) {
@@ -1205,7 +1219,7 @@ public class AssetUseIndexService extends BaseService implements IndexWriterConf
 	private AssetUseSearchResults searchIndex(String queryString, int maxResults, List<SearchCriterion> criteria) throws ParseException, IOException {
 		long startTime = System.currentTimeMillis();
 
-         QueryParser qp = new QueryParser(LUCENE_VERSION,DESCRIPTION, new StandardAnalyzer(LUCENE_VERSION)); // Updated to Lucene 4.8
+         QueryParser qp = new QueryParser(DESCRIPTION, new StandardAnalyzer());
 		// QueryParser qp = new QueryParser(DESCRIPTION, new StandardAnalyzer());
         Query query = qp.parse(queryString);  // throws ParseException
         log.debug("searchIndex(): query.toString(): " + query.toString());
@@ -1224,7 +1238,7 @@ public class AssetUseIndexService extends BaseService implements IndexWriterConf
         // using readManager.getIndexSearcher() means we don't have to worry about closing the searcher
         IndexSearcher searcher = readManager.getIndexSearcher();
         //TopDocs hits = searcher.search(query, null, maxResults, sort);  // throws IOException
-        TopDocs hits = searcher.search(query, null, maxResults);  // throws IOException
+        TopDocs hits = searcher.search(query, maxResults);  // throws IOException
 
         long time = System.currentTimeMillis() - startTime;
         log.debug("searchIndex(): query parse + search took " + time + " ms.");
@@ -1254,12 +1268,12 @@ public class AssetUseIndexService extends BaseService implements IndexWriterConf
 		list.ensureCapacity(numDocs);
 
 		// liveDocs contains doc indexes of not-deleted docs
-        Bits liveDocs = MultiFields.getLiveDocs(reader);
+        Bits liveDocs = MultiBits.getLiveDocs(reader);
 
 		for (int i = 0; i < maxDoc; i++) {
 			if (liveDocs != null && !liveDocs.get(i)) continue;
 
-			Document document = reader.document(i);  // throws CorruptIndexException, IOException
+			Document document = reader.document(i);  // throws IOException
 			int id = Integer.parseInt(document.get(ASSET_USE_ID));
 			long date = Long.parseLong(document.get(INDEX_DATE));
 			set.add(new Integer(id));

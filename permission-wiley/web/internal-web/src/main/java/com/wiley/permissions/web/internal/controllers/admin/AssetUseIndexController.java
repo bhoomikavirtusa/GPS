@@ -42,23 +42,44 @@ public class AssetUseIndexController extends BaseAnnotatedController {
 	{
 		log.debug("load(): entered...");
 
+		// Lucene 4.x on-disk indexes cannot be opened by Lucene 8; still show file stats
+		// so the Build form is available (build recreates the index first).
 		IndexInfo info = assetUseIndexService.readIndexInfo();
 		model.addAttribute("info", info);
+		if (info.getIndexExists() && info.getNumDocs() == 0 && info.getNumFiles() > 0) {
+			model.addAttribute("generalMessage",
+					"Asset Use index exists on disk but is not readable by Lucene 8 (likely Lucene 4 format). "
+					+ "Enter CW id(s) below and Build Index - this recreates a Lucene 8 index then loads data. "
+					+ "Optional: backup /spare/permissions/assetUseIndex first.");
+		}
 
 		Integer cwId = (Integer) request.getSession().getAttribute(SESSION_CW_ID);
 		model.addAttribute("cwId", cwId);
 
 		if (extendedInfo != null && extendedInfo) {
-			List<FieldInfo> indexedInfo = assetUseIndexService.readIndexedFieldInfo();
-			List<FieldInfo> storedInfo = assetUseIndexService.readStoredFieldInfo();
-			model.addAttribute("indexedInfo", indexedInfo);
-			model.addAttribute("storedInfo", storedInfo);
+			try {
+				List<FieldInfo> indexedInfo = assetUseIndexService.readIndexedFieldInfo();
+				List<FieldInfo> storedInfo = assetUseIndexService.readStoredFieldInfo();
+				model.addAttribute("indexedInfo", indexedInfo);
+				model.addAttribute("storedInfo", storedInfo);
+			} catch (Exception ex) {
+				log.warn("load(): extended index field info unavailable (rebuild required): " + ex.getMessage());
+				model.addAttribute("generalMessage",
+						"Extended index info unavailable until the Asset Use index is rebuilt for Lucene 8: " + ex.getMessage());
+			}
 		}
 
 		if (StringUtils.isNotBlank(searchAssetUseId)) {
-			AssetUseSearchResult result = assetUseIndexService.searchIndexByAssetUseId(Integer.valueOf(searchAssetUseId));
-			model.addAttribute("searchAssetUseId", searchAssetUseId);
-			model.addAttribute("searchResult", result);
+			try {
+				AssetUseSearchResult result = assetUseIndexService.searchIndexByAssetUseId(Integer.valueOf(searchAssetUseId));
+				model.addAttribute("searchAssetUseId", searchAssetUseId);
+				model.addAttribute("searchResult", result);
+			} catch (Exception ex) {
+				log.warn("load(): search by asset use id failed (rebuild required): " + ex.getMessage());
+				model.addAttribute("searchAssetUseId", searchAssetUseId);
+				model.addAttribute("generalMessage",
+						"Index search failed until rebuild for Lucene 8: " + ex.getMessage());
+			}
 		}
 
 		return getFormView();

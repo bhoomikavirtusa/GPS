@@ -19,7 +19,6 @@ import javax.ws.rs.QueryParam;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.mule.api.lifecycle.InitialisationException;
 import org.mule.util.DateUtils;
@@ -107,7 +106,7 @@ public class AssetResource {
 	@Produces("application/json")
 	@Path("/list/index/{cwId}")
 	public String loadAssetListTableFromIndex (@PathParam("cwId") int cwId, @QueryParam("callback") String callback)
-			throws PersistenceException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InitialisationException, TransformationException, CorruptIndexException, IOException, ParseException
+			throws PersistenceException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InitialisationException, TransformationException, IOException, ParseException
 	{
 		log.debug("loadAssetListTableFromIndex(): called with cwId = " + cwId);
 		// just going to pass true for includeCovers since comment above says "this method is no longer used"

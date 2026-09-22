@@ -8,7 +8,6 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
@@ -47,7 +46,7 @@ public class AssetUseSearchResults
 	}
 
     public int getTotalHits() {
-    	return hits.totalHits;
+    	return (int) hits.totalHits.value;
     }
 
     public int getDocumentCount() {
@@ -66,10 +65,9 @@ public class AssetUseSearchResults
      * Returns all documents. If you don't intend to display all documents
      * then use getDocuments(startIndex, endIndex).
      * @throws IOException
-     * @throws CorruptIndexException
-     */
+         */
     public ArrayList<AssetUseSearchResult> getDocuments()
-        throws CorruptIndexException, IOException
+        throws IOException
     {
     	if (hits.scoreDocs.length == 0)  return new ArrayList<AssetUseSearchResult>(0);
     	else  return getDocuments(0, hits.scoreDocs.length - 1);
@@ -79,10 +77,9 @@ public class AssetUseSearchResults
      * Returns all documents that contain non no-fly sources.
      *
      * @throws IOException
-     * @throws CorruptIndexException
-     */
+         */
     public ArrayList<AssetUseSearchResult> getDocumentsExcludingNoflySources()
-        throws CorruptIndexException, IOException
+        throws IOException
     {
     	if (hits.scoreDocs.length == 0)  return new ArrayList<AssetUseSearchResult>(0);
     	else  {
@@ -104,7 +101,7 @@ public class AssetUseSearchResults
      * @param endIndex  must be >= 0 and < getDocumentCount() and >= endIndex
      */
     public ArrayList<AssetUseSearchResult> getDocuments(int startIndex, int endIndex)
-        throws CorruptIndexException, IOException
+        throws IOException
     {
     	if (startIndex > endIndex) {
     		throw new IllegalArgumentException("startIndex cannot be greater than endIndex");
@@ -117,7 +114,7 @@ public class AssetUseSearchResults
     	for (int i = startIndex; i <= endIndex; i++) {
     	    ScoreDoc scoreDoc = hits.scoreDocs[i];
     	    Document document = searcher.doc(scoreDoc.doc);
-    	        // throws CorruptIndexException, IOException
+    	        // throws IOException
     	    boolean assetUseForCurrentCW = false;
     	    if (assetIdSetForCurrentCW != null) {
     	    	Integer assetId = new Integer(document.get(AssetUseIndexService.ASSET_ID));

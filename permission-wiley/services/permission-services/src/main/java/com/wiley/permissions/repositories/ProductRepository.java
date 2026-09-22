@@ -857,9 +857,18 @@ public class ProductRepository extends JPARepository {
 		p.isCwPrimary();
 		p.getDataSource();
 		p.getShortAuthorName();
-		p.getAuthors();
+		// Force full author rows (first/last name) while session is open.
+		for (User author : p.getAuthors()) {
+			author.getFirstName();
+			author.getLastName();
+		}
 		p.getPublicationStatus().getCode();
-		p.getBusinessUnit().getCode();
+		// BusinessUnit @Id is code: getCode() alone does not initialize the proxy under Hibernate 5.
+		// ProductIndexService.updateIndex also needs getName().
+		if (p.getBusinessUnit() != null) {
+			p.getBusinessUnit().getCode();
+			p.getBusinessUnit().getName();
+		}
 		// use lazyLoad method for stuff that might be null, also because lazyLoad will call all primitive getters
 		// (we want codes for stuff)
 		lazyLoad(p, "productLine");
@@ -869,12 +878,20 @@ public class ProductRepository extends JPARepository {
 		lazyLoad(p, "bundles");
 		lazyLoad(p, "relations");
 
+		User photoEditor = p.getPhotoEditor();
+		if (photoEditor != null) {
+			photoEditor.getFirstName();
+			photoEditor.getLastName();
+		}
+
 		CommonWork cw = p.getCommonWork();
 		cw.getCode();
 		cw.getAUCountNotCanceled();
 		cw.getCoverCountNotCanceled();
 		cw.getNonCoverCountNotCanceled();
 		cw.getStatusNotOkCount();
+		// touches counts used by getComplianceStatus()
+		cw.getComplianceStatus();
 	}
 
 	/**

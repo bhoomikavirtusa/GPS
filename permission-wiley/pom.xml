@@ -10,6 +10,8 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 	<description>Permissions Application ROOT</description>
 
 	<modules>
+		<!-- Phase 9: in-tree sf-common2 (Lucene 8 port). Build before consumers. -->
+		<module>sf-common2</module>
 		<module>common</module>
 		<module>services</module>
 		<module>message</module>
@@ -36,7 +38,9 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 		<commons-dbcp.version>1.4</commons-dbcp.version>
 		<commons-digester.version>2.1</commons-digester.version>
 		<commons-jexl.version>2.0.1</commons-jexl.version>
-		<lucene.version>4.8.1</lucene.version>
+		<!-- Phase 9: Lucene 4.8.1 -> 8.11.4 (JDK 8 bytecode, JDK 21 runtime-safe).
+		     Index format changes; rebuild Product/AssetUse indexes per CW after deploy. -->
+		<lucene.version>8.11.4</lucene.version>
 		<jpa-api.version>2.2</jpa-api.version>
 		<!-- Spring 5.3 requires Jackson 2.9+ (registerModules); JasperReports 6 pulled 2.1.4 -->
 		<jackson.version>2.13.5</jackson.version>
@@ -49,7 +53,8 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 		<jxls.version>1.0</jxls.version>
 		<jxls-reader.version>2.0</jxls-reader.version>
 		<mysql-jdbc.version>8.0.20</mysql-jdbc.version>
-		<sf-common2.version>2.43</sf-common2.version>
+		<!-- Phase 9: in-tree sf-common2 Lucene 8 port. Do not overwrite Mule's frozen 2.43 jar. -->
+		<sf-common2.version>2.44</sf-common2.version>
 		<jmesa.version>2.5.3</jmesa.version>
 		<!-- Hibernate 3.6.x and 4.2.x depend on slf4j 1.6.1 -->
 		<slf4j.version>1.7.21</slf4j.version>

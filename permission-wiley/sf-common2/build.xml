@@ -1,0 +1,121 @@
+<?xml version="1.0" ?>
+<!-- $Id: build.xml,v 1.11 2014-05-02 23:26:02 smarkoff Exp $ -->
+<project name="sf-common2" default="unit" basedir=".">
+    <description>
+        build file
+    </description>
+
+    <!-- set global properties for this build -->
+    <property name="src" location="src" />
+    <property name="test" location="test" />
+    <property name="lib" location="lib" />
+    <property name="build" location="build" />
+    <property name="build-test" location="build-test" />
+    <property name="dist"  location="dist" />
+    <property name="javadoc" location="javadoc" />
+    <property name="report" location="report" />
+
+    <property environment="env"/>
+
+    <path id="build.classpath">
+        <fileset dir="${lib}" includes="*.jar" />
+        <pathelement path="${build}" />
+        <pathelement path="${build-test}" />
+    </path>
+
+    <target name="init">
+        <!-- Create the time stamp -->
+        <tstamp/>
+
+        <!-- Create the build directory structure used by compile -->
+        <mkdir dir="${build}" />
+        <mkdir dir="${build-test}" />
+    </target>
+
+    <target name="compile" depends="init"
+            description="compile the source">
+        <javac srcdir="${src}" destdir="${build}" classpathref="build.classpath" debug="true" source="1.6" target="1.6" />
+        <javac srcdir="${test}" destdir="${build-test}" classpathref="build.classpath" />
+        <copy todir="${build-test}">
+            <fileset dir="${test}">
+                <include name="**/*.txt" />
+                <include name="**/*.properties" />
+                <include name="**/*.xml" />
+                <include name="**/*.xls" />
+                <include name="**/*.xlsx" />
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="unitClean">
+        <delete dir="${report}" />
+    </target>
+
+    <target name="unit" depends="compile"
+            description="do unit tests">
+          
+        <mkdir dir="${report}/xml" />
+    
+        <!-- Fork JUnit because otherwise there is a classloader issue
+             with Xerces -->
+        <junit fork="true" forkmode="once">
+            <jvmarg value="-Xint" />
+            <classpath refid="build.classpath" />
+
+            <formatter type="brief" usefile="false" />
+            <formatter type="xml" />
+      
+            <batchtest todir="${report}/xml">
+                <fileset dir="${test}" />
+            </batchtest>
+        </junit>
+    </target>
+  
+    <target name="report" depends="unit"
+            description="generate html report for unit tests">
+        <mkdir dir="${report}/html" />
+        <junitreport todir="${report}">
+            <fileset dir="${report}/xml">
+                <include name="*.xml" />
+            </fileset>
+            <report todir="${report}/html" />
+        </junitreport>
+    </target>
+
+    <target name="dist" depends="report"
+            description="generate the distribution">
+        <mkdir dir="${dist}"/>
+
+        <jar destfile="${dist}/sf-common2.jar" basedir="${build}" />
+    </target>
+
+    <target name="javadocClean">
+        <delete dir="${javadoc}"/>
+    </target>
+
+    <target name="javadoc" depends="javadocClean, compile">
+        <javadoc destdir="${javadoc}"
+                 classpathref="build.classpath"
+                 access="protected"
+                 author="true"
+                 version="true"
+                 use="true"
+                 source="1.6"
+                 windowtitle="SF Common 2">
+            <fileset dir="${src}" defaultexcludes="yes">
+                <include name="**/*.java" />
+                <exclude name="**/*Test.java"/>
+            </fileset>
+            <doctitle><![CDATA[<h1>SF Common 2</h1>]]></doctitle>
+            <header>SF Common 2</header>
+            <bottom><![CDATA[<i>Copyright &#169; 2008-2011 John Wiley &amp; Sons. All Rights Reserved.</i>]]></bottom>
+        </javadoc>
+    </target>
+
+    <target name="clean" depends="javadocClean, unitClean">
+        <delete dir="${dist}" />
+        <delete dir="${build}" />
+        <delete dir="${build-test}" />
+    </target>
+
+</project>

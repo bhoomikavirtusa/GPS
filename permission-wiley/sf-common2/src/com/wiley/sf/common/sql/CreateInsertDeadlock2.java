@@ -1,0 +1,208 @@
+package com.wiley.sf.common.sql;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+/**
+ * Try and create a deadlock by duplicating this scenario:
+ * http://dev.mysql.com/doc/refman/5.5/en/innodb-locks-set.html
+ *
+ * @since   JDK 1.6
+ * @version 3/29/2011
+ * @author  Steve Markoff
+ */
+public class CreateInsertDeadlock2 {
+
+    private final static String TABLE = "DEAD_INSERT";
+
+
+    public static void main(String [] args) throws Exception {
+        if (args.length < 1) {
+            System.err.println("Usage: <properties file>");
+            System.exit(1);
+        }
+
+        SimpleDBConnect dbConnect = SimpleDBConnect.create(args[0]);
+            // throws various exceptions
+
+        CreateInsertDeadlock2 cid = new CreateInsertDeadlock2(dbConnect.getConnection(),
+                dbConnect.getConnection(), dbConnect.getConnection());
+        cid.go();
+    }
+
+
+    private final Connection con1;
+    private final Connection con2;
+    private final Connection con3;
+
+    public CreateInsertDeadlock2(Connection con1, Connection con2, Connection con3) throws SQLException {
+        this.con1 = con1;
+        this.con2 = con2;
+        this.con3 = con3;
+        con1.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+        con2.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+        con3.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+        con1.setAutoCommit(false);
+        con2.setAutoCommit(false);
+        con3.setAutoCommit(false);
+    }
+
+    public void go() throws SQLException {
+        deleteAllAndCommit(con1);
+        new InsertThread(con1, 1, 0, true).start();
+        new InsertThread(con2, 2, 1, false).start();
+        new InsertThread(con3, 3, 2, false).start();
+        //new SelectThread(con3).start();
+    }
+
+
+    private void insert(Connection con, String code) throws SQLException {
+        String sql = "insert into " + TABLE + " (code, name) values (?, ?)";
+        PreparedStatement ps = con.prepareStatement(sql);
+        ps.setString(1, code);
+        ps.setString(2, code);
+        int rowCount = ps.executeUpdate();
+        ps.close();
+
+        // This SQL is MySQL-specific
+        //sql = "select LAST_INSERT_ID()";
+        //ps = con.prepareStatement(sql);
+        //ResultSet rs = ps.executeQuery();
+        //while (rs.next()) {
+        //    rs.getInt(1);
+        //}
+        //ps.close();
+    }
+
+    private void select(Connection con) throws SQLException {
+        String sql = "select id, code, name from " + TABLE;
+        PreparedStatement ps = con.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            int id = rs.getInt(1);
+            String code = rs.getString(2);
+            String name = rs.getString(3);
+        }
+        ps.close();
+        con.commit();
+    }
+
+    private void deleteAllAndCommit(Connection con) throws SQLException {
+        String sql = "delete from " + TABLE;
+        PreparedStatement ps = con.prepareStatement(sql);
+        int rowCount = ps.executeUpdate();
+        ps.close();
+        con.commit();
+    }
+
+    class InsertThread extends Thread {
+        private final Connection con;
+        private final int threadNum;
+        private final int delaySecs;
+        private final boolean rollback;
+
+        public InsertThread(Connection con, int threadNum, int delaySecs, boolean rollback) {
+            this.con = con;
+            this.threadNum = threadNum;
+            this.delaySecs = delaySecs;
+            this.rollback = rollback;
+        }
+
+        @Override
+        public void run() {
+            try { Thread.sleep(1000 * delaySecs); }
+            catch (InterruptedException ex) { }
+
+            doInsert("1");
+
+            try { Thread.sleep(4000); }
+            catch (InterruptedException ex) { }
+
+            if (rollback) {
+                try {
+                    con.rollback();
+                    System.out.println("thread " + threadNum + " completed rollback.");
+                }
+                catch (Exception ex) {
+                    System.out.println("thread " + threadNum + " Caught exception trying to rollback.");
+                }
+            }
+            else {
+                try {
+                    con.commit();
+                    System.out.println("thread " + threadNum + " completed commit.");
+                }
+                catch (Exception ex) {
+                    System.out.println("thread " + threadNum + " Caught exception trying to commit.");
+                }
+            }
+        }
+
+        private void doInsert(String code) {
+            try {
+                insert(con, code);
+                System.out.println("thread " + threadNum + " inserted code " + code);
+            }
+            catch (Exception ex) {
+                System.out.println("thread " + threadNum + " Caught exception trying to insert code " + code + ": " + ex);
+            }
+        }
+    }
+
+    class SelectThread extends Thread {
+        private final Connection con;
+        private int count = 0;
+
+        public SelectThread(Connection con) {
+            this.con = con;
+            setDaemon(true);  // so will die when no other threads are running
+        }
+
+        @Override
+        public void run() {
+            while (true) {
+                doSelect();
+            }
+        }
+
+        private void doSelect() {
+            try {
+                select(con);
+                count++;
+                System.out.println("select count = " + count);
+            }
+            catch (Exception ex) {
+                System.out.println("Select thread caught exception: " + ex);
+            }
+        }
+    }
+}
+
+/**
+---- SQL to create tables in DB2:
+-- change varchar to nvarchar when db2 supports
+
+create table dead_insert (
+  id int not null generated by default as identity
+    constraint pk_dead_insert primary key,
+  code varchar(20) not null,
+  name varchar(100)
+);
+
+alter table dead_insert
+  add constraint un_insert_code unique (code);
+
+---- SQL to create tables in MySQL:
+
+create table dead_insert (
+  id int not null auto_increment,
+  constraint pk_dead_insert primary key (id),
+  code nvarchar(20) not null,
+  name nvarchar(100)
+);
+
+alter table dead_insert
+  add constraint un_insert_code unique (code);
+*/

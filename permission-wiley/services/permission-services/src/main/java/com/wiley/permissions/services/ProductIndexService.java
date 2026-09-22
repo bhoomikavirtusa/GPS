@@ -22,15 +22,15 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.IntField;
-import org.apache.lucene.document.LongField;
+import org.apache.lucene.document.IntPoint;
+import org.apache.lucene.document.LongPoint;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
-import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.MultiFields;
+import org.apache.lucene.index.MultiBits;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -44,7 +44,6 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Bits;
-import org.apache.lucene.util.Version;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -82,7 +81,7 @@ import com.wiley.sf.common.text.TimeFormat;
  * It is assumed that only one instance of this class will
  * be created (being a service class).
  *
- * @since  JDK 1.6, Lucene 4.7
+ * @since  JDK 1.8, Lucene 8.11
  * @author smarkoff
  */
 public class ProductIndexService extends BaseService implements IndexWriterConfigFactory
@@ -91,9 +90,7 @@ public class ProductIndexService extends BaseService implements IndexWriterConfi
 
 	private static final String PERMISSIONS_HOME = "PERMISSIONS_HOME";
 	private static final String INDEX_DIR = "productIndex";
-	private static final Version LUCENE_VERSION = Version.LUCENE_48;
-
-	// constants for product search field names
+		// constants for product search field names
 	// this first group of fields we will have for all products (available on notification messages or calculated from)
 	public static final String WID = "wid";
 	public static final String WID_DISPLAY = "wid_display";
@@ -218,10 +215,14 @@ public class ProductIndexService extends BaseService implements IndexWriterConfi
 				}
 			}
 
-			indexDirectory = FSDirectory.open(indexDir);
+			indexDirectory = FSDirectory.open(indexDir.toPath());
 			//indexDirectory = FSDirectory.open(indexDir.toPath());  // throws IOException
 
-			LuceneUtil.createIndexIfDoesNotExist(indexDirectory, newConfig());
+			// Do not create-if-missing here if a Lucene 4 index already exists —
+			// ensureIndexReadableOrRecreate() handles both empty and too-old cases.
+			if (!DirectoryReader.indexExists(indexDirectory)) {
+				LuceneUtil.createIndexIfDoesNotExist(indexDirectory, newConfig());
+			}
 		}
 
 		// delay creation of searcher in case the index does not exist yet
@@ -234,11 +235,27 @@ public class ProductIndexService extends BaseService implements IndexWriterConfi
 	/** Implements IndexWriterConfigFactory */
 	@Override
 	public IndexWriterConfig newConfig() {
-		return new IndexWriterConfig(LUCENE_VERSION, new StandardAnalyzer(LUCENE_VERSION));
+		return new IndexWriterConfig(new StandardAnalyzer());
 		//return new IndexWriterConfig(new StandardAnalyzer());
 	}
 
-	public IndexInfo readIndexInfo() throws CorruptIndexException, IOException {
+	/**
+	 * Lucene 8 cannot open Lucene 4.x on-disk segments. Wipe and create an empty
+	 * Lucene 8 index so product index updates can proceed.
+	 */
+	private void ensureIndexReadableOrRecreate() throws IOException {
+		if (LuceneUtil.canOpenIndex(indexDirectory)) {
+			LuceneUtil.createIndexIfDoesNotExist(indexDirectory, newConfig());
+			return;
+		}
+		log.warn("ensureIndexReadableOrRecreate(): Product index is Lucene-format-incompatible; recreating empty Lucene 8 index under "
+				+ INDEX_DIR + ". Operators must rebuild (per CW or full).");
+		readManager.reset();
+		LuceneUtil.recreateEmptyIndex(indexDirectory, newConfig());
+		readManager.reset();
+	}
+
+	public IndexInfo readIndexInfo() throws IOException {
 		return readManager.readIndexInfo();
 	}
 
@@ -246,7 +263,7 @@ public class ProductIndexService extends BaseService implements IndexWriterConfi
 		return readManager.readIndexedFieldInfo();
 	}
 
-	public List<FieldInfo> readStoredFieldInfo() throws CorruptIndexException, IOException {
+	public List<FieldInfo> readStoredFieldInfo() throws IOException {
 		return readManager.readStoredFieldInfo();
 	}
 
@@ -318,6 +335,11 @@ public class ProductIndexService extends BaseService implements IndexWriterConfi
 			Double msToComp, Double finalCost, Integer totalPhotos,
 			Integer photoCoverPickupCount, Integer photoInternalFreeCount, Integer photoInternalRoyaltyFreeCount)
 	{
+		try {
+			ensureIndexReadableOrRecreate();
+		} catch (IOException e) {
+			throw new RuntimeException("Product index could not be opened or recreated for Lucene 8", e);
+		}
 		log.debug("updateIndex() called:\r\nwid = " + wid + ", cwCode = " + cwCode
 				+ ", isCwPrimary = " + isCwPrimary
 				+ ", cwId = " + cwId
@@ -391,6 +413,7 @@ public class ProductIndexService extends BaseService implements IndexWriterConfi
 	 * @param product  Must be non-null
 	 * @throws PersistenceException
 	 */
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	public void updateIndex(Product product) throws PersistenceException {
 		ArgUtil.notNull(product, "product");
 		PerfTimer timer = getMonitor().startTimer("ProductIndexService::updateIndex(Product)");
@@ -638,9 +661,8 @@ public class ProductIndexService extends BaseService implements IndexWriterConfi
         }
 
         if (copyrightYear != null) {
-        	 doc.add(new IntField(COPYRIGHT_YEAR, copyrightYear, Field.Store.YES)); // Updated lucene to 4.8
-        	/*doc.add(new IntPoint(COPYRIGHT_YEAR, copyrightYear));
-        	doc.add(new StoredField(COPYRIGHT_YEAR, copyrightYear));*/
+        	 doc.add(new IntPoint(COPYRIGHT_YEAR, copyrightYear));
+        doc.add(new StoredField(COPYRIGHT_YEAR, copyrightYear));
         }
 
         if (StringUtils.isNotBlank(productLineCode)) {
@@ -672,9 +694,8 @@ public class ProductIndexService extends BaseService implements IndexWriterConfi
         	// Since we don't need millisecond precision for searching, using the day instead
         	// saves space in the index and is more efficient to search
         	final long day = consolidatedReleaseDate.getTime() / MS_TO_DAY_DIVIDE;
-        	 doc.add(new LongField(CON_RELEASE_DATE_DAY, day, Field.Store.YES)); // Updated to Lucene 4.8
-        	/*doc.add(new LongPoint(CON_RELEASE_DATE_DAY, day));
-        	doc.add(new StoredField(CON_RELEASE_DATE_DAY, day));*/
+        	 doc.add(new LongPoint(CON_RELEASE_DATE_DAY, day));
+        doc.add(new StoredField(CON_RELEASE_DATE_DAY, day));
 
         	// Store the millisecond precision in a separate field (which is not indexed)
         	doc.add(new StoredField(CON_RELEASE_DATE_MS, String.valueOf(consolidatedReleaseDate.getTime())));
@@ -684,9 +705,8 @@ public class ProductIndexService extends BaseService implements IndexWriterConfi
         	// Since we don't need millisecond precision for searching, using the day instead
         	// saves space in the index and is more efficient to search
         	final long day = transmittalDate.getTime() / MS_TO_DAY_DIVIDE;
-        	doc.add(new LongField(TRANSMITTAL_DATE_DAY, day, Field.Store.YES));	// Updated to Lucene 4.8
-        	/*doc.add(new LongPoint(TRANSMITTAL_DATE_DAY, day));
-        	doc.add(new StoredField(TRANSMITTAL_DATE_DAY, day));*/
+        	doc.add(new LongPoint(TRANSMITTAL_DATE_DAY, day));
+        doc.add(new StoredField(TRANSMITTAL_DATE_DAY, day));
 
         	// Store the millisecond precision in a separate field (which is not indexed)
         	doc.add(new StoredField(TRANSMITTAL_DATE_MS, String.valueOf(transmittalDate.getTime())));
@@ -793,10 +813,8 @@ public class ProductIndexService extends BaseService implements IndexWriterConfi
 
         doc.add(new StoredField(INDEX_DATE, String.valueOf(System.currentTimeMillis())));
 
-		 doc.add(new IntField(INDEX_VERSION, CURRENT_INDEX_VERSION, Field.Store.YES)); // Updated to lucene 4.8
-       /* doc.add(new IntPoint(INDEX_VERSION, CURRENT_INDEX_VERSION));
-        doc.add(new StoredField(INDEX_VERSION, CURRENT_INDEX_VERSION));*/
-
+		doc.add(new IntPoint(INDEX_VERSION, CURRENT_INDEX_VERSION));
+		doc.add(new StoredField(INDEX_VERSION, CURRENT_INDEX_VERSION));
 
         return doc;
 	}
@@ -851,12 +869,12 @@ public class ProductIndexService extends BaseService implements IndexWriterConfi
 		list.ensureCapacity(numDocs);
 
         // liveDocs contains doc indexes of not-deleted docs
-        Bits liveDocs = MultiFields.getLiveDocs(reader);
+        Bits liveDocs = MultiBits.getLiveDocs(reader);
 
 		for (int i = 0; i < maxDoc; i++) {
 			if (liveDocs != null && !liveDocs.get(i)) continue;
 
-			Document doc = reader.document(i);  // throws CorruptIndexException, IOException
+			Document doc = reader.document(i);  // throws IOException
 			String wid = doc.get(WID_DISPLAY);
 			long date = Long.parseLong(doc.get(INDEX_DATE));
 			set.add(wid);
@@ -1122,7 +1140,7 @@ public class ProductIndexService extends BaseService implements IndexWriterConfi
 
 	    // using readManager.getIndexSearcher() means we don't have to worry about closing the searcher
 	    IndexSearcher searcher = readManager.getIndexSearcher();
-	    TopDocs hits = searcher.search(query, null, Integer.MAX_VALUE);  // throws IOException
+	    TopDocs hits = searcher.search(query, Integer.MAX_VALUE);  // throws IOException
 
 		int notStartedCount = 0;
 		int inProcessCount = 0;
@@ -1277,12 +1295,12 @@ public class ProductIndexService extends BaseService implements IndexWriterConfi
 		List<String []> list = new ArrayList<String []>();
 
         // liveDocs contains doc indexes of not-deleted docs
-        Bits liveDocs = MultiFields.getLiveDocs(reader);
+        Bits liveDocs = MultiBits.getLiveDocs(reader);
 
 		for (int i = 0; i < maxDoc; i++) {
 			if (liveDocs != null && !liveDocs.get(i)) continue;
 
-			Document doc = reader.document(i);  // throws CorruptIndexException, IOException
+			Document doc = reader.document(i);  // throws IOException
 			String version = doc.get(INDEX_VERSION);
 			String wid = doc.get(WID_DISPLAY);
 			String dataSource = doc.get(DATA_SOURCE_DISPLAY);
@@ -1368,8 +1386,7 @@ public class ProductIndexService extends BaseService implements IndexWriterConfi
 	}*/
 
 	private QueryParser createQueryParser() {
-		ExtendedQueryParser qp = new ExtendedQueryParser(LUCENE_VERSION,WID, new StandardAnalyzer(LUCENE_VERSION)); // Updated to Lucene 4.8
-		// ExtendedQueryParser qp = new ExtendedQueryParser(LUCENE_VERSION,WID, new StandardAnalyzer());
+		ExtendedQueryParser qp = new ExtendedQueryParser(WID, new StandardAnalyzer());
 	    qp.setIntFieldNames(new String [] { COPYRIGHT_YEAR });
 	    qp.setLongFieldNames(new String [] { CON_RELEASE_DATE_DAY, TRANSMITTAL_DATE_DAY });
 	    return qp;
@@ -1401,12 +1418,10 @@ public class ProductIndexService extends BaseService implements IndexWriterConfi
         TopDocs hits;
         // Calling searcher.search() with null Sort causes NullPointerException
         if (sort == null) {
-        	hits = searcher.search(query, null, maxResults);  // throws IOException // Updated to Lucene 4.8
-        	// hits = searcher.search(query, maxResults);
+        	hits = searcher.search(query, maxResults);  // throws IOException
         }
         else {
-        	hits = searcher.search(query, null, maxResults, sort);  // throws IOException  // Updated to Lucene 4.8
-        	// hits = searcher.search(query, maxResults, sort);
+        	hits = searcher.search(query, maxResults, sort);  // throws IOException
         }
 
         List<ProductSearchResult> results = null;
@@ -1547,8 +1562,10 @@ public class ProductIndexService extends BaseService implements IndexWriterConfi
 	 * @param cwId
 	 * @throws Exception
 	 */
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	public void updateProductsIndexForCWID(int cwId) throws Exception {
 		log.debug("Enter: updateProductsIndexForCWID() - with cwId: " + cwId);
+		ensureIndexReadableOrRecreate();
 		CommonWork cw = cwRepository.loadByIdForProductIndex(cwId);
 		if(null != cw) {
 			for (Product p : cw.getProducts()) {

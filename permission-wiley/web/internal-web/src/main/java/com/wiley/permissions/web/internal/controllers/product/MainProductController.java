@@ -119,7 +119,9 @@ public class MainProductController extends BaseAnnotatedController {
 		return mv;
 	}
 
-	@RequestMapping(value = "/product/product/search", method = RequestMethod.POST)
+	// GET+POST: form submit is POST; results refresh/pagination/bookmarks are GET.
+	// Handler already reloads blank criteria from session (see below).
+	@RequestMapping(value = "/product/product/search", method = {RequestMethod.GET, RequestMethod.POST})
 	public ModelAndView search(HttpServletRequest request,
 			@ModelAttribute(FORM_MODEL_NAME) SearchProductForm form) throws Exception
 	{
@@ -208,7 +210,10 @@ public class MainProductController extends BaseAnnotatedController {
 		return mv;
 	}
 
-	@RequestMapping(value = "/product/product/advancedsearch", method ={RequestMethod.GET, RequestMethod.POST})
+	// GET only: show the advanced search form.
+	// POST is handled by advancedSearch() below. Mapping both methods here
+	// collides with that handler under Spring 5.3+ (Ambiguous handler methods).
+	@RequestMapping(value = "/product/product/advancedsearch", method = RequestMethod.GET)
 	public ModelAndView advancedSearchPage(HttpServletRequest request,
 			@ModelAttribute(ADVANCED_SEARCH_FORM_MODEL_NAME) AdvancedSearchProductForm form
 		) throws Exception
