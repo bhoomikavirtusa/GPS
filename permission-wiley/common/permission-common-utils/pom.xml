@@ -138,6 +138,22 @@
 					<artifactId>jcl104-over-slf4j</artifactId>
 					<groupId>org.slf4j</groupId>
 				</exclusion>
+				<!-- GPS Tomcat uses Log4j 1.x (log4j.xml → internal.log/author.log).
+				     Mule 3.8 pulls Log4j2 + log4j-slf4j-impl which steals the SLF4J binding
+				     and leaves app logs only on the console (catalina.out). Keep log4j-api/core
+				     for any direct Log4j2 calls inside mule-core; drop the SLF4J/JCL bridges. -->
+				<exclusion>
+					<groupId>org.apache.logging.log4j</groupId>
+					<artifactId>log4j-slf4j-impl</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.logging.log4j</groupId>
+					<artifactId>log4j-jcl</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.logging.log4j</groupId>
+					<artifactId>log4j-1.2-api</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 

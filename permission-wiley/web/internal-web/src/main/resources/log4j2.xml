@@ -1,48 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration>
-    <Appenders>
-		<RollingFile name="TomcatRollingFile" fileName="${sys:catalina.base}/logs/internal.log"
-					 filePattern="${sys:catalina.base}/logs/internal-%d{MM-dd-yyyy}-%i.log.gz">
-		<PatternLayout pattern="%-5p %d [%t] %c: %m%n"/>
-		  <Policies>
-			<TimeBasedTriggeringPolicy />
-			<SizeBasedTriggeringPolicy size="250 MB"/>
-		  </Policies>
-		  <DefaultRolloverStrategy max="20"/>
-		</RollingFile>		
-        <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%-5p %d [%t] %c: %m%n"/>
-        </Console>
-    </Appenders>
+<!--
+  Mule 3.8 client still brings log4j-core onto the Tomcat WAR classpath.
+  Spring JCL (LogFactory.getLog) prefers Log4j2 when log4j-api is present, so most
+  GPS controllers log through this file — not only via SLF4J → Log4j1 (log4j.xml).
+  Also stops: ERROR StatusLogger No log4j2 configuration file found...
+  Do not remove while mule-core / log4j-core remain in the WAR.
+-->
+<Configuration status="WARN">
+	<Appenders>
+		<RollingFile name="TomcatRollingFile"
+			fileName="${sys:catalina.base}/logs/internal.log"
+			filePattern="${sys:catalina.base}/logs/internal-%d{MM-dd-yyyy}-%i.log.gz">
+			<PatternLayout pattern="%-5p %d [%t] %c: %m%n"/>
+			<Policies>
+				<TimeBasedTriggeringPolicy />
+				<SizeBasedTriggeringPolicy size="250 MB"/>
+			</Policies>
+			<DefaultRolloverStrategy max="20"/>
+		</RollingFile>
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout pattern="%-5p %d [%t] %c: %m%n"/>
+		</Console>
+	</Appenders>
 
-    <Loggers>
+	<Loggers>
+		<!-- CXF is used heavily by Mule for web services -->
+		<AsyncLogger name="org.apache.cxf" level="WARN"/>
 
-        <!-- CXF is used heavily by Mule for web services -->
-        <AsyncLogger name="org.apache.cxf" level="WARN"/>
+		<!-- Apache Commons tend to make a lot of noise which can clutter the log-->
+		<AsyncLogger name="org.apache" level="WARN"/>
 
-        <!-- Apache Commons tend to make a lot of noise which can clutter the log-->
-        <AsyncLogger name="org.apache" level="WARN"/>
+		<!-- Reduce startup noise -->
+		<AsyncLogger name="org.springframework.beans.factory" level="WARN"/>
+		<AsyncLogger name="org.springframework" level="WARN"/>
 
-        <!-- Reduce startup noise -->
-        <AsyncLogger name="org.springframework.beans.factory" level="WARN"/>
-        <AsyncLogger name="org.springframework" level="DEBUG"/>
+		<!-- Mule classes (direct Log4j2 API inside mule-core on the WAR classpath) -->
+		<AsyncLogger name="org.mule" level="INFO"/>
+		<AsyncLogger name="com.mulesoft" level="INFO"/>
+		<AsyncLogger name="com.atomikos" level="ERROR"/>
 
-        <!-- Mule classes -->
-        <AsyncLogger name="org.mule" level="INFO"/>
-        <AsyncLogger name="com.mulesoft" level="INFO"/>
-        <AsyncLogger name="com.atomikos" level="ERROR"/>
-        <AsyncLogger name="com.wiley.permissions" level="DEBUG"/>
-        <AsyncLogger name="com.wiley.sf.common" level="DEBUG"/>
-        <!--
-		<AsyncLogger name="com.atomikos" level="INFO"/>
-        <AsyncLogger name="com.atomikos" level="INFO"/>
-        <AsyncLogger name="com.atomikos" level="INFO"/>
-		-->
-		
+		<!-- GPS web code uses Commons Logging → Log4j2 (spring-jcl); DEBUG matches log4j.xml -->
+		<AsyncLogger name="com.wiley.permissions" level="DEBUG"/>
+		<AsyncLogger name="com.wiley.sf.common" level="DEBUG"/>
 
-        <AsyncRoot level="INFO">
-            <AppenderRef ref="TomcatRollingFile"/>
-        </AsyncRoot>
-    </Loggers>
-
+		<AsyncRoot level="INFO">
+			<AppenderRef ref="TomcatRollingFile"/>
+		</AsyncRoot>
+	</Loggers>
 </Configuration>

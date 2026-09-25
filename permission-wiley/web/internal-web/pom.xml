@@ -299,6 +299,15 @@
 			<version>${slf4j.version}</version>
 		</dependency>
 
+		<!-- Package Log4j 1.x in the WAR: root BOM marks it provided, but Tomcat 9 may not
+		     ship it; slf4j-log4j12 needs org.apache.log4j.Logger at runtime for internal.log. -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.16</version>
+			<scope>compile</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jcl-over-slf4j</artifactId>
@@ -322,6 +331,13 @@
 			<artifactId>jasperreports-plugin</artifactId>
 			<version>2.1</version>
 			<scope>compile</scope>
+			<exclusions>
+				<!-- Build-plugin artifact; its slf4j-simple binding must not win over slf4j-log4j12 -->
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-simple</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		
 		<dependency>

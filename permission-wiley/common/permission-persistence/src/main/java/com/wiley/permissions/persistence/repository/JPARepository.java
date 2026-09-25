@@ -474,7 +474,8 @@ public class JPARepository {
 							value = ((String) value).toLowerCase();
 						}
 
-						queryStr += propName + " = ?";
+						// Hibernate 5.6+ rejects legacy HQL positional "?" — must use JPA "?1"
+						queryStr += propName + " = ?1";
 						Query query = em.createQuery(queryStr);
 						query.setParameter(1, value);
 
