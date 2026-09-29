@@ -125,7 +125,8 @@ public class ManageAssetController  extends BaseAnnotatedController {
 		return mv;
 	}
 
-	@RequestMapping(value = "/asset/manageAsset/cancelMulti", method = {RequestMethod.GET, RequestMethod.POST})
+	// GET only: POST submit handler below (Spring 5.3+ ambiguous mapping).
+	@RequestMapping(value = "/asset/manageAsset/cancelMulti", method = RequestMethod.GET)
 	public ModelAndView cancelMulti(HttpServletRequest request, @RequestParam("auIds") String auIds) throws Exception {
 		log.debug("cancelMulti(): auIds = " + auIds);
 		String[] aIds = StringUtils.split(auIds, ",");
@@ -262,7 +263,8 @@ public class ManageAssetController  extends BaseAnnotatedController {
 		response.getWriter().write(output); // throws IOException
 	}
 
-	@RequestMapping(value = "/asset/manageAsset/flagAsReplace", method = {RequestMethod.GET, RequestMethod.POST})
+	// GET only: POST submit handler below (Spring 5.3+ ambiguous mapping).
+	@RequestMapping(value = "/asset/manageAsset/flagAsReplace", method = RequestMethod.GET)
 	public ModelAndView flagAsReplaceStart(HttpServletRequest request,
 											@RequestParam(value="auId") Integer auId)
 	throws Exception
@@ -464,7 +466,8 @@ public class ManageAssetController  extends BaseAnnotatedController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/asset/manageAsset/assetsClear", method = {RequestMethod.GET, RequestMethod.POST})
+	// GET only: POST submit handler below (Spring 5.3+ ambiguous mapping).
+	@RequestMapping(value = "/asset/manageAsset/assetsClear", method = RequestMethod.GET)
 	public ModelAndView clearAssetsForm(HttpServletRequest request, @RequestParam("auIds") String auIds)
 			throws Exception
 	{

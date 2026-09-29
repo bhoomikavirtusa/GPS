@@ -55,7 +55,8 @@ public class SourceMergeController extends BaseAnnotatedController {
 		return output;
 	}
 
-	@RequestMapping(value = "/admin/mergeSource/merge_search", method = {RequestMethod.GET, RequestMethod.POST})
+	// GET only: POST is handled by processForm below (Spring 5.3+ ambiguous mapping).
+	@RequestMapping(value = "/admin/mergeSource/merge_search", method = RequestMethod.GET)
 	public ModelAndView sourceMergeSearch()
 	throws Exception
 	{

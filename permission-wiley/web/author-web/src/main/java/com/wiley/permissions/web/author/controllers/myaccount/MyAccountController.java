@@ -28,7 +28,8 @@ public class MyAccountController extends BaseAnnotatedController {
 	private ExternalUserLdapClient externalUserLdapClient;
 
 
-	@RequestMapping(value="/changePassword", method = {RequestMethod.GET, RequestMethod.POST})
+	// GET only: POST is handled by changePasswordSubmit below (Spring 5.3+ ambiguous mapping).
+	@RequestMapping(value="/changePassword", method = RequestMethod.GET)
 	public ModelAndView changePasswordLoad(HttpServletRequest request) throws Exception {
 		log.debug("changePasswordLoad(): entered...");
 

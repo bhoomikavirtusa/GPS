@@ -199,7 +199,8 @@ public class PaymentRequestController extends BaseAnnotatedController {
 		return mv;
 	}
 
-	@RequestMapping(value = "/permissions/paymentrequest/managePaymentRequest", method = {RequestMethod.GET, RequestMethod.POST})
+	// GET only: POST is handled by submitPaymentRequest below (Spring 5.3+ ambiguous mapping).
+	@RequestMapping(value = "/permissions/paymentrequest/managePaymentRequest", method = RequestMethod.GET)
 	public ModelAndView managePaymentRequest(@ModelAttribute(FORM_MODEL_NAME) PaymentRequestForm form,
 			HttpServletRequest request) throws Exception
 	{

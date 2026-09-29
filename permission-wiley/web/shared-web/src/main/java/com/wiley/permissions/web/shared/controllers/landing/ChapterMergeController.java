@@ -41,7 +41,8 @@ public class ChapterMergeController extends BaseAnnotatedController {
 
 	protected final static String FORM_MODEL_NAME = "chapterMergeForm";
 
-	@RequestMapping(value = "/landing/chapterMerge/selectchapter", method = {RequestMethod.GET, RequestMethod.POST})
+	// GET only: POST submit handler below (Spring 5.3+ ambiguous mapping).
+	@RequestMapping(value = "/landing/chapterMerge/selectchapter", method = RequestMethod.GET)
 	public ModelAndView start(@RequestParam(value = "cwId") Integer cwId)
 	throws Exception
 	{
@@ -185,7 +186,8 @@ public class ChapterMergeController extends BaseAnnotatedController {
 		return mv;
 	}
 
-	@RequestMapping(value = "/landing/chapterMerge/chapters", method = {RequestMethod.GET, RequestMethod.POST})
+	// GET only: POST submit handler below (Spring 5.3+ ambiguous mapping).
+	@RequestMapping(value = "/landing/chapterMerge/chapters", method = RequestMethod.GET)
 	public ModelAndView chaptersLoad(@ModelAttribute(FORM_MODEL_NAME) ChapterMergeForm form)
 	throws Exception
 	{
@@ -230,7 +232,8 @@ public class ChapterMergeController extends BaseAnnotatedController {
 	// start of insert new chapter functionality
 	// ------------------------------------------------------------------------------------------
 
-	@RequestMapping(value = "/landing/chapterMerge/insertingChapter", method = {RequestMethod.GET, RequestMethod.POST})
+	// GET only: POST submit handler below (Spring 5.3+ ambiguous mapping).
+	@RequestMapping(value = "/landing/chapterMerge/insertingChapter", method = RequestMethod.GET)
 	public ModelAndView insertingChapter(@RequestParam(value = "cwId") Integer cwId)
 		throws Exception
 	{

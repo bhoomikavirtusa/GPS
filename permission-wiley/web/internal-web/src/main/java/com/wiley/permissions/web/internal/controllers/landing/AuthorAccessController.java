@@ -98,7 +98,8 @@ public class AuthorAccessController extends BaseAnnotatedController {
 		return mv;
 	}
 
-	@RequestMapping(value = "/landing/authorAccess/userDetails", method = {RequestMethod.GET, RequestMethod.POST})
+	// GET only: POST submit handler below (Spring 5.3+ ambiguous mapping).
+	@RequestMapping(value = "/landing/authorAccess/userDetails", method = RequestMethod.GET)
 	public ModelAndView userDetailsLoad(HttpServletRequest request,
 			@RequestParam(value="userId", required=false) Integer userId,
 			@RequestParam(value="lastName", required=false) String lastName,
@@ -195,7 +196,8 @@ public class AuthorAccessController extends BaseAnnotatedController {
 		return;
 	}
 
-	@RequestMapping(value = "/landing/authorAccess/privileges", method = {RequestMethod.GET, RequestMethod.POST})
+	// GET only: POST submit handler below (Spring 5.3+ ambiguous mapping).
+	@RequestMapping(value = "/landing/authorAccess/privileges", method = RequestMethod.GET)
 	public ModelAndView privilegesLoad(HttpServletRequest request,
 			@RequestParam("cwId") int cwId, @RequestParam("authorId") int authorId)
 			throws Exception
@@ -329,7 +331,8 @@ public class AuthorAccessController extends BaseAnnotatedController {
 		return mv;
 	}
 
-	@RequestMapping(value = "/landing/authorAccess/chapters", method = {RequestMethod.GET, RequestMethod.POST})
+	// GET only: POST is handled by chaptersSubmit below (Spring 5.3+ ambiguous mapping).
+	@RequestMapping(value = "/landing/authorAccess/chapters", method = RequestMethod.GET)
 	public ModelAndView chaptersLoad(@ModelAttribute(AUTHOR_PRIVILEGE_FORM_NAME) AuthorPrivilegeForm form)
 			throws Exception
 	{

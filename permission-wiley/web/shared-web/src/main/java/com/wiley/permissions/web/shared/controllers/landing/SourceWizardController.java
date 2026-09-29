@@ -191,7 +191,9 @@ public class SourceWizardController extends BaseAnnotatedController {
 		return mv;
 	}
 
-	@RequestMapping(value = "/landing/source/main", method = {RequestMethod.GET, RequestMethod.POST})
+	// GET only: POST is handled by page1Submit below. Mapping both methods here
+	// collides under Spring 5.3+ (Ambiguous handler methods).
+	@RequestMapping(value = "/landing/source/main", method = RequestMethod.GET)
 	public ModelAndView page1Load(@ModelAttribute(FORM_MODEL_NAME) SourceWizardForm form)
 	throws Exception
 	{
@@ -863,7 +865,8 @@ public class SourceWizardController extends BaseAnnotatedController {
 		au = getAssetUseService().saveAssetUse(au,true,false);
 	}
 
-	@RequestMapping(value = "/landing/source/submit_photorequest", method = {RequestMethod.GET, RequestMethod.POST})
+	// GET only: POST is handled by submitPhotoRequest below (Spring 5.3+ ambiguous mapping).
+	@RequestMapping(value = "/landing/source/submit_photorequest", method = RequestMethod.GET)
 	public ModelAndView presubmitPhotoRequest(@ModelAttribute(FORM_MODEL_NAME) SourceWizardForm form)
 	throws Exception
 	{
@@ -894,7 +897,8 @@ public class SourceWizardController extends BaseAnnotatedController {
 		return mv;
 	}
 
-	@RequestMapping(value = "/landing/source/submit_wiley", method = {RequestMethod.GET, RequestMethod.POST})
+	// GET only: POST submit handler below (Spring 5.3+ ambiguous mapping).
+	@RequestMapping(value = "/landing/source/submit_wiley", method = RequestMethod.GET)
 	public ModelAndView presubmitWileyBook(HttpServletRequest request, @ModelAttribute(FORM_MODEL_NAME) SourceWizardForm form)
 	throws Exception
 	{
@@ -976,7 +980,8 @@ public class SourceWizardController extends BaseAnnotatedController {
 		return mv;
 	}
 
-	@RequestMapping(value = "/landing/source/pub_assets_details", method = {RequestMethod.GET, RequestMethod.POST})
+	// GET only: POST is handled by submitPreviousPubAssets below (Spring 5.3+ ambiguous mapping).
+	@RequestMapping(value = "/landing/source/pub_assets_details", method = RequestMethod.GET)
 	public ModelAndView previousPubAssets(@ModelAttribute(FORM_MODEL_NAME) SourceWizardForm form)
 	throws Exception
 	{
@@ -1081,7 +1086,8 @@ public class SourceWizardController extends BaseAnnotatedController {
 		return mv;
 	}
 
-	@RequestMapping(value = "/landing/source/author_created", method = {RequestMethod.GET, RequestMethod.POST})
+	// GET only: POST submit handler below (Spring 5.3+ ambiguous mapping).
+	@RequestMapping(value = "/landing/source/author_created", method = RequestMethod.GET)
 	public ModelAndView authorCreatedVerifyAuthor(HttpServletRequest request,
 			@ModelAttribute(FORM_MODEL_NAME) SourceWizardForm form,
 			@RequestParam(value="auId") Integer auId)
@@ -1286,7 +1292,8 @@ public class SourceWizardController extends BaseAnnotatedController {
 		return po;
 	}
 
-	@RequestMapping(value = "/landing/source/determine_owner_type", method = {RequestMethod.GET, RequestMethod.POST})
+	// GET only: POST is handled by determineOwnerTypeProcess below (Spring 5.3+ ambiguous mapping).
+	@RequestMapping(value = "/landing/source/determine_owner_type", method = RequestMethod.GET)
 	public ModelAndView determineOwnerType(@ModelAttribute(FORM_MODEL_NAME) SourceWizardForm form)
 	throws Exception
 	{
@@ -1374,7 +1381,8 @@ public class SourceWizardController extends BaseAnnotatedController {
 	   	return currentAu;
 	}
 
-	@RequestMapping(value = "/landing/source/submit_author", method = {RequestMethod.GET, RequestMethod.POST})
+	// GET only: POST is handled by submitAuthorProvided below (Spring 5.3+ ambiguous mapping).
+	@RequestMapping(value = "/landing/source/submit_author", method = RequestMethod.GET)
 	public ModelAndView presubmitAuthorProvided(@ModelAttribute(FORM_MODEL_NAME) SourceWizardForm form)
 	throws Exception
 	{

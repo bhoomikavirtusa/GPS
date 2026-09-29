@@ -57,7 +57,8 @@ public class AssetRenumberController extends BaseAnnotatedController {
 		return output;
 	}
 
-	@RequestMapping(value = "/landing/renumber/selectcomponent", method = {RequestMethod.GET, RequestMethod.POST})
+	// GET only: POST submit handler below (Spring 5.3+ ambiguous mapping).
+	@RequestMapping(value = "/landing/renumber/selectcomponent", method = RequestMethod.GET)
 	public ModelAndView start(HttpServletRequest request, @RequestParam(value = "cwId") Integer cwId)
 			throws Exception
 	{
@@ -102,7 +103,8 @@ public class AssetRenumberController extends BaseAnnotatedController {
 		return mv;
 	}
 
-	@RequestMapping(value = "/landing/renumber/selectusage", method = {RequestMethod.GET, RequestMethod.POST})
+	// GET only: POST submit handler below (Spring 5.3+ ambiguous mapping).
+	@RequestMapping(value = "/landing/renumber/selectusage", method = RequestMethod.GET)
 	public ModelAndView selectUsageStart(@RequestParam(value = "component") String componentId,
 			@ModelAttribute(FORM_MODEL_NAME)  AssetRenumberForm form)
 			throws Exception
@@ -144,7 +146,8 @@ public class AssetRenumberController extends BaseAnnotatedController {
 		return mv;
 	}
 
-	@RequestMapping(value = "/landing/renumber/assets", method = {RequestMethod.GET, RequestMethod.POST})
+	// GET only: POST submit handler below (Spring 5.3+ ambiguous mapping).
+	@RequestMapping(value = "/landing/renumber/assets", method = RequestMethod.GET)
 	public ModelAndView assetsStart(HttpServletRequest request, @ModelAttribute(FORM_MODEL_NAME)  AssetRenumberForm form)
 			throws Exception
 	{
