@@ -14,10 +14,10 @@ import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.export.JRPdfExporter;
-import net.sf.jasperreports.engine.export.JRPdfExporterParameter;
 import net.sf.jasperreports.engine.util.JRLoader;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
+import net.sf.jasperreports.export.SimplePdfExporterConfiguration;
 
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.servlet.view.AbstractView;
@@ -51,11 +51,14 @@ public class PdfReportView extends AbstractView {
         }
         try (Connection connection = jdbcDataSource.getConnection()) {
             JasperPrint print = JasperFillManager.fillReport(report, parameters, connection);
+            // Jasper 6+: do not mix deprecated setParameter() with setExporterInput/Output
             JRPdfExporter exporter = new JRPdfExporter();
-            exporter.setParameter(JRPdfExporterParameter.METADATA_AUTHOR, "Wiley & Sons");
-            exporter.setParameter(JRPdfExporterParameter.METADATA_CREATOR, "Wiley & Sons Permissions System.");
-            exporter.setParameter(JRPdfExporterParameter.IS_TAGGED, true);
-            exporter.setParameter(JRPdfExporterParameter.TAG_LANGUAGE, "English");
+            SimplePdfExporterConfiguration pdfConfig = new SimplePdfExporterConfiguration();
+            pdfConfig.setMetadataAuthor("Wiley & Sons");
+            pdfConfig.setMetadataCreator("Wiley & Sons Permissions System.");
+            pdfConfig.setTagged(Boolean.TRUE);
+            pdfConfig.setTagLanguage("English");
+            exporter.setConfiguration(pdfConfig);
             applyHeaders(response);
             exporter.setExporterInput(new SimpleExporterInput(print));
             exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(response.getOutputStream()));
