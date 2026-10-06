@@ -990,7 +990,8 @@ public class ProductRepository extends JPARepository {
 		ProductType productType = p.getProductType();
 		if (productType != null)  productType.getName();
 		ProductFamily productFamily = p.getProductFamily();
-		if (productFamily != null)  productFamily.getCode();
+		// getName() (not getCode()) — code is @Id and does not initialize the Hibernate proxy
+		if (productFamily != null)  productFamily.getName();
 		ProductEdition productEdition = p.getEdition();
 		if (productEdition != null) productEdition.getEditionNumber();
 		SubMedium subMedium = p.getSubMedium();

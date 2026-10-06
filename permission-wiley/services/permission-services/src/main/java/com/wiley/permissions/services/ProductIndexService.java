@@ -24,9 +24,11 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.document.LongPoint;
+import org.apache.lucene.document.SortedDocValuesField;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
+import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -123,7 +125,7 @@ public class ProductIndexService extends BaseService implements IndexWriterConfi
 	public static final String MEDIUM_CODE_DISPLAY = "medium_code_display";
 	public static final String INDEX_DATE = "index_date";  // for debugging only
 	public static final String INDEX_VERSION = "index_version";  // for debugging / fixing stuff
-	public static final int CURRENT_INDEX_VERSION = 1;
+	public static final int CURRENT_INDEX_VERSION = 2; // v2: SortedDocValues on TITLE_SORT / PHOTO_EDITOR_LAST_NAME for Lucene 8 sorts
 
 	// these fields will only be present for Products that we have imported
 	public static final String PRODUCT_LINE_CODE = "product_line_code";
@@ -610,7 +612,10 @@ public class ProductIndexService extends BaseService implements IndexWriterConfi
         	doc.add(new StringField(TITLE_START_PHRASE, QueryBuilder.normalizeStartPhrase(title),
                 Field.Store.NO));
             doc.add(new StoredField(TITLE_DISPLAY, title));
-            doc.add(new StringField(TITLE_SORT, title.toLowerCase(), Field.Store.NO));
+            // StringField alone has no DocValues; Lucene 8 SortField.Type.STRING requires SORTED DocValues
+            String titleSort = title.toLowerCase();
+            doc.add(new StringField(TITLE_SORT, titleSort, Field.Store.NO));
+            doc.add(new SortedDocValuesField(TITLE_SORT, new BytesRef(titleSort)));
         }
 
         if (StringUtils.isNotBlank(shortAuthorName)) {
@@ -681,7 +686,9 @@ public class ProductIndexService extends BaseService implements IndexWriterConfi
         }
 
         if (StringUtils.isNotBlank(photoEditorLastName)) {
+        	// StringField alone has no DocValues; Lucene 8 SortField.Type.STRING requires SORTED DocValues
         	doc.add(new StringField(PHOTO_EDITOR_LAST_NAME, photoEditorLastName, Field.Store.NO));
+        	doc.add(new SortedDocValuesField(PHOTO_EDITOR_LAST_NAME, new BytesRef(photoEditorLastName)));
         	doc.add(new StringField(HAS_PHOTO_EDITOR_LAST_NAME, "true", Field.Store.NO));
         	doc.add(new StoredField(PHOTO_EDITOR_LAST_NAME_DISPLAY, photoEditorLastName));
         }
