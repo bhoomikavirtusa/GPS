@@ -6,7 +6,6 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.mule.api.MuleException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -99,7 +98,7 @@ implements MessageService<Message, Message>
 	}
 
 	public abstract void receiveMessage(Message message)
-			throws MessageException, RequiresDelayedProcessingException, MuleException, DispatcherException;
+			throws MessageException, RequiresDelayedProcessingException, DispatcherException;
 
 	public Message createErrorMessage(String replyId, String code, String referenceExternalId, String text) {
 		Message msg = createMessage();

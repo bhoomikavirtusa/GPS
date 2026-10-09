@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.mule.api.MuleException;
 
 import com.wiley.permissions.common.bean.BeanMergeException;
 import com.wiley.permissions.common.dispatcher.DispatcherException;
@@ -140,7 +139,7 @@ public interface AssetUseService {
 	/**
 	 * This method designed to be called from Tomcat.
 	 */
-	public List<PerfStatSnapshot> getPerformanceStatsFromMuleProc() throws DispatcherException, MuleException;
+	public List<PerfStatSnapshot> getPerformanceStatsFromMuleProc() throws DispatcherException;
 
 	/**
 	 * This method receives the call from Tomcat (will be called inside Mule).

@@ -16,7 +16,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.mule.api.MuleException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -575,7 +574,7 @@ public class ContractServiceImpl extends BaseService implements ContractService 
 
 	@Override
 	public CompCopy requestCompCopyOrder(CompCopy origCompCopy)
-			throws PermissionsSecurityException, PersistenceException, MuleException, DispatcherException
+			throws PermissionsSecurityException, PersistenceException, DispatcherException
 	{
 		CompCopy cc = new CompCopy();
 

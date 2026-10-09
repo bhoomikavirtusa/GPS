@@ -12,7 +12,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.mule.api.MuleException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,7 +70,7 @@ public class PEMessageService
      */
 	@Override
 	public synchronized void receiveMessage(Message message)
-			throws RequiresDelayedProcessingException, MessageException, MuleException, DispatcherException
+			throws RequiresDelayedProcessingException, MessageException, DispatcherException
 	{
 		for (MessageOperation operation : message.getOperations()) {
 			OperationType operationType = operation.getOperationType();
@@ -110,7 +109,7 @@ public class PEMessageService
 		}
 	}
 
-	private void receiveMasterListUpdate(Message message) throws MessageException, DispatcherException, MuleException {
+	private void receiveMasterListUpdate(Message message) throws MessageException, DispatcherException {
 		// A Master List Update can either be a notification or a reply.
 
 		if (message.getType() == MessageType.NOTIFICATION) {
@@ -208,7 +207,7 @@ public class PEMessageService
 		}
 	}
 
-	private void receiveProductUpdateReply(Message message, MessageOperation operation) throws MuleException, MessageException {
+	private void receiveProductUpdateReply(Message message, MessageOperation operation) throws MessageException {
 		List<Product> products = new ArrayList<Product>();
 		int errorCount = 0;
 

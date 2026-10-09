@@ -1,12 +1,8 @@
 package com.wiley.permissions.common.transformer;
 
-import java.io.InputStream;
-
 import org.codehaus.jackson.map.AnnotationIntrospector;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.xc.JaxbAnnotationIntrospector;
-import org.mule.api.lifecycle.InitialisationException;
-import org.mule.util.IOUtils;
 
 /**
  * A transformer that will convert a JSON encoded object graph to a java object. The object type is determined
@@ -21,12 +17,12 @@ public class JsonToObject implements Transformer {
 	private ObjectMapper mapper;
 	private Class<?> returnClass;
 
-	public JsonToObject(Class<?> returnClass) throws InitialisationException {
+	public JsonToObject(Class<?> returnClass) {
 		this();
 		this.returnClass = returnClass;
 	}
 
-	public JsonToObject() throws InitialisationException {
+	public JsonToObject() {
 		if (mapper == null) {
 			mapper = new ObjectMapper();
 			AnnotationIntrospector introspector = new JaxbAnnotationIntrospector();
@@ -41,20 +37,11 @@ public class JsonToObject implements Transformer {
 	public Object transform(Object src)
 			throws TransformationException
 	{
-		Object returnValue;
-		InputStream is = null;
-
 		try {
-			returnValue = getMapper().readValue((String) src, returnClass);
-			return returnValue;
+			return getMapper().readValue((String) src, returnClass);
 		}
 		catch (Exception e) {
 			throw new TransformationException(e);
-		}
-		finally {
-			if (is != null) {
-				IOUtils.closeQuietly(is);
-			}
 		}
 	}
 
@@ -75,7 +62,7 @@ public class JsonToObject implements Transformer {
 	}
 
 	public static Object doTransform(String src, Class<?> returnClass)
-			throws TransformationException, InitialisationException
+			throws TransformationException
 	{
 		JsonToObject transformer = new JsonToObject(returnClass);
 		return transformer.transform(src);

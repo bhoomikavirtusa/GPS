@@ -20,8 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.mule.api.lifecycle.InitialisationException;
-import org.mule.util.DateUtils;
+import java.text.SimpleDateFormat;
 
 import com.wiley.permissions.common.transformer.ObjectToJson;
 import com.wiley.permissions.common.transformer.TransformationException;
@@ -90,7 +89,7 @@ public class AssetResource {
 	@GET
 	@Produces("application/json")
 	@Path("/test2")
-	public String test2(@QueryParam("callback") String callback) throws InitialisationException, TransformationException {
+	public String test2(@QueryParam("callback") String callback) throws TransformationException {
 		log.debug("test2(): called");
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-dd-MM HH:mm:ss");
 		String s = "Current date/time is: " + format.format(new Date());
@@ -106,7 +105,7 @@ public class AssetResource {
 	@Produces("application/json")
 	@Path("/list/index/{cwId}")
 	public String loadAssetListTableFromIndex (@PathParam("cwId") int cwId, @QueryParam("callback") String callback)
-			throws PersistenceException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InitialisationException, TransformationException, IOException, ParseException
+			throws PersistenceException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, TransformationException, IOException, ParseException
 	{
 		log.debug("loadAssetListTableFromIndex(): called with cwId = " + cwId);
 		// just going to pass true for includeCovers since comment above says "this method is no longer used"
@@ -236,7 +235,7 @@ public class AssetResource {
 			if (null == au.getCancelTimestamp()) {
 				sb.append ("N/A");
 			} else {
-				sb.append (DateUtils.formatTimeStamp(au.getCancelTimestamp(), "MM/dd/yyyy"));
+				sb.append (new SimpleDateFormat("MM/dd/yyyy").format(au.getCancelTimestamp()));
 			}
 			sb.append (" with notes ");
 			if (null == au.getCancelComment()) {

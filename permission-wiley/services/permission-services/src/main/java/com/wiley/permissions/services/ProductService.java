@@ -3,7 +3,6 @@ package com.wiley.permissions.services;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-import org.mule.api.MuleException;
 
 import com.wiley.permissions.common.dispatcher.DispatcherException;
 import com.wiley.permissions.domain.message.Message;
@@ -55,16 +54,16 @@ public interface ProductService {
 		throws PersistenceException;
 
 	public List<ProductSearchResult> searchProducts(String searchString, String searchField)
-		throws ServiceException, PermissionsSecurityException, MessageException, MuleException, DispatcherException;
+		throws ServiceException, PermissionsSecurityException, MessageException, DispatcherException;
 
 	public List<ProductSearchResult> searchProducts(String searchString, String searchField, Integer userId, boolean format)
-		throws ServiceException, MessageException, PermissionsSecurityException, MuleException, DispatcherException;
+		throws ServiceException, MessageException, PermissionsSecurityException, DispatcherException;
 	
 	public List<ProductSearchResult> newsearchProducts(String searchString)
-			throws ServiceException, MessageException, PermissionsSecurityException, MuleException, DispatcherException, Exception;
+			throws ServiceException, MessageException, PermissionsSecurityException, DispatcherException, Exception;
 
 	public List<ProductSearchResult> advancedSearchProducts(List <LabelValueBean> terms, Integer userId, boolean format)
-		throws ServiceException, MessageException, PermissionsSecurityException, MuleException, DispatcherException;
+		throws ServiceException, MessageException, PermissionsSecurityException, DispatcherException;
 
 	/****************************************************
 	 * VIEWS LOAD METHODS							    *

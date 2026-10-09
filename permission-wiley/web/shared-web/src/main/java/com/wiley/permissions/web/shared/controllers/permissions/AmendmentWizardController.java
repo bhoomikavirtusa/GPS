@@ -162,7 +162,7 @@ public class AmendmentWizardController extends BaseAnnotatedController {
 		}
 		map.put("auids", auids);
 		map.put("url", request.getContextPath() + "/sapp/permissions/amendment/preview?auId=" + form.getAuId());
-		String output = ObjectToJson.doTransform(map, null);  // throws InitialisationException, TransformationException
+		String output = ObjectToJson.doTransform(map, null);  // throws TransformationException
 
 		log.debug("save(): sending:\r\n" + output);
 
@@ -265,7 +265,7 @@ public class AmendmentWizardController extends BaseAnnotatedController {
 		}
 		map.put("auids", auids);
 		map.put("url", "");
-		String output = ObjectToJson.doTransform(map, null);  // throws InitialisationException, TransformationException
+		String output = ObjectToJson.doTransform(map, null);  // throws TransformationException
 
 		log.debug("save(): sending:\r\n" + output);
 

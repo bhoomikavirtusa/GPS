@@ -1,16 +1,16 @@
 package com.wiley.permissions.common.dispatcher;
 
-import org.mule.api.ExceptionPayload;
-
 import com.wiley.permissions.common.utils.PermBaseException;
 
+/**
+ * Dispatcher failures. Intentionally free of org.mule types so WEB/PROC can move
+ * to Camel (or another transport) without changing caller signatures.
+ */
 public class DispatcherException
 extends PermBaseException
 {
 	private static final long serialVersionUID = 1L;
-	
-	private ExceptionPayload exceptionPayload;
-	
+
 	public DispatcherException(String message)
 	{
 		super(message);
@@ -24,21 +24,5 @@ extends PermBaseException
 	public DispatcherException(Throwable cause)
 	{
 		super(cause);
-	}
-
-	public DispatcherException(String message, ExceptionPayload exceptionPayload)
-	{
-		super(message);
-		this.exceptionPayload = exceptionPayload;		
-	}
-	
-	public ExceptionPayload getExceptionPayload()
-	{
-		return exceptionPayload;
-	}
-
-	public void setExceptionPayload(ExceptionPayload exceptionPayload)
-	{
-		this.exceptionPayload = exceptionPayload;
 	}
 }

@@ -2,31 +2,32 @@ package com.wiley.permissions.common.dispatcher;
 
 import java.util.Map;
 
-import org.mule.api.MuleException;
-
+/**
+ * Transport-agnostic service dispatcher API. Implementations may use Mule today
+ * and Camel later; callers only see {@link DispatcherException}.
+ */
 public interface ServiceDispatcher {
-	public final static int DEFAULT_TIMEOUT = 60000;  // 60 sec, in ms
+	/** Default timeout: 60 sec, in ms. */
+	public final static int DEFAULT_TIMEOUT = 60000;
 
 	public abstract Object send(String url, Object payload, Map<String, Object> properties)
-		throws MuleException, DispatcherException;
+		throws DispatcherException;
 
 	public abstract Object send(String url, Object payload, Map<String, Object> properties, int timeout)
-		throws MuleException, DispatcherException;
+		throws DispatcherException;
 
 	public Object send(OperationType service, Object payload, Map<String, Object> properties)
-		throws MuleException, DispatcherException;
+		throws DispatcherException;
+
+	public Object send(OperationType service, Object payload, Map<String, Object> properties, int timeout)
+		throws DispatcherException;
 
 	/**
-	 * Turns out in Mule 2.1.2 the timeout parameter has no effect. You just get whatever
-	 * timeout is specified on the connector (we specify in pesearch-mule-config.xml).
-	 * So don't use this version of the method.
+	 * Sends a one-way message asynchronously (fire-and-forget).
 	 */
-	public Object send(OperationType service, Object payload, Map<String, Object> properties, int timeout)
-		throws MuleException, DispatcherException;
-
 	public abstract void dispatch(String url, Object payload, Map<String, Object> properties)
-		throws MuleException;
+		throws DispatcherException;
 
 	public abstract void dispatch(OperationType service, Object payload, Map<String, Object> properties)
-		throws MuleException;
+		throws DispatcherException;
 }

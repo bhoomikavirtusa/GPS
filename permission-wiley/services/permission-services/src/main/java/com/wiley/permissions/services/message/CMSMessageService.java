@@ -58,7 +58,7 @@ public class CMSMessageService extends GenericMessageService {
 		try {
 			if (CollectionUtils.isNotEmpty(errorList)) {
 				getServiceDispatcher().send(OperationType.ERROR, errorList, null);
-				// throws MuleException, DispatcherException
+				// throws DispatcherException
 			}
 
 			for (MessageOperation operation : message.getOperations()) {
@@ -67,7 +67,7 @@ public class CMSMessageService extends GenericMessageService {
 				log.debug("Operation type : " + operationType);
 
 				getServiceDispatcher().send(operationType, operation.getItems(), null);
-				// throws MuleException, DispatcherException
+				// throws DispatcherException
 			}
 		}
 		catch (Exception e) {

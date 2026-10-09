@@ -1,5 +1,7 @@
 package com.wiley.permissions.message.routing;
 
+import com.wiley.permissions.common.dispatcher.DispatcherException;
+
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
@@ -14,7 +16,6 @@ import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.mule.api.MuleException;
 import org.xml.sax.InputSource;
 
 import com.sun.xml.bind.IDResolver;
@@ -162,7 +163,7 @@ implements Runnable
 		}
 	}
 
-	private void processMessage(CachedMessage msg, Unmarshaller unmarshaller) throws JAXBException, MessageException, MuleException {
+	private void processMessage(CachedMessage msg, Unmarshaller unmarshaller) throws JAXBException, MessageException, DispatcherException {
 		String data = msg.getMessage();
 
 		StringReader reader = new StringReader(data);
@@ -176,7 +177,7 @@ implements Runnable
 		cmRepo.preProcessMessage(tmpMessage);
 
 		serviceDispatcher.dispatch("vm://messageHandler", tmpMessage, null);
-		// throws MuleException
+		// throws DispatcherException
 
 		log.debug("processMessage(): messageHandler was called ... " +
 			"now up to mule to actually send the message");

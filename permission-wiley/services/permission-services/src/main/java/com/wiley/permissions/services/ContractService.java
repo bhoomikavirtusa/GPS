@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.mule.api.MuleException;
 
 import com.wiley.permissions.common.dispatcher.DispatcherException;
 import com.wiley.permissions.domain.persistence.permissions.Account;
@@ -59,7 +58,7 @@ public interface ContractService {
 	 * @throws PersistenceException
 	 */
 	public CompCopy requestCompCopyOrder(CompCopy origCompCopy)
-			throws PermissionsSecurityException, PersistenceException, MuleException, DispatcherException;
+			throws PermissionsSecurityException, PersistenceException, DispatcherException;
 
 	public Account getAccountByNumberAndSubCode(String accountNumber, String subCode) throws PersistenceException;
 

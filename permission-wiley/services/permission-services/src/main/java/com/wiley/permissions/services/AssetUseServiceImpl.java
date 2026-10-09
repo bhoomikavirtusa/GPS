@@ -19,7 +19,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.mule.api.MuleException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -447,7 +446,7 @@ public class AssetUseServiceImpl extends BaseService implements AssetUseService 
 	 * This method designed to be called from Tomcat.
 	 */
 	@Override
-	public List<PerfStatSnapshot> getPerformanceStatsFromMuleProc() throws DispatcherException, MuleException {
+	public List<PerfStatSnapshot> getPerformanceStatsFromMuleProc() throws DispatcherException {
 		PerfTimer timer = getMonitor().startTimer("AssetUseService::getPerformanceStatsFromMuleProc");
 		String input = "dummyInput";
 		@SuppressWarnings("unchecked")

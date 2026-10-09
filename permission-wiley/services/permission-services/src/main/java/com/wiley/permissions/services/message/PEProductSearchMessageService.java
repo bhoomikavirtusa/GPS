@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.mule.api.MuleException;
 
 import com.wiley.permissions.common.dispatcher.DispatcherException;
 import com.wiley.permissions.common.dispatcher.OperationType;
@@ -84,7 +83,7 @@ implements MessageService<ProductSearchMessage, ProductSearchMessage>{
 	}
 
 	public ProductSearchMessage sendMessage(ProductSearchMessage message)
-	throws MuleException, DispatcherException
+	throws DispatcherException
 	{
 		return (ProductSearchMessage) getServiceDispatcher().send(
 				OperationType.SEARCH_PRODUCTS, message, null);

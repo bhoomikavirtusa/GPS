@@ -29,7 +29,7 @@ public abstract class BaseRemoteService
 	{
 		try
 		{
-			// throws MuleException, DispatcherException
+			// throws DispatcherException
 			return serviceDispatcher.send(getURI() + method, obj, properties);
 		}
 		catch (Exception e)

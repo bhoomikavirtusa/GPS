@@ -6,8 +6,6 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.mule.api.ExceptionPayload;
-import org.mule.api.MuleException;
 
 import com.wiley.permissions.common.dispatcher.DispatcherException;
 import com.wiley.permissions.common.dispatcher.ServiceDispatcher;
@@ -109,22 +107,18 @@ public class MessageRouter
 					log.debug("\t\t\t END _ dispatcher.send");
 					log.debug("-----------------------------------------");
 				}
-				catch (MuleException e) {
-					exception = e;
-					finalMessageStatus = MessageStatus.FAILED;
-				}
 				catch (DispatcherException e)
 				{
 					exception = e;
 					finalMessageStatus = MessageStatus.FAILED;
 
-					ExceptionPayload umoError = e.getExceptionPayload();
-
-					if (umoError != null)
+					// Root cause is now on the standard cause chain (no ExceptionPayload)
+					Throwable root = e.getCause();
+					if (root != null)
 					{
-						exception = umoError.getRootException();
+						exception = root;
 
-						if (exception instanceof RequiresDelayedProcessingException)
+						if (root instanceof RequiresDelayedProcessingException)
 						{
 							// This means that we're waiting on more information
 							finalMessageStatus = MessageStatus.PENDING_MORE_INFORMATION;
@@ -179,24 +173,19 @@ public class MessageRouter
 				{
 					dispatcher.send(endpoint, message, null);
 				}
-				catch (MuleException e) {
-					error = e;
-					log.error("routeOutgoingMessage(): message id " + message.getId() + " failed", e);
-					finalMessageStatus = MessageStatus.FAILED;
-				}
 				catch (DispatcherException e)
 				{
 					error = e;
 					log.error("routeOutgoingMessage(): message id " + message.getId() + " failed", e);
 					finalMessageStatus = MessageStatus.FAILED;
 
-					ExceptionPayload umoError = e.getExceptionPayload();
-
-					if (umoError != null)
+					// Root cause is now on the standard cause chain (no ExceptionPayload)
+					Throwable root = e.getCause();
+					if (root != null)
 					{
-						error = umoError.getException();
+						error = root;
 
-						if (error instanceof RequiresDelayedProcessingException)
+						if (root instanceof RequiresDelayedProcessingException)
 						{
 							// This means that we're waiting on more information
 							finalMessageStatus = MessageStatus.PENDING_MORE_INFORMATION;

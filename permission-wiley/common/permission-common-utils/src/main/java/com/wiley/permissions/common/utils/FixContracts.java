@@ -16,7 +16,7 @@ import java.util.List;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.mule.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.wiley.sf.common.sql.SimpleDBConnect;
 import com.wiley.sf.common.text.TimeFormat;

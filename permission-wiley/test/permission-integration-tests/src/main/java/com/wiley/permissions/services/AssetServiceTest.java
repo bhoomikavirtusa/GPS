@@ -8,7 +8,6 @@ import javax.xml.transform.TransformerException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.mule.api.MuleException;
 
 import com.wiley.permissions.common.dispatcher.DispatcherException;
 import com.wiley.permissions.common.dispatcher.ServiceDispatcher;
@@ -50,11 +49,11 @@ public class AssetServiceTest extends BaseTestCase
      * @throws JAXBException
      * @throws TransformerException
      * @throws IOException
-     * @throws MuleException
+     * @throws DispatcherException
      * @throws TransformationException
      * @throws DispatcherException
      */
-    public void testPersistAssets() throws TransformationException, JAXBException, TransformerException, IOException, MuleException, DispatcherException {
+    public void testPersistAssets() throws TransformationException, JAXBException, TransformerException, IOException, DispatcherException {
     	for (int i = 0; i < INSERT_COUNT; i++) {
     		PerfTimer timer = PerformanceMonitor.getInstance().startTimer("testPersistAsset");
     		logPerformance.debug("persist #" + i);
@@ -73,7 +72,7 @@ public class AssetServiceTest extends BaseTestCase
      * @throws DispatcherException
      */
     @SuppressWarnings("unchecked")
-	public void testLoadAssets() throws MuleException, DispatcherException {
+	public void testLoadAssets() throws DispatcherException {
     	List<Asset> assets = null;
     	for (int i = 0; i < LOAD_COUNT; i++) {
     		PerfTimer timer = PerformanceMonitor.getInstance().startTimer("testLoadAssets");
@@ -93,7 +92,7 @@ public class AssetServiceTest extends BaseTestCase
      * @throws IOException
      * @throws DispatcherException
      */
-    public void testDeleteAsset() throws TransformationException, JAXBException, TransformerException, IOException, MuleException, DispatcherException {
+    public void testDeleteAsset() throws TransformationException, JAXBException, TransformerException, IOException, DispatcherException {
     	Asset asset = loadAsset();
 
     	getDispatcher().send("vm://delete.asset?method=deleteAsset", asset.getExternalId(),

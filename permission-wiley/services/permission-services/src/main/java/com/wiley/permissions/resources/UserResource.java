@@ -11,7 +11,6 @@ import javax.ws.rs.QueryParam;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.mule.api.lifecycle.InitialisationException;
 
 import com.wiley.permissions.common.transformer.ObjectToJson;
 import com.wiley.permissions.common.transformer.TransformationException;
@@ -44,7 +43,7 @@ public class UserResource {
 	@Produces("application/json")
 	@Path("/profile/{id}")
 	public String loadUserProfile (@PathParam("id") Integer id, @QueryParam("callback") String callback)
-	throws InitialisationException, TransformationException
+	throws TransformationException
 	{
 		log.debug("loadUserProfile(): called with id = " + id);
 		List<UserProfileView> product = securityService.loadProfile(id);
@@ -57,7 +56,7 @@ public class UserResource {
 	@Path("/searchAuthor/{term}")
 	public String searchAuthorView (@PathParam("term") String term, @QueryParam("callback") String callback)
 			throws PersistenceException, IllegalAccessException, InvocationTargetException,
-			NoSuchMethodException, InitialisationException, TransformationException
+			NoSuchMethodException, TransformationException
 	{
 		log.debug("searchAuthorView(): called with term = " + term);
 		List<User> users = userRepository.searchAuthorsByLastName(term);

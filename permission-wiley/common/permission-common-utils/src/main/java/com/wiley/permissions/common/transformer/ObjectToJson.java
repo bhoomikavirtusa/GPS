@@ -12,7 +12,6 @@ import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.ser.StdSerializerProvider;
 import org.codehaus.jackson.map.util.JSONPObject;
 import org.codehaus.jackson.xc.JaxbAnnotationIntrospector;
-import org.mule.api.lifecycle.InitialisationException;
 
 /**
  * Converts a java object to a JSON encoded object that can be consumed by other languages such as Javascript
@@ -36,7 +35,7 @@ public class ObjectToJson implements Transformer {
 
 	private String callback;
 
-	public ObjectToJson() throws InitialisationException {
+	public ObjectToJson() {
 		if (mapper == null) {
 			StdSerializerProvider sp = new StdSerializerProvider();
 	        sp.setNullValueSerializer(new NullSerializer());
@@ -81,7 +80,7 @@ public class ObjectToJson implements Transformer {
 	}
 
 	public static String doTransform(Object src, String callback)
-			throws TransformationException, InitialisationException
+			throws TransformationException
 	{
 		ObjectToJson transformer = new ObjectToJson();
 		transformer.setCallback(callback);

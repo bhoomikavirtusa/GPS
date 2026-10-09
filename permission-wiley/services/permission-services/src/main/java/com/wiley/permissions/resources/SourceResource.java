@@ -13,7 +13,6 @@ import javax.ws.rs.QueryParam;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.mule.api.lifecycle.InitialisationException;
 
 import com.wiley.permissions.common.transformer.ObjectToJson;
 import com.wiley.permissions.common.transformer.TransformationException;
@@ -47,7 +46,7 @@ public class SourceResource {
 	@Path("/search/{term}")
 	public String searchSourceView (@PathParam("term") String term, @QueryParam("callback") String callback)
 			throws PersistenceException, IllegalAccessException, InvocationTargetException,
-			NoSuchMethodException, InitialisationException, TransformationException
+			NoSuchMethodException, TransformationException
 	{
 		log.debug("searchSourceView(): called with term = " + term);
 		List<Source> sources = sourceRepository.searchSourceByName(term);
@@ -66,7 +65,7 @@ public class SourceResource {
 	@Path("/getContacts/{term}")
 	public String getContactsView (@PathParam("term") String term, @QueryParam("callback") String callback)
 			throws PersistenceException, IllegalAccessException, InvocationTargetException,
-			NoSuchMethodException, InitialisationException, TransformationException
+			NoSuchMethodException, TransformationException
 	{
 		log.debug("getContactsView(): called with term = " + term);
 		Source source = null;
@@ -102,7 +101,7 @@ public class SourceResource {
 	@Produces("application/json")
 	@Path("/getAddresses/{term}")
 	public String getAddressesView (@PathParam("term") String term, @QueryParam("callback") String callback)
-			throws PersistenceException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InitialisationException, TransformationException
+			throws PersistenceException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, TransformationException
 	{
 		log.debug("getAddressesView(): called with term = " + term);
 		Contact contact = null;
@@ -159,7 +158,7 @@ public class SourceResource {
 	@Path("/nofly/{term}")
 	public String searchNoflyPhotographer (@PathParam("term") String term, @QueryParam("callback") String callback)
 			throws PersistenceException, IllegalAccessException, InvocationTargetException,
-			NoSuchMethodException, InitialisationException, TransformationException
+			NoSuchMethodException, TransformationException
 	{
 		log.debug("searchNoflyPhotographer(): called with term = " + term);
 		List<Source> sources = sourceRepository.searchNoflyPhotographer(term);

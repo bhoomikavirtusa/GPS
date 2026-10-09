@@ -721,7 +721,7 @@ public class PoWizardController extends BaseAnnotatedController {
 			map.put("url", request.getContextPath() + "/sapp/permissions/preview?cwId=" + form.getCwId()
 					+ "&productId=" + primary.getId() + "&poId=" + po.getId() + "&type=po");
 		}
-		String output = ObjectToJson.doTransform(map, null);  // throws InitialisationException, TransformationException
+		String output = ObjectToJson.doTransform(map, null);  // throws TransformationException
 
 		log.debug("preview(): sending:\r\n" + output);
 
@@ -787,7 +787,7 @@ public class PoWizardController extends BaseAnnotatedController {
 				map.put("url", request.getContextPath() + "/sapp/permissions/preview?cwId=" + form.getCwId() + "&productId=" + primary.getId() + "&poId=" + poids + "&type=po");
 			}
 		}
-		String output = ObjectToJson.doTransform(map, null);  // throws InitialisationException, TransformationException
+		String output = ObjectToJson.doTransform(map, null);  // throws TransformationException
 
 		log.debug("saveMultiForm(): sending:\r\n" + output);
 

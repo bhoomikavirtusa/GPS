@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.mule.api.lifecycle.InitialisationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -43,7 +42,7 @@ public class LandingTableController {
 
 	@RequestMapping("/landing/table")
 	public void allRequests(HttpServletRequest request, HttpServletResponse response,
-		@RequestParam(value = "cwId") int cwId) throws InitialisationException, TransformationException, PersistenceException, ParseException, IOException
+		@RequestParam(value = "cwId") int cwId) throws TransformationException, PersistenceException, ParseException, IOException
 	{
 		log.debug("allRequests(): entered...");
 		boolean useFilter = false;
@@ -61,7 +60,7 @@ public class LandingTableController {
 		data.setTotalRecords(assetUseList.size());
 		data.setTotalDisplayRecords(assetUseList.size());
 		data.setTableRows(assetUseList);
-		String output = ObjectToJson.doTransform(data, null);  // throws InitialisationException, TransformationException
+		String output = ObjectToJson.doTransform(data, null);  // throws TransformationException
 
 		//log.debug("allRequests(): sevletParams: " + ServletUtil.getAllParameters(request));
 		//log.debug("allRequests(): sending:\r\n" + output);

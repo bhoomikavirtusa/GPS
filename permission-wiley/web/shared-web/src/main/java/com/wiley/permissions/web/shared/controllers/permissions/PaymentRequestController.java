@@ -270,7 +270,7 @@ public class PaymentRequestController extends BaseAnnotatedController {
 			map.put("url", StringUtils.EMPTY);
 		}
 
-		String output = ObjectToJson.doTransform(map, null);  // throws InitialisationException, TransformationException
+		String output = ObjectToJson.doTransform(map, null);  // throws TransformationException
 
 		log.debug("save(): sending:\r\n" + output);
 

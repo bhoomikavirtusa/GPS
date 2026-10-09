@@ -14,8 +14,6 @@ import javax.ws.rs.QueryParam;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.mule.api.MuleException;
-import org.mule.api.lifecycle.InitialisationException;
 
 import com.wiley.permissions.common.dispatcher.DispatcherException;
 import com.wiley.permissions.common.transformer.ObjectToJson;
@@ -52,7 +50,7 @@ public class ProductResource {
 	@Produces("application/json")
 	@Path("/{id}")
 	public String loadProductView (@PathParam("id") Integer id, @QueryParam("callback") String callback)
-		throws PersistenceException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, InitialisationException, TransformationException
+		throws PersistenceException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, TransformationException
 	{
 		log.debug("loadProductView(): called with id = " + id);
 		ProductSummaryView product = productService.loadPrimaryProductView(id);
@@ -63,7 +61,7 @@ public class ProductResource {
 	@Produces("application/json")
 	@Path("/search/{term}")
 	public String productSearchView (@PathParam("term") String term, @QueryParam("callback") String callback)
-		throws ServiceException, MessageException, TransformationException, PermissionsSecurityException, DispatcherException, MuleException, IOException, ParseException
+		throws ServiceException, MessageException, TransformationException, PermissionsSecurityException, DispatcherException, IOException, ParseException
 	{
 		log.debug("productSearchView(): called with term = " + term);
 		List<ProductSearchResult> products = productIndexService.searchByTitleStart(term, 100);
@@ -75,7 +73,7 @@ public class ProductResource {
 	@Produces("application/json")
 	@Path("/isbnsearch/{term}")
 	public String productIsbnSearchView (@PathParam("term") String term, @QueryParam("callback") String callback)
-		throws ServiceException, MessageException, TransformationException, PermissionsSecurityException, DispatcherException, MuleException, IOException, ParseException
+		throws ServiceException, MessageException, TransformationException, PermissionsSecurityException, DispatcherException, IOException, ParseException
 	{
 		log.debug("productIsbnSearchView(): called with term = " + term);
 
@@ -96,7 +94,7 @@ public class ProductResource {
 	@Produces("application/json")
 	@Path("/loadProductData/{term}")
 	public String loadProductData (@PathParam("term") String term, @QueryParam("callback") String callback)
-			throws ServiceException, MessageException, TransformationException, PermissionsSecurityException, DispatcherException, MuleException, IOException, ParseException
+			throws ServiceException, MessageException, TransformationException, PermissionsSecurityException, DispatcherException, IOException, ParseException
 	{
 		log.debug("loadProductData(): called with term = " + term);
 

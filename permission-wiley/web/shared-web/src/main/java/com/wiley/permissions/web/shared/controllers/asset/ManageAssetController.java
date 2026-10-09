@@ -189,7 +189,7 @@ public class ManageAssetController  extends BaseAnnotatedController {
 		    statuses.add(status);
 		}
 
-		String output = ObjectToJson.doTransform(statuses, null); // throws InitialisationException,
+		String output = ObjectToJson.doTransform(statuses, null); // throws TransformationException
 		log.debug("cancelMultiSubmit(): sending:\r\n" + output);
 
 		response.setContentType("application/json");
@@ -253,8 +253,7 @@ public class ManageAssetController  extends BaseAnnotatedController {
 			}
 		}
 
-		String output = ObjectToJson.doTransform(statuses, null); // throws InitialisationException,
-
+		String output = ObjectToJson.doTransform(statuses, null); // throws TransformationException
 		log.debug("cancelOneSubmit(): sending:\r\n" + output);
 
 		response.setContentType("application/json");

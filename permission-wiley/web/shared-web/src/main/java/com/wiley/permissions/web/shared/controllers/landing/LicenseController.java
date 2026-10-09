@@ -25,7 +25,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.mule.api.lifecycle.InitialisationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -224,7 +223,7 @@ public class LicenseController extends BaseAnnotatedController {
 		@RequestParam("licenseNumber") String licenseNumber,
 		@RequestParam("cwId") int cwId,
 		Model model)
-		throws ServiceException, PersistenceException, ParseException, IOException, InitialisationException, TransformationException
+		throws ServiceException, PersistenceException, ParseException, IOException, TransformationException
 	{
 		licenseNumber = licenseNumber.trim();
 		log.debug("requestLicense(): entered, licenseNumber [" + licenseNumber + "] cwId [" + cwId + "]");

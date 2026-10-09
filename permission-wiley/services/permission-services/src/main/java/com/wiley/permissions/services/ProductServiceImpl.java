@@ -27,7 +27,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.mule.api.MuleException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -646,7 +645,7 @@ public class ProductServiceImpl extends BaseService implements ProductService {
 
 	@Override
 	public List<ProductSearchResult> searchProducts(String searchString, String searchField)
-		throws ServiceException, PermissionsSecurityException, MessageException, DispatcherException, MuleException
+		throws ServiceException, PermissionsSecurityException, MessageException, DispatcherException
 	{
 		if (!searchField.equals("author") && !searchField.equals("title") &&
 			!searchField.equals("isbn") && !searchField.equals("commonWork") &&
@@ -731,7 +730,7 @@ public class ProductServiceImpl extends BaseService implements ProductService {
 
 	@Override
 	public List<ProductSearchResult> searchProducts(String searchString, String searchField, Integer userId, boolean format)
-	throws ServiceException, MessageException, PermissionsSecurityException, DispatcherException, MuleException
+	throws ServiceException, MessageException, PermissionsSecurityException, DispatcherException
 	{
 		List<ProductSearchResult> results = searchProducts (searchString, searchField);
 		if (format) {
@@ -744,7 +743,7 @@ public class ProductServiceImpl extends BaseService implements ProductService {
 		@Override
 		@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 		public List<ProductSearchResult> newsearchProducts(String searchString)
-		throws ServiceException, MessageException, PermissionsSecurityException, DispatcherException, MuleException, Exception
+		throws ServiceException, MessageException, PermissionsSecurityException, DispatcherException, Exception
 		{
 			List<ProductSearchResult> results = new ArrayList<ProductSearchResult>();
 			if (StringUtils.isNotBlank(searchString)) {
@@ -785,7 +784,7 @@ public class ProductServiceImpl extends BaseService implements ProductService {
 
 	@Override
 	public List<ProductSearchResult> advancedSearchProducts(List <LabelValueBean> userSelections, Integer userId, boolean format)
-	throws ServiceException, MessageException, PermissionsSecurityException, DispatcherException, MuleException
+	throws ServiceException, MessageException, PermissionsSecurityException, DispatcherException
 	{
 		List<ProductSearchTerm> terms = new ArrayList<ProductSearchTerm>();
 

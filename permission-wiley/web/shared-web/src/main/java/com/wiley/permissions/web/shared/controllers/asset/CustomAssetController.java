@@ -593,7 +593,7 @@ public class CustomAssetController extends BaseAnnotatedController {
 		ModelAndView mv = new ModelAndView("redirect:/sapp/asset/custom/persist");
 		if (null != source && null == source.getId()) {
 			map.put("url", request.getContextPath() + "/sapp/asset/custom/3rdparty_newsource?sourceName=" + source.getName() + "&auId=" + au.getId());
-			String output = ObjectToJson.doTransform(map, null); // throws InitialisationException,
+			String output = ObjectToJson.doTransform(map, null); // throws TransformationException
 			response.setContentType("application/json");
 			writer.write(output);
 			return null;
@@ -749,7 +749,7 @@ public class CustomAssetController extends BaseAnnotatedController {
 			map.put("url", request.getContextPath() + "/sapp/asset/main/custom/first?auIds= " );
 		}
 
-		String output = ObjectToJson.doTransform(map, null); // throws InitialisationException,
+		String output = ObjectToJson.doTransform(map, null); // throws TransformationException
 		response.setContentType("application/json");
 		writer.write(output);
 	}

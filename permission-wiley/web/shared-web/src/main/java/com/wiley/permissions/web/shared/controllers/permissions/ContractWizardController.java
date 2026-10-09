@@ -917,8 +917,7 @@ public class ContractWizardController extends BaseAnnotatedController {
 				map.put("message", "File too large. Maximum size is " + maximumContractFileSize + " bytes.");
 			}
 		}
-		String output = ObjectToJson.doTransform(map, null); // throws InitialisationException,
-
+		String output = ObjectToJson.doTransform(map, null); // throws TransformationException
 		log.debug("uploadFile(): sending:\r\n" + output);
 
 		response.setContentType("application/json");
@@ -1558,7 +1557,7 @@ public class ContractWizardController extends BaseAnnotatedController {
 		map.put("url", request.getContextPath() + "/sapp/permissions/contract/medium?cwId="
 						+ form.getCwId() + "&contractId=" + contract.getId());
 
-		String output = ObjectToJson.doTransform(map, null);  // throws InitialisationException, TransformationException
+		String output = ObjectToJson.doTransform(map, null);  // throws TransformationException
 
 		log.debug("save(): sending:\r\n" + output);
 
@@ -2369,8 +2368,7 @@ public class ContractWizardController extends BaseAnnotatedController {
 		map.put("url", request.getContextPath() + "/sapp/permissions/contract/medium?cwId="
 				+ form.getCwId() + "&contractId=" + contract.getId());
 
-		String output = ObjectToJson.doTransform(map, null); // throws InitialisationException,
-																	// TransformationException
+		String output = ObjectToJson.doTransform(map, null); // throws TransformationException
 		log.debug("save(): sending:\r\n" + output);
 
 		// Don't set contentLength because String.length() is not the

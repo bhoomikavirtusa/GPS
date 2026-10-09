@@ -28,7 +28,6 @@ import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.BasicClientConnectionManager;
 import org.apache.http.util.EntityUtils;
-import org.mule.api.lifecycle.InitialisationException;
 
 import com.wiley.permissions.common.transformer.JsonToObject;
 import com.wiley.permissions.common.transformer.TransformationException;
@@ -239,7 +238,7 @@ public class RightsLinkClient {
 		return sb.toString();
 	}
 
-	public void testJsonToObject() throws InitialisationException, TransformationException {
+	public void testJsonToObject() throws TransformationException {
 		String json = "{\r\n"
 			+ "\"token_type\": \"bearer\",\r\n"
 			+ "\"expires_in\": 3600,\r\n"

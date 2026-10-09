@@ -8,28 +8,23 @@ import org.apache.commons.logging.LogFactory;
 import org.mule.api.MuleContext;
 import org.mule.api.MuleException;
 import org.mule.api.MuleMessage;
-import org.mule.api.context.MuleContextAware;
-import org.mule.module.client.MuleClient;
-
 import org.mule.api.client.LocalMuleClient;
+import org.mule.api.context.MuleContextAware;
+
 import com.wiley.sf.common.lang.ArgUtil;
 
 /**
- * <p>
- * This is a dispatcher that only dispatches to the local mule instance.
- * </p>
- *
- * @author ttidwell
+ * Local Mule client implementation of {@link ServiceDispatcher}.
+ * org.mule types stay inside this class; callers only see {@link DispatcherException}.
  */
 public class LocalMuleDispatcher implements ServiceDispatcher, MuleContextAware {
 
 	private static final Log log = LogFactory.getLog(LocalMuleDispatcher.class);
 
 	// for Mule 3 this will be the interface (api package) instead of the class
-	//private final MuleClient client;
 	private LocalMuleClient client;
 
-	public LocalMuleDispatcher() throws MuleException
+	public LocalMuleDispatcher()
 	{
 		log.debug("constructor called");
 
@@ -42,7 +37,7 @@ public class LocalMuleDispatcher implements ServiceDispatcher, MuleContextAware 
 	 * @param payload  Should probably be non-null
 	 * @param properties  May be null (converted to empty Map)
 	 */
-	public Object send(String url, Object payload, Map<String, Object> properties) throws MuleException, DispatcherException
+	public Object send(String url, Object payload, Map<String, Object> properties) throws DispatcherException
 	{
 		return send(url, payload, properties, DEFAULT_TIMEOUT);
 	}
@@ -51,10 +46,10 @@ public class LocalMuleDispatcher implements ServiceDispatcher, MuleContextAware 
 	 * @param url  Must be non-null
 	 * @param payload  Should probably be non-null
 	 * @param properties  May be null (converted to empty Map)
-	 * @throws
+	 * @param timeout  Milliseconds
 	 */
 	public Object send(String url, Object payload, Map<String, Object> properties, int timeout)
-			throws MuleException, DispatcherException
+			throws DispatcherException
 	{
 		ArgUtil.notNull(url, "url");
 
@@ -64,18 +59,22 @@ public class LocalMuleDispatcher implements ServiceDispatcher, MuleContextAware 
 
 		Object replyPayload = null;
 
-		//for (String key : properties.keySet()) {
-			//client.setProperty(key, properties.get(key));
-		//}
-
-		MuleMessage replyMsg = client.send(url, payload, properties, timeout);
-		if (replyMsg != null) {
-			if (replyMsg.getExceptionPayload() != null) {
-				throw new DispatcherException("Error Calling Service", replyMsg.getExceptionPayload());
+		try {
+			MuleMessage replyMsg = client.send(url, payload, properties, timeout);
+			if (replyMsg != null) {
+				if (replyMsg.getExceptionPayload() != null) {
+					throw RemoteMuleDispatcher.toDispatcherException("Error Calling Service", replyMsg);
+				}
+				else {
+					replyPayload = replyMsg.getPayload();
+				}
 			}
-			else {
-				replyPayload = replyMsg.getPayload();
-			}
+		}
+		catch (DispatcherException e) {
+			throw e;
+		}
+		catch (MuleException e) {
+			throw new DispatcherException("Error Calling Service: " + url, e);
 		}
 
 		return replyPayload;
@@ -86,7 +85,7 @@ public class LocalMuleDispatcher implements ServiceDispatcher, MuleContextAware 
 	 * @param payload  Should probably be non-null
 	 * @param properties  May be null (converted to empty Map)
 	 */
-	public Object send(OperationType service, Object payload, Map<String, Object> properties) throws MuleException, DispatcherException
+	public Object send(OperationType service, Object payload, Map<String, Object> properties) throws DispatcherException
 	{
 		ArgUtil.notNull(service, "service");
 
@@ -98,9 +97,9 @@ public class LocalMuleDispatcher implements ServiceDispatcher, MuleContextAware 
 	 * @param service  Must be non-null
 	 * @param payload  Should probably be non-null
 	 * @param properties  May be null (converted to empty Map)
-	 * @param timeout  In milliseconds, see Mule documentation for valid values
+	 * @param timeout  Milliseconds
 	 */
-	public Object send(OperationType service, Object payload, Map<String, Object> properties, int timeout) throws MuleException, DispatcherException
+	public Object send(OperationType service, Object payload, Map<String, Object> properties, int timeout) throws DispatcherException
 	{
 		ArgUtil.notNull(service, "service");
 
@@ -112,9 +111,8 @@ public class LocalMuleDispatcher implements ServiceDispatcher, MuleContextAware 
 	 * @param url  Must be non-null
 	 * @param payload  Should probably be non-null
 	 * @param properties  May be null (converted to empty Map)
-	 * @throws MuleException
 	 */
-	public void dispatch(String url, Object payload, Map<String, Object> properties) throws MuleException
+	public void dispatch(String url, Object payload, Map<String, Object> properties) throws DispatcherException
 	{
 		ArgUtil.notNull(url, "url");
 
@@ -122,33 +120,30 @@ public class LocalMuleDispatcher implements ServiceDispatcher, MuleContextAware 
 			properties = new HashMap<String, Object>();
 		}
 
-		//for (String key : properties.keySet())
-		////{
-			//client.setProperty(key, properties.get(key));
-		//}
-
-		client.dispatch(url, payload, properties);
+		try {
+			client.dispatch(url, payload, properties);
+		}
+		catch (MuleException e) {
+			throw new DispatcherException("Error Dispatching Service: " + url, e);
+		}
 	}
 
 	/**
 	 * @param service  Must be non-null
 	 * @param payload  Should probably be non-null
 	 * @param properties  May be null (converted to empty Map)
-	 * @throws MuleException
 	 */
 	public void dispatch(OperationType service, Object payload, Map<String, Object> properties)
-			throws MuleException
+			throws DispatcherException
 	{
 		ArgUtil.notNull(service, "service");
 
 		dispatch(service.getEndpoint(), payload, properties);
 	}
 
-	// smarkoff - for Mule 3
 	/** Implements MuleContextAware interface. */
 	public void setMuleContext(MuleContext muleContext) {
 		log.debug("setMuleContext() called");
-		// uncomment next line for Mule 3
 		client = muleContext.getClient();
 	}
 }
