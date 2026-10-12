@@ -13,7 +13,8 @@
 			classpath:conf/spring/persistence-context.xml,
 			classpath:conf/spring/services-spring-context.xml,
 			/WEB-INF/spring/permissions-application-context.xml,
-			/WEB-INF/spring/shared-security-context.xml
+			/WEB-INF/spring/shared-security-context.xml,
+			classpath:conf/spring/camel-web-spring-context.xml
 		</param-value>
 	</context-param>
 	

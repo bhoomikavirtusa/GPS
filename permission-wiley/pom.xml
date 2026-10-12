@@ -15,6 +15,8 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 		<module>common</module>
 		<module>services</module>
 		<module>message</module>
+		<!-- Section 6: Camel WEB (inside Tomcat WARs). After message so pe-client XSL is available. -->
+		<module>integration</module>
 		<module>web</module>
 		<module>test</module>
 	</modules>
@@ -25,6 +27,8 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 		<spring-security.version>5.8.13</spring-security.version>
 		<junit.version>4.11</junit.version>
 		<mule.version>3.8.1</mule.version>
+		<!-- Section 6: Camel 3.22.x only (javax / Spring 5). Do not bump to Camel 4. -->
+		<camel.version>3.22.4</camel.version>
 		<!-- Phase 8: this now drives permission-validator's Tomcat/JDK21 rule engine only.
 		     Mule (JDK 8) keeps its own frozen Drools 4.0.7 jars under $PERMISSIONS_HOME/mule -
 		     see phase8-mule-drools-decision. Never redeploy that dir from this version. -->

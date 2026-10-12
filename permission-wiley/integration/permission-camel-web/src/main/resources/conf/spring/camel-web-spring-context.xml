@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:camel="http://camel.apache.org/schema/spring"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://camel.apache.org/schema/spring
+		http://camel.apache.org/schema/spring/camel-spring.xsd
+	">
+
+	<!--
+		Section 6 Camel WEB. Loaded by Tomcat WARs only (not by Mule).
+		gps.camel.web.enabled=false (default): CamelContext does not start; FactoryBean keeps RemoteMuleDispatcher.
+		gps.camel.web.enabled=true: Camel routes start; same bean id becomes CamelServiceDispatcher.
+	-->
+
+	<bean id="camelWebRoutes" class="com.wiley.permissions.camel.web.CamelWebRoutes">
+		<property name="peHost" value="${core.ws.host}" />
+		<property name="pePort" value="${core.ws.port}" />
+		<property name="peTimeoutMs" value="${core.ws.timeout}" />
+		<property name="compCopyUrl" value="${comp.copy.request.url}" />
+		<property name="compCopyAuUrl" value="${comp.copy.request.au.url}" />
+		<property name="muleHostBind" value="${mule.host.bind}" />
+		<property name="localPePort" value="63081" />
+	</bean>
+
+	<camel:camelContext id="gpsCamelWebContext" autoStartup="${gps.camel.web.enabled:false}">
+		<camel:template id="camelProducerTemplate" />
+		<camel:routeBuilder ref="camelWebRoutes" />
+	</camel:camelContext>
+
+	<!-- Overrides global-spring-context remoteWebDispatcher (Tomcat only). -->
+	<bean id="remoteWebDispatcher" class="com.wiley.permissions.camel.web.RemoteWebDispatcherFactoryBean"
+		depends-on="gpsCamelWebContext">
+		<property name="camelWebEnabled" value="${gps.camel.web.enabled:false}" />
+		<property name="muleServerURL" value="http://localhost:60504" />
+		<property name="producerTemplate" ref="camelProducerTemplate" />
+	</bean>
+
+	<!-- REST resource beans (same ids as resources-spring-context; not previously loaded by Tomcat) -->
+	<bean id="resources.ProductResource"
+		class="com.wiley.permissions.resources.ProductResource">
+		<property name="productService" ref="services.ProductService"/>
+		<property name="productIndexService" ref="services.ProductIndexService"/>
+	</bean>
+
+	<bean id="resources.UserResource"
+		class="com.wiley.permissions.resources.UserResource">
+		<property name="securityService" ref="services.SecurityService"/>
+		<property name="userRepository" ref="repository.UserRepository" />
+	</bean>
+
+	<bean id="resources.AssetResource"
+		class="com.wiley.permissions.resources.AssetResource">
+		<property name="assetUseService" ref="services.AssetUseService"/>
+		<property name="assetUseIndexService" ref="services.AssetUseIndexService" />
+		<property name="commonWorkService" ref="services.CommonWorkService"/>
+		<property name="assetUseRepository" ref="repository.AssetUseRepository"/>
+		<property name="assetRepository" ref="repository.AssetRepository"/>
+		<property name="commonWorkRepository" ref="repository.CommonWorkRepository"/>
+		<property name="userRepository" ref="repository.UserRepository" />
+		<property name="cachedData" ref="app.ReferenceDataCache"/>
+	</bean>
+
+	<bean id="resources.SourceResource"
+		class="com.wiley.permissions.resources.SourceResource">
+		<property name="sourceRepository" ref="repository.SourceRepository"/>
+	</bean>
+
+	<bean id="camelWebRestServer" class="com.wiley.permissions.camel.web.CamelWebRestServer"
+		depends-on="gpsCamelWebContext">
+		<property name="enabled" value="${gps.camel.web.enabled:false}" />
+		<property name="bindAddress" value="${mule.host.bind}" />
+		<property name="port" value="${rest.port.internal}" />
+		<property name="productResource" ref="resources.ProductResource" />
+		<property name="userResource" ref="resources.UserResource" />
+		<property name="assetResource" ref="resources.AssetResource" />
+		<property name="sourceResource" ref="resources.SourceResource" />
+	</bean>
+
+</beans>

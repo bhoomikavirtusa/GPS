@@ -31,6 +31,8 @@
 		</property>
 	</bean>
 
+	<!-- Mule and Tomcat both load this file. Tomcat's camel-web-spring-context.xml
+	     overrides this bean id when gps.camel.web.enabled is set. -->
 	<bean id="remoteWebDispatcher" class="com.wiley.permissions.common.dispatcher.RemoteMuleDispatcher">
 		<property name="serverURL" value="http://localhost:60504" />
 	</bean>

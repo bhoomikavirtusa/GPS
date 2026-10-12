@@ -218,6 +218,13 @@
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
 
+		<!-- Section 6: Camel WEB inside Tomcat -->
+		<dependency>
+			<groupId>com.wiley.permissions.integration</groupId>
+			<artifactId>permission-camel-web</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+
 		<dependency>
 			<groupId>com.wiley.permissions.services</groupId>
 			<artifactId>permission-validator</artifactId>
